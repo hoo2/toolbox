@@ -131,5 +131,7 @@ void LeakyInt_Init (LeakyInt_t* li, float l) {
  * \return           The filtered value.
  */
 float LeakyInt (LeakyInt_t* li, float value) {
+   if (isnan (value))
+      return (li->out = 0);
    return (li->out = li->out*li->lambda + (1-li->lambda)*value);
 }
