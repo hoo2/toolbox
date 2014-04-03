@@ -33,7 +33,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-
+#include <math.h>
 
 /* =================== Data types ===================== */
 // Data type for Buffer filtering
