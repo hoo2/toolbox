@@ -820,7 +820,7 @@ int vsnprintf(char *pdst, size_t length, const char *pfrm, va_list ap)
  * \param ...     Other arguments
  *
  * \return  The number of characters written.
- */
+ *
 int snprintf(char *pString, size_t length, const char *pfrmt, ...)
 {
    va_list ap;
@@ -832,7 +832,7 @@ int snprintf(char *pString, size_t length, const char *pfrmt, ...)
 
    return rc;
 }
-
+ */
 
 /*!
  * \brief
