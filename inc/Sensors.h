@@ -67,8 +67,8 @@ Temp_t SEN_J_Type_mV2Temp (int Vadc, float g, int Vrefadc, float Vref);
 
 Temp_t SEN_PT100 (Res_t r);
 Temp_t SEN_PT1000 (Res_t r);
-Temp_t SEN_KTY81_121 (Res_t r);
-Temp_t SEN_KTY81_122 (Res_t r);
+Temp_t SEN_KTY8x_121 (Res_t r);
+Temp_t SEN_KTY8x_122 (Res_t r);
 Temp_t SEN_KTY11_6 (Res_t r);
 Temp_t SEN_NTC10k (Res_t r);
 

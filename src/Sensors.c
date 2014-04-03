@@ -286,12 +286,12 @@ Temp_t SEN_PT1000 (Res_t r)
     return (Temp_t)Get_PC_SensorValue(r/10, PT100x_RES, PT100x_TEMP);
 }
 
-Temp_t SEN_KTY81_121 (Res_t r)
+Temp_t SEN_KTY8x_121 (Res_t r)
 {
     return (Temp_t)Get_PC_SensorValue(r, KTY81_121_RES, KTYx_x_TEMP);
 }
 
-Temp_t SEN_KTY81_122 (Res_t r)
+Temp_t SEN_KTY8x_122 (Res_t r)
 {
     return (Temp_t)Get_PC_SensorValue(r, KTY81_122_RES, KTYx_x_TEMP);
 }
