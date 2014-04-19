@@ -1,1 +1,9 @@
-/.project
+# Basic binary
+*/obj/*
+*/bin/*
+*/exe/*
+*.a
+*.o
+
+# add examples obj folder
+*/example/pkernel_demo/*
