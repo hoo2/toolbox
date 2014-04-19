@@ -442,7 +442,7 @@ static void _aes_create_tables (void)
  */
 void aes_key_deinit (aes_t *ctx)
 {
-   memset (&ctx, 0, sizeof (aes_t));
+   memset (ctx, 0, sizeof (aes_t));
 }
 
 /*!
