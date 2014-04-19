@@ -1,4 +1,4 @@
-/**
+/*!
  * \file sha2.h
  * \brief
  *    SHA-224 and SHA-256 cryptographic hash function
@@ -62,7 +62,7 @@ sha2_t;
  * \param sz      The lengh of the hash.
  *    \arg        SHA2_224
  *    \arg        SHA2_256
- * \return        zero on success, ono zero on error.
+ * \return        zero on success, non zero on error.
  */
 int sha2 (uint8_t *input, size_t ilen, uint8_t output[32], sha2_size sz);
 

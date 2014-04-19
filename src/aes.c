@@ -456,7 +456,7 @@ void aes_key_deinit (aes_t *ctx)
  *    \arg        AES_192
  *    \arg        AES_256
  *
- * \return        zero on success, ono zero on error.
+ * \return        zero on success, non zero on error.
  */
 int aes_key_init (aes_t *ctx, uint8_t *key, aes_size size)
 {

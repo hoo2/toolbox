@@ -1,4 +1,4 @@
-/**
+/*!
  * \file sha2.c
  * \brief
  *    SHA-224 and SHA-256 cryptographic hash function
@@ -327,10 +327,10 @@ static void sha2_post (sha2_t *ctx, uint8_t out[32])
  * \param input   buffer holding the  data
  * \param ilen    length of the input data
  * \param output  SHA-224/256 checksum result
- * \param sz      The lengh of the hash.
+ * \param sz      The length of the hash.
  *    \arg        SHA2_224
  *    \arg        SHA2_256
- * \return        zero on success, ono zero on error.
+ * \return        zero on success, non zero on error.
  */
 int sha2 (uint8_t *in, size_t ilen, uint8_t out[32], sha2_size sz)
 {
