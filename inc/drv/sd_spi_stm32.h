@@ -30,10 +30,11 @@
 #endif
 
 #include <sys/types.h>
-#include "stm32f10x.h"
-#include "stm32f10x_clock.h"
-#include "stm32f10x_spi.h"
-#include "diskio.h"
+#include <sys/diskio.h>
+#include <stm32f10x.h>
+#include <stm32f10x_clock.h>
+#include <stm32f10x_spi.h>
+
 
 /* =================== User Defines ===================== */
 

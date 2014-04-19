@@ -31,9 +31,9 @@
 extern "C" {
 #endif
 
+#include <std/printf.h>
+#include <std/stime.h>
 #include <stdint.h>
-#include <printf.h>
-#include "stime.h"
 #include <ctype.h>
 
 /* ========================== User Defines ============================ */

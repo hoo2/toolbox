@@ -30,7 +30,7 @@
 extern "C" {
 #endif
 
-#include <i2c_pol.h>
+#include <drv/i2c_pol.h>
 
 /* ================   General Defines   ====================*/
 #define EE_WRITE     (0x0)

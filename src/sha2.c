@@ -1,9 +1,12 @@
 /**
  * \file sha2.c
- * \brief SHA-224 and SHA-256 cryptographic hash function
+ * \brief
+ *    SHA-224 and SHA-256 cryptographic hash function
  *
- * Copyright (C) 2013 Houtouridis Christos <houtouridis.ch@gmail.com>
- * All rights reserved.
+ * This file is part of toolbox
+ *
+ * Copyright (C) 2006-2010, Brainspark B.V.
+ * Copyright (C) 2014 Houtouridis Christos (http://www.houtouridis.net)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -22,32 +25,32 @@
  * http://csrc.nist.gov/publications/fips/fips180-2/fips180-2.pdf
  *
  */
-#include "sha2.h"
+#include <crypt/sha2.h>
 
 /*
  * 32-bit integer manipulation macros (big endian)
  */
 #ifndef GET_UINT32_BE
-#define GET_UINT32_BE(n,b,i)                            \
-{                                                       \
-    (n) = ( (uint32_t) (b)[(i)    ] << 24 )             \
-        | ( (uint32_t) (b)[(i) + 1] << 16 )             \
-        | ( (uint32_t) (b)[(i) + 2] <<  8 )             \
-        | ( (uint32_t) (b)[(i) + 3]       );            \
+#define GET_UINT32_BE(n,b,i)                       \
+{                                                  \
+    (n) = ( (uint32_t) (b)[(i)    ] << 24 )        \
+        | ( (uint32_t) (b)[(i) + 1] << 16 )        \
+        | ( (uint32_t) (b)[(i) + 2] <<  8 )        \
+        | ( (uint32_t) (b)[(i) + 3]       );       \
 }
 #endif
 
 #ifndef PUT_UINT32_BE
-#define PUT_UINT32_BE(n,b,i)                            \
-{                                                       \
-    (b)[(i)    ] = (unsigned char) ( (n) >> 24 );       \
-    (b)[(i) + 1] = (unsigned char) ( (n) >> 16 );       \
-    (b)[(i) + 2] = (unsigned char) ( (n) >>  8 );       \
-    (b)[(i) + 3] = (unsigned char) ( (n)       );       \
+#define PUT_UINT32_BE(n,b,i)                       \
+{                                                  \
+    (b)[(i)    ] = (uint8_t) ( (n) >> 24 );        \
+    (b)[(i) + 1] = (uint8_t) ( (n) >> 16 );        \
+    (b)[(i) + 2] = (uint8_t) ( (n) >>  8 );        \
+    (b)[(i) + 3] = (uint8_t) ( (n)       );        \
 }
 #endif
 
-#define  SHR(x,n) ((x & 0xFFFFFFFF) >> n)
+#define SHR(x,n)  ((x & 0xFFFFFFFF) >> n)
 #define ROTR(x,n) (SHR(x,n) | (x << (32 - n)))
 
 #define S0(x) (ROTR(x, 7) ^ ROTR(x,18) ^  SHR(x, 3))
@@ -61,15 +64,16 @@
 
 #define R(t)                                    \
 (                                               \
-    W[t] = S1(W[t -  2]) + W[t -  7] +          \
-           S0(W[t - 15]) + W[t - 16]            \
+   W[t] = S1(W[t -  2]) + W[t -  7] +           \
+          S0(W[t - 15]) + W[t - 16]             \
 )
 
 #define P(a,b,c,d,e,f,g,h,x,K)                  \
 {                                               \
-    temp1 = h + S3(e) + F1(e,f,g) + K + x;      \
-    temp2 = S2(a) + F0(a,b,c);                  \
-    d += temp1; h = temp1 + temp2;              \
+   temp1 = h + S3(e) + F1(e,f,g) + K + x;       \
+   temp2 = S2(a) + F0(a,b,c);                   \
+   d += temp1;                                  \
+   h = temp1 + temp2;                           \
 }
 
 static const unsigned char sha2_padding[64] =
@@ -80,7 +84,6 @@ static const unsigned char sha2_padding[64] =
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-
 #define A      (ctx->state[0])
 #define B      (ctx->state[1])
 #define C      (ctx->state[2])
@@ -90,26 +93,34 @@ static const unsigned char sha2_padding[64] =
 #define G      (ctx->state[6])
 #define H      (ctx->state[7])
 
-static void sha2_process( sha2_context *ctx, const uint8_t data[64] )
+
+// Static functions
+static void sha2_pre (sha2_t *ctx, sha2_size sz);
+static void sha2_core (sha2_t* ctx, const uint8_t data[64]);
+static void sha2_update (sha2_t *ctx, const uint8_t *input, size_t ilen);
+static void sha2_post (sha2_t *ctx, uint8_t output[32]);
+
+
+static void sha2_core (sha2_t* ctx, const uint8_t data[64])
 {
    uint32_t temp1, temp2, W[64];
 
-   GET_UINT32_BE( W[ 0], data,  0 );
-   GET_UINT32_BE( W[ 1], data,  4 );
-   GET_UINT32_BE( W[ 2], data,  8 );
-   GET_UINT32_BE( W[ 3], data, 12 );
-   GET_UINT32_BE( W[ 4], data, 16 );
-   GET_UINT32_BE( W[ 5], data, 20 );
-   GET_UINT32_BE( W[ 6], data, 24 );
-   GET_UINT32_BE( W[ 7], data, 28 );
-   GET_UINT32_BE( W[ 8], data, 32 );
-   GET_UINT32_BE( W[ 9], data, 36 );
-   GET_UINT32_BE( W[10], data, 40 );
-   GET_UINT32_BE( W[11], data, 44 );
-   GET_UINT32_BE( W[12], data, 48 );
-   GET_UINT32_BE( W[13], data, 52 );
-   GET_UINT32_BE( W[14], data, 56 );
-   GET_UINT32_BE( W[15], data, 60 );
+   GET_UINT32_BE (W[ 0], data,  0);
+   GET_UINT32_BE (W[ 1], data,  4);
+   GET_UINT32_BE (W[ 2], data,  8);
+   GET_UINT32_BE (W[ 3], data, 12);
+   GET_UINT32_BE (W[ 4], data, 16);
+   GET_UINT32_BE (W[ 5], data, 20);
+   GET_UINT32_BE (W[ 6], data, 24);
+   GET_UINT32_BE (W[ 7], data, 28);
+   GET_UINT32_BE (W[ 8], data, 32);
+   GET_UINT32_BE (W[ 9], data, 36);
+   GET_UINT32_BE (W[10], data, 40);
+   GET_UINT32_BE (W[11], data, 44);
+   GET_UINT32_BE (W[12], data, 48);
+   GET_UINT32_BE (W[13], data, 52);
+   GET_UINT32_BE (W[14], data, 56);
+   GET_UINT32_BE (W[15], data, 60);
 
    P( A, B, C, D, E, F, G, H, W[ 0], 0x428A2F98 );
    P( H, A, B, C, D, E, F, G, W[ 1], 0x71374491 );
@@ -188,39 +199,43 @@ static void sha2_process( sha2_context *ctx, const uint8_t data[64] )
 
 
 /*!
- * \brief          SHA-256 context setup
+ * \brief
+ *    SHA-256 context setup
  *
- * \param ctx      context to be initialized
- * \param is224    0 = use SHA256, 1 = use SHA224
+ * \param ctx  context to be initialized
+ * \param sz   The lengh of the hash.
+ *    \arg     SHA2_224
+ *    \arg     SHA2_256
  */
-static void sha2_starts( sha2_context *ctx, int is224 )
+static void sha2_pre (sha2_t *ctx, sha2_size sz)
 {
-   ctx->is224 = is224;
+   ctx->sz = sz;
+   ctx->total[0] = ctx->total[1] = 0;
 
-   ctx->total[0] = 0;
-   ctx->total[1] = 0;
-
-   if( ctx->is224  ) // SHA-224
+   switch (sz)
    {
-      A = 0xC1059ED8;
-      B = 0x367CD507;
-      C = 0x3070DD17;
-      D = 0xF70E5939;
-      E = 0xFFC00B31;
-      F = 0x68581511;
-      G = 0x64F98FA7;
-      H = 0xBEFA4FA4;
-   }
-   else              // SHA-256
-   {
-      A = 0x6A09E667;
-      B = 0xBB67AE85;
-      C = 0x3C6EF372;
-      D = 0xA54FF53A;
-      E = 0x510E527F;
-      F = 0x9B05688C;
-      G = 0x1F83D9AB;
-      H = 0x5BE0CD19;
+      case SHA2_224:
+         A = 0xC1059ED8;
+         B = 0x367CD507;
+         C = 0x3070DD17;
+         D = 0xF70E5939;
+         E = 0xFFC00B31;
+         F = 0x68581511;
+         G = 0x64F98FA7;
+         H = 0xBEFA4FA4;
+         break;
+      case SHA2_256:
+         A = 0x6A09E667;
+         B = 0xBB67AE85;
+         C = 0x3C6EF372;
+         D = 0xA54FF53A;
+         E = 0x510E527F;
+         F = 0x9B05688C;
+         G = 0x1F83D9AB;
+         H = 0x5BE0CD19;
+         break;
+      default:
+         break;
    }
 }
 
@@ -231,7 +246,7 @@ static void sha2_starts( sha2_context *ctx, int is224 )
  * \param input    buffer holding the  data
  * \param ilen     length of the input data
  */
-static void sha2_update( sha2_context *ctx, const uint8_t *input, size_t ilen )
+static void sha2_update (sha2_t *ctx, const uint8_t *in, size_t ilen)
 {
    size_t fill;
    uint32_t left;
@@ -250,31 +265,32 @@ static void sha2_update( sha2_context *ctx, const uint8_t *input, size_t ilen )
 
    if (left && ilen>=fill)
    {
-      memcpy( (void*)(ctx->buffer + left), (void*)input, fill );
-      sha2_process(ctx, ctx->buffer);
-      input += fill;
+      memcpy ((void*)(ctx->buffer + left), (void*)in, fill );
+      sha2_core (ctx, ctx->buffer);
+      in += fill;
       ilen  -= fill;
       left = 0;
    }
 
    while (ilen>=64)
    {
-      sha2_process( ctx, input );
-      input += 64;
+      sha2_core (ctx, in);
+      in += 64;
       ilen  -= 64;
    }
 
    if (ilen>0)
-      memcpy( (void*)(ctx->buffer + left), (void*)input, ilen );
+      memcpy ((void*)(ctx->buffer + left), (void*)in, ilen);
 }
 
 /*!
- * \brief          SHA-256 final digest
+ * \brief
+ *    SHA-256 final digest
  *
  * \param ctx      SHA-256 context
  * \param output   SHA-224/256 checksum result
  */
-static void sha2_finish( sha2_context *ctx, uint8_t output[32] )
+static void sha2_post (sha2_t *ctx, uint8_t out[32])
 {
    uint32_t last, padn;
    uint32_t high, low;
@@ -283,42 +299,51 @@ static void sha2_finish( sha2_context *ctx, uint8_t output[32] )
    high = ( ctx->total[0] >> 29 ) | ( ctx->total[1] <<  3 );
    low  = ( ctx->total[0] <<  3 );
 
-   PUT_UINT32_BE( high, msglen, 0 );
-   PUT_UINT32_BE( low,  msglen, 4 );
+   PUT_UINT32_BE (high, msglen, 0);
+   PUT_UINT32_BE (low,  msglen, 4);
 
    last = ctx->total[0] & 0x3F;
    padn = ( last < 56 ) ? ( 56 - last ) : ( 120 - last );
 
-   sha2_update( ctx, (uint8_t *) sha2_padding, padn );
-   sha2_update( ctx, msglen, 8 );
+   sha2_update (ctx, (uint8_t *) sha2_padding, padn);
+   sha2_update (ctx, msglen, 8);
 
-   PUT_UINT32_BE( ctx->state[0], output,  0 );
-   PUT_UINT32_BE( ctx->state[1], output,  4 );
-   PUT_UINT32_BE( ctx->state[2], output,  8 );
-   PUT_UINT32_BE( ctx->state[3], output, 12 );
-   PUT_UINT32_BE( ctx->state[4], output, 16 );
-   PUT_UINT32_BE( ctx->state[5], output, 20 );
-   PUT_UINT32_BE( ctx->state[6], output, 24 );
+   PUT_UINT32_BE (ctx->state[0], out,  0);
+   PUT_UINT32_BE (ctx->state[1], out,  4);
+   PUT_UINT32_BE (ctx->state[2], out,  8);
+   PUT_UINT32_BE (ctx->state[3], out, 12);
+   PUT_UINT32_BE (ctx->state[4], out, 16);
+   PUT_UINT32_BE (ctx->state[5], out, 20);
+   PUT_UINT32_BE (ctx->state[6], out, 24);
 
-   if (ctx->is224 == 0)
-      PUT_UINT32_BE( ctx->state[7], output, 28 );
+   if (ctx->sz == SHA2_256)
+      PUT_UINT32_BE (ctx->state[7], out, 28);
 }
 
 /*!
- * \brief          Output = SHA-256( input buffer )
+ * \brief
+ *    Output = SHA2 (input buffer)
  *
- * \param input    buffer holding the  data
- * \param ilen     length of the input data
- * \param output   SHA-224/256 checksum result
- * \param is224    0 = use SHA256, 1 = use SHA224
+ * \param input   buffer holding the  data
+ * \param ilen    length of the input data
+ * \param output  SHA-224/256 checksum result
+ * \param sz      The lengh of the hash.
+ *    \arg        SHA2_224
+ *    \arg        SHA2_256
+ * \return        zero on success, ono zero on error.
  */
-void sha2( uint8_t *input, size_t ilen, uint8_t output[32], int is224 )
+int sha2 (uint8_t *in, size_t ilen, uint8_t out[32], sha2_size sz)
 {
-   sha2_context ctx;
+   sha2_t ctx;
 
-   sha2_starts (&ctx, is224);
-   sha2_update (&ctx, input, ilen);
-   sha2_finish (&ctx, output);
+   if ( !(sz == SHA2_224 || sz == SHA2_256) )
+      return 1;
+   sha2_pre (&ctx, sz);
+   sha2_update (&ctx, in, ilen);
+   sha2_post (&ctx, out);
 
-   memset (&ctx, 0, sizeof (sha2_context));
+   // Clear memory for security
+   memset (&ctx, 0, sizeof (sha2_t));
+
+   return 0;
 }

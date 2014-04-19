@@ -1,10 +1,12 @@
 /*!
- * \file
- *    aes.c
+ * \file aes.c
  * \brief
  *    FIPS-197 compliant AES implementation
  *
- * Copyright (C) 2013 Houtouridis Christos <houtouridis.ch@gmail.com>
+ * This file is part of toolbox
+ *
+ * Copyright (C) 2001-2004  Christophe Devine
+ * Copyright (C) 2014 Houtouridis Christos (http://www.houtouridis.net)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -21,7 +23,7 @@
  *
  */
 
-#include "aes.h"
+#include <crypt/aes.h>
 
 
 //#define RAM_TABLES
@@ -31,18 +33,18 @@
  */
 #define GET_UINT32(n,b,i)                      \
 {                                              \
-   (n) = ( (uint32) (b)[(i)    ] << 24 )       \
-       | ( (uint32) (b)[(i) + 1] << 16 )       \
-       | ( (uint32) (b)[(i) + 2] <<  8 )       \
-       | ( (uint32) (b)[(i) + 3]       );      \
+   (n) = ( (uint32_t) (b)[(i)    ] << 24 )     \
+       | ( (uint32_t) (b)[(i) + 1] << 16 )     \
+       | ( (uint32_t) (b)[(i) + 2] <<  8 )     \
+       | ( (uint32_t) (b)[(i) + 3]       );    \
 }  /*!< Get an unsigned integer 32 value from array \b b */
 
 #define PUT_UINT32(n,b,i)                      \
 {                                              \
-   (b)[(i)    ] = (uint8) ( (n) >> 24 );       \
-   (b)[(i) + 1] = (uint8) ( (n) >> 16 );       \
-   (b)[(i) + 2] = (uint8) ( (n) >>  8 );       \
-   (b)[(i) + 3] = (uint8) ( (n)       );       \
+   (b)[(i)    ] = (uint8_t) ( (n) >> 24 );     \
+   (b)[(i) + 1] = (uint8_t) ( (n) >> 16 );     \
+   (b)[(i) + 2] = (uint8_t) ( (n) >>  8 );     \
+   (b)[(i) + 3] = (uint8_t) ( (n)       );     \
 }  /*!< Put an unsigned integer 32 value to array \b b */
 
 
@@ -67,7 +69,7 @@
 /*!
  *  Forward S-box table
  */
-static const uint32 FSbox[256] =
+static const uint32_t FSbox[256] =
 {
    0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5,
    0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,
@@ -173,19 +175,19 @@ static const uint32 FSbox[256] =
    _EX(7B,B0,B0,CB), _EX(A8,54,54,FC), _EX(6D,BB,BB,D6), _EX(2C,16,16,3A)
 
 #define _EX(a,b,c,d) 0x##a##b##c##d
-static const uint32 FT0[256] = { FWDT };  /*!< Forward table 0 a->b->c->d */
+static const uint32_t FT0[256] = { FWDT };  /*!< Forward table 0 a->b->c->d */
 #undef _EX
 
 #define _EX(a,b,c,d) 0x##d##a##b##c
-static const uint32 FT1[256] = { FWDT };  /*!< Forward table 1 d->a->b->c */
+static const uint32_t FT1[256] = { FWDT };  /*!< Forward table 1 d->a->b->c */
 #undef _EX
 
 #define _EX(a,b,c,d) 0x##c##d##a##b
-static const uint32 FT2[256] = { FWDT };  /*!< Forward table 2 c->d->a->b */
+static const uint32_t FT2[256] = { FWDT };  /*!< Forward table 2 c->d->a->b */
 #undef _EX
 
 #define _EX(a,b,c,d) 0x##b##c##d##a
-static const uint32 FT3[256] = { FWDT };  /*!< Forward table 3 b->c->d->a */
+static const uint32_t FT3[256] = { FWDT };  /*!< Forward table 3 b->c->d->a */
 #undef _EX
 
 #undef FWDT
@@ -193,7 +195,7 @@ static const uint32 FT3[256] = { FWDT };  /*!< Forward table 3 b->c->d->a */
 /*!
  * Reverse S-box table
  */
-static const uint32 RSbox[256] =
+static const uint32_t RSbox[256] =
 {
    0x52, 0x09, 0x6A, 0xD5, 0x30, 0x36, 0xA5, 0x38,
    0xBF, 0x40, 0xA3, 0x9E, 0x81, 0xF3, 0xD7, 0xFB,
@@ -299,19 +301,19 @@ static const uint32 RSbox[256] =
    _EX(7B,CB,84,61), _EX(D5,32,B6,70), _EX(48,6C,5C,74), _EX(D0,B8,57,42)
 
 #define _EX(a,b,c,d) 0x##a##b##c##d
-static const uint32 RT0[256] = { RVST };  /*!< Reverse table 0 a->b->c->d */
+static const uint32_t RT0[256] = { RVST };  /*!< Reverse table 0 a->b->c->d */
 #undef _EX
 
 #define _EX(a,b,c,d) 0x##d##a##b##c
-static const uint32 RT1[256] = { RVST };  /*!< Reverse table 1 d->a->b->c */
+static const uint32_t RT1[256] = { RVST };  /*!< Reverse table 1 d->a->b->c */
 #undef _EX
 
 #define _EX(a,b,c,d) 0x##c##d##a##b
-static const uint32 RT2[256] = { RVST };  /*!< Reverse table 2 c->d->a->b */
+static const uint32_t RT2[256] = { RVST };  /*!< Reverse table 2 c->d->a->b */
 #undef _EX
 
 #define _EX(a,b,c,d) 0x##b##c##d##a
-static const uint32 RT3[256] = { RVST };  /*!< Reverse table 1 b->c->d->a */
+static const uint32_t RT3[256] = { RVST };  /*!< Reverse table 1 b->c->d->a */
 #undef _EX
 
 #undef RVST
@@ -319,7 +321,7 @@ static const uint32 RT3[256] = { RVST };  /*!< Reverse table 1 b->c->d->a */
 /*!
  * Round constants table
  */
-static const uint32 RCON[10] =
+static const uint32_t RCON[10] =
 {
     0x01000000,
     0x02000000,
@@ -341,22 +343,22 @@ static const uint32 RCON[10] =
  *    the init routine is \sa _aes_create_tables()
  */
 
-uint32 FSbox[256];   /*!< Forward S-box table */
-uint32 FT0[256];     /*!< Forward table 0 */
-uint32 FT1[256];     /*!< Forward table 1 */
-uint32 FT2[256];     /*!< Forward table 2 */
-uint32 FT3[256];     /*!< Forward table 3 */
+uint32_t FSbox[256];   /*!< Forward S-box table */
+uint32_t FT0[256];     /*!< Forward table 0 */
+uint32_t FT1[256];     /*!< Forward table 1 */
+uint32_t FT2[256];     /*!< Forward table 2 */
+uint32_t FT3[256];     /*!< Forward table 3 */
 
 /*
  * Reverse S-box & tables
  */
-uint32 RSbox[256];   /*!< Reverse S-box table */
-uint32 RT0[256];     /*!< Reverse table 0 */
-uint32 RT1[256];     /*!< Reverse table 1 */
-uint32 RT2[256];     /*!< Reverse table 2 */
-uint32 RT3[256];     /*!< Reverse table 3 */
+uint32_t RSbox[256];   /*!< Reverse S-box table */
+uint32_t RT0[256];     /*!< Reverse table 0 */
+uint32_t RT1[256];     /*!< Reverse table 1 */
+uint32_t RT2[256];     /*!< Reverse table 2 */
+uint32_t RT3[256];     /*!< Reverse table 3 */
 
-uint32 RCON[10];     /*!< Round constants */
+uint32_t RCON[10];     /*!< Round constants */
 
 static int _init_flag = 1;    /*!< RAM-Tables initialization flag */
 
@@ -368,9 +370,9 @@ static int _init_flag = 1;    /*!< RAM-Tables initialization flag */
 static void _aes_create_tables (void)
 {
    int i;
-   uint8 x, y;
-   uint8 pow[256];
-   uint8 log[256];
+   uint8_t x, y;
+   uint8_t pow[256];
+   uint8_t log[256];
 
    /* compute pow and log tables over GF(2^8) */
    for( i=0, x=1 ; i<256 ; ++i, x^=XTIME(x) )
@@ -433,15 +435,36 @@ static void _aes_create_tables (void)
 }
 #endif
 
+/*!
+ * \brief
+ *    Clears the AES context memory for security
+ * \return  none
+ */
+void aes_key_deinit (aes_t *ctx)
+{
+   memset (&ctx, 0, sizeof (aes_t));
+}
 
-// AES key scheduling routine
-int aes_set_key( aes_context *ctx, uint8 *key, int nbits )
+/*!
+ * \brief
+ *    AES key scheduling routine.
+ *
+ * \param ctx     the active aes context data to fill.
+ * \param key     pointer to key
+ * \param size    AES size
+ *    \arg        AES_128
+ *    \arg        AES_192
+ *    \arg        AES_256
+ *
+ * \return        zero on success, ono zero on error.
+ */
+int aes_key_init (aes_t *ctx, uint8_t *key, aes_size size)
 {
    int i;
-   uint32 *RK, *DK;  // Pointer to round and decryption key tables
+   uint32_t *RK, *DK;  // Pointer to round and decryption key tables
 
    #ifdef RAM_TABLES
-   if( init_flag )
+   if (init_flag)
    {
       _aes_create_tables();
       _init_flag = 0;
@@ -449,29 +472,29 @@ int aes_set_key( aes_context *ctx, uint8 *key, int nbits )
    #endif
 
    // Update number of rounds
-   switch (nbits)
+   switch (size)
    {
-      case 128: ctx->nr = 10; break;
-      case 192: ctx->nr = 12; break;
-      case 256: ctx->nr = 14; break;
-      default : return 1;
+      case AES_128:  ctx->nr = 10; break;
+      case AES_192:  ctx->nr = 12; break;
+      case AES_256:  ctx->nr = 14; break;
+      default :      return 1;
    }
    RK = ctx->erk;
 
-   for(i=0; i<(nbits>>5); ++i)
+   for(i=0; i<(size>>5); ++i)
       GET_UINT32 (RK[i], key, i*4);
 
    // setup encryption round keys
-   switch (nbits)
+   switch (size)
    {
-      case 128:
+      case AES_128:
          for( i=0 ; i<10 ; ++i, RK+=4 )
          {
             RK[4]  = RK[0] ^ RCON[i] ^
-               ( FSbox[ (uint8) ( RK[3] >> 16 ) ] << 24 ) ^
-               ( FSbox[ (uint8) ( RK[3] >>  8 ) ] << 16 ) ^
-               ( FSbox[ (uint8) ( RK[3]       ) ] <<  8 ) ^
-               ( FSbox[ (uint8) ( RK[3] >> 24 ) ]       );
+               ( FSbox[ (uint8_t) ( RK[3] >> 16 ) ] << 24 ) ^
+               ( FSbox[ (uint8_t) ( RK[3] >>  8 ) ] << 16 ) ^
+               ( FSbox[ (uint8_t) ( RK[3]       ) ] <<  8 ) ^
+               ( FSbox[ (uint8_t) ( RK[3] >> 24 ) ]       );
 
             RK[5]  = RK[1] ^ RK[4];
             RK[6]  = RK[2] ^ RK[5];
@@ -479,14 +502,14 @@ int aes_set_key( aes_context *ctx, uint8 *key, int nbits )
          }
          break;
 
-      case 192:
+      case AES_192:
          for( i=0 ; i<8 ; ++i, RK+=6 )
          {
             RK[6]  = RK[0] ^ RCON[i] ^
-               ( FSbox[ (uint8) ( RK[5] >> 16 ) ] << 24 ) ^
-               ( FSbox[ (uint8) ( RK[5] >>  8 ) ] << 16 ) ^
-               ( FSbox[ (uint8) ( RK[5]       ) ] <<  8 ) ^
-               ( FSbox[ (uint8) ( RK[5] >> 24 ) ]       );
+               ( FSbox[ (uint8_t) ( RK[5] >> 16 ) ] << 24 ) ^
+               ( FSbox[ (uint8_t) ( RK[5] >>  8 ) ] << 16 ) ^
+               ( FSbox[ (uint8_t) ( RK[5]       ) ] <<  8 ) ^
+               ( FSbox[ (uint8_t) ( RK[5] >> 24 ) ]       );
 
             RK[7]  = RK[1] ^ RK[6];
             RK[8]  = RK[2] ^ RK[7];
@@ -496,24 +519,24 @@ int aes_set_key( aes_context *ctx, uint8 *key, int nbits )
          }
          break;
 
-      case 256:
+      case AES_256:
          for( i=0 ; i<7; ++i, RK+=8 )
          {
             RK[8]  = RK[0] ^ RCON[i] ^
-               ( FSbox[ (uint8) ( RK[7] >> 16 ) ] << 24 ) ^
-               ( FSbox[ (uint8) ( RK[7] >>  8 ) ] << 16 ) ^
-               ( FSbox[ (uint8) ( RK[7]       ) ] <<  8 ) ^
-               ( FSbox[ (uint8) ( RK[7] >> 24 ) ]       );
+               ( FSbox[ (uint8_t) ( RK[7] >> 16 ) ] << 24 ) ^
+               ( FSbox[ (uint8_t) ( RK[7] >>  8 ) ] << 16 ) ^
+               ( FSbox[ (uint8_t) ( RK[7]       ) ] <<  8 ) ^
+               ( FSbox[ (uint8_t) ( RK[7] >> 24 ) ]       );
 
             RK[9]  = RK[1] ^ RK[8];
             RK[10] = RK[2] ^ RK[9];
             RK[11] = RK[3] ^ RK[10];
 
             RK[12] = RK[4] ^
-               ( FSbox[ (uint8) ( RK[11] >> 24 ) ] << 24 ) ^
-               ( FSbox[ (uint8) ( RK[11] >> 16 ) ] << 16 ) ^
-               ( FSbox[ (uint8) ( RK[11] >>  8 ) ] <<  8 ) ^
-               ( FSbox[ (uint8) ( RK[11]       ) ]       );
+               ( FSbox[ (uint8_t) ( RK[11] >> 24 ) ] << 24 ) ^
+               ( FSbox[ (uint8_t) ( RK[11] >> 16 ) ] << 16 ) ^
+               ( FSbox[ (uint8_t) ( RK[11] >>  8 ) ] <<  8 ) ^
+               ( FSbox[ (uint8_t) ( RK[11]       ) ]       );
 
             RK[13] = RK[5] ^ RK[12];
             RK[14] = RK[6] ^ RK[13];
@@ -531,25 +554,25 @@ int aes_set_key( aes_context *ctx, uint8 *key, int nbits )
    {
       RK -= 8;
 
-      *DK++ = RT0 [ FSbox[ (uint8) ( *RK >> 24 ) ]] ^
-              RT1 [ FSbox[ (uint8) ( *RK >> 16 ) ]] ^
-              RT2 [ FSbox[ (uint8) ( *RK >>  8 ) ]] ^
-              RT3 [ FSbox[ (uint8) ( *RK       ) ]]; RK++;
+      *DK++ = RT0 [ FSbox[ (uint8_t) ( *RK >> 24 ) ]] ^
+              RT1 [ FSbox[ (uint8_t) ( *RK >> 16 ) ]] ^
+              RT2 [ FSbox[ (uint8_t) ( *RK >>  8 ) ]] ^
+              RT3 [ FSbox[ (uint8_t) ( *RK       ) ]]; RK++;
 
-      *DK++ = RT0 [ FSbox[ (uint8) ( *RK >> 24 ) ]] ^
-              RT1 [ FSbox[ (uint8) ( *RK >> 16 ) ]] ^
-              RT2 [ FSbox[ (uint8) ( *RK >>  8 ) ]] ^
-              RT3 [ FSbox[ (uint8) ( *RK       ) ]]; RK++;
+      *DK++ = RT0 [ FSbox[ (uint8_t) ( *RK >> 24 ) ]] ^
+              RT1 [ FSbox[ (uint8_t) ( *RK >> 16 ) ]] ^
+              RT2 [ FSbox[ (uint8_t) ( *RK >>  8 ) ]] ^
+              RT3 [ FSbox[ (uint8_t) ( *RK       ) ]]; RK++;
 
-      *DK++ = RT0 [ FSbox[ (uint8) ( *RK >> 24 ) ]] ^
-              RT1 [ FSbox[ (uint8) ( *RK >> 16 ) ]] ^
-              RT2 [ FSbox[ (uint8) ( *RK >>  8 ) ]] ^
-              RT3 [ FSbox[ (uint8) ( *RK       ) ]]; RK++;
+      *DK++ = RT0 [ FSbox[ (uint8_t) ( *RK >> 24 ) ]] ^
+              RT1 [ FSbox[ (uint8_t) ( *RK >> 16 ) ]] ^
+              RT2 [ FSbox[ (uint8_t) ( *RK >>  8 ) ]] ^
+              RT3 [ FSbox[ (uint8_t) ( *RK       ) ]]; RK++;
 
-      *DK++ = RT0 [ FSbox[ (uint8) ( *RK >> 24 ) ]] ^
-              RT1 [ FSbox[ (uint8) ( *RK >> 16 ) ]] ^
-              RT2 [ FSbox[ (uint8) ( *RK >>  8 ) ]] ^
-              RT3 [ FSbox[ (uint8) ( *RK       ) ]]; RK++;
+      *DK++ = RT0 [ FSbox[ (uint8_t) ( *RK >> 24 ) ]] ^
+              RT1 [ FSbox[ (uint8_t) ( *RK >> 16 ) ]] ^
+              RT2 [ FSbox[ (uint8_t) ( *RK >>  8 ) ]] ^
+              RT3 [ FSbox[ (uint8_t) ( *RK       ) ]]; RK++;
    }
    RK -= 8;
 
@@ -559,171 +582,195 @@ int aes_set_key( aes_context *ctx, uint8 *key, int nbits )
    return 0;
 }
 
-/* AES 128-bit block encryption routine */
-#define AES_FROUND(X0,X1,X2,X3,Y0,Y1,Y2,Y3)     \
-{                                               \
-    RK += 4;                                    \
-    X0 = RK[0] ^ FT0[ (uint8) ( Y0 >> 24 ) ] ^  \
-                 FT1[ (uint8) ( Y1 >> 16 ) ] ^  \
-                 FT2[ (uint8) ( Y2 >>  8 ) ] ^  \
-                 FT3[ (uint8) ( Y3       ) ];   \
-                                                \
-    X1 = RK[1] ^ FT0[ (uint8) ( Y1 >> 24 ) ] ^  \
-                 FT1[ (uint8) ( Y2 >> 16 ) ] ^  \
-                 FT2[ (uint8) ( Y3 >>  8 ) ] ^  \
-                 FT3[ (uint8) ( Y0       ) ];   \
-                                                \
-    X2 = RK[2] ^ FT0[ (uint8) ( Y2 >> 24 ) ] ^  \
-                 FT1[ (uint8) ( Y3 >> 16 ) ] ^  \
-                 FT2[ (uint8) ( Y0 >>  8 ) ] ^  \
-                 FT3[ (uint8) ( Y1       ) ];   \
-                                                \
-    X3 = RK[3] ^ FT0[ (uint8) ( Y3 >> 24 ) ] ^  \
-                 FT1[ (uint8) ( Y0 >> 16 ) ] ^  \
-                 FT2[ (uint8) ( Y1 >>  8 ) ] ^  \
-                 FT3[ (uint8) ( Y2       ) ];   \
+/*!
+ *  AES 128-bit block encryption routine
+ */
+#define AES_FROUND(X0,X1,X2,X3,Y0,Y1,Y2,Y3)        \
+{                                                  \
+    RK += 4;                                       \
+    X0 = RK[0] ^ FT0[ (uint8_t) ( Y0 >> 24 ) ] ^   \
+                 FT1[ (uint8_t) ( Y1 >> 16 ) ] ^   \
+                 FT2[ (uint8_t) ( Y2 >>  8 ) ] ^   \
+                 FT3[ (uint8_t) ( Y3       ) ];    \
+                                                   \
+    X1 = RK[1] ^ FT0[ (uint8_t) ( Y1 >> 24 ) ] ^   \
+                 FT1[ (uint8_t) ( Y2 >> 16 ) ] ^   \
+                 FT2[ (uint8_t) ( Y3 >>  8 ) ] ^   \
+                 FT3[ (uint8_t) ( Y0       ) ];    \
+                                                   \
+    X2 = RK[2] ^ FT0[ (uint8_t) ( Y2 >> 24 ) ] ^   \
+                 FT1[ (uint8_t) ( Y3 >> 16 ) ] ^   \
+                 FT2[ (uint8_t) ( Y0 >>  8 ) ] ^   \
+                 FT3[ (uint8_t) ( Y1       ) ];    \
+                                                   \
+    X3 = RK[3] ^ FT0[ (uint8_t) ( Y3 >> 24 ) ] ^   \
+                 FT1[ (uint8_t) ( Y0 >> 16 ) ] ^   \
+                 FT2[ (uint8_t) ( Y1 >>  8 ) ] ^   \
+                 FT3[ (uint8_t) ( Y2       ) ];    \
 }
 
-void aes_encrypt( aes_context *ctx, uint8 input[16], uint8 output[16] )
+/*!
+ * \brief
+ *    Encrypt a buffer.
+ * \note
+ *    The input and output buffer can be the same.
+ *
+ * \param input   buffer holding the input data
+ * \param output  buffer holding the output data
+ * \return        none
+ */
+void aes_encrypt (aes_t *ctx, uint8_t in[16], uint8_t out[16])
 {
-   uint32 *RK, X0, X1, X2, X3, Y0, Y1, Y2, Y3;
+   uint32_t *RK, X0, X1, X2, X3, Y0, Y1, Y2, Y3;
 
    RK = ctx->erk;
 
-   GET_UINT32( X0, input,  0 ); X0 ^= RK[0];
-   GET_UINT32( X1, input,  4 ); X1 ^= RK[1];
-   GET_UINT32( X2, input,  8 ); X2 ^= RK[2];
-   GET_UINT32( X3, input, 12 ); X3 ^= RK[3];
+   GET_UINT32 (X0, in,  0); X0 ^= RK[0];
+   GET_UINT32 (X1, in,  4); X1 ^= RK[1];
+   GET_UINT32 (X2, in,  8); X2 ^= RK[2];
+   GET_UINT32 (X3, in, 12); X3 ^= RK[3];
 
-   AES_FROUND( Y0, Y1, Y2, Y3, X0, X1, X2, X3 );       // round 1
-   AES_FROUND( X0, X1, X2, X3, Y0, Y1, Y2, Y3 );       // round 2
-   AES_FROUND( Y0, Y1, Y2, Y3, X0, X1, X2, X3 );       // round 3
-   AES_FROUND( X0, X1, X2, X3, Y0, Y1, Y2, Y3 );       // round 4
-   AES_FROUND( Y0, Y1, Y2, Y3, X0, X1, X2, X3 );       // round 5
-   AES_FROUND( X0, X1, X2, X3, Y0, Y1, Y2, Y3 );       // round 6
-   AES_FROUND( Y0, Y1, Y2, Y3, X0, X1, X2, X3 );       // round 7
-   AES_FROUND( X0, X1, X2, X3, Y0, Y1, Y2, Y3 );       // round 8
-   AES_FROUND( Y0, Y1, Y2, Y3, X0, X1, X2, X3 );       // round 9
-   if( ctx->nr > 10 )
+   AES_FROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);       // round 1
+   AES_FROUND (X0, X1, X2, X3, Y0, Y1, Y2, Y3);       // round 2
+   AES_FROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);       // round 3
+   AES_FROUND (X0, X1, X2, X3, Y0, Y1, Y2, Y3);       // round 4
+   AES_FROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);       // round 5
+   AES_FROUND (X0, X1, X2, X3, Y0, Y1, Y2, Y3);       // round 6
+   AES_FROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);       // round 7
+   AES_FROUND (X0, X1, X2, X3, Y0, Y1, Y2, Y3);       // round 8
+   AES_FROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);       // round 9
+   if (ctx->nr > 10)
    {
-      AES_FROUND( X0, X1, X2, X3, Y0, Y1, Y2, Y3 );   // round 10
-      AES_FROUND( Y0, Y1, Y2, Y3, X0, X1, X2, X3 );   // round 11
+      AES_FROUND (X0, X1, X2, X3, Y0, Y1, Y2, Y3);   // round 10
+      AES_FROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);   // round 11
    }
-   if( ctx->nr > 12 )
+   if (ctx->nr > 12)
    {
-      AES_FROUND( X0, X1, X2, X3, Y0, Y1, Y2, Y3 );   // round 12
-      AES_FROUND( Y0, Y1, Y2, Y3, X0, X1, X2, X3 );   // round 13
+      AES_FROUND (X0, X1, X2, X3, Y0, Y1, Y2, Y3);   // round 12
+      AES_FROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);   // round 13
    }
 
    // last round
    RK += 4;
-   X0 = RK[0] ^ ( FSbox[ (uint8) ( Y0 >> 24 ) ] << 24 ) ^
-                ( FSbox[ (uint8) ( Y1 >> 16 ) ] << 16 ) ^
-                ( FSbox[ (uint8) ( Y2 >>  8 ) ] <<  8 ) ^
-                ( FSbox[ (uint8) ( Y3       ) ]       );
+   X0 = RK[0] ^ ( FSbox[ (uint8_t) ( Y0 >> 24 ) ] << 24 ) ^
+                ( FSbox[ (uint8_t) ( Y1 >> 16 ) ] << 16 ) ^
+                ( FSbox[ (uint8_t) ( Y2 >>  8 ) ] <<  8 ) ^
+                ( FSbox[ (uint8_t) ( Y3       ) ]       );
 
-   X1 = RK[1] ^ ( FSbox[ (uint8) ( Y1 >> 24 ) ] << 24 ) ^
-                ( FSbox[ (uint8) ( Y2 >> 16 ) ] << 16 ) ^
-                ( FSbox[ (uint8) ( Y3 >>  8 ) ] <<  8 ) ^
-                ( FSbox[ (uint8) ( Y0       ) ]       );
+   X1 = RK[1] ^ ( FSbox[ (uint8_t) ( Y1 >> 24 ) ] << 24 ) ^
+                ( FSbox[ (uint8_t) ( Y2 >> 16 ) ] << 16 ) ^
+                ( FSbox[ (uint8_t) ( Y3 >>  8 ) ] <<  8 ) ^
+                ( FSbox[ (uint8_t) ( Y0       ) ]       );
 
-   X2 = RK[2] ^ ( FSbox[ (uint8) ( Y2 >> 24 ) ] << 24 ) ^
-                ( FSbox[ (uint8) ( Y3 >> 16 ) ] << 16 ) ^
-                ( FSbox[ (uint8) ( Y0 >>  8 ) ] <<  8 ) ^
-                ( FSbox[ (uint8) ( Y1       ) ]       );
+   X2 = RK[2] ^ ( FSbox[ (uint8_t) ( Y2 >> 24 ) ] << 24 ) ^
+                ( FSbox[ (uint8_t) ( Y3 >> 16 ) ] << 16 ) ^
+                ( FSbox[ (uint8_t) ( Y0 >>  8 ) ] <<  8 ) ^
+                ( FSbox[ (uint8_t) ( Y1       ) ]       );
 
-   X3 = RK[3] ^ ( FSbox[ (uint8) ( Y3 >> 24 ) ] << 24 ) ^
-                ( FSbox[ (uint8) ( Y0 >> 16 ) ] << 16 ) ^
-                ( FSbox[ (uint8) ( Y1 >>  8 ) ] <<  8 ) ^
-                ( FSbox[ (uint8) ( Y2       ) ]       );
+   X3 = RK[3] ^ ( FSbox[ (uint8_t) ( Y3 >> 24 ) ] << 24 ) ^
+                ( FSbox[ (uint8_t) ( Y0 >> 16 ) ] << 16 ) ^
+                ( FSbox[ (uint8_t) ( Y1 >>  8 ) ] <<  8 ) ^
+                ( FSbox[ (uint8_t) ( Y2       ) ]       );
 
-   PUT_UINT32( X0, output,  0 );
-   PUT_UINT32( X1, output,  4 );
-   PUT_UINT32( X2, output,  8 );
-   PUT_UINT32( X3, output, 12 );
+   PUT_UINT32 (X0, out,  0);
+   PUT_UINT32 (X1, out,  4);
+   PUT_UINT32 (X2, out,  8);
+   PUT_UINT32 (X3, out, 12);
 }
 
-/* AES 128-bit block decryption routine */
-#define AES_RROUND(X0,X1,X2,X3,Y0,Y1,Y2,Y3)     \
-{                                               \
-    RK += 4;                                    \
-    X0 = RK[0] ^ RT0[ (uint8) ( Y0 >> 24 ) ] ^  \
-                 RT1[ (uint8) ( Y3 >> 16 ) ] ^  \
-                 RT2[ (uint8) ( Y2 >>  8 ) ] ^  \
-                 RT3[ (uint8) ( Y1       ) ];   \
-                                                \
-    X1 = RK[1] ^ RT0[ (uint8) ( Y1 >> 24 ) ] ^  \
-                 RT1[ (uint8) ( Y0 >> 16 ) ] ^  \
-                 RT2[ (uint8) ( Y3 >>  8 ) ] ^  \
-                 RT3[ (uint8) ( Y2       ) ];   \
-                                                \
-    X2 = RK[2] ^ RT0[ (uint8) ( Y2 >> 24 ) ] ^  \
-                 RT1[ (uint8) ( Y1 >> 16 ) ] ^  \
-                 RT2[ (uint8) ( Y0 >>  8 ) ] ^  \
-                 RT3[ (uint8) ( Y3       ) ];   \
-                                                \
-    X3 = RK[3] ^ RT0[ (uint8) ( Y3 >> 24 ) ] ^  \
-                 RT1[ (uint8) ( Y2 >> 16 ) ] ^  \
-                 RT2[ (uint8) ( Y1 >>  8 ) ] ^  \
-                 RT3[ (uint8) ( Y0       ) ];   \
+/*!
+ *  AES 128-bit block decryption routine
+ */
+#define AES_RROUND(X0,X1,X2,X3,Y0,Y1,Y2,Y3)        \
+{                                                  \
+    RK += 4;                                       \
+    X0 = RK[0] ^ RT0[ (uint8_t) ( Y0 >> 24 ) ] ^   \
+                 RT1[ (uint8_t) ( Y3 >> 16 ) ] ^   \
+                 RT2[ (uint8_t) ( Y2 >>  8 ) ] ^   \
+                 RT3[ (uint8_t) ( Y1       ) ];    \
+                                                   \
+    X1 = RK[1] ^ RT0[ (uint8_t) ( Y1 >> 24 ) ] ^   \
+                 RT1[ (uint8_t) ( Y0 >> 16 ) ] ^   \
+                 RT2[ (uint8_t) ( Y3 >>  8 ) ] ^   \
+                 RT3[ (uint8_t) ( Y2       ) ];    \
+                                                   \
+    X2 = RK[2] ^ RT0[ (uint8_t) ( Y2 >> 24 ) ] ^   \
+                 RT1[ (uint8_t) ( Y1 >> 16 ) ] ^   \
+                 RT2[ (uint8_t) ( Y0 >>  8 ) ] ^   \
+                 RT3[ (uint8_t) ( Y3       ) ];    \
+                                                   \
+    X3 = RK[3] ^ RT0[ (uint8_t) ( Y3 >> 24 ) ] ^   \
+                 RT1[ (uint8_t) ( Y2 >> 16 ) ] ^   \
+                 RT2[ (uint8_t) ( Y1 >>  8 ) ] ^   \
+                 RT3[ (uint8_t) ( Y0       ) ];    \
 }
 
-void aes_decrypt( aes_context *ctx, uint8 input[16], uint8 output[16] )
+/*!
+ * \brief
+ *    Decrypt a buffer.
+ * \note
+ *    The input and output buffer can be the same.
+ *
+ * \param input   buffer holding the input data
+ * \param output  buffer holding the output data
+ * \return        none
+ */
+void aes_decrypt (aes_t *ctx, uint8_t in[16], uint8_t out[16])
 {
-   uint32 *RK, X0, X1, X2, X3, Y0, Y1, Y2, Y3;
+   uint32_t *RK, X0, X1, X2, X3, Y0, Y1, Y2, Y3;
 
    RK = ctx->drk;
 
-   GET_UINT32( X0, input,  0 ); X0 ^= RK[0];
-   GET_UINT32( X1, input,  4 ); X1 ^= RK[1];
-   GET_UINT32( X2, input,  8 ); X2 ^= RK[2];
-   GET_UINT32( X3, input, 12 ); X3 ^= RK[3];
+   GET_UINT32 (X0, in,  0); X0 ^= RK[0];
+   GET_UINT32 (X1, in,  4); X1 ^= RK[1];
+   GET_UINT32 (X2, in,  8); X2 ^= RK[2];
+   GET_UINT32 (X3, in, 12); X3 ^= RK[3];
 
-   AES_RROUND( Y0, Y1, Y2, Y3, X0, X1, X2, X3 );       // round 1
-   AES_RROUND( X0, X1, X2, X3, Y0, Y1, Y2, Y3 );       // round 2
-   AES_RROUND( Y0, Y1, Y2, Y3, X0, X1, X2, X3 );       // round 3
-   AES_RROUND( X0, X1, X2, X3, Y0, Y1, Y2, Y3 );       // round 4
-   AES_RROUND( Y0, Y1, Y2, Y3, X0, X1, X2, X3 );       // round 5
-   AES_RROUND( X0, X1, X2, X3, Y0, Y1, Y2, Y3 );       // round 6
-   AES_RROUND( Y0, Y1, Y2, Y3, X0, X1, X2, X3 );       // round 7
-   AES_RROUND( X0, X1, X2, X3, Y0, Y1, Y2, Y3 );       // round 8
-   AES_RROUND( Y0, Y1, Y2, Y3, X0, X1, X2, X3 );       // round 9
-   if( ctx->nr > 10 )
+   AES_RROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);       // round 1
+   AES_RROUND (X0, X1, X2, X3, Y0, Y1, Y2, Y3);       // round 2
+   AES_RROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);       // round 3
+   AES_RROUND (X0, X1, X2, X3, Y0, Y1, Y2, Y3);       // round 4
+   AES_RROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);       // round 5
+   AES_RROUND (X0, X1, X2, X3, Y0, Y1, Y2, Y3);       // round 6
+   AES_RROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);       // round 7
+   AES_RROUND (X0, X1, X2, X3, Y0, Y1, Y2, Y3);       // round 8
+   AES_RROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);       // round 9
+   if (ctx->nr > 10)
    {
-      AES_RROUND( X0, X1, X2, X3, Y0, Y1, Y2, Y3 );   // round 10
-      AES_RROUND( Y0, Y1, Y2, Y3, X0, X1, X2, X3 );   // round 11
+      AES_RROUND (X0, X1, X2, X3, Y0, Y1, Y2, Y3);   // round 10
+      AES_RROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);   // round 11
    }
-   if( ctx->nr > 12 )
+   if (ctx->nr > 12)
    {
-      AES_RROUND( X0, X1, X2, X3, Y0, Y1, Y2, Y3 );   // round 12
-      AES_RROUND( Y0, Y1, Y2, Y3, X0, X1, X2, X3 );   // round 13
+      AES_RROUND (X0, X1, X2, X3, Y0, Y1, Y2, Y3);   // round 12
+      AES_RROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);   // round 13
    }
 
    // Last round
    RK += 4;
-   X0 = RK[0] ^ ( RSbox[ (uint8) ( Y0 >> 24 ) ] << 24 ) ^
-                ( RSbox[ (uint8) ( Y3 >> 16 ) ] << 16 ) ^
-                ( RSbox[ (uint8) ( Y2 >>  8 ) ] <<  8 ) ^
-                ( RSbox[ (uint8) ( Y1       ) ]       );
+   X0 = RK[0] ^ ( RSbox[ (uint8_t) ( Y0 >> 24 ) ] << 24 ) ^
+                ( RSbox[ (uint8_t) ( Y3 >> 16 ) ] << 16 ) ^
+                ( RSbox[ (uint8_t) ( Y2 >>  8 ) ] <<  8 ) ^
+                ( RSbox[ (uint8_t) ( Y1       ) ]       );
 
-   X1 = RK[1] ^ ( RSbox[ (uint8) ( Y1 >> 24 ) ] << 24 ) ^
-                ( RSbox[ (uint8) ( Y0 >> 16 ) ] << 16 ) ^
-                ( RSbox[ (uint8) ( Y3 >>  8 ) ] <<  8 ) ^
-                ( RSbox[ (uint8) ( Y2       ) ]       );
+   X1 = RK[1] ^ ( RSbox[ (uint8_t) ( Y1 >> 24 ) ] << 24 ) ^
+                ( RSbox[ (uint8_t) ( Y0 >> 16 ) ] << 16 ) ^
+                ( RSbox[ (uint8_t) ( Y3 >>  8 ) ] <<  8 ) ^
+                ( RSbox[ (uint8_t) ( Y2       ) ]       );
 
-   X2 = RK[2] ^ ( RSbox[ (uint8) ( Y2 >> 24 ) ] << 24 ) ^
-                ( RSbox[ (uint8) ( Y1 >> 16 ) ] << 16 ) ^
-                ( RSbox[ (uint8) ( Y0 >>  8 ) ] <<  8 ) ^
-                ( RSbox[ (uint8) ( Y3       ) ]       );
+   X2 = RK[2] ^ ( RSbox[ (uint8_t) ( Y2 >> 24 ) ] << 24 ) ^
+                ( RSbox[ (uint8_t) ( Y1 >> 16 ) ] << 16 ) ^
+                ( RSbox[ (uint8_t) ( Y0 >>  8 ) ] <<  8 ) ^
+                ( RSbox[ (uint8_t) ( Y3       ) ]       );
 
-   X3 = RK[3] ^ ( RSbox[ (uint8) ( Y3 >> 24 ) ] << 24 ) ^
-                ( RSbox[ (uint8) ( Y2 >> 16 ) ] << 16 ) ^
-                ( RSbox[ (uint8) ( Y1 >>  8 ) ] <<  8 ) ^
-                ( RSbox[ (uint8) ( Y0       ) ]       );
+   X3 = RK[3] ^ ( RSbox[ (uint8_t) ( Y3 >> 24 ) ] << 24 ) ^
+                ( RSbox[ (uint8_t) ( Y2 >> 16 ) ] << 16 ) ^
+                ( RSbox[ (uint8_t) ( Y1 >>  8 ) ] <<  8 ) ^
+                ( RSbox[ (uint8_t) ( Y0       ) ]       );
 
-   PUT_UINT32( X0, output,  0 );
-   PUT_UINT32( X1, output,  4 );
-   PUT_UINT32( X2, output,  8 );
-   PUT_UINT32( X3, output, 12 );
+   PUT_UINT32 (X0, out,  0);
+   PUT_UINT32 (X1, out,  4);
+   PUT_UINT32 (X2, out,  8);
+   PUT_UINT32 (X3, out, 12);
 }
 

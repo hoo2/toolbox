@@ -36,7 +36,7 @@
  *
  * \return none
  */
-void  pid_init (pid_t * pid, float kp, float ki, float kd, float dt, float db)
+void  pid_init (pid_c_t* pid, float kp, float ki, float kd, float dt, float db)
 {
    pid->Kp = kp;
    pid->Ki = ki;
@@ -46,8 +46,20 @@ void  pid_init (pid_t * pid, float kp, float ki, float kd, float dt, float db)
    pid->e_db = db;
 
    pid->Out = 0;
-   pid->sat_max = PID_DEFAULT_SAT_MAX;    // Add default saturation
-   pid->sat_min = PID_DEFAULT_SAT_MIN;
+   pid->max = PID_DEFAULT_SAT_MAX;    // Add default saturation
+   pid->min = PID_DEFAULT_SAT_MIN;
+}
+
+/*!
+ * \brief
+ *    This function De-Initialize all pid parameters to zero.
+ *
+ * \param  pid: Pointer to PID struct of interest
+ * \return none
+ */
+void pid_deinit (pid_c_t* pid)
+{
+   memset ((void*)pid, 0, sizeof (pid_c_t));
 }
 
 /*!
@@ -60,10 +72,10 @@ void  pid_init (pid_t * pid, float kp, float ki, float kd, float dt, float db)
  *
  * \return none
  */
-void  pid_sat (pid_t * pid, float smax, float smin)
+void  pid_sat (pid_c_t * pid, float smax, float smin)
 {
-   pid->sat_max = smax;
-   pid->sat_min = smin;
+   pid->max = smax;
+   pid->min = smin;
 }
 
 /*!
@@ -73,7 +85,7 @@ void  pid_sat (pid_t * pid, float smax, float smin)
  * \param  pid: Pointer to PID struct of interest
  * \return none
  */
-void pid_clear (pid_t *pid)
+void pid_clear (pid_c_t *pid)
 {
    pid->Int = 0;
 }
@@ -83,11 +95,11 @@ void pid_clear (pid_t *pid)
  *    This function Calculates and returns the output value of the PID.
  *
  * \param  pid: Pointer to PID struct of interest
- * \param  e:   Usually sp - fb
+ * \param  e:   The error, usually sp - fb
  *
  * \return The PID output
 */
-float pid_out (pid_t *pid, float e)
+float pid_out (pid_c_t *pid, float e)
 {
    float der;
    float out;	// double buffer the output
@@ -103,12 +115,7 @@ float pid_out (pid_t *pid, float e)
    out = pid->Kp * e + pid->Ki * pid->Int + pid->Kd * der;
    
    // Saturation
-   #if PID_ENABLE_SATURATION == 1
-      if (out > pid->sat_max)   { out = pid->sat_max; }
-      if (out < pid->sat_min)   { out = pid->sat_min; }
-   #endif
+   _SATURATE (out, pid->max, pid->min);
 
    return (pid->Out = out);
 }
-
-

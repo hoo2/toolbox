@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-#include <jiffies.h>
+#include <sys/jiffies.h>
 #include <stdint.h>
 
 // Callback types

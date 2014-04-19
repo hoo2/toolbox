@@ -1,11 +1,9 @@
-/*!
- * \file aes.h
- * \brief
- *    FIPS-197 compliant AES implementation
+/*
+ * \file   toolbox_defs.h
+ * \brief  Contains defines for internal and public use.
  *
  * This file is part of toolbox
  *
- * Copyright (C) 2001-2004  Christophe Devine
  * Copyright (C) 2014 Houtouridis Christos (http://www.houtouridis.net)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,35 +21,28 @@
  *
  */
 
-#ifndef __aes_h__
-#define __aes_h__
+#ifndef __toolbox_defs_h__
+#define __toolbox_defs_h__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <toolbox_defs.h>
-#include <string.h>
-#include <inttypes.h>
+/*!
+ * Saturation macro
+ */
+#ifndef _SATURATE
+#define _SATURATE(_x, _M, _m)    \
+   do {                          \
+      if (_x<_m)  _x=_m;         \
+      if (_x>_M)  _x=_M;         \
+   } while (0)
+#endif
 
-typedef struct
-{
-    uint32_t erk[64];   /* encryption round keys */
-    uint32_t drk[64];   /* decryption round keys */
-    int nr;             /* number of rounds */
-}
-aes_t;
-
-typedef enum {AES_128=128, AES_192=192, AES_256=256} aes_size;
-
-void aes_key_deinit (aes_t *ctx);
-int aes_key_init (aes_t *ctx, uint8_t *key, aes_size size);
-void aes_encrypt (aes_t *ctx, uint8_t in[16], uint8_t out[16]);
-void aes_decrypt (aes_t *ctx, uint8_t in[16], uint8_t out[16]);
+   
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //#ifndef __aes_h__
-
+#endif // #ifndef __toolbox_defs_h__

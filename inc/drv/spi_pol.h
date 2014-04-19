@@ -29,7 +29,7 @@
 #endif
 
 #include <stm32f10x_systick.h>
-#include <stime.h>
+#include <std/stime.h>
 
 #define SPI_CLOCK    (CLOCK)
 

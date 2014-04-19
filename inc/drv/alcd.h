@@ -32,8 +32,8 @@
 #include <stdint.h>
 #include <ctype.h>
 #include <time.h>
-#include <stm32f10x_clock.h>
-#include <jiffies.h>
+//#include <stm32f10x_clock.h>
+#include <sys/jiffies.h>
 
 /*
  * General Defines

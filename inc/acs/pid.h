@@ -30,17 +30,18 @@ extern "C" {
 #endif
 
 #include <math.h>
+#include <string.h>
+#include <toolbox_defs.h>
 
 /* ================   User Defines    ======================*/
-#define  PID_ENABLE_SATURATION      (1)
 
 
 /* ================   General Defines    ======================*/
 
-#if PID_ENABLE_SATURATION == 1
- #define  PID_DEFAULT_SAT_MAX        (1)
- #define  PID_DEFAULT_SAT_MIN        (0)
-#endif
+
+#define  PID_DEFAULT_SAT_MAX        (1)
+#define  PID_DEFAULT_SAT_MIN        (0)
+
 
 typedef volatile struct
 {
@@ -48,18 +49,17 @@ typedef volatile struct
    float    dt;
    float    Int;
    float    Out;
-   float    sat_max;
-   float    sat_min;
+   float    max;
+   float    min;
    float    e_db;
    float    ep;
-}pid_t;
+}pid_c_t;
 
-
-void  pid_init (pid_t * pid, float kp, float ki, float kd, float dt, float db);
-void  pid_deinit (pid_t* pid);
-void  pid_sat (pid_t* pid, float smax, float smin);
-void  pid_clear (pid_t* pid);
-float pid_out (pid_t* pid, float e);
+void  pid_deinit (pid_c_t* pid);
+void  pid_init (pid_c_t * pid, float kp, float ki, float kd, float dt, float db);
+void  pid_sat (pid_c_t* pid, float smax, float smin);
+void  pid_clear (pid_c_t* pid);
+float pid_out (pid_c_t* pid, float e);
 
 #ifdef __cplusplus
 }
