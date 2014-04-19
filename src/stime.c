@@ -127,7 +127,7 @@ time_t smktime (struct tm *_t)
  * \return         A pointer to a tm structure with its members filled with the values that
  *                 correspond to the UTC time representation of timer.
  */
-struct tm *gmtime  (const time_t *_timer)
+struct tm *sgmtime  (const time_t *_timer)
 {
    #define _SPD   (86400)
    time_t i, k;

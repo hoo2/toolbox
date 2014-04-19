@@ -46,7 +46,7 @@ extern "C" {
 
 int isleap(int year);
 time_t smktime (struct tm *_timeptr);
-struct tm *slocaltime (const time_t *_timer);
+struct tm *sgmtime (const time_t *_timer);
 
 #ifdef __cplusplus
 }

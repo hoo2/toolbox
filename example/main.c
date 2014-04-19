@@ -55,7 +55,7 @@ void dsp_test (void)
 void std_test (void)
 {
    time_t bd = 0;
-   struct tm *t = gmtime (&bd);
+   struct tm *t = sgmtime (&bd);
    
    bd = smktime (t);
 }
