@@ -33,23 +33,20 @@ extern "C" {
 #include <time.h>
 #include <stdint.h>
 
+/* =================== User Defines ====================== */
+#define JULIAN_CALENDAR       (0)
+#define GREGORIAN_CALENDAR    (1)
 
-#define isleap(y) ((((y) % 4) == 0 && ((y) % 100) != 0) || ((y) % 400) == 0)
-
+/* =============== General defines =============== */
+// Default calendar is Gregorian
+#ifndef TIME_CALENDAR
+#define TIME_CALENDAR (GREGORIAN_CALENDAR)
+#endif
 /* =================== Exported Functions ===================== */
 
-/* determines the processor time used.
- * Returns: the implementation's best approximation to the processor time
- *          used by the program since program invocation. The time in
- *          seconds is the value returned divided by the value of the macro
- *          CLK_TCK or CLOCKS_PER_SEC
- */
-
-
-
+int isleap(int year);
 time_t smktime (struct tm *_timeptr);
 struct tm *slocaltime (const time_t *_timer);
-
 
 #ifdef __cplusplus
 }
