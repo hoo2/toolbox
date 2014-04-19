@@ -50,7 +50,8 @@ extern "C" {
 #include <drv/ss_display.h>
 
 // DSP
-#include <dsp/filters.h>
+#include <dsp/leaky_int.h>
+#include <dsp/moving_av.h>
 
 // std library adds and replacements
 #include <std/complex.h>
