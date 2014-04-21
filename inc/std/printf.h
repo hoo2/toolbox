@@ -131,7 +131,7 @@
 #define __printf_h__
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #include <stdio.h>
@@ -227,7 +227,7 @@ int fputs(const char *pdst, FILE *fp);
 
 
 #ifdef __cplusplus
- }
+}
 #endif
 
 #endif //#ifndef __printf_h__

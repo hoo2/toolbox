@@ -18,13 +18,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
- * Date:       06/2013
- * Version:
- *
  */
-
-#include <printf.h>
+#include <std/printf.h>
 
 // #define PRINTF_TINY
 // #define PRINTF_FILES
