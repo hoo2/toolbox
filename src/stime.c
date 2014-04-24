@@ -91,7 +91,7 @@ inline int isleap (int year) {
  *       - Britain & colonies before 1752,
  *       - anywhere else before 1582,
  *       - and is still in use by some communities
- *    leave out the -year/100+year/400 terms, and add 10.
+ *    #define TIME_CALENDAR   JULIAN_CALENDAR
  */
 time_t smktime (struct tm *_t)
 {
