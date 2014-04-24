@@ -55,6 +55,7 @@ extern "C" {
 
 // std library adds and replacements
 #include <std/complex.h>
+#include <std/sprintf.h>
 #include <std/printf.h>
 #include <std/stime.h>
 

@@ -17,7 +17,7 @@
  * Version:    0.1
  *
  */
-#include <jiffies.h>
+#include <sys/jiffies.h>
 
 static jf_t _jf;
 

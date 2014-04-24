@@ -18,7 +18,7 @@
  *
  */
 
-#include <AlphaLCD.h>
+#include <drv/alcd.h>
 
 ALCD_t   ALCD;
 static   uint8_t _rs=0;
@@ -218,6 +218,8 @@ int ALCD_putchar(int ch)
          ALCD_Character (' ');
          ALCD_DecX ();
          break;
+      case 0:
+         break;   // discard null termination to device
       default:
          ALCD_Character (ch);
          break;

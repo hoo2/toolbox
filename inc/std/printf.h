@@ -134,97 +134,21 @@
 extern "C" {
 #endif
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <math.h>
+#include <std/_vsxprintf.h>
 
-#define IS_ALL_BUT_PC(_c)  ((_c) != '%')  /*!< match all chars except '%' symbol */
-#define IS_PC(_c)          ((_c) == '%')  /*!< match '%' symbol */
-#define IS_ZERO(_c)        ((_c) == '0')  /*!< match '0'*/
-#define IS_1TO9(_c)        ((_c) >= '1' && (_c)<='9') /*!< match 1 to 9 digits */
-#define IS_0TO9(_c)        ((_c) >= '0' && (_c)<='9') /*!< match all digits */
-#define IS_DOT(_c)         ((_c) == '.')              /*!< match '.' symbol */
-#define IS_PLUS(_c)        ((_c) == '+')              /*!< match '+' symbol */
-
-#define PF_FRACTIONAL_WIDTH         (3)
-#define PF_WIDTH                    (5)
-#define PF_MAX_INT_DIGITS           (15)
-
-/*!
- *  Maximum string size allowed (in bytes).
- */
-#define PF_MAX_STRING_SIZE          (0x20)   // 36 characters
-
-/*!
- * Enumerator for supported types.
- * \note
- *   The order must match the one found in pr_let \sa pr_let
- */
-typedef enum
-{
-   INT_c, INT_d, FL_e, FL_E, FL_f, FL_g, FL_G,
-   INT_i, INT_l, FL_L, INT_o, INT_s, INT_u, INT_x, INT_X, NO_TYPE
-}_printf_types_en;
-
-/*!
- * Enumerator for supported flags.
- * \note
- *   The order must match the one found in pr_flags \sa pr_flags
- */
-typedef enum
-{
-   FLAG_PLUS, FLAG_MINUS, FLAG_SPACE, FLAG_SHARP, FLAG_COMMA, FLAG_ZERO, NO_FLAG
-}_printf_flags_en;
-
-/*!
- * Enumerator for parser's state machine.
- */
-typedef enum
-{
-   ST_STREAM=0,
-   ST_PC,
-   ST_FLAG,
-   ST_WIDTH,
-   ST_FRAC,
-   ST_TYPE,
-}_parser_st_t;
-
-/*!
- * Implementation depentend workaround to the va_arg() BUG.
- * Using 2x 32bit vars for 1x64bit :(
- */
-typedef union
-{
-   unsigned int i[2];
-   double d;
-}_double_un_t;
-
-
-/*!
- * Tailor this in order to connect printf functionality
- * to your hardware.
- */
-extern int __putchar(char c);
 
 /*
  * ============================ Public Functions ============================
  */
-
-int vsnprintf(char *pdst, size_t length, const char *pfrm, va_list ap);
-int snprintf(char *pString, size_t length, const char *pfrmt, ...);
-int vsprintf(char *pString, const char *pfrmt, va_list ap);
 int vprintf(const char *pfrmt, va_list ap);
 int printf(const char *pfrmt, ...);
-int sprintf(char *pdst, const char *pfrmt, ...);
 int puts(const char *pdst);
 
-#ifdef PRINTF_FILES
-int vfprintf(FILE *fp, const char *pfrmt, va_list ap);
-int fprintf(FILE *fp, const char *pfrmt, ...);
-int fputc(int c, FILE *fp);
-int fputs(const char *pdst, FILE *fp);
-#endif   //#ifdef PRINTF_FILES
-
+/*!
+ * Tailor this in order to connect printf functionality
+ * to your hardware (stdout).
+ */
+extern int __putchar(char c);
 
 #ifdef __cplusplus
 }
