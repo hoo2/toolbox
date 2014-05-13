@@ -1,20 +1,24 @@
 /*
  * \file jiffies.c
+ * \brief
+ *    A target independent jiffy functionality
  *
- * Copyright (C) 2013 Houtouridis Christos <houtouridis.ch@gmail.com>
- * All Rights Reserved.
+ * This file is part of toolbox
  *
- * NOTICE:  All information contained herein is, and remains
- * the property of Houtouridis Christos. The intellectual
- * and technical concepts contained herein are proprietary to
- * Houtouridis Christos and are protected by copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from Houtouridis Christos.
+ * Copyright (C) 2014 Houtouridis Christos (http://www.houtouridis.net)
  *
- * Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
- * Date:       06/2013
- * Version:    0.1
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #include <sys/jiffies.h>
@@ -27,6 +31,10 @@ static jf_t _jf;
  * ======================   Public functions   ======================
  */
 
+/*
+ * Link and Glue functions
+ */
+
 /*!
  * \brief
  *    Connect the Driver's Set frequency function to jiffy struct
@@ -34,7 +42,7 @@ static jf_t _jf;
  *    This function get a freq value and returns the timers max jiffy value
  *    (usual this refers to timer'sauto reload value).
  */
-void jf_connect_setfreq (jf_setfreq_pt pfun)
+void jf_link_setfreq (jf_setfreq_pt pfun)
 {
    if (pfun)
       _jf.setfreq = pfun;
@@ -44,10 +52,25 @@ void jf_connect_setfreq (jf_setfreq_pt pfun)
  * \brief
  *    Connect the timer's value to jiffy struct
  */
-void jf_connect_value (jiffy_t* v)
+void jf_link_value (jiffy_t* v)
 {
    if (v)
       _jf.value = v;
+}
+
+
+
+/*
+ * User Functions
+ */
+
+/*!
+ * \brief
+ *    Check jiffy's status
+ * \return status
+ */
+inline drv_status_t jf_probe (void) {
+   return _jf.status;
 }
 
 /*!
@@ -57,27 +80,32 @@ void jf_connect_value (jiffy_t* v)
  */
 void jf_deinit (void)
 {
-   _jf.setfreq = (void*)0;
-   _jf.value = (void*)0;
-   _jf.freq = _jf.jiffies = _jf.jpus = 0;
+   memset ((void*)&_jf, 0, sizeof (jf_t));
+   _jf.status = DRV_NODEV;
 }
 
 /*!
  * \brief
- *    Initialize the jf to a desired jiffy frequency \a f
+ *    Initialise the jf to a desired jiffy frequency \a f
  * \note
  *    This function has no effect if the inner jiffy struct
  *    is un-connected to driver. So you have to call
  *    \sa jf_connect_setfreq() and \sa jf_connect_value() first.
+ * \return Zero on success, non zero on error
  */
-void jf_init (uint32_t f)
+int jf_init (uint32_t f)
 {
    if (_jf.setfreq)
    {
+      _jf.status = DRV_NOINIT;
       _jf.jiffies = _jf.setfreq (f);
       _jf.freq = f;
       _jf.jpus = jf_per_usec ();
+      _jf.status = DRV_READY;
+      return 0;
    }
+   _jf.status = DRV_NODEV;
+   return 1;
 }
 
 /*!

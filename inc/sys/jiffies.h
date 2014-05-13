@@ -1,20 +1,24 @@
 /*
  * \file jiffies.h
+ * \brief
+ *    A target independent jiffy functionality
  *
- * Copyright (C) 2013 Houtouridis Christos <houtouridis.ch@gmail.com>
- * All Rights Reserved.
+ * This file is part of toolbox
  *
- * NOTICE:  All information contained herein is, and remains
- * the property of Houtouridis Christos. The intellectual
- * and technical concepts contained herein are proprietary to
- * Houtouridis Christos and are protected by copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from Houtouridis Christos.
+ * Copyright (C) 2014 Houtouridis Christos (http://www.houtouridis.net)
  *
- * Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
- * Date:       06/2013
- * Version:    0.1
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #ifndef __jiffies_h__
@@ -25,6 +29,8 @@
 #endif
 
 #include <stdint.h>
+#include <string.h>
+#include <toolbox_defs.h>
 
 typedef int32_t   jiffy_t;    /*!< Jiffy type 4 byte integer */
 
@@ -41,36 +47,54 @@ typedef uint32_t (*jf_setfreq_pt) (uint32_t);   /*!< Pointer to setfreq function
  */
 typedef volatile struct
 {
+   jf_setfreq_pt  setfreq;       /*!< Pointer to driver's timer set freq function */
+   /*
+    * \note
+    *   This function must get an integer value for timer's desired
+    *   frequency and returns the  maximum jiffy value. This usual
+    *   refers to timer's auto reload value.
+    */
+   jiffy_t        *value;        /*!< Pointer to timers current value */
    uint32_t       freq;          /*!< timer's overflow frequency */
    uint32_t       jiffies;       /*!< jiffies max value (timer's max value) */
-   jf_setfreq_pt  setfreq;       /*!< Pointer to driver's timer set freq function
-                                      \note
-                                         This function must get an integer value for timer's desired
-                                         frequency and returns the  maximum jiffy value. This usual
-                                         refers to timer's auto reload value.
-                                  */
-   jiffy_t        *value;        /*!< Pointer to timers current value */
    jiffy_t        jpus;          /*!< Variable for the delay function */
+   drv_status_t   status;
 }jf_t;
 
 
+/*
+ *  ============= PUBLIC jiffy API =============
+ */
 
 /*
- * Public functions
+ * Link and Glue functions
  */
-void jf_connect_setfreq (jf_setfreq_pt pfun);
-void jf_connect_value (jiffy_t* v);
+void jf_link_setfreq (jf_setfreq_pt pfun);
+void jf_link_value (jiffy_t* v);
 
+/*
+ * Set functions
+ */
+
+/*
+ * User Functions
+ */
+drv_status_t jf_probe (void);
 void jf_deinit (void);
-void jf_init (uint32_t f);
+int jf_init (uint32_t f);
 
-inline jiffy_t jf_get_jiffies (void);
-inline jiffy_t jf_get_jiffy (void);
-
-// Helper functions
+jiffy_t jf_get_jiffies (void);
+jiffy_t jf_get_jiffy (void);
 jiffy_t jf_per_msec (void);
 jiffy_t jf_per_usec (void);
+
 void jf_delay_us (int32_t usec);
+
+/*!
+ * \note
+ * The Jiffy lib has no jiffy_t target pointer in the API. This means
+ * that it can be only one jiffy timer per application.
+ */
 
 #ifdef __cplusplus
  }
