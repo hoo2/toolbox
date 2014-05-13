@@ -1,10 +1,11 @@
 /*!
- * \file
- *    ee_i2c_pol.h
+ * \file ee_i2c_pol.h
  * \brief
- *    Is the header file for the EEPROM Emulation
+ *    A target independent EEPROM (24xx series) driver using i2c_pol
  *
- * Copyright (C) 2013 Houtouridis Christos (http://houtouridis.blogspot.com/)
+ * This file is part of toolbox
+ *
+ * Copyright (C) 2014 Houtouridis Christos (http://www.houtouridis.net)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +20,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
- * Date:       07/2013
- * Version:    0.1
  */
 #ifndef __ee_i2c_pol_h__
 #define __ee_i2c_pol_h__
@@ -46,7 +44,7 @@ typedef volatile struct
    int            hw_addr;
    ee_size_en     size;
    int            pagesize;
-   int            speed;
+   int            freq;
    uint32_t       timeout;
    i2c_pol_t      i2c;
 }ee_t;
@@ -54,27 +52,33 @@ typedef volatile struct
 typedef uint32_t  idx_t;
 
 
-/* ===================   API   ========================*/
 
 /*
- * Callback connect functions
+ *  ============= PUBLIC ALCD API =============
  */
-void ee_sethwaddress (ee_t *ee, int add) ;
-void ee_setsize (ee_t *ee, int s);
-void ee_setpagesize (ee_t *ee, int ps);
-void ee_setspeed (ee_t *ee, int sp);
-void ee_settimeout (ee_t *ee, uint32_t to);
 
 /*
- * Init / De-Init
+ * Link and Glue functions
  */
+void ee_link_i2c_start (ee_t *ee);
+/*
+ * Set functions
+ */
+void ee_set_hwaddress (ee_t *ee, int add) ;
+void ee_set_size (ee_t *ee, int s);
+void ee_set_pagesize (ee_t *ee, int ps);
+void ee_set_speed (ee_t *ee, int freq);
+void ee_set_timeout (ee_t *ee, uint32_t to);
+
+/*
+ * User Functions
+ */
+/* Init / De-Init */
 void ee_deinit (ee_t *ee);
-void ee_init (ee_t *ee);
+ee_status_en ee_init (ee_t *ee);
 
-/*
- * I/O Operations
- */
-ee_status_en ee_readcur (ee_t *ee, uint8_t *byte);
+/* I/O Operations */
+ee_status_en ee_read (ee_t *ee, uint8_t *byte);
 ee_status_en ee_readbyte (ee_t *ee, uint8_t *byte, idx_t add);
 ee_status_en ee_readbuffer (ee_t *ee, uint8_t* buf, uint32_t num, idx_t add);
 ee_status_en ee_writebyte (ee_t *ee, uint8_t byte, idx_t add);
