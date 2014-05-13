@@ -25,8 +25,8 @@
    Version:    0.1
  */
 
-#ifndef __Sensors_h__
-#define __Sensors_h__
+#ifndef __sensors_lut_h__
+#define __sensors_lut_h__
 
 #include <math.h>
 #include <limits.h>
@@ -34,45 +34,24 @@
 
 
 /* ================        General         ======================*/
-
-#define  TEMP_ERROR    (-274.0) // Bellow Absolute zero
-
+#define  TEMP_ERROR    (-274.0)        // Bellow Absolute zero
 
 // Local type Definition
-typedef  float          SensorValue_t;
-typedef  float          Measurement_t;
-typedef  float          FROM_RefLUT_t;
-typedef    int          TO_RefLUT_t;
+typedef float  res_t;
+typedef float  temp_t;
+typedef float  lut_t;
 
-typedef  float          mVLUT_t;
-typedef  float          mV_t;
+/*
+ * ================== Exported API to Lib ==================
+ */
+float sen_nclut (float v, const lut_t *F, const float *T);
+float sen_pclut (float v, const lut_t *F, const float *T);
 
-typedef  float          ResLUT_t;
-typedef  float          Res_t;
+/*!
+ * \note
+ *    Dont need to use these functions directly. The sen_pt100(), sen_pt1000(),
+ *    sen_kty8x_121() etc... functions are beter ;)
+ */
 
-typedef    int          TempLUT_t;
-typedef  float          Temp_t;
-
-typedef    int          LuxLUT_t;
-typedef  float          Lux_t;
-
-
-// Extern reference at each Driver file
-typedef int16_t  adc_t;
-extern adc_t Temp_GetIntTemp (void);
-
-
-/* ================   Exported Functions    ======================*/
-Temp_t SEN_J_Type_mV2Temp (int Vadc, float g, int Vrefadc, float Vref);
-
-Temp_t SEN_PT100 (Res_t r);
-Temp_t SEN_PT1000 (Res_t r);
-Temp_t SEN_KTY8x_121 (Res_t r);
-Temp_t SEN_KTY8x_122 (Res_t r);
-Temp_t SEN_KTY11_6 (Res_t r);
-Temp_t SEN_NTC10k (Res_t r);
-
-Lux_t SENS_A906011_Res2Lux(Res_t r);
-
-#endif //#ifndef __Sensors_h__
+#endif //#ifndef __sensors_lut_h__
 

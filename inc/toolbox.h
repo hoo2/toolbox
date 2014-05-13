@@ -43,18 +43,17 @@ extern "C" {
 #include <drv/buttons.h>
 #include <drv/ee_i2c_pol.h>
 #include <drv/i2c_pol.h>
-//#include <drv/sd_spi_stm32.h>
-#include <drv/sensors_lut.h>
-//#include <drv/sim_ee.h>
-//#include <drv/spi_pol.h>
-#include <drv/ss_display.h>
+#include <drv/pt100x.h>
+#include <drv/ktyx.h>
+#include <drv/ntc3997k.h>
+#include <drv/jtype.h>
+
 
 // DSP
 #include <dsp/leaky_int.h>
 #include <dsp/moving_av.h>
 
 // std library adds and replacements
-#include <std/complex.h>
 #include <std/sprintf.h>
 #include <std/printf.h>
 #include <std/stime.h>

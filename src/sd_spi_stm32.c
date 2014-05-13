@@ -24,7 +24,7 @@
  *
  */
 
-#include "SD_spi_stm32.h"
+#include <drv/sd_spi_stm32.h>
 
 static SD_t    SD;
 
@@ -37,9 +37,9 @@ static SD_t    SD;
 static uint8_t _is_write_protected(void)
 {
    if (!SD.IO.WP)
-      return 0;
+      return (uint8_t)0;
    else
-      return ( SD.IO.WP() ) ? (uint8_t)1 : (uint8_t)0;
+      return (uint8_t) ( SD.IO.WP() ? 1:0);
 }
 
 /*!
@@ -50,9 +50,9 @@ static uint8_t _is_write_protected(void)
 static uint8_t _is_present(void)
 {
    if (!SD.IO.CD)
-      return 1;
+      return (uint8_t)1;
    else
-      return ( SD.IO.CD() ) ? (uint8_t)1 : (uint8_t)0;
+      return (uint8_t)( SD.IO.CD() ? 1:0);
 }
 
 /*!
@@ -107,8 +107,7 @@ static uint8_t _sd_baudrate_div (clock_t des_clk)
    else
       clk = CLOCK;
    // Calculate baud rate divider
-   for (brdiv=1 ; brdiv <= 8 ; brdiv<<=1)
-   {
+   for (brdiv=1 ; brdiv <= 8 ; brdiv<<=1) {
       spi_clk = clk/(0x1 << brdiv);
       if (spi_clk <= des_clk)
          break;
@@ -337,8 +336,7 @@ static uint8_t _sd_rx_datablock (sd_dat_t *buff, uint32_t n)
       return 0;
 
    // Receive the data block into buffer
-   do
-   {
+   do {
       _sd_rx_m(buff++);
       _sd_rx_m(buff++);
       _sd_rx_m(buff++);
@@ -366,9 +364,11 @@ static uint8_t _sd_tx_datablock (const sd_dat_t *buff, sd_dat_t token)
       return 0;
 
    _sd_tx (token);  // transmit data token
-   if (token != 0xFD)   // If is data token
-   {
-      // transmit the 512 byte data block to MMC/SD
+   if (token != 0xFD) {
+      /*
+       * If is data token  transmit the 512 byte
+       * data block to MMC/SD
+       */
       do
          _sd_tx (*buff++);
       while (--wc);
@@ -392,8 +392,7 @@ static sd_dat_t _sd_send_cmd (sd_dat_t cmd, uint32_t arg)
 {
    sd_dat_t n, r;
 
-   if (cmd & 0x80)
-   {
+   if (cmd & 0x80) {
       /*!
        * SD_ACMD<n> is the command sequence of SD_CMD55-SD_CMD<n>
        */
@@ -505,33 +504,27 @@ SD_Status_t SD_init (int8_t drv)
       _sd_rx();
 
    type = 0;
-   if (_sd_send_cmd(SD_CMD0, 0) == 1)  // Enter Idle state
-   {
-      if (_sd_send_cmd(SD_CMD8, 0x1AA) == 1) // SDHC
-      {
+   if (_sd_send_cmd(SD_CMD0, 0) == 1) { // Enter Idle state
+      if (_sd_send_cmd(SD_CMD8, 0x1AA) == 1) { // SDHC
          for (n-0 ; n<4 ; ++n)   // Get trailing return value of R7 response
             ocr[n] = _sd_rx();
-         if (ocr[2] == 0x01 && ocr[3] == 0xAA)  // The card can work at VDD range of 2.7-3.6V
-         {
+         if (ocr[2] == 0x01 && ocr[3] == 0xAA) {
+            // The card can work at VDD range of 2.7-3.6V
             // Wait for leaving idle state (SD_ACMD41 with HCS bit)
             SD.t1 = SD_INIT_TIMEOUT;    // Initialization timeout
             while (SD.t1 && _sd_send_cmd(SD_ACMD41, 1UL << 30))
                ;
-            if (SD.t1 && _sd_send_cmd(SD_CMD58, 0) == 0)
-            {
+            if (SD.t1 && _sd_send_cmd(SD_CMD58, 0) == 0){
                // Check CCS bit in the OCR
                for (n=0; n < 4; ++n)
                   ocr[n] = _sd_rx();
                type = (ocr[0] & 0x40) ? CT_SD2 | CT_BLOCK : CT_SD2;
             }
          }
-      }
-      else  // SDSC or MMC
-      {
+      } else { // SDSC or MMC
          if (_sd_send_cmd(SD_ACMD41, 0) <= 1) {  // SDSC
             type = CT_SD1; cmd = SD_ACMD41;
-         }
-         else { // MMC
+         } else { // MMC
             type = CT_MMC; cmd = SD_CMD1;
          }
          // Wait for leaving idle state
@@ -546,8 +539,7 @@ SD_Status_t SD_init (int8_t drv)
    SD.type = type;
    _sd_release();    // Initialization ended
 
-   if (type)   // Initialization succeeded
-   {
+   if (type) {  // Initialization succeeded
       SD.status &= ~STA_NOINIT;    // Clear STA_NOINIT
       // Reads the maximum data transfer rate from CSD
       SD_ioctl(drv, MMC_GET_CSD, csd);
@@ -565,7 +557,6 @@ SD_Status_t SD_init (int8_t drv)
  * \param   drv  Physical drive number (0)
  */
 SD_Status_t SD_getstatus (int8_t drv)
-
 {
    if (drv) // Supports only single drive
       return STA_NOINIT;
@@ -579,7 +570,6 @@ SD_Status_t SD_getstatus (int8_t drv)
  * \param   st    Disk status
  */
 SD_Status_t SD_setstatus (int8_t drv, SD_Status_t st)
-
 {
    if (drv) // Supports only single drive
       return STA_NOINIT;
@@ -602,26 +592,21 @@ SD_Result_t SD_read (uint8_t drv, sd_dat_t *buff, uint32_t sector, uint8_t count
    if (!(SD.type & CT_BLOCK)) // Convert to byte address if needed
       sector *= 512;
 
-   if (count == 1)   //Single block read
-   {
-      if (_sd_send_cmd(SD_CMD17, sector) == 0) // READ_SINGLE_BLOCK
+   if (count == 1) { //Single block read
+      if (_sd_send_cmd(SD_CMD17, sector) == 0)     // READ_SINGLE_BLOCK
          if (_sd_rx_datablock(buff, 512))
             count = 0;
-   }
-   else     // Multiple block read
-   {
-      if (_sd_send_cmd(SD_CMD18, sector) == 0)  // READ_MULTIPLE_BLOCK
-      {
+   } else {          // Multiple block read
+      if (_sd_send_cmd(SD_CMD18, sector) == 0) {   // READ_MULTIPLE_BLOCK
          do {
             if (!_sd_rx_datablock(buff, 512))
                break;
             buff += 512;
          } while (--count);
-         _sd_send_cmd(SD_CMD12, 0);           // STOP_TRANSMISSION
+         _sd_send_cmd(SD_CMD12, 0);                // STOP_TRANSMISSION
       }
    }
    _sd_release();
-
    return (SD_Result_t) (count ? RES_ERROR : RES_OK);
 }
 
@@ -642,18 +627,14 @@ SD_Result_t SD_write (uint8_t drv, const sd_dat_t *buff, uint32_t sector, uint8_
    if (!(SD.type & CT_BLOCK)) // Convert to byte address if needed
       sector *= 512;
 
-   if (count == 1)   // Single block write
-   {
+   if (count == 1) {    // Single block write
       if ((_sd_send_cmd(SD_CMD24, sector) == 0)  // WRITE_BLOCK
          && _sd_tx_datablock(buff, 0xFE))
          count = 0;
-   }
-   else              // Multiple block write
-   {
+   } else {             // Multiple block write
       if (SD.type & CT_SDC)
          _sd_send_cmd(SD_ACMD23, count);
-      if (_sd_send_cmd(SD_CMD25, sector) == 0)  // WRITE_MULTIPLE_BLOCK
-      {
+      if (_sd_send_cmd(SD_CMD25, sector) == 0) { // WRITE_MULTIPLE_BLOCK
          do {
             if (!_sd_tx_datablock(buff, 0xFC))
                break;
@@ -664,7 +645,6 @@ SD_Result_t SD_write (uint8_t drv, const sd_dat_t *buff, uint32_t sector, uint8_
       }
    }
    _sd_release();
-
    return (SD_Result_t) (count ? RES_ERROR : RES_OK);
 }
 
@@ -686,8 +666,7 @@ SD_Result_t SD_ioctl (uint8_t drv, sd_dat_t ctrl, void *buff)
 
    res = RES_ERROR;
 
-   if (ctrl == CTRL_POWER)
-   {
+   if (ctrl == CTRL_POWER) {
       switch (*ptr)
       {
          case 0:     /* Sub control code == 0 (POWER_OFF) */
@@ -706,9 +685,7 @@ SD_Result_t SD_ioctl (uint8_t drv, sd_dat_t ctrl, void *buff)
          default :
             res = RES_PARERR;
       }
-   }
-   else
-   {
+   } else {
       if (SD.status & STA_NOINIT) return RES_NOTRDY;
 
       switch (ctrl)
@@ -721,15 +698,11 @@ SD_Result_t SD_ioctl (uint8_t drv, sd_dat_t ctrl, void *buff)
             break;
          // Get number of sectors on the disk (uint32_t)
          case GET_SECTOR_COUNT :
-            if ((_sd_send_cmd(SD_CMD9, 0) == 0) && _sd_rx_datablock(csd, 16))
-            {
-               if ((csd[0] >> 6) == 1) // SDC version 2.00
-               {
+            if ((_sd_send_cmd(SD_CMD9, 0) == 0) && _sd_rx_datablock(csd, 16)) {
+               if ((csd[0] >> 6) == 1) { // SDC version 2.00
                   csize = csd[9] + ((uint16_t)csd[8] << 8) + 1;
                   *(uint32_t*)buff = (uint32_t)csize << 10;
-               }
-               else  // SDC version 1.XX or MMC
-               {
+               } else { // SDC version 1.XX or MMC
                   n = (csd[5] & 15) + ((csd[10] & 128) >> 7) + ((csd[9] & 3) << 1) + 2;
                   csize = (csd[8] >> 6) + ((uint16_t)csd[7] << 2) + ((uint16_t)(csd[6] & 3) << 10) + 1;
                   *(uint32_t*)buff = (uint32_t)csize << (n - 9);
@@ -744,24 +717,18 @@ SD_Result_t SD_ioctl (uint8_t drv, sd_dat_t ctrl, void *buff)
             break;
          // Get erase block size in unit of sector (uint32_t)
          case GET_BLOCK_SIZE :
-            if (SD.type & CT_SD2)   // SDC version 2.00
-            {
-               if (_sd_send_cmd(SD_ACMD13, 0) == 0)   /* Read SD status */
-               {
+            if (SD.type & CT_SD2) {  // SDC version 2.00
+               if (_sd_send_cmd(SD_ACMD13, 0) == 0) {  /* Read SD status */
                   _sd_rx();
-                  if (_sd_rx_datablock(csd, 16))   /* Read partial block */
-                  {
+                  if (_sd_rx_datablock(csd, 16)) {  /* Read partial block */
                      for (n = 64 - 16; n; n--)     /* Purge trailing data */
                         _sd_rx();
                      *(uint32_t*)buff = 16UL << (csd[10] >> 4);
                      res = RES_OK;
                   }
                }
-            }
-            else        // SDC version 1.XX or MMC
-            {
-               if ((_sd_send_cmd(SD_CMD9, 0) == 0) && _sd_rx_datablock(csd, 16)) // Read CSD
-               {
+            } else {       // SDC version 1.XX or MMC
+               if ((_sd_send_cmd(SD_CMD9, 0) == 0) && _sd_rx_datablock(csd, 16)) { // Read CSD
                   if (SD.type & CT_SD1)  // SDC version 1.XX
                      *(uint32_t*)buff = (((csd[10] & 63) << 1) + ((uint16_t)(csd[11] & 128) >> 7) + 1) << ((csd[13] >> 6) - 1);
                   else                    // MMC
@@ -789,8 +756,7 @@ SD_Result_t SD_ioctl (uint8_t drv, sd_dat_t ctrl, void *buff)
             break;
          // Receive OCR as an R3 response (4 bytes)
          case MMC_GET_OCR :
-            if (_sd_send_cmd(SD_CMD58, 0) == 0)    // READ_OCR
-            {
+            if (_sd_send_cmd(SD_CMD58, 0) == 0) {   // READ_OCR
                for (n = 4; n; --n)
                   *ptr++ = _sd_rx();
                res = RES_OK;
@@ -798,8 +764,7 @@ SD_Result_t SD_ioctl (uint8_t drv, sd_dat_t ctrl, void *buff)
             break;
          // Receive SD status as a data block (64 bytes)
          case MMC_GET_SDSTAT :
-            if (_sd_send_cmd(SD_ACMD13, 0) == 0)   // SD_STATUS
-            {
+            if (_sd_send_cmd(SD_ACMD13, 0) == 0) {  // SD_STATUS
                _sd_rx();
                if (_sd_rx_datablock(ptr, 64))
                   res = RES_OK;
