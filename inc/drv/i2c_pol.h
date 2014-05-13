@@ -1,20 +1,24 @@
-/*
- * \file jiffies.h
+/*!
+ * \file i2c_pol.h
+ * \brief
+ *    A target independent i2c poling driver with ACK/NACK support.
  *
- * Copyright (C) 2013 Houtouridis Christos <houtouridis.ch@gmail.com>
- * All Rights Reserved.
+ * This file is part of toolbox
  *
- * NOTICE:  All information contained herein is, and remains
- * the property of Houtouridis Christos. The intellectual
- * and technical concepts contained herein are proprietary to
- * Houtouridis Christos and are protected by copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from Houtouridis Christos.
+ * Copyright (C) 2014 Houtouridis Christos (http://www.houtouridis.net)
  *
- * Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
- * Date:       06/2013
- * Version:    0.1
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #ifndef __i2c_pol_h__
@@ -24,7 +28,9 @@
 extern "C" {
 #endif
 
+#include <toolbox_defs.h>
 #include <sys/jiffies.h>
+#include <string.h>
 #include <stdint.h>
 
 // Callback types
@@ -36,22 +42,38 @@ typedef volatile struct
    i2c_pin_ft     sda,scl;
    i2c_pindir_ft  sda_dir;
    int            clk_delay;
+   drv_status_t   status;
 }i2c_pol_t;
 
 
-void i2c_setsda(i2c_pol_t *i2c, i2c_pin_ft sda);
-void i2c_setscl (i2c_pol_t *i2c, i2c_pin_ft scl);
-void i2c_setsdadir (i2c_pol_t *i2c, i2c_pindir_ft pd);
-void i2c_setspeed (i2c_pol_t *i2c, int speed);
 
+/*
+ *  ============= PUBLIC ALCD API =============
+ */
 
+/*
+ * Link and Glue functions
+ */
+void i2c_link_sda(i2c_pol_t *i2c, i2c_pin_ft sda); /*!< link driver's SDA function*/
+void i2c_link_scl (i2c_pol_t *i2c, i2c_pin_ft scl); /*!< link driver's SCL function*/
+void i2c_link_sdadir (i2c_pol_t *i2c, i2c_pindir_ft pd); /*!< link driver's SDA_dir function*/
+
+/*
+ * Set functions
+ */
+void i2c_set_speed (i2c_pol_t *i2c, int freq); /*!< set i2c speed */
+
+/*
+ * User Functions
+ */
+drv_status_t i2c_probe (i2c_pol_t *i2c);
 void i2c_deinit (i2c_pol_t *i2c);
-void i2c_init (i2c_pol_t *i2c, int speed);
-void i2c_start (i2c_pol_t *i2c);
-void i2c_stop (i2c_pol_t *i2c);
-uint8_t i2c_tx(i2c_pol_t *i2c, uint8_t byte);
-uint8_t i2c_rx(i2c_pol_t *i2c, uint8_t ack);
+int i2c_init (i2c_pol_t *i2c);
 
+int i2c_start (i2c_pol_t *i2c);
+void i2c_stop (i2c_pol_t *i2c);
+int i2c_tx(i2c_pol_t *i2c, uint8_t byte);
+uint8_t i2c_rx(i2c_pol_t *i2c, uint8_t ack);
 
 #ifdef __cplusplus
 }
