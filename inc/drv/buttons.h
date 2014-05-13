@@ -1,39 +1,37 @@
-/**
-  * BTN16.h
-  *
-  * Copyright (C) 2013 Houtouridis Christos <houtouridis.ch@gmail.com>
-  *
-  * This program is free software: you can redistribute it and/or modify
-  * it under the terms of the GNU Lesser General Public License as
-  * published by the Free Software Foundation, either version 3
-  * of the License, or (at your option) any later version.
-  *
-  * This program is distributed in the hope that it will be useful,
-  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  * GNU Lesser General Public License for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-  *
-  * Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
-  * Date:       06/2013
-  * Version:
-  *
-  */
-#ifndef __Buttons_h__
-#define __Buttons_h__
+/*!
+ * \file buttons.h
+ * \brief
+ *    A target independent direct connect button driver
+ *
+ * This file is part of toolbox
+ *
+ * Copyright (C) 2014 Houtouridis Christos (http://www.houtouridis.net)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+#ifndef __buttons_h__
+#define __buttons_h__
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #include <stdint.h>
 #include <time.h>
 
-
 typedef  int         keys_t;
-typedef  uint8_t     bt_t;
 
 #define BTN_NULL              (-1)
 
@@ -46,7 +44,7 @@ typedef  uint8_t     bt_t;
 #define BTN_LONG_PRE_MASK     (1 << BTN_NUMBER)
 #define BTN_LONG_REL_MASK     (1 << (BTN_NUMBER+1))
 
-typedef bt_t (*BTN_Pin_t) (void);
+typedef uint8_t (*btn_pin_t) (void);
 
 /*!
  * Button Pin assignements.
@@ -57,56 +55,92 @@ typedef bt_t (*BTN_Pin_t) (void);
  */
 typedef volatile struct
 {
-   BTN_Pin_t  BT0;      /*!< Pointer for BTN0 pin */
-   BTN_Pin_t  BT1;      /*!< Pointer for BTN1 pin */
-   BTN_Pin_t  BT2;      /*!< Pointer for BTN2 pin */
-   BTN_Pin_t  BT3;      /*!< Pointer for BTN3 pin */
-   BTN_Pin_t  BT4;      /*!< Pointer for BTN4 pin */
-   BTN_Pin_t  BT5;      /*!< Pointer for BTN5 pin */
-   BTN_Pin_t  BT6;      /*!< Pointer for BTN6 pin */
-   BTN_Pin_t  BT7;      /*!< Pointer for BTN7 pin */
-   BTN_Pin_t  BT8;      /*!< Pointer for BTN8 pin */
-   BTN_Pin_t  BT9;      /*!< Pointer for BTN9 pin */
-   BTN_Pin_t  BT10;     /*!< Pointer for BTN10 pin */
-   BTN_Pin_t  BT11;     /*!< Pointer for BTN11 pin */
-   BTN_Pin_t  BT12;     /*!< Pointer for BTN12 pin */
-   BTN_Pin_t  BT13;     /*!< Pointer for BTN13 pin */
-   BTN_Pin_t  BT14;     /*!< Pointer for BTN14 pin */
-   BTN_Pin_t  BT15;     /*!< Pointer for BTN15 pin */
-}BTN_IO_t;
+   btn_pin_t  btn0;      /*!< Pointer for BTN0 pin */
+   btn_pin_t  btn1;      /*!< Pointer for BTN1 pin */
+   btn_pin_t  btn2;      /*!< Pointer for BTN2 pin */
+   btn_pin_t  btn3;      /*!< Pointer for BTN3 pin */
+   btn_pin_t  btn4;      /*!< Pointer for BTN4 pin */
+   btn_pin_t  btn5;      /*!< Pointer for BTN5 pin */
+   btn_pin_t  btn6;      /*!< Pointer for BTN6 pin */
+   btn_pin_t  btn7;      /*!< Pointer for btN7 pin */
+   btn_pin_t  btn8;      /*!< Pointer for BTN8 pin */
+   btn_pin_t  btn9;      /*!< Pointer for BTN9 pin */
+   btn_pin_t  btn10;     /*!< Pointer for BTN10 pin */
+   btn_pin_t  btn11;     /*!< Pointer for BTN11 pin */
+   btn_pin_t  btn12;     /*!< Pointer for BTN12 pin */
+   btn_pin_t  btn13;     /*!< Pointer for BTN13 pin */
+   btn_pin_t  btn14;     /*!< Pointer for BTN14 pin */
+   btn_pin_t  btn15;     /*!< Pointer for BTN15 pin */
+}btn_io_t;
 
 /*!
  * Alpharithmetic LCD Public Data struct
  */
 typedef volatile struct
 {
-   BTN_IO_t       IO;            /*!< Link to IO struct */
+   btn_io_t       io;            /*!< Link to IO struct */
    clock_t        holdtime;
    clock_t        reptime;
    uint8_t        repetitive  :1;
-}BTN_t;
+}btn_t;
 
-extern BTN_t BTN;
+extern btn_t BTN;
 
 typedef volatile struct
 {
    keys_t   ib [INPUT_BUFFER_SIZE];
    int8_t   front, rear;     //queue pointers
-}BTN_input_buffer_t;
+}btn_input_buffer_t;
 
 typedef enum
 {
    BTN_IDLE=0, BTN_PRE, BTN_LONG
-}BTN_State_t;
+}btn_state_t;
 
-int BTN_Connect (volatile BTN_Pin_t *sio, BTN_Pin_t pfun);
-keys_t BTN_Getkey (uint8_t wait);
-void BTN_Flush (void);
-void BTN_Service (void);
+
+
+/*
+ *  ============= PUBLIC Buttons API =============
+ */
+
+/*
+ * Link and Glue functions
+ */
+void btn_link (volatile btn_pin_t *sio, btn_pin_t pfun);
+#define  btn_link_btn0(_pfun)    btn_link (BTN.io.btn0, _pfun)
+#define  btn_link_btn1(_pfun)    btn_link (BTN.io.btn1, _pfun)
+#define  btn_link_btn2(_pfun)    btn_link (BTN.io.btn2, _pfun)
+#define  btn_link_btn3(_pfun)    btn_link (BTN.io.btn3, _pfun)
+#define  btn_link_btn4(_pfun)    btn_link (BTN.io.btn4, _pfun)
+#define  btn_link_btn5(_pfun)    btn_link (BTN.io.btn5, _pfun)
+#define  btn_link_btn6(_pfun)    btn_link (BTN.io.btn6, _pfun)
+#define  btn_link_btn7(_pfun)    btn_link (BTN.io.btn7, _pfun)
+#define  btn_link_btn8(_pfun)    btn_link (BTN.io.btn8, _pfun)
+#define  btn_link_btn9(_pfun)    btn_link (BTN.io.btn9, _pfun)
+#define  btn_link_btn10(_pfun)   btn_link (BTN.io.btn10, _pfun)
+#define  btn_link_btn11(_pfun)   btn_link (BTN.io.btn11, _pfun)
+#define  btn_link_btn12(_pfun)   btn_link (BTN.io.btn12, _pfun)
+#define  btn_link_btn13(_pfun)   btn_link (BTN.io.btn13, _pfun)
+#define  btn_link_btn14(_pfun)   btn_link (BTN.io.btn14, _pfun)
+#define  btn_link_btn15(_pfun)   btn_link (BTN.io.btn15, _pfun)
+
+/*
+ * Set functions
+ */
+void btn_set_holdtime (clock_t holdtime);
+void btn_set_reptime (clock_t reptime);
+void btn_set_repetitive (uint8_t rep);
+
+/*
+ * User Functions
+ */
+keys_t btn_getkey (uint8_t wait);
+void btn_flush (void);
+void btn_service (void);
 
 
 #ifdef __cplusplus
- }
+}
 #endif
 
-#endif   //#ifndef __Buttons_h__
+#endif   //#ifndef __buttons_h__

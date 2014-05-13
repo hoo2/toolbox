@@ -1,44 +1,48 @@
-/*
- * BTN16.c
+/*!
+ * \file buttons.c
+ * \brief
+ *    A target independent direct connect button driver
  *
- * Copyright (C) 2013 Houtouridis Christos <houtouridis.ch@gmail.com>
- * All Rights Reserved.
+ * This file is part of toolbox
  *
- * NOTICE:  All information contained herein is, and remains
- * the property of Houtouridis Christos. The intellectual
- * and technical concepts contained herein are proprietary to
- * Houtouridis Christos and are protected by copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from Houtouridis Christos.
+ * Copyright (C) 2014 Houtouridis Christos (http://www.houtouridis.net)
  *
- * Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
- * Date:       06/2013
- * Version:
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
-#include <Buttons.h>
+#include <drv/buttons.h>
 
-BTN_t   BTN;
+btn_t   BTN;
 
-extern clock_t  volatile Ticks;
+//extern clock_t  volatile Ticks;
 
-static BTN_input_buffer_t     inbuf;
+static btn_input_buffer_t     inbuf;
 
-static keys_t BTN_IB_Put (keys_t k);
-static keys_t BTN_IB_Get (void);
-static int8_t BTN_IB_Capacity (void);
-static keys_t BTN_GetButtons (void);
+static keys_t _ib_put (keys_t k);
+static keys_t _ib_get (void);
+static int8_t _ib_capacity (void);
+static keys_t _get_buttons (void);
 
 /*!
   * \brief  This function puts a key to buffer.
   * \param  Key to be written
   * \retval BTN_NULL on error
 */
-static keys_t BTN_IB_Put (keys_t k)
+static keys_t _ib_put (keys_t k)
 {
-   int8_t   c = BTN_IB_Capacity();
+   int8_t   c = _ib_capacity();
 
    if ( c >= INPUT_BUFFER_SIZE ) //full queue
       return BTN_NULL;
@@ -53,9 +57,9 @@ static keys_t BTN_IB_Put (keys_t k)
   * \param  none
   * \retval Character from buffer, or BTN_NULL on empty buffer
 */
-static keys_t BTN_IB_Get (void)
+static keys_t _ib_get (void)
 {
-   int8_t   c = BTN_IB_Capacity();
+   int8_t   c = _ib_capacity();
    keys_t k;
 
    if ( c <= 0 )    //Empty queue
@@ -72,7 +76,7 @@ static keys_t BTN_IB_Get (void)
   * \param  none
   * \retval keys from buffer, or BT_NULL on empty buffer
 */
-static int8_t  BTN_IB_Capacity (void)
+static int8_t  _ib_capacity (void)
 {
    if (inbuf.front == inbuf.rear)
       return 0;
@@ -83,36 +87,35 @@ static int8_t  BTN_IB_Capacity (void)
 }
 
 /*!
-  * \brief  Reads the back-end functions and combine them
-  *         to synthesize the key value. Each pin corresponds
-  *         to one bit in the key variable.
-  *         for example:
-  *         key: 0x0009 ==> BTN0 and BTN3 are pressed.
-  *
+  * \brief
+  *    Reads the back-end functions and combine them to synthesize the
+  *    key value. Each pin corresponds to one bit in the key variable.
+  *    for example:
+  *    key: 0x0009 ==> BTN0 and BTN3 are pressed.
   * \param  none
   * \retval key value
 */
-static keys_t BTN_GetButtons (void)
+static keys_t _get_buttons (void)
 {
    keys_t key=0;  // Clear key
    keys_t tmp;
 
-   if (BTN.IO.BT0)   key |= BTN.IO.BT0();
-   if (BTN.IO.BT1)   key |= ((tmp = BTN.IO.BT1()) << 1);
-   if (BTN.IO.BT2)   key |= ((tmp = BTN.IO.BT2()) << 2);
-   if (BTN.IO.BT3)   key |= ((tmp = BTN.IO.BT3()) << 3);
-   if (BTN.IO.BT4)   key |= ((tmp = BTN.IO.BT4()) << 4);
-   if (BTN.IO.BT5)   key |= ((tmp = BTN.IO.BT5()) << 5);
-   if (BTN.IO.BT6)   key |= ((tmp = BTN.IO.BT6()) << 6);
-   if (BTN.IO.BT7)   key |= ((tmp = BTN.IO.BT7()) << 7);
-   if (BTN.IO.BT8)   key |= ((tmp = BTN.IO.BT8()) << 8);
-   if (BTN.IO.BT9)   key |= ((tmp = BTN.IO.BT9()) << 9);
-   if (BTN.IO.BT10)  key |= ((tmp = BTN.IO.BT10()) << 10);
-   if (BTN.IO.BT11)  key |= ((tmp = BTN.IO.BT11()) << 11);
-   if (BTN.IO.BT12)  key |= ((tmp = BTN.IO.BT12()) << 12);
-   if (BTN.IO.BT13)  key |= ((tmp = BTN.IO.BT13()) << 13);
-   if (BTN.IO.BT14)  key |= ((tmp = BTN.IO.BT14()) << 14);
-   if (BTN.IO.BT15)  key |= ((tmp = BTN.IO.BT15()) << 15);
+   if (BTN.io.btn0)   key |= BTN.io.btn0();
+   if (BTN.io.btn1)   key |= ((tmp = BTN.io.btn1()) << 1);
+   if (BTN.io.btn2)   key |= ((tmp = BTN.io.btn2()) << 2);
+   if (BTN.io.btn3)   key |= ((tmp = BTN.io.btn3()) << 3);
+   if (BTN.io.btn4)   key |= ((tmp = BTN.io.btn4()) << 4);
+   if (BTN.io.btn5)   key |= ((tmp = BTN.io.btn5()) << 5);
+   if (BTN.io.btn6)   key |= ((tmp = BTN.io.btn6()) << 6);
+   if (BTN.io.btn7)   key |= ((tmp = BTN.io.btn7()) << 7);
+   if (BTN.io.btn8)   key |= ((tmp = BTN.io.btn8()) << 8);
+   if (BTN.io.btn9)   key |= ((tmp = BTN.io.btn9()) << 9);
+   if (BTN.io.btn10)  key |= ((tmp = BTN.io.btn10()) << 10);
+   if (BTN.io.btn11)  key |= ((tmp = BTN.io.btn11()) << 11);
+   if (BTN.io.btn12)  key |= ((tmp = BTN.io.btn12()) << 12);
+   if (BTN.io.btn13)  key |= ((tmp = BTN.io.btn13()) << 13);
+   if (BTN.io.btn14)  key |= ((tmp = BTN.io.btn14()) << 14);
+   if (BTN.io.btn15)  key |= ((tmp = BTN.io.btn15()) << 15);
    return key;
 }
 
@@ -121,34 +124,46 @@ static keys_t BTN_GetButtons (void)
  * ============================ Public Functions ============================
  */
 
-/*!
-  * \brief  Connects a GetKey function to the corresponding pointer in
-  *         IO structure
-  * \param  sio,  The struct pointer to function
-  * \param  pfun, The function from the driver.
-  * \retval 0 on error, none zero on success.
-*/
-int BTN_Connect (volatile BTN_Pin_t *sio, BTN_Pin_t pfun)
-{
-   if (!pfun)
-      return 0;
-   *sio = pfun;
-   return 1;
-}
+/*
+ * Link and Glue functions
+ */
 
 /*!
-  * \brief  Returns the key to the caller.
-  *         If we have bt_wait flag set, it waits for the user choice.
+ * \brief
+ *    Links a driver GetKey function to the corresponding pointer in io struct.
+ * \param  sio,  The struct pointer to function
+ * \param  pfun, The function from the driver.
+ * \return none
+*/
+inline void btn_link (volatile btn_pin_t *sio, btn_pin_t pfun) {
+   *sio = pfun;
+}
+
+/*
+ * Set functions
+ */
+inline void btn_set_holdtime (clock_t holdtime) { BTN.holdtime = holdtime; }
+inline void btn_set_reptime (clock_t reptime) { BTN.reptime = reptime; }
+inline void btn_set_repetitive (uint8_t rep) { BTN.repetitive = rep; }
+
+/*
+ * User Functions
+ */
+
+/*!
+  * \brief
+  *    Returns the key to the caller.
+  *    If we have bt_wait flag set, it waits for the user choice.
   *
   * \param  wait  Wait for key flag
   * \retval key pressed or -1(EOF) if none.
   */
-keys_t BTN_Getkey (uint8_t wait)
+keys_t btn_getkey (uint8_t wait)
 {
    // wait for user's action
-   while (wait && !BTN_IB_Capacity())
+   while (wait && !_ib_capacity())
       ;
-   return BTN_IB_Get ();
+   return _ib_get ();
 }
 
 /*!
@@ -157,33 +172,35 @@ keys_t BTN_Getkey (uint8_t wait)
   * \param  none
   * \retval none
   */
-inline void BTN_Flush (void) {
+inline void btn_flush (void) {
    inbuf.front = inbuf.rear = 0;
 }
 
 /*!
-  * \brief  This function is the state machine for the Button functionality
-  *         Can be called from Interrupt or from a thread in while() loop.
-  *
-  *         Detects keys and feeds them to Input Buffer.
-  *         Call BTN_IB_Get() to read them.
-  *
+  * \brief
+  *    This function is the state machine for the Button functionality.
+  *    Can be called from Interrupt or from a thread in while() loop.
+  *    Detects keys and feeds them to Input Buffer.
+  *    Call _ib_get() to read them.
   * \param  none
   * \retval none
   */
-void BTN_Service (void)
+void btn_service (void)
 {
    static clock_t mark = 0;
    static clock_t rep_mark = 0;
-   static keys_t key=0, pr_key=0, max_key=0, bounce_bf[2]={0,0};
-   static BTN_State_t state;
+   static btn_state_t state;
    static uint8_t rep_flag = 0;
+   static keys_t  key=0,
+                  pr_key=0,
+                  max_key=0,
+                  bounce_bf[2] = {0,0};   // 2 state de-bounce
 
-   pr_key = key;
+   clock_t now = clock ();
 
-   // De-bounce
+   // 2 state De-bounce
    bounce_bf[0] = bounce_bf[1];
-   bounce_bf[1] = BTN_GetButtons(); // Call the back-end to read the buttons
+   bounce_bf[1] = _get_buttons (); // Call the back-end to read the buttons
 
    if (bounce_bf[0] == bounce_bf[1])
       key = bounce_bf[1];
@@ -191,21 +208,21 @@ void BTN_Service (void)
       key = pr_key;
 
    /*!
+    * \note
     * This state machine waits for key. filters it and put it to inbuf.
     * - For standard presses filters by finding the max value
     * - For long presses it uses the final (long pressed) value
     *
-    * This number is the key returned to the user from Input Buffer ( BTN_IB_Get ())
+    * This number is the key returned to the user from Input Buffer ( _ib_get ())
     * So any combinations to the keys produces a different key number
-    * See also \see BTN_GetButtons()
+    * See also \see _get_buttons ()
     */
    switch (state)
    {
       case BTN_IDLE:
-         if (key)
-         {
+         if (key) {
             state = BTN_PRE;
-            mark = rep_mark = Ticks;
+            mark = rep_mark = now;
          }
          break;
       case BTN_PRE: // Button(s) is/are pressed
@@ -214,27 +231,29 @@ void BTN_Service (void)
           * and count the time to repetitive and long pressed.
           */
          if (key != pr_key)
-            mark = Ticks;
-         if (Ticks - mark >= BTN.holdtime)   // Put Long keys
-         {
+            mark = now;
+         if (now - mark >= BTN.holdtime) {
+            // Put Long keys
             state = BTN_LONG;
-            BTN_IB_Put (key | BTN_LONG_PRE_MASK);
+            _ib_put (key | BTN_LONG_PRE_MASK);
          }
-         if (!key)   // Key released
-         {
-            // Note: Here we put the max_key NOT key
-            BTN_IB_Put (max_key);
+         if (!key) {
+            /*
+             * Key released
+             * \note Here we put the max_key NOT key
+             */
+            _ib_put (max_key);
             max_key = 0;
             rep_flag = 0;
             state = BTN_IDLE;
          }
          break;
       case BTN_LONG: // Button(s) is/are long pressed
-         if (Ticks - mark >= (2*BTN.holdtime))
+         if (now - mark >= (2*BTN.holdtime))
             rep_flag = 1;
-         if (!key)   // Long key released
-         {
-            BTN_IB_Put (key | BTN_LONG_REL_MASK);
+         if (!key) {
+            // Long key released
+            _ib_put (key | BTN_LONG_REL_MASK);
             max_key = 0;
             rep_flag = 0;
             state = BTN_IDLE;
@@ -246,12 +265,11 @@ void BTN_Service (void)
       max_key = key;
 
    // Repetitive capability
-   if (rep_flag && BTN.repetitive && (Ticks - rep_mark >= BTN.reptime))
-   {
-      BTN_IB_Put (key);
-      rep_mark = Ticks;
+   if (rep_flag && BTN.repetitive && (now - rep_mark >= BTN.reptime)) {
+      _ib_put (key);
+      rep_mark = now;
    }
-
+   pr_key = key;
 }
 
 
