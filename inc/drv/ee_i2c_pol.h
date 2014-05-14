@@ -54,13 +54,14 @@ typedef uint32_t  idx_t;
 
 
 /*
- *  ============= PUBLIC ALCD API =============
+ *  ============= PUBLIC EE API =============
  */
 
 /*
  * Link and Glue functions
  */
 void ee_link_i2c_start (ee_t *ee);
+
 /*
  * Set functions
  */
@@ -73,11 +74,9 @@ void ee_set_timeout (ee_t *ee, uint32_t to);
 /*
  * User Functions
  */
-/* Init / De-Init */
 void ee_deinit (ee_t *ee);
 ee_status_en ee_init (ee_t *ee);
 
-/* I/O Operations */
 ee_status_en ee_read (ee_t *ee, uint8_t *byte);
 ee_status_en ee_readbyte (ee_t *ee, uint8_t *byte, idx_t add);
 ee_status_en ee_readbuffer (ee_t *ee, uint8_t* buf, uint32_t num, idx_t add);
