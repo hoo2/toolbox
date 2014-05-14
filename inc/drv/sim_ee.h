@@ -1,110 +1,100 @@
-/**
-
-	EE.h - Is the header file for the EEPROM Emulation
-
-   Copyright (C) 2012 Houtouridis Christos (http://houtouridis.blogspot.com/)
-
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-   Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
-   Date:       1/2012
-   Version:    0.1
-
-*/
-
-/*
-   *** NOTE ***
-   For now the EE has no inode table in flash
-   and search for an extern defined inode table
+/*!
+ * \file sim_ee.h
+ * \brief
+ *    A target independent simulated EEPROM functionality. The algorithm use
+ *    a flash API, and 2 flash regions in order to simulate an eeprom behaviour.
+ *
+ * This file is part of toolbox
+ *
+ * Copyright (C) 2014 Houtouridis Christos (http://www.houtouridis.net)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
+#ifndef __sim_ee_h__
+#define __sim_ee_h__
 
-#ifndef __EE_h__
-#define __EE_h__
-
-#include <Flash.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
 
 /* ================   User Defines   ====================*/
 
-// See datasheet for the page range
-#ifdef STM32F100C4
- #define    EE_PAGE0_ADDRESS           ((uint32_t)0x08003800)     //PAGE 14
- #define    EE_PAGE1_ADDRESS           ((uint32_t)0x08003C00)     //PAGE 15
-#endif
-
-#ifdef STM32F100C6
- #define    EE_PAGE0_ADDRESS           ((uint32_t)0x08007000)     //PAGE 28
- #define    EE_PAGE1_ADDRESS           ((uint32_t)0x08007800)     //PAGE 30
- #define    EE_PAGE_SIZE               (0x0800)    // 2Kb
- #define    ARM_PAGE_SIZE              (0x0400)    // 1Kb
-#endif
-
-#ifdef STM32F100R6
- #define    EE_PAGE0_ADDRESS           ((uint32_t)0x08007000)     //PAGE 28
- #define    EE_PAGE1_ADDRESS           ((uint32_t)0x08007800)     //PAGE 30
- #define    EE_PAGE_SIZE               (0x0800)    // 2Kb
- #define    ARM_PAGE_SIZE              (0x0400)    // 1Kb
-#endif
-
-#ifdef STM32F100C8
- #define    EE_PAGE0_ADDRESS           ((uint32_t)0x0800F800)     //PAGE 62
- #define    EE_PAGE1_ADDRESS           ((uint32_t)0x0800FC00)     //PAGE 63
- #define    EE_PAGE_SIZE               (0x0400)    // 1Kb
- #define    ARM_PAGE_SIZE              (0x0400)    // 1Kb
-#endif
-
-#ifdef STM32F100R8
- #define    EE_PAGE0_ADDRESS           ((uint32_t)0x0800F000)     //PAGE 60
- #define    EE_PAGE1_ADDRESS           ((uint32_t)0x0800F800)     //PAGE 62
- #define    EE_PAGE_SIZE               (0x0800)    // 2Kb
- #define    ARM_PAGE_SIZE              (0x0400)    // 1Kb
-#endif
 
 /* ================   General Defines   ====================*/
-
-#define  EE_EMULATED_SIZE              ( EE_PAGE_SIZE / (sizeof(EE_Data_t) + sizeof(EE_Index_t)) )
                                                                 
+typedef  uint32_t       see_index_t;
+typedef  uint32_t       see_add_t;
+typedef  uint32_t       see_data_t;
 
-typedef  uint16_t       EE_Index_t;
-typedef  size_t         EE_Data_t;     // Make each data a size_t size
-
-
-typedef enum
-{
+typedef enum {
    EE_SUCCESS = 0,
    EE_NODATA,
    EE_PAGEFULL,
    EE_FLASHERROR,
    EE_EEFULL
-}EE_ExitStatus_t;
+}see_status_en;
 
-typedef enum
-{
+typedef enum {
    EE_PAGE_ACTIVE = 0,
    EE_PAGE_RECEIVEDATA = 0xAAAA,
    EE_PAGE_EMPTY = 0xFFFF
-}EE_PageStatus_t;
+}see_page_status_en;
 
-typedef enum
-{
+typedef enum {
    EE_PAGE0, EE_PAGE1
-}EE_Page_t;
+}see_page_en;
 
-EE_ExitStatus_t   EE_Init (void);
-EE_ExitStatus_t   EE_Format (void);
-EE_ExitStatus_t   EE_Read (EE_Index_t idx, EE_Data_t *d);
-EE_ExitStatus_t   EE_Write (EE_Index_t idx, EE_Data_t *d);
+typedef struct {
+   see_add_t page0_add;     /*!< The PAGE0 address, or else the starting address of see */
+   see_add_t page1_add;     /*!< The PAGE1 address */
+   uint32_t  page_size;     /*!< The size of each pare */
+   uint32_t  flash_page_size;  /*!< The target flash page size */
+}see_t;
 
-#endif   //#ifndef __EE_h__
+/*
+ * ========== Public Simulated EE API ================
+ */
+
+/*
+ * Link and Glue functions
+ */
+extern void flash_unlock (void);
+extern void flash_lock (void);
+
+extern int flash_erase_page (uint32_t page);
+extern int flash_write (uint32_t address, void *data, int size);
+extern void flash_read (uint32_t address, void *data, int size);
+/*!<
+ * \note Tailor these function to glue sim_ee with target FLASH
+ */
+
+/*
+ * Set functions
+ */
+void see_set_page0_add (see_add_t address);
+void see_set_page1_add (see_add_t address);
+void see_set_page_size (uint32_t size);
+void see_set_flash_page_size (uint32_t size);
+
+/*
+ * User Functions
+ */
+void see_deinit (void);
+see_status_en see_init (void);
+see_status_en see_format (void);
+see_status_en see_read (see_index_t idx, see_data_t *d);
+see_status_en see_write (see_index_t idx, see_data_t *d);
+
+#endif   //#ifndef __sim_ee_h__
