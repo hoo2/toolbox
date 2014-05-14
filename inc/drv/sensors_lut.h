@@ -1,28 +1,29 @@
- /*
-
-	Sensors.h - Is the sensors input resistance to temperature, lux etx translator
-      API header file, for various sensor types.
-   includes:
-      PT100, PT1000, NTC10k (B25/85: 3977K), PerkinElmer A9060 11 Photocell
-
-   Copyright (C) 2011 Houtouridis Christos (http://houtouridis.blogspot.com/)
-
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-   Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
-   Date:       8/2011
-   Version:    0.1
+/*!
+ * \file sensors_lut.h
+ * \brief
+ *    A base tool for sensor files. It includes positive and negative coefficient
+ *    match routines.
+ *
+ * This file is part of toolbox
+ *
+ * Copyright (C) 2011 Houtouridis Christos <www.houtouridis.net>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
+ * Date:       5/2014
+ *
  */
 
 #ifndef __sensors_lut_h__
