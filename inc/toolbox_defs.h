@@ -44,18 +44,6 @@ extern "C" {
  */
 #define tbx_assert(x)  ((void)sizeof(x))
 
-/*!
- * This is a toolbox wide generic driver status type.
- */
-typedef enum
-{
-   DRV_NODEV=-1,   /*!< No device/module */
-   DRV_NOINIT=0,   /*!< Module/Device exist but no initialized */
-   DRV_READY,      /*!< Module/Device initialized succesfully */
-   DRV_BUSY        /*!< Module/Device busy */
-}drv_status_t;
-
-
 
 #ifdef __cplusplus
 }
