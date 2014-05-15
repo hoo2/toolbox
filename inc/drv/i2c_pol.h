@@ -42,7 +42,7 @@ typedef volatile struct
    i2c_pin_ft     sda,scl;
    i2c_pindir_ft  sda_dir;
    int            clk_delay;
-   drv_status_t   status;
+   drv_status_en  status;
 }i2c_pol_t;
 
 
