@@ -151,22 +151,6 @@ inline void btn_set_repetitive (uint8_t rep) { BTN.repetitive = rep; }
  */
 
 /*!
-  * \brief
-  *    Returns the key to the caller.
-  *    If we have bt_wait flag set, it waits for the user choice.
-  *
-  * \param  wait  Wait for key flag
-  * \retval key pressed or -1(EOF) if none.
-  */
-keys_t btn_getkey (uint8_t wait)
-{
-   // wait for user's action
-   while (wait && !_ib_capacity())
-      ;
-   return _ib_get ();
-}
-
-/*!
   * \brief  Flush input buffer
   *
   * \param  none
@@ -272,4 +256,45 @@ void btn_service (void)
    pr_key = key;
 }
 
+/*!
+  * \brief
+  *    Returns the key to the caller.
+  *    If we have bt_wait flag set, it waits for the user choice.
+  *
+  * \param  wait  Wait for key flag
+  * \retval key pressed or -1(EOF) if none.
+  */
+keys_t btn_getkey (uint8_t wait)
+{
+   // wait for user's action
+   while (wait && !_ib_capacity())
+      ;
+   return _ib_get ();
+}
 
+/*!
+ * \brief
+ *    buttons ioctl function
+ *
+ * \param  cmd   specifies the command to FLASH
+ *    \arg CTRL_GET_STATUS
+ *    \arg CTRL_FLUSH
+ * \param  buf   pointer to buffer for ioctl
+ * \return The status of the operation
+ *    \arg DRV_READY
+ *    \arg DRV_ERROR
+ */
+drv_status_en btn_ioctl (ioctl_cmd_t cmd, ioctl_buf_t *buf)
+{
+   switch (cmd)
+   {
+      case CTRL_GET_STATUS:            /*!< Probe function */
+         *(drv_status_en*)buf = BTN->status;
+         return BTN->status = DRV_READY;
+      case CTRL_FLUSH:
+         btn_flush ();
+         return BTN->status = DRV_READY;
+      default:                         /*!< Unsupported command, error */
+         return DRV_ERROR;
+   }
+}

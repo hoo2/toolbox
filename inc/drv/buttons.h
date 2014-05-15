@@ -82,6 +82,7 @@ typedef volatile struct
    clock_t        holdtime;
    clock_t        reptime;
    uint8_t        repetitive  :1;
+   drv_status_en  status;
 }btn_t;
 
 extern btn_t BTN;
@@ -134,9 +135,11 @@ void btn_set_repetitive (uint8_t rep);
 /*
  * User Functions
  */
-keys_t btn_getkey (uint8_t wait);
 void btn_flush (void);
 void btn_service (void);
+
+keys_t btn_getkey (uint8_t wait);
+drv_status_en btn_ioctl (ioctl_cmd_t cmd, ioctl_buf_t *buf);
 
 
 #ifdef __cplusplus
