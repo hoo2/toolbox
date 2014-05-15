@@ -30,7 +30,7 @@
 
 #include <stdint.h>
 #include <string.h>
-#include <toolbox_defs.h>
+#include <tbx_ioctl.h>
 
 typedef int32_t   jiffy_t;    /*!< Jiffy type 4 byte integer */
 
@@ -58,7 +58,7 @@ typedef volatile struct
    uint32_t       freq;          /*!< timer's overflow frequency */
    uint32_t       jiffies;       /*!< jiffies max value (timer's max value) */
    jiffy_t        jpus;          /*!< Variable for the delay function */
-   drv_status_t   status;
+   drv_status_en  status;
 }jf_t;
 
 
@@ -79,7 +79,7 @@ void jf_link_value (jiffy_t* v);
 /*
  * User Functions
  */
-drv_status_t jf_probe (void);
+drv_status_en jf_probe (void);
 void jf_deinit (void);
 int jf_init (uint32_t f);
 
