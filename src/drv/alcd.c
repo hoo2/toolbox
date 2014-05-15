@@ -235,8 +235,6 @@ inline void alcd_link_bl (alcd_t *alcd, alcd_pin_t pfun) { alcd->io.bl = pfun; }
  */
 int alcd_putchar (alcd_t *alcd, int ch)
 {
-   drv_status_t st = alcd->status;
-
    alcd->status = DRV_BUSY;
    // LCD Character dispatcher
    switch (ch)
@@ -276,7 +274,9 @@ int alcd_putchar (alcd_t *alcd, int ch)
          break;
    }
 
-   alcd->status = st;   // Restore status
+   // Restore status
+   alcd->status = DRV_READY;
+
    //ANSI C (C99) compatible mode
    return ch;
 }
@@ -286,15 +286,6 @@ int alcd_putchar (alcd_t *alcd, int ch)
  * User Functions
  */
 
-/*!
- * \brief
- *    De-initialize the alcd.
- * \param  alcd   pointer to active alcd.
- * \return none
- */
-inline drv_status_t alcd_probe (alcd_t *alcd) {
-   return alcd->status;
-}
 /*!
  * \brief
  *    De-initialize the alcd.
@@ -315,14 +306,14 @@ void alcd_deinit (alcd_t *alcd)
  * \param  alcd   pointer to active alcd.
  * \return Zero on success, non zero on error
  */
-int alcd_init (alcd_t *alcd)
+drv_status_en alcd_init (alcd_t *alcd)
 {
-   #define _lcd_assert(_x)  if (!_x) return 1;
+   #define _lcd_assert(_x)  if (!_x) return alcd->status = DRV_ERROR;
 
-   drv_status_t st = jf_probe ();
+   drv_status_en st = jf_probe ();
 
    if (st == DRV_NODEV || st == DRV_BUSY)
-      return 1;
+      return alcd->status = DRV_ERROR;
    _lcd_assert (alcd->io.db4);
    _lcd_assert (alcd->io.db5);
    _lcd_assert (alcd->io.db6);
@@ -366,8 +357,7 @@ int alcd_init (alcd_t *alcd)
    _command (alcd, LCD_DISP_ON);
       jf_delay_us(5000);
    alcd_backlight (alcd, 1);
-   alcd->status = DRV_READY;
-   return 0;
+   return alcd->status = DRV_READY;
 
    #undef _lcd_assert
 }
@@ -396,9 +386,6 @@ void alcd_backlight (alcd_t *alcd, int8_t on) {
  */
 void alcd_enable (alcd_t *alcd, uint8_t on)
 {
-   drv_status_t st = alcd->status;
-
-   alcd->status = DRV_BUSY;
    if (on) {
       _command (alcd, LCD_DISP_ON);
       alcd->io.bl (1);
@@ -406,7 +393,6 @@ void alcd_enable (alcd_t *alcd, uint8_t on)
       _command (alcd, LCD_DISP_OFF);
       alcd->io.bl (0);
    }
-   alcd->status = st;
 }
 
 /*!
@@ -417,14 +403,10 @@ void alcd_enable (alcd_t *alcd, uint8_t on)
  */
 void alcd_cls (alcd_t *alcd)
 {
-   drv_status_t st = alcd->status;
-
-   alcd->status = DRV_BUSY;
    _command(alcd, LCD_CLRSCR);
    jf_delay_us(2000);
    _command (alcd, LCD_RETHOME);
    jf_delay_us(2000);
-   alcd->status = st;
 }
 
 /*!
@@ -438,9 +420,6 @@ void alcd_cls (alcd_t *alcd)
  */
 void alcd_shift (alcd_t *alcd, int pos)
 {
-   drv_status_t st = alcd->status;
-
-   alcd->status = DRV_BUSY;
    uint8_t i, cmd = LCD_SHIFT_LEFT;
 
    if (pos<0) {
@@ -451,5 +430,51 @@ void alcd_shift (alcd_t *alcd, int pos)
       _command (alcd, cmd);
       jf_delay_us(100);
    }
-   alcd->status = st;
+}
+
+/*!
+ * \brief
+ *    Alpharithmetic LCD ioctl function
+ *
+ * \param  alcd  The active alcd struct.
+ * \param  cmd   specifies the command to FLASH
+ *    \arg CTRL_GET_STATUS
+ *    \arg CTRL_DEINIT
+ *    \arg CTRL_INIT
+ *    \arg CTRL_POWER
+ *    \arg CTRL_BACKLIGHT
+ *    \arg CTRL_CLEAR_ALL
+ *    \arg CTRL_SHIFT
+ * \param  buf   pointer to buffer for ioctl
+ * \return The status of the operation
+ *    \arg DRV_READY
+ *    \arg DRV_ERROR
+ */
+drv_status_en  alcd_ioctl (alcd_t *alcd, ioctl_cmd_t cmd, ioctl_buf_t *buf)
+{
+   switch (cmd)
+   {
+      case CTRL_GET_STATUS:            /*!< Probe function */
+         *(drv_status_en*)buf = alcd->status;
+         return alcd->status = DRV_READY;
+      case CTRL_DEINIT:                /*!< De-init */
+         alcd_deinit (alcd);           // status assignment implied
+         return DRV_READY;
+      case CTRL_INIT:                  /*!< Init */
+         return alcd_init (alcd);      // status assignment implied
+      case CTRL_POWER:                 /*!< Enable/disable */
+         alcd_enable (alcd, *buf);
+         return alcd->status = DRV_READY;
+      case CTRL_BACKLIGHT:             /*!< Backlight on/off */
+         alcd_backlight (alcd, *buf);
+         return alcd->status = DRV_READY;
+      case CTRL_CLEAR:                 /*!< BClear screen and return home */
+         alcd_cls (alcd);
+         return alcd->status = DRV_READY;
+      case CTRL_SHIFT:                 /*!< Shift lcd data */
+         alcd_shift (alcd, *buf);
+         return alcd->status = DRV_READY;
+      default:                         /*!< Unsupported command, error */
+         return DRV_ERROR;
+   }
 }

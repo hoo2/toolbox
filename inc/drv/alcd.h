@@ -33,11 +33,13 @@
 extern "C" {
 #endif
 
+#include <sys/jiffies.h>
+#include <tbx_ioctl.h>
 #include <stdint.h>
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
-#include <sys/jiffies.h>
+
 
 /*
  * General Defines
@@ -138,7 +140,7 @@ typedef volatile struct
    uint8_t        bus;     /*!< Bus length, 4 or 8 bit */
    uint8_t        bl :1;   /*!< BackLight flag */
    uint8_t        en :1;   /*!< Display Enable flag */
-   drv_status_t   status;  /*!< alcd driver status */
+   drv_status_en  status;  /*!< alcd driver status */
 }alcd_t;
 
 
@@ -167,13 +169,14 @@ int alcd_putchar (alcd_t *alcd, int ch);
 /*
  * User Functions
  */
-drv_status_t alcd_probe (alcd_t *alcd);
-void alcd_deinit (alcd_t *alcd);
-int alcd_init (alcd_t *alcd);
-void alcd_backlight (alcd_t *alcd, int8_t on);
-void alcd_enable (alcd_t *alcd, uint8_t on);
-void alcd_cls (alcd_t *alcd);
-void alcd_shift (alcd_t *alcd, int pos);
+void alcd_deinit (alcd_t *alcd);                /*!< For compatibility */
+drv_status_en alcd_init (alcd_t *alcd);         /*!< For compatibility */
+void alcd_backlight (alcd_t *alcd, int8_t on);  /*!< For compatibility */
+void alcd_enable (alcd_t *alcd, uint8_t on);    /*!< For compatibility */
+void alcd_cls (alcd_t *alcd);                   /*!< For compatibility */
+void alcd_shift (alcd_t *alcd, int pos);        /*!< For compatibility */
+
+drv_status_en  alcd_ioctl (alcd_t *alcd, ioctl_cmd_t cmd, ioctl_buf_t *buf);
 
 #ifdef __cplusplus
 }
