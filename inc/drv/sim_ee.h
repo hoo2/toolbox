@@ -25,8 +25,9 @@
 #ifndef __sim_ee_h__
 #define __sim_ee_h__
 
+#include <tbx_ioctl.h>
 #include <stdlib.h>
-#include <stddef.h>
+#include <string.h>
 #include <stdint.h>
 
 /* ================   User Defines   ====================*/
@@ -56,11 +57,18 @@ typedef enum {
    EE_PAGE0, EE_PAGE1
 }see_page_en;
 
+typedef drv_status_en (*fl_io_ft) (uint32_t , void*, int);   /*!< Flash I/O function pointer */
+typedef drv_status_en (*fl_ioctl_ft) (ioctl_cmd_t, ioctl_buf_t *);   /*!< Flash io control function pointer */
+
 typedef struct {
-   see_add_t page0_add;     /*!< The PAGE0 address, or else the starting address of see */
-   see_add_t page1_add;     /*!< The PAGE1 address */
-   uint32_t  page_size;     /*!< The size of each pare */
-   uint32_t  flash_page_size;  /*!< The target flash page size */
+   fl_io_ft    fl_read;       /*!< Link to FLASH read function */
+   fl_io_ft    fl_write;      /*!< Link to FLAH write function */
+   fl_ioctl_ft fl_ioctl;      /*!< Link to FLASH io control function */
+   see_add_t   page0_add;     /*!< The PAGE0 address, or else the starting address of see */
+   see_add_t   page1_add;     /*!< The PAGE1 address */
+   uint32_t    page_size;     /*!< The size of each pare */
+   uint32_t    flash_page_size;  /*!< The target flash page size */
+   drv_status_en status;
 }see_t;
 
 /*
@@ -70,31 +78,26 @@ typedef struct {
 /*
  * Link and Glue functions
  */
-extern void flash_unlock (void);
-extern void flash_lock (void);
-
-extern int flash_erase_page (uint32_t page);
-extern int flash_write (uint32_t address, void *data, int size);
-extern void flash_read (uint32_t address, void *data, int size);
-/*!<
- * \note Tailor these function to glue sim_ee with target FLASH
- */
+void see_link_flash_read (see_t *see, fl_io_ft f);
+void see_link_flash_write (see_t *see, fl_io_ft f);
+void see_link_flash_ioctl (see_t *see, fl_ioctl_ft f);
 
 /*
  * Set functions
  */
-void see_set_page0_add (see_add_t address);
-void see_set_page1_add (see_add_t address);
-void see_set_page_size (uint32_t size);
-void see_set_flash_page_size (uint32_t size);
+void see_set_page0_add (see_t *see, see_add_t address);
+void see_set_page1_add (see_t *see, see_add_t address);
+void see_set_page_size (see_t *see, uint32_t size);
+void see_set_flash_page_size (see_t *see, uint32_t size);
 
 /*
  * User Functions
  */
-void see_deinit (void);
-see_status_en see_init (void);
-see_status_en see_format (void);
-see_status_en see_read (see_index_t idx, see_data_t *d);
-see_status_en see_write (see_index_t idx, see_data_t *d);
+void see_deinit (see_t *see);          /*!< For compatibility */
+drv_status_en see_init (see_t *see);   /*!< For compatibility */
+
+drv_status_en see_read (see_t *see, see_index_t idx, see_data_t *d);
+drv_status_en see_write (see_t *see, see_index_t idx, see_data_t *d);
+drv_status_en see_ioctl (see_t *see, ioctl_cmd_t cmd, ioctl_buf_t *buf);
 
 #endif   //#ifndef __sim_ee_h__
