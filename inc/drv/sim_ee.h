@@ -68,6 +68,7 @@ typedef struct {
    see_add_t   page1_add;     /*!< The PAGE1 address */
    uint32_t    page_size;     /*!< The size of each pare */
    uint32_t    flash_page_size;  /*!< The target flash page size */
+   uint32_t    size;          /*!< The emulated size of the EEPROM */
    drv_status_en status;
 }see_t;
 
@@ -96,8 +97,10 @@ void see_set_flash_page_size (see_t *see, uint32_t size);
 void see_deinit (see_t *see);          /*!< For compatibility */
 drv_status_en see_init (see_t *see);   /*!< For compatibility */
 
-drv_status_en see_read (see_t *see, see_index_t idx, see_data_t *d);
-drv_status_en see_write (see_t *see, see_index_t idx, see_data_t *d);
+drv_status_en see_read_word (see_t *see, see_index_t idx, see_data_t *d);
+drv_status_en see_read (see_t *see, see_index_t idx, see_data_t *d, size_t size);
+drv_status_en see_write_word (see_t *see, see_index_t idx, see_data_t *d);
+drv_status_en see_write (see_t *see, see_index_t idx, see_data_t *d, size_t size);
 drv_status_en see_ioctl (see_t *see, ioctl_cmd_t cmd, ioctl_buf_t *buf);
 
 #endif   //#ifndef __sim_ee_h__

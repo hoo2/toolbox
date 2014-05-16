@@ -195,7 +195,7 @@ static see_status_en _page_swap (see_t *see)
    if ( _erase_page (see, to) != EE_SUCCESS )
       return EE_FLASHERROR;
    status = EE_PAGE_RECEIVEDATA;
-   if ( see->fl_write (to, (void*)&status, sizeof(status)) != 0 )
+   if ( see->fl_write (to, (void*)&status, sizeof(status)) != DRV_READY )
       return EE_FLASHERROR;
 
    // Copy each idx written on "from" page to their new home
@@ -233,12 +233,12 @@ static see_status_en _page_swap (see_t *see)
       ee_st = EE_FLASHERROR;
 
    status = EE_PAGE_EMPTY;     // Mark the new Page as EMPTY
-   if ( see->fl_write (from, (void*)&status, sizeof(status)) != 0 )
+   if ( see->fl_write (from, (void*)&status, sizeof(status)) != DRV_READY )
       ee_st = EE_FLASHERROR;
 
    // Mark the new Page as ACTIVE
    status = EE_PAGE_ACTIVE;
-   if ( see->fl_write (to, (void*)&status, sizeof(status)) != 0 )
+   if ( see->fl_write (to, (void*)&status, sizeof(status)) != DRV_READY )
       ee_st = EE_FLASHERROR;
 
    see->fl_ioctl (CTRL_CMD_LOCK, (void*)0);
@@ -277,9 +277,9 @@ static see_status_en  _format (see_t *see)
       page0_st = EE_PAGE_ACTIVE;
       page1_st = EE_PAGE_EMPTY;
 
-      if ( see->fl_write (see->page0_add, &page0_st, sizeof(page0_st)) != 0)
+      if ( see->fl_write (see->page0_add, &page0_st, sizeof(page0_st)) != DRV_READY)
          ee_st = EE_FLASHERROR;
-      if ( see->fl_write (see->page1_add, &page1_st, sizeof(page1_st)) != 0)
+      if ( see->fl_write (see->page1_add, &page1_st, sizeof(page1_st)) != DRV_READY)
          ee_st = EE_FLASHERROR;
    }
 
@@ -421,6 +421,7 @@ drv_status_en see_init (see_t *see)
    if (!see->fl_read)   return see->status = DRV_ERROR;
    if (!see->fl_write)  return see->status = DRV_ERROR;
 
+   see->size = _EE_EMULATED_SIZE;
    see->status = DRV_NOINIT;
    PageStatus0 = (see_page_status_en)*( see_data_t*)see->page0_add;
    PageStatus1 = (see_page_status_en)*( see_data_t*)see->page1_add;
@@ -491,7 +492,7 @@ drv_status_en see_init (see_t *see)
  *    \arg DRV_READY
  *    \arg DRV_ERROR
  */
-drv_status_en see_read (see_t *see, see_index_t idx, see_data_t *d)
+drv_status_en see_read_word (see_t *see, see_index_t idx, see_data_t *d)
 {
    see_add_t page;
 
@@ -507,8 +508,44 @@ drv_status_en see_read (see_t *see, see_index_t idx, see_data_t *d)
 
 /*!
  * \brief
- *    Try to write data to EEPROM. The data are d with size s.
- *    If there isn't room in EEPROM, return EE_EEFULL
+ *    Try to read data of size size, from EEPROM to the pointer d, for data.
+ *    If there isn't data with index a in EEPROM, the pointers d and s get NULL
+ * \param  see    The active see struct.
+ * \param  idx    The virtual address(index) of data
+ * \param  d      Pointer to data
+ * \param  size   size of data
+ * \retval Status
+ *    \arg DRV_READY
+ *    \arg DRV_ERROR
+ */
+drv_status_en see_read (see_t *see, see_index_t idx, see_data_t *d, size_t size)
+{
+   int i, ii = size / sizeof (see_data_t);
+   int rem = size % sizeof (see_data_t);
+   uint8_t      *pr;    // Pointer for the remaining data
+   union {              // Buffer for remaining data
+      uint8_t     b[sizeof(see_data_t)];
+      see_data_t  w;
+   }bf;
+
+   for (i=0 ; i<ii ; ++i) {
+      if ( see_read_word(see, idx++, d++) != DRV_READY )
+         return see->status = DRV_ERROR;
+   }
+   if (rem) {
+      pr = (uint8_t*)d;  // Take last memory address
+      if ( see_read_word(see, idx, &bf.w) != DRV_READY )
+         return see->status = DRV_ERROR;
+      for (i=0 ; i<rem ; ++i) // Restore the remaining data
+         *pr++ = bf.b[i];
+   }
+   return see->status = DRV_READY;
+}
+
+/*!
+ * \brief
+ *    Try to write data to EEPROM the data pointed by d.
+ *    If there isn't room in EEPROM, return DRV_ERROR
  * \param  see  The active see struct.
  * \param  idx  The virtual address(index) of data
  * \param  d    Pointer to data
@@ -516,7 +553,7 @@ drv_status_en see_read (see_t *see, see_index_t idx, see_data_t *d)
  *    \arg DRV_READY
  *    \arg DRV_ERROR
  */
-drv_status_en see_write (see_t *see, see_index_t idx, see_data_t *d)
+drv_status_en see_write_word (see_t *see, see_index_t idx, see_data_t *d)
 {
    see_add_t page;
    see_status_en ee_st;
@@ -553,11 +590,49 @@ drv_status_en see_write (see_t *see, see_index_t idx, see_data_t *d)
 
 /*!
  * \brief
+ *    Try to write data to EEPROM. The data are d with size size.
+ *    If there isn't room in EEPROM, return DRV_ERROR
+ * \param  see  The active see struct.
+ * \param  idx  The virtual address(index) of data
+ * \param  d    Pointer to data
+ * \param size  size of data
+ * \return Status
+ *    \arg DRV_READY
+ *    \arg DRV_ERROR
+ */
+drv_status_en see_write (see_t *see, see_index_t idx, see_data_t *d, size_t size)
+{
+   int i, ii = size / sizeof (see_data_t);
+   int rem = size % sizeof (see_data_t);
+   uint8_t      *pr;    // Pointer for the remaining data
+   union {              // Buffer for remaining data
+      uint8_t     b[sizeof(see_data_t)];
+      see_data_t  w;
+   }bf;
+
+   for (i=0 ; i<ii ; ++i) {
+      if ( see_write_word(see, idx++, d++) != DRV_READY )
+         return see->status = DRV_ERROR;
+   }
+   if (rem) {
+      pr = (uint8_t*)d;  // Take last memory address
+      // Empty buffer first and Buffer the remaining data
+      for (i=0, bf.w=0; i<rem ; ++i)
+         *pr++ = bf.b[i];
+      if ( see_write_word(see, idx, &bf.w) != DRV_READY )
+         return see->status = DRV_ERROR;
+   }
+   return see->status = DRV_READY;
+}
+
+/*!
+ * \brief
  *    Simulated EEPROM ioctl function
  *
  * \param  see    The active see struct.
  * \param  cmd   specifies the command to FLASH
  *    \arg CTRL_GET_STATUS
+ *    \arg CTRL_GET_SIZE
  *    \arg CTRL_DEINIT
  *    \arg CTRL_INIT
  *    \arg CTRL_LOCK
@@ -574,7 +649,12 @@ drv_status_en see_ioctl (see_t *see, ioctl_cmd_t cmd, ioctl_buf_t *buf)
    switch (cmd)
    {
       case CTRL_GET_STATUS:      /*!< Probe function */
-         *(drv_status_en*)buf = see->status;
+         if (buf)
+            *(drv_status_en*)buf = see->status;
+         return see->status = DRV_READY;
+      case CTRL_GET_SIZE:       /*!< Get size */
+         if (buf)
+            *(drv_status_en*)buf = see->size;
          return see->status = DRV_READY;
       case CTRL_DEINIT:          /*!< De-init */
          see_deinit(see);
