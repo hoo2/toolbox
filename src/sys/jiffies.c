@@ -69,7 +69,7 @@ void jf_link_value (jiffy_t* v)
  *    Check jiffy's status
  * \return status
  */
-inline drv_status_t jf_probe (void) {
+inline drv_status_en jf_probe (void) {
    return _jf.status;
 }
 
