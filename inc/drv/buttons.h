@@ -28,6 +28,7 @@
 extern "C" {
 #endif
 
+#include <tbx_ioctl.h>
 #include <stdint.h>
 #include <time.h>
 
@@ -108,22 +109,22 @@ typedef enum
  * Link and Glue functions
  */
 void btn_link (volatile btn_pin_t *sio, btn_pin_t pfun);
-#define  btn_link_btn0(_pfun)    btn_link (BTN.io.btn0, _pfun)
-#define  btn_link_btn1(_pfun)    btn_link (BTN.io.btn1, _pfun)
-#define  btn_link_btn2(_pfun)    btn_link (BTN.io.btn2, _pfun)
-#define  btn_link_btn3(_pfun)    btn_link (BTN.io.btn3, _pfun)
-#define  btn_link_btn4(_pfun)    btn_link (BTN.io.btn4, _pfun)
-#define  btn_link_btn5(_pfun)    btn_link (BTN.io.btn5, _pfun)
-#define  btn_link_btn6(_pfun)    btn_link (BTN.io.btn6, _pfun)
-#define  btn_link_btn7(_pfun)    btn_link (BTN.io.btn7, _pfun)
-#define  btn_link_btn8(_pfun)    btn_link (BTN.io.btn8, _pfun)
-#define  btn_link_btn9(_pfun)    btn_link (BTN.io.btn9, _pfun)
-#define  btn_link_btn10(_pfun)   btn_link (BTN.io.btn10, _pfun)
-#define  btn_link_btn11(_pfun)   btn_link (BTN.io.btn11, _pfun)
-#define  btn_link_btn12(_pfun)   btn_link (BTN.io.btn12, _pfun)
-#define  btn_link_btn13(_pfun)   btn_link (BTN.io.btn13, _pfun)
-#define  btn_link_btn14(_pfun)   btn_link (BTN.io.btn14, _pfun)
-#define  btn_link_btn15(_pfun)   btn_link (BTN.io.btn15, _pfun)
+#define  btn_link_btn0(_pfun)    btn_link ((volatile btn_pin_t*)&BTN.io.btn0, (btn_pin_t)_pfun)
+#define  btn_link_btn1(_pfun)    btn_link ((volatile btn_pin_t*)&BTN.io.btn1, (btn_pin_t)_pfun)
+#define  btn_link_btn2(_pfun)    btn_link ((volatile btn_pin_t*)&BTN.io.btn2, (btn_pin_t)_pfun)
+#define  btn_link_btn3(_pfun)    btn_link ((volatile btn_pin_t*)&BTN.io.btn3, (btn_pin_t)_pfun)
+#define  btn_link_btn4(_pfun)    btn_link ((volatile btn_pin_t*)&BTN.io.btn4, (btn_pin_t)_pfun)
+#define  btn_link_btn5(_pfun)    btn_link ((volatile btn_pin_t*)&BTN.io.btn5, (btn_pin_t)_pfun)
+#define  btn_link_btn6(_pfun)    btn_link ((volatile btn_pin_t*)&BTN.io.btn6, (btn_pin_t)_pfun)
+#define  btn_link_btn7(_pfun)    btn_link ((volatile btn_pin_t*)&BTN.io.btn7, (btn_pin_t)_pfun)
+#define  btn_link_btn8(_pfun)    btn_link ((volatile btn_pin_t*)&BTN.io.btn8, (btn_pin_t)_pfun)
+#define  btn_link_btn9(_pfun)    btn_link ((volatile btn_pin_t*)&BTN.io.btn9, (btn_pin_t)_pfun)
+#define  btn_link_btn10(_pfun)   btn_link ((volatile btn_pin_t*)&BTN.io.btn10, (btn_pin_t)_pfun)
+#define  btn_link_btn11(_pfun)   btn_link ((volatile btn_pin_t*)&BTN.io.btn11, (btn_pin_t)_pfun)
+#define  btn_link_btn12(_pfun)   btn_link ((volatile btn_pin_t*)&BTN.io.btn12, (btn_pin_t)_pfun)
+#define  btn_link_btn13(_pfun)   btn_link ((volatile btn_pin_t*)&BTN.io.btn13, (btn_pin_t)_pfun)
+#define  btn_link_btn14(_pfun)   btn_link ((volatile btn_pin_t*)&BTN.io.btn14, (btn_pin_t)_pfun)
+#define  btn_link_btn15(_pfun)   btn_link ((volatile btn_pin_t*)&BTN.io.btn15, (btn_pin_t)_pfun)
 
 /*
  * Set functions
@@ -135,7 +136,7 @@ void btn_set_repetitive (uint8_t rep);
 /*
  * User Functions
  */
-void btn_flush (void);
+void btn_flush (void);        /*!< for compatibility */
 void btn_service (void);
 
 keys_t btn_getkey (uint8_t wait);

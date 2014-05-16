@@ -24,15 +24,12 @@
 
 #include <drv/buttons.h>
 
-btn_t   BTN;
-
-//extern clock_t  volatile Ticks;
-
+btn_t  BTN;
 static btn_input_buffer_t     inbuf;
 
 static keys_t _ib_put (keys_t k);
 static keys_t _ib_get (void);
-static int8_t _ib_capacity (void);
+static int    _ib_capacity (void);
 static keys_t _get_buttons (void);
 
 /*!
@@ -76,7 +73,7 @@ static keys_t _ib_get (void)
   * \param  none
   * \retval keys from buffer, or BT_NULL on empty buffer
 */
-static int8_t  _ib_capacity (void)
+static int _ib_capacity (void)
 {
    if (inbuf.front == inbuf.rear)
       return 0;
@@ -88,7 +85,7 @@ static int8_t  _ib_capacity (void)
 
 /*!
   * \brief
-  *    Reads the back-end functions and combine them to synthesize the
+  *    Reads the back-end functions and combine them to synthesise the
   *    key value. Each pin corresponds to one bit in the key variable.
   *    for example:
   *    key: 0x0009 ==> BTN0 and BTN3 are pressed.
@@ -289,11 +286,12 @@ drv_status_en btn_ioctl (ioctl_cmd_t cmd, ioctl_buf_t *buf)
    switch (cmd)
    {
       case CTRL_GET_STATUS:            /*!< Probe function */
-         *(drv_status_en*)buf = BTN->status;
-         return BTN->status = DRV_READY;
+         if (buf)
+            *(drv_status_en*)buf = BTN.status;
+         return BTN.status = DRV_READY;
       case CTRL_FLUSH:
          btn_flush ();
-         return BTN->status = DRV_READY;
+         return BTN.status = DRV_READY;
       default:                         /*!< Unsupported command, error */
          return DRV_ERROR;
    }
