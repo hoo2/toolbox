@@ -47,6 +47,7 @@ extern "C" {
 #include <drv/ktyx.h>
 #include <drv/ntc3997k.h>
 #include <drv/jtype.h>
+#include <drv/sim_ee.h>
 
 
 // DSP
@@ -59,16 +60,16 @@ extern "C" {
 #include <std/stime.h>
 
 // System
-#include <sys/diskio.h>
-#include <sys/fatfs.h>
-#include <sys/ffconf.h>
-#include <sys/integer.h>
+//#include <sys/diskio.h>
+//#include <sys/fatfs.h>
+//#include <sys/ffconf.h>
+//#include <sys/integer.h>
 #include <sys/jiffies.h>
-#include <sys/semaphore.h>
+//#include <sys/semaphore.h>
 
 // User interface
 //#include <ui/ui.h>
-#include <ui/uid.h>
+//#include <ui/uid.h>
 
 
 #ifdef __cplusplus
