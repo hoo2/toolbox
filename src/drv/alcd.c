@@ -455,13 +455,16 @@ drv_status_en  alcd_ioctl (alcd_t *alcd, ioctl_cmd_t cmd, ioctl_buf_t *buf)
    switch (cmd)
    {
       case CTRL_GET_STATUS:            /*!< Probe function */
-         *(drv_status_en*)buf = alcd->status;
-         return alcd->status = DRV_READY;
+         if (buf)
+            *(drv_status_en*)buf = alcd->status;
+         return DRV_READY;
       case CTRL_DEINIT:                /*!< De-init */
-         alcd_deinit (alcd);           // status assignment implied
+         alcd_deinit (alcd);
          return DRV_READY;
       case CTRL_INIT:                  /*!< Init */
-         return alcd_init (alcd);      // status assignment implied
+         if (buf)
+            *(drv_status_en*)buf = alcd_init (alcd);
+         return DRV_READY;
       case CTRL_POWER:                 /*!< Enable/disable */
          alcd_enable (alcd, *buf);
          return alcd->status = DRV_READY;
