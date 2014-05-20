@@ -37,6 +37,7 @@ extern "C" {
 // Cryptography
 #include <crypt/aes.h>
 #include <crypt/sha2.h>
+#include <crypt/md5.h>
 
 // Drivers
 #include <drv/alcd.h>

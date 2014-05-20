@@ -28,26 +28,6 @@
 
 //#define RAM_TABLES
 
-/*
- * Platform-independent 32-bit integer manipulation macros
- */
-#define GET_UINT32(n,b,i)                      \
-{                                              \
-   (n) = ( (uint32_t) (b)[(i)    ] << 24 )     \
-       | ( (uint32_t) (b)[(i) + 1] << 16 )     \
-       | ( (uint32_t) (b)[(i) + 2] <<  8 )     \
-       | ( (uint32_t) (b)[(i) + 3]       );    \
-}  /*!< Get an unsigned integer 32 value from array \b b */
-
-#define PUT_UINT32(n,b,i)                      \
-{                                              \
-   (b)[(i)    ] = (uint8_t) ( (n) >> 24 );     \
-   (b)[(i) + 1] = (uint8_t) ( (n) >> 16 );     \
-   (b)[(i) + 2] = (uint8_t) ( (n) >>  8 );     \
-   (b)[(i) + 3] = (uint8_t) ( (n)       );     \
-}  /*!< Put an unsigned integer 32 value to array \b b */
-
-
 #ifdef RAM_TABLES
 /*
  * Tables generation defines
@@ -435,6 +415,12 @@ static void _aes_create_tables (void)
 }
 #endif
 
+
+
+/*
+ * ============================ Public Functions ============================
+ */
+
 /*!
  * \brief
  *    Clears the AES context memory for security
@@ -482,7 +468,7 @@ int aes_key_init (aes_t *ctx, uint8_t *key, aes_size size)
    RK = ctx->erk;
 
    for(i=0; i<(size>>5); ++i)
-      GET_UINT32 (RK[i], key, i*4);
+      GET_UINT32_BE (RK[i], key, i*4);
 
    // setup encryption round keys
    switch (size)
@@ -625,10 +611,10 @@ void aes_encrypt (aes_t *ctx, uint8_t in[16], uint8_t out[16])
 
    RK = ctx->erk;
 
-   GET_UINT32 (X0, in,  0); X0 ^= RK[0];
-   GET_UINT32 (X1, in,  4); X1 ^= RK[1];
-   GET_UINT32 (X2, in,  8); X2 ^= RK[2];
-   GET_UINT32 (X3, in, 12); X3 ^= RK[3];
+   GET_UINT32_BE (X0, in,  0); X0 ^= RK[0];
+   GET_UINT32_BE (X1, in,  4); X1 ^= RK[1];
+   GET_UINT32_BE (X2, in,  8); X2 ^= RK[2];
+   GET_UINT32_BE (X3, in, 12); X3 ^= RK[3];
 
    AES_FROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);       // round 1
    AES_FROUND (X0, X1, X2, X3, Y0, Y1, Y2, Y3);       // round 2
@@ -672,10 +658,10 @@ void aes_encrypt (aes_t *ctx, uint8_t in[16], uint8_t out[16])
                 ( FSbox[ (uint8_t) ( Y1 >>  8 ) ] <<  8 ) ^
                 ( FSbox[ (uint8_t) ( Y2       ) ]       );
 
-   PUT_UINT32 (X0, out,  0);
-   PUT_UINT32 (X1, out,  4);
-   PUT_UINT32 (X2, out,  8);
-   PUT_UINT32 (X3, out, 12);
+   PUT_UINT32_BE (X0, out,  0);
+   PUT_UINT32_BE (X1, out,  4);
+   PUT_UINT32_BE (X2, out,  8);
+   PUT_UINT32_BE (X3, out, 12);
 }
 
 /*!
@@ -721,10 +707,10 @@ void aes_decrypt (aes_t *ctx, uint8_t in[16], uint8_t out[16])
 
    RK = ctx->drk;
 
-   GET_UINT32 (X0, in,  0); X0 ^= RK[0];
-   GET_UINT32 (X1, in,  4); X1 ^= RK[1];
-   GET_UINT32 (X2, in,  8); X2 ^= RK[2];
-   GET_UINT32 (X3, in, 12); X3 ^= RK[3];
+   GET_UINT32_BE (X0, in,  0); X0 ^= RK[0];
+   GET_UINT32_BE (X1, in,  4); X1 ^= RK[1];
+   GET_UINT32_BE (X2, in,  8); X2 ^= RK[2];
+   GET_UINT32_BE (X3, in, 12); X3 ^= RK[3];
 
    AES_RROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);       // round 1
    AES_RROUND (X0, X1, X2, X3, Y0, Y1, Y2, Y3);       // round 2
@@ -768,9 +754,9 @@ void aes_decrypt (aes_t *ctx, uint8_t in[16], uint8_t out[16])
                 ( RSbox[ (uint8_t) ( Y1 >>  8 ) ] <<  8 ) ^
                 ( RSbox[ (uint8_t) ( Y0       ) ]       );
 
-   PUT_UINT32 (X0, out,  0);
-   PUT_UINT32 (X1, out,  4);
-   PUT_UINT32 (X2, out,  8);
-   PUT_UINT32 (X3, out, 12);
+   PUT_UINT32_BE (X0, out,  0);
+   PUT_UINT32_BE (X1, out,  4);
+   PUT_UINT32_BE (X2, out,  8);
+   PUT_UINT32_BE (X3, out, 12);
 }
 
