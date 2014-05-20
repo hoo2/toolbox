@@ -651,7 +651,7 @@ drv_status_en see_ioctl (see_t *see, ioctl_cmd_t cmd, ioctl_buf_t *buf)
       case CTRL_GET_STATUS:      /*!< Probe function */
          if (buf)
             *(drv_status_en*)buf = see->status;
-         return see->status = DRV_READY;
+         return DRV_READY;
       case CTRL_GET_SIZE:       /*!< Get size */
          if (buf)
             *(drv_status_en*)buf = see->size;
@@ -660,7 +660,9 @@ drv_status_en see_ioctl (see_t *see, ioctl_cmd_t cmd, ioctl_buf_t *buf)
          see_deinit(see);
          return DRV_READY;
       case CTRL_INIT:            /*!< Init */
-         return see_init(see);   // status assignment implied
+         if (buf)
+            *(drv_status_en*)buf = see_init(see);
+         return DRV_READY;
       case CTRL_LOCK:
       case CTRL_CMD_LOCK:
       case CTRL_CMD_UNLOCK:      /*!< Forward call to linked driver */
