@@ -94,17 +94,6 @@ void i2c_set_speed (i2c_pol_t *i2c, int freq)
 
 /*!
  * \brief
- *    Check i2c status
- * \param  i2c    pointer to active i2c.
- * \return status
- */
-inline drv_status_t i2c_probe (i2c_pol_t *i2c)
-{
-   return i2c->status;
-}
-
-/*!
- * \brief
  *    De-Initialize the i2c interface and leave sda pin in input state
  * \param  i2c    pointer to active i2c.
  * \return none
@@ -114,43 +103,47 @@ void i2c_deinit (i2c_pol_t *i2c)
    // Free bus
    if (i2c->sda_dir) i2c->sda_dir (0);
    if (i2c->scl)     i2c->scl(1);
+
    // Clear data
    memset ((void*)i2c, 0, sizeof (i2c_pol_t));
    /*!<
-    * This leaves the status DRV_NOINIT
+    * This leaves the status = DRV_NOINIT
     */
 }
 
 /*!
  * \brief
- *    Initialize the i2c interface and leave pins high
+ *    Initialise the i2c interface and leave pins high
  * \param  i2c    pointer to active i2c.
- * \return Zero on success, non zero on error
+ * \return The driver status after init.
+ *    \arg DRV_READY
+ *    \arg DRV_ERROR
  */
-int i2c_init (i2c_pol_t *i2c)
+drv_status_en i2c_init (i2c_pol_t *i2c)
 {
-   if (!i2c->sda_dir)   return 1;
-   if (!i2c->sda)       return 1;
-   if (!i2c->scl)       return 1;
+   // Check requirements
+   if (!i2c->sda_dir)   return i2c->status = DRV_ERROR;
+   if (!i2c->sda)       return i2c->status = DRV_ERROR;
+   if (!i2c->scl)       return i2c->status = DRV_ERROR;
+   if (jf_probe () != DRV_READY)
+      return i2c->status = DRV_ERROR;
+
+   // Init the bus
+   i2c->status = DRV_NOINIT;
    i2c->sda_dir (1);
    i2c->sda (1);
    i2c->scl (1);
-   i2c->status = DRV_READY;
-   return 0;
+   return i2c->status = DRV_READY;
 }
 
 /*!
  * \brief
  *    Send a START bit to the bus
  * \param  i2c    pointer to active i2c.
- * \return Zero on success, non zero on error
+ * \return none
  */
-int i2c_start (i2c_pol_t *i2c)
+void i2c_start (i2c_pol_t *i2c)
 {
-   //Update status
-   if (i2c->status != DRV_READY)
-      return 1;
-   i2c->status = DRV_BUSY;
    //Initially set pins
    i2c->sda_dir (1);
    i2c->sda (1);
@@ -159,7 +152,6 @@ int i2c_start (i2c_pol_t *i2c)
    i2c->sda (0);
       jf_delay_us (i2c->clk_delay);
    i2c->scl (0);  //Clear Clock
-   return 0;
 }
 
 /*!
@@ -178,8 +170,6 @@ void i2c_stop (i2c_pol_t *i2c)
       jf_delay_us (i2c->clk_delay);
    i2c->sda (1);
       jf_delay_us (i2c->clk_delay);
-   //Update status
-   i2c->status = DRV_READY;
 }
 
 /*!
@@ -259,4 +249,39 @@ uint8_t i2c_rx(i2c_pol_t *i2c, uint8_t ack)
       jf_delay_us (i2c->clk_delay);
    i2c->sda (0);
    return byte;
+}
+
+/*!
+ * \brief
+ *    i2c ioctl function
+ *
+ * \param  i2c    The active see struct.
+ * \param  cmd    specifies the command to i2c and get back the replay.
+ *    \arg CTRL_GET_STATUS
+ *    \arg CTRL_DEINIT
+ *    \arg CTRL_INIT
+ * \param  buf    pointer to buffer for ioctl
+ * \return The status of the operation
+ *    \arg DRV_READY
+ *    \arg DRV_ERROR
+ */
+drv_status_en i2c_ioctl (i2c_pol_t *i2c, ioctl_cmd_t cmd, ioctl_buf_t *buf)
+{
+   switch (cmd)
+   {
+      case CTRL_GET_STATUS:      /*!< Probe function */
+         if (buf)
+            *(drv_status_en*)buf = i2c->status;
+         return DRV_READY;
+      case CTRL_DEINIT:          /*!< De-init */
+         i2c_deinit(i2c);
+         return DRV_READY;
+      case CTRL_INIT:            /*!< Init */
+         if (buf)
+            *(drv_status_en*)buf = i2c_init(i2c);
+         return DRV_READY;
+      default:                   /*!< Unsupported command, error */
+         return DRV_ERROR;
+
+   }
 }

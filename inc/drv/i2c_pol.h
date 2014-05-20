@@ -66,14 +66,15 @@ void i2c_set_speed (i2c_pol_t *i2c, int freq); /*!< set i2c speed */
 /*
  * User Functions
  */
-drv_status_t i2c_probe (i2c_pol_t *i2c);
-void i2c_deinit (i2c_pol_t *i2c);
-int i2c_init (i2c_pol_t *i2c);
+void i2c_deinit (i2c_pol_t *i2c);         /*!< for compatibility */
+drv_status_en i2c_init (i2c_pol_t *i2c);  /*!< for compatibility */
 
-int i2c_start (i2c_pol_t *i2c);
-void i2c_stop (i2c_pol_t *i2c);
-int i2c_tx(i2c_pol_t *i2c, uint8_t byte);
-uint8_t i2c_rx(i2c_pol_t *i2c, uint8_t ack);
+void i2c_start (i2c_pol_t *i2c);
+void  i2c_stop (i2c_pol_t *i2c);
+int     i2c_tx (i2c_pol_t *i2c, uint8_t byte);
+uint8_t i2c_rx (i2c_pol_t *i2c, uint8_t ack);
+
+drv_status_en i2c_ioctl (i2c_pol_t *i2c, ioctl_cmd_t cmd, ioctl_buf_t *buf);
 
 #ifdef __cplusplus
 }

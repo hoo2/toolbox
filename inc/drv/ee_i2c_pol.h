@@ -29,6 +29,7 @@ extern "C" {
 #endif
 
 #include <drv/i2c_pol.h>
+#include <tbx_ioctl.h>
 
 /* ================   General Defines   ====================*/
 #define EE_WRITE     (0x0)
@@ -47,9 +48,10 @@ typedef volatile struct
    int            freq;
    uint32_t       timeout;
    i2c_pol_t      i2c;
+   drv_status_en  status;
 }ee_t;
 
-typedef uint32_t  idx_t;
+typedef uint32_t  ee_idx_t;
 
 
 
@@ -60,7 +62,6 @@ typedef uint32_t  idx_t;
 /*
  * Link and Glue functions
  */
-void ee_link_i2c_start (ee_t *ee);
 
 /*
  * Set functions
@@ -74,14 +75,16 @@ void ee_set_timeout (ee_t *ee, uint32_t to);
 /*
  * User Functions
  */
-void ee_deinit (ee_t *ee);
-ee_status_en ee_init (ee_t *ee);
+void ee_deinit (ee_t *ee);          /*!< for compatibility */
+ee_status_en ee_init (ee_t *ee);    /*!< for compatibility */
 
-ee_status_en ee_read (ee_t *ee, uint8_t *byte);
-ee_status_en ee_readbyte (ee_t *ee, uint8_t *byte, idx_t add);
-ee_status_en ee_readbuffer (ee_t *ee, uint8_t* buf, uint32_t num, idx_t add);
-ee_status_en ee_writebyte (ee_t *ee, uint8_t byte, idx_t add);
-ee_status_en ee_writebuffer (ee_t *ee, uint8_t *buf, uint32_t num, idx_t add);
+drv_status_en        ee_read (ee_t *ee, uint8_t *byte);
+drv_status_en    ee_readbyte (ee_t *ee, ee_idx_t add, uint8_t *byte);
+drv_status_en  ee_readbuffer (ee_t *ee, ee_idx_t add, uint8_t *buf, size_t n);
+drv_status_en   ee_writebyte (ee_t *ee, ee_idx_t add, uint8_t byte);
+drv_status_en ee_writebuffer (ee_t *ee, ee_idx_t add, uint8_t *buf, size_t n);
+
+drv_status_en       ee_ioctl (ee_t *ee, ioctl_cmd_t cmd, ioctl_buf_t *buf);
 
 #ifdef __cplusplus
 }
