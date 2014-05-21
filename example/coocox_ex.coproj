@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Project version="2G - 1.7.6" name="coocox_ex">
   <Target name="coocox_ex" isCurrent="1">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="502" chipName="STM32F401VC" boardId="52" boardName="stm32f4-discovery"/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="257" chipName="STM32F100RB" boardId="52" boardName="stm32f4-discovery"/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="0"/>
@@ -11,12 +11,14 @@
         <Includepaths>
           <Includepath path="."/>
           <Includepath path="../inc"/>
+          <Includepath path="../../drivers/inc"/>
+          <Includepath path="../../devices/stm32f10x_stdperiph_driver/inc"/>
+          <Includepath path="../../devices/cmsis/include"/>
         </Includepaths>
         <DefinedSymbols>
-          <Define name="STM32F401VC"/>
-          <Define name="STM32F4XX"/>
-          <Define name="USE_STDPERIPH_DRIVER"/>
-          <Define name="__ASSEMBLY__"/>
+          <Define name="STM32F100RB"/>
+          <Define name="STM32F10X_MD_VL"/>
+          <Define name="CLOCK=16000000"/>
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
@@ -27,10 +29,12 @@
         <Option name="LTO" value="0"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Not use C Library"/>
-        <LinkedLibraries/>
+        <LinkedLibraries>
+          <Libset dir="" libs="m"/>
+        </LinkedLibraries>
         <MemoryAreas debugInFlashNotRAM="1">
-          <Memory name="IROM1" type="ReadOnly" size="0x00040000" startValue="0x08000000"/>
-          <Memory name="IRAM1" type="ReadWrite" size="0x00010000" startValue="0x20000000"/>
+          <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00002000" startValue="0x20000000"/>
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
@@ -65,44 +69,60 @@
       <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="STM32F4xx_256.elf"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="./stm32f10x_md_128.elf"/>
     </DebugOption>
     <ExcludeFile/>
   </Target>
   <Components path="./">
     <Component id="30" name="C Library" path="" type="2"/>
-    <Component id="54" name="M4 CMSIS Core" path="" type="2"/>
-    <Component id="500" name="CMSIS BOOT" path="" type="2"/>
-    <Component id="501" name="RCC" path="" type="2"/>
+    <Component id="464" name="CMSIS Boot" path="" type="2"/>
   </Components>
   <Files>
-    <File name="cmsis_boot/startup/startup_stm32f4xx.c" path="cmsis_boot/startup/startup_stm32f4xx.c" type="1"/>
-    <File name="moving_av.c" path="../src/moving_av.c" type="1"/>
-    <File name="cmsis_lib/source/stm32f4xx_rcc.c" path="cmsis_lib/source/stm32f4xx_rcc.c" type="1"/>
-    <File name="cmsis/core_cmInstr.h" path="cmsis/core_cmInstr.h" type="1"/>
+    <File name="target/cmsis_boot/system_stm32f10x.h" path="cmsis_boot/system_stm32f10x.h" type="1"/>
+    <File name="toolbox" path="" type="2"/>
+    <File name="toolbox/dsp" path="" type="2"/>
+    <File name="toolbox/drv/ntc3997k.c" path="../src/drv/ntc3997k.c" type="1"/>
+    <File name="toolbox/crypt/md5.c" path="../src/crypt/md5.c" type="1"/>
+    <File name="toolbox/drv/buttons.c" path="../src/drv/buttons.c" type="1"/>
     <File name="test_app" path="" type="2"/>
-    <File name="cmsis_boot" path="" type="2"/>
-    <File name="stime.c" path="../src/stime.c" type="1"/>
-    <File name="leaky_int.c" path="../src/leaky_int.c" type="1"/>
-    <File name="cmsis/core_cm4_simd.h" path="cmsis/core_cm4_simd.h" type="1"/>
-    <File name="cmsis_boot/stm32f4xx.h" path="cmsis_boot/stm32f4xx.h" type="1"/>
-    <File name="cmsis_boot/startup" path="" type="2"/>
-    <File name="cmsis/core_cmFunc.h" path="cmsis/core_cmFunc.h" type="1"/>
+    <File name="toolbox/std/_vsxprintf.c" path="../src/std/_vsxprintf.c" type="1"/>
+    <File name="toolbox/std" path="" type="2"/>
+    <File name="toolbox/drv/jtype.c" path="../src/drv/jtype.c" type="1"/>
+    <File name="toolbox/acs/tne.c" path="../src/acs/tne.c" type="1"/>
+    <File name="toolbox/drv/sensors_lut.c" path="../src/drv/sensors_lut.c" type="1"/>
+    <File name="target/cmsis_boot/system_stm32f10x.c" path="cmsis_boot/system_stm32f10x.c" type="1"/>
+    <File name="toolbox/std/stime.c" path="../src/std/stime.c" type="1"/>
     <File name="test_app/main.c" path="main.c" type="1"/>
-    <File name="cmsis/core_cm4.h" path="cmsis/core_cm4.h" type="1"/>
-    <File name="cmsis_boot/system_stm32f4xx.c" path="cmsis_boot/system_stm32f4xx.c" type="1"/>
-    <File name="pid.c" path="../src/pid.c" type="1"/>
-    <File name="cmsis" path="" type="2"/>
+    <File name="toolbox/drv/alcd.c" path="../src/drv/alcd.c" type="1"/>
+    <File name="target/RN_DPEC.c" path="../../drivers/src/RN_DPEC.c" type="1"/>
+    <File name="toolbox/drv/sim_ee.c" path="../src/drv/sim_ee.c" type="1"/>
+    <File name="toolbox/crypt/sha3.c" path="../src/crypt/sha3.c" type="1"/>
+    <File name="toolbox/drv/i2c_pol.c" path="../src/drv/i2c_pol.c" type="1"/>
+    <File name="toolbox/drv/pt100x.c" path="../src/drv/pt100x.c" type="1"/>
+    <File name="toolbox/drv" path="" type="2"/>
     <File name="syscalls/syscalls.c" path="syscalls/syscalls.c" type="1"/>
-    <File name="cmsis_lib" path="" type="2"/>
-    <File name="tne.c" path="../src/tne.c" type="1"/>
-    <File name="cmsis_lib/source" path="" type="2"/>
-    <File name="sha2.c" path="../src/sha2.c" type="1"/>
+    <File name="toolbox/crypt/aes.c" path="../src/crypt/aes.c" type="1"/>
+    <File name="target/stm32f10x_clock.c" path="../../Devices/STM32F10x_StdPeriph_Driver/src/stm32f10x_clock.c" type="1"/>
+    <File name="target/cmsis_boot" path="" type="2"/>
+    <File name="toolbox/drv/ee_i2c_pol.c" path="../src/drv/ee_i2c_pol.c" type="1"/>
+    <File name="toolbox/std/printf.c" path="../src/std/printf.c" type="1"/>
+    <File name="target/stm32f10x_systick.c" path="../../Devices/STM32F10x_StdPeriph_Driver/src/stm32f10x_systick.c" type="1"/>
+    <File name="target" path="" type="2"/>
+    <File name="target/cmsis_boot/startup" path="" type="2"/>
+    <File name="toolbox/crypt/sha2.c" path="../src/crypt/sha2.c" type="1"/>
     <File name="syscalls" path="" type="2"/>
-    <File name="cmsis_boot/stm32f4xx_conf.h" path="cmsis_boot/stm32f4xx_conf.h" type="1"/>
-    <File name="cmsis_boot/system_stm32f4xx.h" path="cmsis_boot/system_stm32f4xx.h" type="1"/>
-    <File name="cmsis_lib/include" path="" type="2"/>
-    <File name="cmsis_lib/include/stm32f4xx_rcc.h" path="cmsis_lib/include/stm32f4xx_rcc.h" type="1"/>
-    <File name="aes.c" path="../src/aes.c" type="1"/>
+    <File name="toolbox/std/sprintf.c" path="../src/std/sprintf.c" type="1"/>
+    <File name="toolbox/sys/jiffies.c" path="../src/sys/jiffies.c" type="1"/>
+    <File name="target/cmsis_boot/startup/startup_stm32f10x_md_vl.c" path="cmsis_boot/startup/startup_stm32f10x_md_vl.c" type="1"/>
+    <File name="toolbox/crypt" path="" type="2"/>
+    <File name="toolbox/drv/ktyx.c" path="../src/drv/ktyx.c" type="1"/>
+    <File name="target/cmsis_boot/stm32f10x.h" path="cmsis_boot/stm32f10x.h" type="1"/>
+    <File name="toolbox/crypt/des.c" path="../src/crypt/des.c" type="1"/>
+    <File name="toolbox/dsp/moving_av.c" path="../src/dsp/moving_av.c" type="1"/>
+    <File name="toolbox/sys" path="" type="2"/>
+    <File name="toolbox/acs" path="" type="2"/>
+    <File name="toolbox/crypt/sha1.c" path="../src/crypt/sha1.c" type="1"/>
+    <File name="toolbox/acs/pid.c" path="../src/acs/pid.c" type="1"/>
+    <File name="toolbox/dsp/leaky_int.c" path="../src/dsp/leaky_int.c" type="1"/>
   </Files>
 </Project>

@@ -1,5 +1,7 @@
 #include <toolbox.h>
-
+#include <string.h>
+#include <RN_DPEC.h>
+#include <stm32f10x_systick.h>
 
 void acs_test (void)
 {
@@ -20,18 +22,45 @@ void acs_test (void)
 
 void crypt_test (void)
 {
-   uint8_t hash [32];
-   aes_t key;
+   uint8_t hash [64];
+   //aes_t key;
+   //des_t dkey;
+   des3_t d3key;
    uint8_t pass[11] = "a-password";
    uint8_t text [16] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 ,1, 2, 3, 4, 5, 6 };
 
-   sha2 ((uint8_t*)pass,  9, hash, SHA2_256);
-   aes_key_init (&key, hash, AES_256);
+   memset ((void*)hash, 0, 64);
+   md5 ((uint8_t*)pass,  10, hash);
+   sha1 ((uint8_t*)pass, 10, hash);
+   sha224 ((uint8_t*)pass,  10, hash);
+   sha256 ((uint8_t*)pass,  10, hash);
+   sha384 ((uint8_t*)pass,  10, hash);
+   sha512 ((uint8_t*)pass,  10, hash);
 
-   aes_encrypt (&key, text, text);
-   aes_decrypt (&key, text, text);
+   //aes128_key_init (&key, hash);
+   //aes192_key_init (&key, hash);
+   //aes256_key_init (&key, hash);
+   //aes_encrypt (&key, text, text);
+   //aes_decrypt (&key, text, text);
+   //aes_key_deinit (&key);
 
-   aes_key_deinit (&key);
+   des_key_check_parity(hash);
+   des_key_set_parity (hash);
+   des_key_check_parity(hash);
+   //des_setkey_enc (&dkey, hash);
+   //des_crypt_ecb (&dkey, text, text);
+   //des_setkey_dec (&dkey, hash);
+   //des_crypt_ecb (&dkey, text, text);
+
+   des3_set2key_enc(&d3key, hash);
+   des3_crypt_ecb(&d3key, text, text);
+   des3_set2key_dec(&d3key, hash);
+   des3_crypt_ecb(&d3key, text, text);
+
+   des3_set3key_enc(&d3key, hash);
+   des3_crypt_ecb(&d3key, text, text);
+   des3_set3key_dec(&d3key, hash);
+   des3_crypt_ecb(&d3key, text, text);
 }
 
 void dsp_test (void)
@@ -52,6 +81,40 @@ void dsp_test (void)
    out+=1;  // Discard warning
 }
 
+void drv_test (void)
+{
+   float r1 = 1532, r2 = 167;
+   temp_t t;
+   ee_t ee;
+   char str[] = "These aren\'t the droids you\'re looking for!";
+
+   t = sen_pt100 (r1);
+   t = sen_pt100 (r2);
+   t = sen_pt1000 (r1);
+   t = sen_pt1000 (r2);
+   t =  sen_kty8x_121 (r1);
+   t =  sen_kty8x_122 (r1);
+   t =  sen_kty11_6 (r1);
+   t = sen_ntc3997k (r1);
+   t = sen_jtype (0.0125, 14);
+
+   ee_deinit(&ee); // Clear data
+   i2c_link_scl(&ee.i2c, EE_SCL);
+   i2c_link_sda(&ee.i2c, EE_SDA);
+   i2c_link_sdadir(&ee.i2c, EE_SDA_Dir);
+
+   ee_set_hwaddress (&ee, 0xA0);      // 0xA0 + 000x
+   ee_set_size (&ee, EE_128);
+   ee_set_pagesize(&ee, 64);
+   ee_set_speed(&ee, 50000);
+   ee_set_timeout(&ee, 0x100);    // ~= 25 msec
+
+   ee_init(&ee);
+   ee_writebuffer(&ee, 0x100, (uint8_t *)str, strlen(str));
+   ee_readbuffer(&ee, 0x100, (uint8_t *)str, strlen(str));
+
+}
+
 void std_test (void)
 {
    char date[50];
@@ -66,15 +129,27 @@ void std_test (void)
       t->tm_hour,
       t->tm_min,
       t->tm_sec);
+}
 
+void target_init (void)
+{
+   Driver_Init ();
+   SysTick_Init(1000);
+
+   jf_link_setfreq(JF_setfreq);
+   jf_link_value((jiffy_t*)&JF_TIM_VALUE);
+
+   jf_init(1000);
 }
 
 int main(void)
 {
-   acs_test ();
+   //target_init ();
+   //acs_test ();
    crypt_test ();
-   dsp_test ();
-   std_test ();
+   //dsp_test ();
+   //std_test ();
+   //drv_test ();
 
    while(1)
       ;
