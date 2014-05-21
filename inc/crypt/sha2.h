@@ -33,7 +33,9 @@
 extern "C" {
 #endif
 
+#include <crypt/cryptint.h>
 #include <string.h>
+#include <stddef.h>
 #include <inttypes.h>
 
 typedef enum {SHA2_224=0, SHA2_256} sha2_size;
@@ -52,20 +54,8 @@ typedef struct
 sha2_t;
 
 
-/*!
- * \brief
- *    Output = SHA2 (input buffer)
- *
- * \param input   buffer holding the  data
- * \param ilen    length of the input data
- * \param output  SHA-224/256 checksum result
- * \param sz      The lengh of the hash.
- *    \arg        SHA2_224
- *    \arg        SHA2_256
- * \return        zero on success, non zero on error.
- */
-int sha2 (uint8_t *input, size_t ilen, uint8_t output[32], sha2_size sz);
-
+void sha224 (uint8_t *input, size_t ilen, uint8_t output[28]);
+void sha256 (uint8_t *input, size_t ilen, uint8_t output[32]);
 
 #ifdef __cplusplus
 }
