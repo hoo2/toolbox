@@ -31,7 +31,6 @@ extern "C" {
 #endif
 
 #include <crypt/cryptint.h>
-//#include <toolbox_defs.h>
 #include <string.h>
 #include <inttypes.h>
 
@@ -45,11 +44,10 @@ aes_t;
 
 typedef enum {AES_128=128, AES_192=192, AES_256=256} aes_size;
 
-void aes_key_deinit (aes_t *ctx);
-int aes_key_init (aes_t *ctx, uint8_t *key, aes_size size);
-#define aes128_key_init(_c, _k)  aes_key_init (_c, _k, AES_128)
-#define aes192_key_init(_c, _k)  aes_key_init (_c, _k, AES_192)
-#define aes256_key_init(_c, _k)  aes_key_init (_c, _k, AES_256)
+void  aes_key_deinit (aes_t *ctx);
+void aes128_key_init (aes_t *ctx, uint8_t *key);
+void aes192_key_init (aes_t *ctx, uint8_t *key);
+void aes256_key_init (aes_t *ctx, uint8_t *key);
 
 void aes_encrypt (aes_t *ctx, uint8_t in[16], uint8_t out[16]);
 void aes_decrypt (aes_t *ctx, uint8_t in[16], uint8_t out[16]);

@@ -415,22 +415,6 @@ static void _aes_create_tables (void)
 }
 #endif
 
-
-
-/*
- * ============================ Public Functions ============================
- */
-
-/*!
- * \brief
- *    Clears the AES context memory for security
- * \return  none
- */
-void aes_key_deinit (aes_t *ctx)
-{
-   memset (ctx, 0, sizeof (aes_t));
-}
-
 /*!
  * \brief
  *    AES key scheduling routine.
@@ -442,9 +426,9 @@ void aes_key_deinit (aes_t *ctx)
  *    \arg        AES_192
  *    \arg        AES_256
  *
- * \return        zero on success, non zero on error.
+ * \return        none.
  */
-int aes_key_init (aes_t *ctx, uint8_t *key, aes_size size)
+static void aes_key_init (aes_t *ctx, uint8_t *key, aes_size size)
 {
    int i;
    uint32_t *RK, *DK;  // Pointer to round and decryption key tables
@@ -463,7 +447,7 @@ int aes_key_init (aes_t *ctx, uint8_t *key, aes_size size)
       case AES_128:  ctx->nr = 10; break;
       case AES_192:  ctx->nr = 12; break;
       case AES_256:  ctx->nr = 14; break;
-      default :      return 1;
+      default :      return;
    }
    RK = ctx->erk;
 
@@ -564,8 +548,56 @@ int aes_key_init (aes_t *ctx, uint8_t *key, aes_size size)
 
    for (i=0 ; i<4 ; ++i)
       *DK++ = *RK++;
+}
 
-   return 0;
+/*
+ * ============================ Public Functions ============================
+ */
+
+/*!
+ * \brief
+ *    Clears the AES context memory for security
+ * \return  none
+ */
+void aes_key_deinit (aes_t *ctx)
+{
+   memset (ctx, 0, sizeof (aes_t));
+}
+
+/*!
+ * \brief
+ *    AES128 key scheduling routine.
+ *
+ * \param ctx     the active aes context data to fill.
+ * \param key     pointer to key
+ * \return        zero on success, non zero on error.
+ */
+inline void aes128_key_init (aes_t *ctx, uint8_t *key) {
+   aes_key_init (ctx, key, AES_128);
+}
+
+/*!
+ * \brief
+ *    AES192 key scheduling routine.
+ *
+ * \param ctx     the active aes context data to fill.
+ * \param key     pointer to key
+ * \return        zero on success, non zero on error.
+ */
+inline void aes192_key_init (aes_t *ctx, uint8_t *key) {
+   aes_key_init (ctx, key, AES_192);
+}
+
+/*!
+ * \brief
+ *    AES256 key scheduling routine.
+ *
+ * \param ctx     the active aes context data to fill.
+ * \param key     pointer to key
+ * \return        zero on success, non zero on error.
+ */
+inline void aes256_key_init (aes_t *ctx, uint8_t *key) {
+   aes_key_init (ctx, key, AES_256);
 }
 
 /*!
@@ -625,13 +657,11 @@ void aes_encrypt (aes_t *ctx, uint8_t in[16], uint8_t out[16])
    AES_FROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);       // round 7
    AES_FROUND (X0, X1, X2, X3, Y0, Y1, Y2, Y3);       // round 8
    AES_FROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);       // round 9
-   if (ctx->nr > 10)
-   {
+   if (ctx->nr > 10) {
       AES_FROUND (X0, X1, X2, X3, Y0, Y1, Y2, Y3);   // round 10
       AES_FROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);   // round 11
    }
-   if (ctx->nr > 12)
-   {
+   if (ctx->nr > 12) {
       AES_FROUND (X0, X1, X2, X3, Y0, Y1, Y2, Y3);   // round 12
       AES_FROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);   // round 13
    }
@@ -721,13 +751,11 @@ void aes_decrypt (aes_t *ctx, uint8_t in[16], uint8_t out[16])
    AES_RROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);       // round 7
    AES_RROUND (X0, X1, X2, X3, Y0, Y1, Y2, Y3);       // round 8
    AES_RROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);       // round 9
-   if (ctx->nr > 10)
-   {
+   if (ctx->nr > 10) {
       AES_RROUND (X0, X1, X2, X3, Y0, Y1, Y2, Y3);   // round 10
       AES_RROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);   // round 11
    }
-   if (ctx->nr > 12)
-   {
+   if (ctx->nr > 12) {
       AES_RROUND (X0, X1, X2, X3, Y0, Y1, Y2, Y3);   // round 12
       AES_RROUND (Y0, Y1, Y2, Y3, X0, X1, X2, X3);   // round 13
    }
