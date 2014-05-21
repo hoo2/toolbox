@@ -24,7 +24,7 @@
  *
  */
 
-#include <uid.h>
+#include <ui/uid.h>
 
 ui_keys_t   ui_keys;
 
@@ -517,7 +517,7 @@ ui_return_t ui_timebox (int key, text_t cap, uint8_t frm, time_t up, time_t down
    if (t < down)   t = up;
 
    // Time Box is painting the screen
-   s = slocaltime(&t);
+   s = sgmtime(&t);
    i = sprintf (&value_str[i], "= ");
    if (frm & UI_TIME_DD)   i += sprintf (&value_str[i], "%dd+ ", s->tm_yday);
    if (frm & UI_TIME_HH)   i += sprintf (&value_str[i], "%02d", s->tm_hour);

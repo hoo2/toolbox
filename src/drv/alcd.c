@@ -464,6 +464,8 @@ drv_status_en  alcd_ioctl (alcd_t *alcd, ioctl_cmd_t cmd, ioctl_buf_t *buf)
       case CTRL_INIT:                  /*!< Init */
          if (buf)
             *(drv_status_en*)buf = alcd_init (alcd);
+         else
+            alcd_init (alcd);
          return DRV_READY;
       case CTRL_POWER:                 /*!< Enable/disable */
          alcd_enable (alcd, *buf);

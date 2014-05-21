@@ -279,6 +279,8 @@ drv_status_en i2c_ioctl (i2c_pol_t *i2c, ioctl_cmd_t cmd, ioctl_buf_t *buf)
       case CTRL_INIT:            /*!< Init */
          if (buf)
             *(drv_status_en*)buf = i2c_init(i2c);
+         else
+            i2c_init(i2c);
          return DRV_READY;
       default:                   /*!< Unsupported command, error */
          return DRV_ERROR;

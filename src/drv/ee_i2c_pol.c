@@ -398,6 +398,8 @@ drv_status_en ee_ioctl (ee_t *ee, ioctl_cmd_t cmd, ioctl_buf_t *buf)
       case CTRL_INIT:            /*!< Init */
          if (buf)
             *(drv_status_en*)buf = ee_init(ee);
+         else
+            ee_init(ee);
          return DRV_READY;
       case CTRL_GET_SIZE:        /*!< EEPROM size */
          if (buf)

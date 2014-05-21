@@ -24,7 +24,7 @@
  *
  */
 
-#include <semaphore.h>
+#include <sys/semaphore.h>
 
 /*!
  * \brief Open semaphore. Try to find a space for a new semaphore.

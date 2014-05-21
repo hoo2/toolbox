@@ -29,6 +29,7 @@ extern "C" {
 #endif
 
 #include <toolbox_defs.h>
+#include <tbx_ioctl.h>
 
 // Automatic control systems
 #include <acs/pid.h>
