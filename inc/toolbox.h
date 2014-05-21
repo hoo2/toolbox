@@ -35,11 +35,12 @@ extern "C" {
 #include <acs/tne.h>
    
 // Cryptography
-#include <crypt/aes.h>
 #include <crypt/md5.h>
 #include <crypt/sha1.h>
 #include <crypt/sha2.h>
 #include <crypt/sha3.h>
+#include <crypt/aes.h>
+#include <crypt/des.h>
 
 // Drivers
 #include <drv/alcd.h>
