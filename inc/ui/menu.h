@@ -1,11 +1,11 @@
 /*!
- * \file menud.h
+ * \file menu.h
  * \brief
- *    A small footprint demonised menu functionality
+ *    A plain and demonised menu functionality.
  *
  * This file is part of toolbox
  *
- * Copyright (C) 2008-2014 Houtouridis Christos (http://www.houtouridis.net)
+ * Copyright (C) 2010-2014 Houtouridis Christos (http://www.houtouridis.net)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef  __menud_h__
-#define  __menud_h__
+#ifndef  __menu_h__
+#define  __menu_h__
 
 #ifdef   __cplusplus
 extern "C" {
@@ -144,4 +144,4 @@ menu_item_t* ui_this_menu (void);
 }
 #endif
 
-#endif //#ifndef  __menud_h__
+#endif //#ifndef  __menu_h__

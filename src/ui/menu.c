@@ -1,11 +1,11 @@
 /*!
- * \file menud.c
+ * \file menu.c
  * \brief
- *    A small footprint demonised menu functionality
+ *    A plain and demonised menu functionality.
  *
  * This file is part of toolbox
  *
- * Copyright (C) 2008-2014 Houtouridis Christos (http://www.houtouridis.net)
+ * Copyright (C) 2010-2014 Houtouridis Christos (http://www.houtouridis.net)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -24,7 +24,7 @@
  *
  */
 
-#include <ui/menud.h>
+#include <ui/menu.h>
 
 ui_keys_t   ui_keys;
 
@@ -91,6 +91,20 @@ static int _menu_item_active (menu_item_t *item)
                     && !p[MM_NOT]);
 }
 
+static void _print_window (void)
+{
+
+}
+
+static void _print_caption (void)
+{
+
+}
+
+static void _print_frame (void)
+{
+
+}
 
 /*
  * ============================ Public Functions ============================
