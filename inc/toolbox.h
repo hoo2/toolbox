@@ -77,6 +77,7 @@ extern "C" {
 #include <ui/uid.h>
 #include <ui/menu.h>
 #include <ui/combobox.h>
+#include <ui/valuebox.h>
 
 
 #ifdef __cplusplus
