@@ -79,6 +79,7 @@ extern "C" {
 #include <ui/combobox.h>
 #include <ui/valuebox.h>
 #include <ui/timebox.h>
+#include <ui/textbox.h>
 
 
 #ifdef __cplusplus

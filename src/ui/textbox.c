@@ -1,7 +1,7 @@
 /*!
- * \file uid.c
+ * \file textbox.c
  * \brief
- *    A plain and demonised ui functionality.
+ *    A plain and demonised text-box functionality.
  *
  * This file is part of toolbox
  *
@@ -23,9 +23,7 @@
  * Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
  *
  */
-#include <ui/uid.h>
-
-
+#include <ui/textbox.h>
 
 /*!
  * \brief

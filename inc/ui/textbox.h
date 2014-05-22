@@ -1,7 +1,7 @@
 /*!
- * \file timebox.h
+ * \file textbox.h
  * \brief
- *    A plain and demonised time-box functionality.
+ *    A plain and demonised text-box functionality.
  *
  * This file is part of toolbox
  *
@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef  __timebox_h__
-#define  __timebox_h__
+#ifndef  __textbox_h__
+#define  __textbox_h__
 
 #ifdef   __cplusplus
 extern "C" {
@@ -34,25 +34,14 @@ extern "C" {
 #include <ui/uid.h>
 
 /* ========================== User Defines ============================ */
-#define  UI_TIMEBOX_SIZE      (12)
+#define  UI_TEXTBOX_SIZE      (14)
 
 
-/* ========================== General Defines ============================ */
-#define  UI_TIME_SS              (0x01)
-#define  UI_TIME_MM              (0x02)
-#define  UI_TIME_HH              (0x04)
-#define  UI_TIME_DD              (0x08)
 
-ui_return_t ui_timebox (int key,
-                     text_t cap,
-                    uint8_t frm,
-                     time_t up,
-                     time_t down,
-                     time_t step,
-                     time_t *value);
+ui_return_t ui_textbox (int key, text_t cap, char* str, int8_t size, Lang_en ln);
 
 #ifdef   __cplusplus
 }
 #endif
 
-#endif //#ifndef  __timebox_h__
+#endif //#ifndef  __textbox_h__

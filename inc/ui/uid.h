@@ -34,18 +34,9 @@ extern "C" {
 #include <stdint.h>
 #include <ctype.h>
 
-/* ========================== User Defines ============================ */
-#define  UI_TIMEBOX_SIZE      (12)
-#define  UI_TEXTBOX_SIZE      (14)
-
-
 /* ========================== General Defines ============================ */
 #define  UI_NUM_OF_LANGUAGES     (2)
 
-#define  UI_TIME_SS              (0x01)
-#define  UI_TIME_MM              (0x02)
-#define  UI_TIME_HH              (0x04)
-#define  UI_TIME_DD              (0x08)
 
 /* ========================== UI Data types ============================ */
 typedef char* text_t;
@@ -83,9 +74,6 @@ extern void ui_print_caption (text_t cap);
 extern void ui_print_box (text_t box);
 extern void ui_print_frame (text_t fr, size_t step);
 extern int ui_getkey (uint8_t wait);
-
-
-ui_return_t ui_textbox (int key, text_t cap, char* str, int8_t size, Lang_en ln);
 
 
 #ifdef  __cplusplus
