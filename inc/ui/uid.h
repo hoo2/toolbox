@@ -85,8 +85,6 @@ extern void ui_print_frame (text_t fr, size_t step);
 extern int ui_getkey (uint8_t wait);
 
 
-ui_return_t ui_valuebox (int key, text_t cap, text_t units, float up, float down, float step, int dec, float *value);
-ui_return_t ui_timebox (int key, text_t cap, uint8_t frm, time_t up, time_t down, time_t step, time_t *value);
 ui_return_t ui_textbox (int key, text_t cap, char* str, int8_t size, Lang_en ln);
 
 
