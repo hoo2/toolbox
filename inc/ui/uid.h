@@ -3,7 +3,7 @@
  * \brief
  *    A small footprint ui library
  *
- * Copyright (C) 2011 Houtouridis Christos <houtouridis.ch@gmail.com>
+ * Copyright (C) 2010-2014 Houtouridis Christos <houtouridis.ch@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -19,8 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
- * Date:       07/2011
- * Version:
  *
  */
 
@@ -76,11 +74,7 @@ typedef enum
    LANG_GR
 }Lang_en;
 
-typedef struct
-{
-   text_t      text[UI_NUM_OF_LANGUAGES];
-   int         id;
-}combobox_item_t;
+
 
 
 /* ================    Exported Functions    ======================*/
@@ -90,7 +84,7 @@ extern void ui_print_box (text_t box);
 extern void ui_print_frame (text_t fr, size_t step);
 extern int ui_getkey (uint8_t wait);
 
-ui_return_t ui_combobox (int key, combobox_item_t *items, int *id, Lang_en ln);
+
 ui_return_t ui_valuebox (int key, text_t cap, text_t units, float up, float down, float step, int dec, float *value);
 ui_return_t ui_timebox (int key, text_t cap, uint8_t frm, time_t up, time_t down, time_t step, time_t *value);
 ui_return_t ui_textbox (int key, text_t cap, char* str, int8_t size, Lang_en ln);
