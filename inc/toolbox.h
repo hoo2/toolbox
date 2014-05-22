@@ -74,7 +74,8 @@ extern "C" {
 
 // User interface
 //#include <ui/ui.h>
-//#include <ui/uid.h>
+#include <ui/uid.h>
+#include <ui/menud.h>
 
 
 #ifdef __cplusplus
