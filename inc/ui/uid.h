@@ -65,8 +65,18 @@ typedef enum
    LANG_GR
 }Lang_en;
 
-
-
+/*!
+ * Frame buffer type.
+ * \note
+ *    This buffer must to be defined in low level driver.
+ */
+typedef struct
+{
+   uint8_t *fb;   /*!< The 2 dimensions array frame buffer pointer */
+   int l;         /*!< The lines of each frame buffer */
+   int c;         /*!< The columns of each frame buffer */
+}tuifb_t;
+extern tuifb_t tuifb;
 
 /* ================    Exported Functions    ======================*/
 extern void ui_print_ctrl (char ch);

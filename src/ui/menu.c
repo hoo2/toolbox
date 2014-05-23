@@ -27,9 +27,12 @@
 #include <ui/menu.h>
 
 ui_keys_t   ui_keys;
+tuifb_t     tuifb;
 
 static ui_menu_t     _md;
-static uint8_t       menu_mask[UI_MENU_MASK_SIZE/8];  /*!< UI_MENU_MASK_SIZE bit "variable" to addressed by 8bit position mm array */
+static menu_stack_t  hist;
+static uint8_t       menu_mask[UI_MENU_MASK_SIZE/8];
+   /*!< UI_MENU_MASK_SIZE bit "variable" to addressed by 8bit position mm array */
 
 // Static functions
 static void _push_menu (menu_stack_t* st, ui_menu_t* mn);
@@ -37,7 +40,8 @@ static void  _pop_menu (menu_stack_t* st, ui_menu_t* mn);
 static void  _esc_menu (menu_stack_t* st, ui_menu_t* mn);
 static int _menu_stack_empty (menu_stack_t* st);
 static int _menu_item_active (menu_item_t *item);
-
+static int _next_item (ui_menu_t* mn, int *it);
+static int _prev_item (ui_menu_t* mn, int *it);
 
 // Push the current menu to stack
 static void _push_menu (menu_stack_t* st, ui_menu_t* mn)
@@ -91,19 +95,64 @@ static int _menu_item_active (menu_item_t *item)
                     && !p[MM_NOT]);
 }
 
-static void _print_window (void)
+int _next_item (ui_menu_t* mn, int *it)
 {
-
+   int st = *it;
+   do {
+      if (!mn->menu[++*it].node.task)
+         *it=1;
+      if (st == *it)
+         return 0;
+   } while (!_menu_item_active (&mn->menu[*it]));
+   return 1;
 }
 
-static void _print_caption (void)
+int _prev_item (ui_menu_t* mn, int *it)
 {
-
+   int st = *it;
+   do {
+      if (!--*it) {
+         for (*it=1 ; mn->menu[*it].node.task ; ++*it)
+            ;
+         --*it;
+      }
+      if (st == *it)
+         return 0;
+   } while (!_menu_item_active (&mn->menu[*it]));
+   return 1;
 }
 
-static void _print_frame (void)
+static void _mk_caption (Lang_en ln)
 {
+   if (!tuifb.fb)
+      return;
+   sprintf ((char*)&tuifb.fb[0], "%s", (char*)_md.menu[0].text[ln]);
+}
 
+static void _mk_frame (int frm_item, int item, Lang_en ln)
+{
+   int line;
+
+   if (!tuifb.fb)
+      return;
+   for (line=1 ; line<tuifb.l ; ++line) {
+      if (frm_item == item) {
+         if (_md.menu[frm_item].item_type == UI_RETURN)
+            sprintf ((char*)&tuifb.fb[tuifb.c*line], "<%s", (char*)_md.menu[frm_item].text[ln]);
+         else
+            sprintf ((char*)&tuifb.fb[tuifb.c*line], ">%s", (char*)_md.menu[frm_item].text[ln]);
+      }
+      else
+         sprintf ((char*)&tuifb.fb[tuifb.c*line], "%s", (char*)_md.menu[frm_item].text[ln]);
+      if (!_next_item (&_md, &frm_item))
+         break;
+   }
+}
+
+static void _mk_window (int frm_item, int item, Lang_en ln)
+{
+   _mk_caption (ln);
+   _mk_frame (frm_item, item, ln);
 }
 
 /*
@@ -197,13 +246,15 @@ void ui_menu_init (void)
  */
 ui_return_t ui_menu (int key, menu_item_t *mn, Lang_en ln)
 {
-   static menu_stack_t  hist;
    static uint8_t ev=1, task=EXIT_RETURN;
+   static int vfrm_it, vit;
 
    if (ev) {
       // It is the first call of every menu
-      _md.item = 0;     // Prepare optional call
-      task=EXIT_STAY;
+      _md.item = 0;
+      _md.frame_item = 0;
+      vfrm_it = vit = 0;
+      task=EXIT_STAY;   // Prepare optional call
 
       if (_menu_stack_empty (&hist)) // First menu call
          _md.menu = mn;
@@ -216,13 +267,18 @@ ui_return_t ui_menu (int key, menu_item_t *mn, Lang_en ln)
          task = _md.menu[_md.item].node.task ();
       else
          task = EXIT_RETURN;
-      if (!_md.item)  // Clear optional call
-         _NEXT_ITEM (_md.menu,_md.item);
+      if (!_md.item) {
+         // Clear optional call and init items
+         _next_item (&_md, &_md.item);
+         _next_item (&_md, &_md.frame_item);
+         vfrm_it = vit = 1;
+      }
    }
    else {
       // We have menu navigation
-      if (key == ui_keys.UP)         _PREV_ITEM (_md.menu,_md.item);
-      if (key == ui_keys.DOWN)       _NEXT_ITEM (_md.menu,_md.item);
+      if (key == ui_keys.UP)     vit -= _prev_item (&_md, &_md.item);
+      if (key == ui_keys.DOWN)   vit += _next_item (&_md, &_md.item);
+
       if (key == ui_keys.LEFT) {
          _pop_menu (&hist, &_md);
          if ( !_md.menu ) {
@@ -256,14 +312,18 @@ ui_return_t ui_menu (int key, menu_item_t *mn, Lang_en ln)
                return EXIT_STAY;
          }
 
-      if (!_md.item)
-         _ROLL_2TOP (_md.menu, _md.item);
-      if (!_md.menu[_md.item].node.task)
-         _ROLL_2BOTTOM (_md.menu, _md.item);
-
+      // Frame calculation
+      if (vit < vfrm_it) {
+         vfrm_it = vit;
+         _md.frame_item = _md.item;
+      }
+      if (vit - vfrm_it >= tuifb.l - 1) {
+         ++vfrm_it;
+         _next_item (&_md, &_md.frame_item);
+      }
       //Send current frame for printing
-      ui_print_caption (_md.menu[0].text[ln]);
-      ui_print_frame (_md.menu[_md.item].text[ln], sizeof (menu_item_t));
+      _mk_window (_md.frame_item, _md.item, ln);
+
    }
 
    return EXIT_STAY;

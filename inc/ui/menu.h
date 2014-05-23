@@ -90,7 +90,7 @@ typedef struct
 {
    menu_item_t*   menu;
    int            item;
-   //int            frame_item;
+   int            frame_item;
 }ui_menu_t;
 
 typedef volatile struct
@@ -107,20 +107,6 @@ typedef volatile struct
 
 
 /* ================  Macro Functions  ======================*/
-#define  _PREV_ITEM(mn,it)                         \
-   do                                              \
-      if (!--it) {                                 \
-         for (it=1 ; mn[it].node.task ; ++it);     \
-            --it;                                  \
-      }                                            \
-   while (!_menu_item_active (&mn[it]))
-
-#define  _NEXT_ITEM(mn,it)                         \
-   do                                              \
-      if (!mn[++it].node.task)                     \
-         it=1;                                     \
-   while (!_menu_item_active (&mn[it]))
-
 #define  _ROLL_2TOP(mn,it)                         \
    do {                                            \
       for (it=1 ; mn[it].node.task ; ++it);        \
