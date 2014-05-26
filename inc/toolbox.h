@@ -73,13 +73,8 @@ extern "C" {
 //#include <sys/semaphore.h>
 
 // User interface
-//#include <ui/ui.h>
-#include <ui/uid.h>
-#include <ui/menu.h>
-#include <ui/combobox.h>
-#include <ui/valuebox.h>
-#include <ui/timebox.h>
-#include <ui/textbox.h>
+#include <ui/tui.h>
+#include <ui/tuid.h>
 
 
 #ifdef __cplusplus

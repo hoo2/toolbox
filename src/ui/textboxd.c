@@ -1,7 +1,7 @@
 /*!
- * \file textbox.c
+ * \file textboxd.c
  * \brief
- *    A plain and demonised text-box functionality.
+ *    A demonised text-box functionality.
  *
  * This file is part of toolbox
  *
@@ -23,7 +23,7 @@
  * Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
  *
  */
-#include <ui/textbox.h>
+#include <ui/tuid.h>
 
 /*!
  * \brief
@@ -52,7 +52,7 @@
  * LEFT     --    Save current character and go to next.
  * ESC      --    Returns the string "as is"
  */
-ui_return_t ui_textbox (int key, text_t cap, char* str, int8_t size, Lang_en ln)
+ui_return_t textboxd (int key, text_t cap, char* str, int8_t size, Lang_en ln)
 {
    static int ev=1;
    static int8_t  i=0;

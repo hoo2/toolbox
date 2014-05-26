@@ -1,7 +1,7 @@
 /*!
  * \file menu.c
  * \brief
- *    A plain and demonised menu functionality.
+ *    A demonised menu functionality.
  *
  * This file is part of toolbox
  *
@@ -23,25 +23,22 @@
  * Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
  *
  */
-
-#include <ui/menu.h>
-
-ui_keys_t   ui_keys;
-tuifb_t     tuifb;
-
-static ui_menu_t     _md;
-static menu_stack_t  hist;
-static uint8_t       menu_mask[UI_MENU_MASK_SIZE/8];
-   /*!< UI_MENU_MASK_SIZE bit "variable" to addressed by 8bit position mm array */
+#include <ui/tuid.h>
 
 // Static functions
 static void _push_menu (menu_stack_t* st, ui_menu_t* mn);
 static void  _pop_menu (menu_stack_t* st, ui_menu_t* mn);
 static void  _esc_menu (menu_stack_t* st, ui_menu_t* mn);
-static int _menu_stack_empty (menu_stack_t* st);
-static int _menu_item_active (menu_item_t *item);
-static int _next_item (ui_menu_t* mn, int *it);
-static int _prev_item (ui_menu_t* mn, int *it);
+
+static int _menu_stack_empty (tuid_t *tuid);
+static int _menu_item_active (tuid_t *tuid, int it);
+
+static int _next_item (tuid_t *tuid, int *it);
+static int _prev_item (tuid_t *tuid, int *it);
+
+static void _mk_caption (tuid_t *tuid, Lang_en ln);
+static void   _mk_frame (tuid_t *tuid, Lang_en ln);
+static void  _mk_window (tuid_t *tuid, Lang_en ln);
 
 // Push the current menu to stack
 static void _push_menu (menu_stack_t* st, ui_menu_t* mn)
@@ -72,21 +69,21 @@ static void _esc_menu (menu_stack_t* st, ui_menu_t* mn)
    memset ((void*)mn, 0, sizeof (ui_menu_t));
 }
 
-static int _menu_stack_empty (menu_stack_t* st)
+static int _menu_stack_empty (tuid_t *tuid)
 {
-   return (st->sp) ? 0:1;
+   return (tuid->hist.sp) ? 0:1;
 }
 
-static int _menu_item_active (menu_item_t *item)
+static int _menu_item_active (tuid_t *tuid, int it)
 {
    uint8_t i;
    uint8_t  p[4]; // 8bit positions
    uint8_t  _p[4];   // 1bit position
 
    for (i=0 ; i<4 ; ++i) {
-      p[i] = item->mm[i] / 8;
-      _p[i] = item->mm[i] % 8;
-      p[i] = (menu_mask[p[i]] & (0x01<<_p[i])) ? 1 : 0;  // Get bit
+      p[i] = tuid->menu_data.menu[it].mm[i] / 8;
+      _p[i] = tuid->menu_data.menu[it].mm[i] % 8;
+      p[i] = (tuid->menu_mask[p[i]] & (0x01<<_p[i])) ? 1 : 0;  // Get bit
    }
 
    return (uint8_t) ( (p[MM_CTRL]
@@ -95,98 +92,143 @@ static int _menu_item_active (menu_item_t *item)
                     && !p[MM_NOT]);
 }
 
-int _next_item (ui_menu_t* mn, int *it)
+static int _next_item (tuid_t *tuid, int *it)
 {
    int st = *it;
    do {
-      if (!mn->menu[++*it].node.task)
+      if (! tuid->menu_data.menu[++*it].node.task)
          *it=1;
       if (st == *it)
          return 0;
-   } while (!_menu_item_active (&mn->menu[*it]));
+   } while (!_menu_item_active (tuid, *it));
    return 1;
 }
 
-int _prev_item (ui_menu_t* mn, int *it)
+static int _prev_item (tuid_t *tuid, int *it)
 {
    int st = *it;
    do {
       if (!--*it) {
-         for (*it=1 ; mn->menu[*it].node.task ; ++*it)
+         for (*it=1 ; tuid->menu_data.menu[*it].node.task ; ++*it)
             ;
          --*it;
       }
       if (st == *it)
          return 0;
-   } while (!_menu_item_active (&mn->menu[*it]));
+   } while (!_menu_item_active (tuid, *it));
    return 1;
 }
 
-static void _mk_caption (Lang_en ln)
+static void _mk_caption (tuid_t *tuid, Lang_en ln)
 {
-   if (!tuifb.fb)
+   if (!tuid->frame_buffer.fb)
       return;
-   sprintf ((char*)&tuifb.fb[0], "%s", (char*)_md.menu[0].text[ln]);
+   // Clear ALL fb's caption first
+   memset ((char*)&tuid->frame_buffer.fb[0], ' ', tuid->frame_buffer.c-1);
+   tuid->frame_buffer.fb[tuid->frame_buffer.c-1] = 0; // Keep null termination at end of line
+
+   // Print caption
+   sprintf ((char*)&tuid->frame_buffer.fb[0], "%s", (char*)tuid->menu_data.menu[0].text[ln]);
+   tuid->frame_buffer.fb[strlen ((const char*)tuid->menu_data.menu[0].text[ln])] = ' ';
+   /*
+    * discard null termination inside frame buffer
+    */
 }
 
-static void _mk_frame (int frm_item, int item, Lang_en ln)
+#define _LINE(_l)    (tuid->frame_buffer.c*(_l))
+static void _mk_frame (tuid_t *tuid, Lang_en ln)
 {
-   int line;
+   int line, offset;
+   int start, frame;
 
-   if (!tuifb.fb)
+   if (!tuid->frame_buffer.fb)
       return;
-   for (line=1 ; line<tuifb.l ; ++line) {
-      if (frm_item == item) {
-         if (_md.menu[frm_item].item_type == UI_RETURN)
-            sprintf ((char*)&tuifb.fb[tuifb.c*line], "<%s", (char*)_md.menu[frm_item].text[ln]);
-         else
-            sprintf ((char*)&tuifb.fb[tuifb.c*line], ">%s", (char*)_md.menu[frm_item].text[ln]);
+   // Clear fb's frame first
+   for (line=1 ; line<tuid->frame_buffer.l ; ++line) {
+      memset ((char*)&tuid->frame_buffer.fb[_LINE(line)], ' ', tuid->frame_buffer.c-1);
+      tuid->frame_buffer.fb[_LINE(line+1)-1] = 0;
+      /*
+       * Keep null termination at end of each
+       * frame buffer's line
+       */
+   }
+
+   // Print each line
+   start = frame = tuid->menu_data.mn_frm;
+   for (line=1 ; line<tuid->frame_buffer.l ; ++line) {
+      offset=0;
+      if (frame == tuid->menu_data.mn_it) {
+         if (tuid->menu_data.menu[frame].item_type == UI_RETURN) {
+            sprintf ((char*)&tuid->frame_buffer.fb[_LINE(line)], "<%s", (char*)tuid->menu_data.menu[frame].text[ln]);
+            offset = 1;    // Add '<' character
+         }
+         else {
+            sprintf ((char*)&tuid->frame_buffer.fb[_LINE(line)], ">%s", (char*)tuid->menu_data.menu[frame].text[ln]);
+            offset = 1;    // Add '>' character
+         }
       }
       else
-         sprintf ((char*)&tuifb.fb[tuifb.c*line], "%s", (char*)_md.menu[frm_item].text[ln]);
-      if (!_next_item (&_md, &frm_item))
+         sprintf ((char*)&tuid->frame_buffer.fb[_LINE(line)], "%s", (char*)tuid->menu_data.menu[frame].text[ln]);
+
+      // discard null termination inside frame buffer
+      offset += strlen ((const char*)tuid->menu_data.menu[frame].text[ln]);
+      tuid->frame_buffer.fb[_LINE(line)+offset] = ' ';
+
+      // Escape if no items left
+      if ( !_next_item (tuid, &frame) )
+         break;
+      if (frame == start)
          break;
    }
 }
+#undef _LINE
 
-static void _mk_window (int frm_item, int item, Lang_en ln)
+static void _mk_window (tuid_t *tuid, Lang_en ln)
 {
-   _mk_caption (ln);
-   _mk_frame (frm_item, item, ln);
+   _mk_caption (tuid, ln);
+   _mk_frame (tuid, ln);
 }
 
 /*
  * ============================ Public Functions ============================
  */
 
-void ui_set_menu_mask (uint8_t pos)
+void menud_set_mask (tuid_t *tuid, uint8_t pos)
 {
    uint8_t  p, _p;
 
    p = pos / 8;
    _p = pos % 8;
-   menu_mask[p] |= (0x01 << _p);
+   tuid->menu_mask[p] |= (0x01 << _p);
 }
 
-void ui_clear_menu_mask (uint8_t pos)
+void menud_clear_mask (tuid_t *tuid, uint8_t pos)
 {
    uint8_t  p, _p;
 
    p = pos / 8;
    _p = pos % 8;
-   menu_mask[p] &= ~(0x01 << _p);
+   tuid->menu_mask[p] &= ~(0x01 << _p);
 }
 
-void ui_menu_init (void)
+void menud_init (tuid_t *tuid)
 {
    int i;
 
    // Clear
    for (i=0 ; i<UI_MENU_MASK_SIZE/8 ; ++i)
-      menu_mask[i] = 0;
+      tuid->menu_mask[i] = 0;
 
-   menu_mask[0] &= ~0x01;
-   menu_mask[UI_MENU_MASK_SIZE/8 - 1] |= 0x80;
+   tuid->menu_mask[0] &= ~0x01;
+   tuid->menu_mask[UI_MENU_MASK_SIZE/8 - 1] |= 0x80;
+}
+
+/*!
+ * \brief
+ *    Returns the current menu.
+ */
+inline menu_item_t* menu_this (tuid_t *tuid) {
+   return (menu_item_t*)& tuid->menu_data.menu[tuid->menu_data.mn_it];
 }
 
 /*!
@@ -244,61 +286,63 @@ void ui_menu_init (void)
  *    \arg  EXIT_RETURN    :  Indicates that function returns
  *    \arg  EXIT_STAY      :  Indicates that functions has not returned
  */
-ui_return_t ui_menu (int key, menu_item_t *mn, Lang_en ln)
+ui_return_t menud (tuid_t *tuid, int key, menu_item_t *mn, Lang_en ln)
 {
    static uint8_t ev=1, task=EXIT_RETURN;
-   static int vfrm_it, vit;
 
    if (ev) {
       // It is the first call of every menu
-      _md.item = 0;
-      _md.frame_item = 0;
-      vfrm_it = vit = 0;
+      tuid->menu_data.mn_it = 0;
+      tuid->menu_data.mn_frm = 0;
+      tuid->menu_data.fb_it = 0;
+      tuid->menu_data.fb_frm = 0;
       task=EXIT_STAY;   // Prepare optional call
 
-      if (_menu_stack_empty (&hist)) // First menu call
-         _md.menu = mn;
+      if (_menu_stack_empty (tuid)) // First menu call
+         tuid->menu_data.menu = mn;
       ev = 0;
    }
 
    if (task == EXIT_STAY) {
       // We have call
-      if (_md.menu[_md.item].node.task)
-         task = _md.menu[_md.item].node.task ();
+      if (tuid->menu_data.menu[tuid->menu_data.mn_it].node.task)
+         task = tuid->menu_data.menu[tuid->menu_data.mn_it].node.task ();
       else
          task = EXIT_RETURN;
-      if (!_md.item) {
+      if (!tuid->menu_data.mn_it) {
          // Clear optional call and init items
-         _next_item (&_md, &_md.item);
-         _next_item (&_md, &_md.frame_item);
-         vfrm_it = vit = 1;
+         _next_item (tuid, &tuid->menu_data.mn_it);
+         _next_item (tuid, &tuid->menu_data.mn_frm);
+         tuid->menu_data.fb_frm = tuid->menu_data.fb_it = 1;
       }
    }
    else {
       // We have menu navigation
-      if (key == ui_keys.UP)     vit -= _prev_item (&_md, &_md.item);
-      if (key == ui_keys.DOWN)   vit += _next_item (&_md, &_md.item);
+      if (key == tuid->keys.UP)
+         tuid->menu_data.fb_it -= _prev_item (tuid, &tuid->menu_data.mn_it);
+      if (key == tuid->keys.DOWN)
+         tuid->menu_data.fb_it += _next_item (tuid, &tuid->menu_data.mn_it);
 
-      if (key == ui_keys.LEFT) {
-         _pop_menu (&hist, &_md);
-         if ( !_md.menu ) {
+      if (key == tuid->keys.LEFT) {
+         _pop_menu (&tuid->hist, &tuid->menu_data);
+         if ( !tuid->menu_data.menu ) {
             ev = 1;
             return EXIT_RETURN;
          }
          return EXIT_STAY;
       }
-      if (key == ui_keys.ESC) {
-         _esc_menu (&hist, &_md);
+      if (key == tuid->keys.ESC) {
+         _esc_menu (&tuid->hist, &tuid->menu_data);
          ev = 1;
          return EXIT_RETURN;
       }
-      if (key == ui_keys.RIGHT || key == ui_keys.ENTER)
-         switch (_md.menu[_md.item].item_type)
+      if (key == tuid->keys.RIGHT || key == tuid->keys.ENTER)
+         switch (tuid->menu_data.menu[tuid->menu_data.mn_it].item_type)
          {
             case UI_NONE:
             case UI_RETURN:
-               _pop_menu (&hist, &_md);
-               if (!_md.menu) {
+               _pop_menu (&tuid->hist, &tuid->menu_data);
+               if (!tuid->menu_data.menu) {
                   ev = 1;
                   return EXIT_RETURN;
                }
@@ -306,33 +350,25 @@ ui_return_t ui_menu (int key, menu_item_t *mn, Lang_en ln)
             case UI_TASK_ITEM:
                return task = EXIT_STAY;
             case UI_MENU_ITEM:
-               _push_menu (&hist, &_md);
-               _md.menu = _md.menu[_md.item].node.menu;
+               _push_menu (&tuid->hist, &tuid->menu_data);
+               tuid->menu_data.menu = tuid->menu_data.menu[tuid->menu_data.mn_it].node.menu;
                ev = 1;
                return EXIT_STAY;
          }
 
-      // Frame calculation
-      if (vit < vfrm_it) {
-         vfrm_it = vit;
-         _md.frame_item = _md.item;
+      // Roll frame
+      if (tuid->menu_data.fb_it < tuid->menu_data.fb_frm) {
+         tuid->menu_data.fb_frm = tuid->menu_data.fb_it;
+         tuid->menu_data.mn_frm = tuid->menu_data.mn_it;
       }
-      if (vit - vfrm_it >= tuifb.l - 1) {
-         ++vfrm_it;
-         _next_item (&_md, &_md.frame_item);
+      if (tuid->menu_data.fb_it - tuid->menu_data.fb_frm >= tuid->frame_buffer.l - 1) {
+         ++tuid->menu_data.fb_frm;
+         _next_item (tuid, &tuid->menu_data.mn_frm);
       }
-      //Send current frame for printing
-      _mk_window (_md.frame_item, _md.item, ln);
+      //Send current window for printing
+      _mk_window (tuid, ln);
 
    }
 
    return EXIT_STAY;
-}
-
-/*!
- * \brief
- *    Returns the current menu.
- */
-inline menu_item_t* ui_this_menu (void) {
-   return (menu_item_t*)& _md.menu[_md.item];
 }

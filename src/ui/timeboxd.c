@@ -1,7 +1,7 @@
 /*!
- * \file timebox.c
+ * \file timeboxd.c
  * \brief
- *    A plain and demonised time-box functionality.
+ *    A demonised time-box functionality.
  *
  * This file is part of toolbox
  *
@@ -23,7 +23,7 @@
  * Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
  *
  */
-#include <ui/timebox.h>
+#include <ui/tuid.h>
 
 /*!
  * \brief
@@ -54,7 +54,7 @@
  * LEFT     --    Exit with the previous time value
  * ESC      --       "        "        "
  */
-ui_return_t ui_timebox (int key, text_t cap, uint8_t frm, time_t up, time_t down, time_t step, time_t *value)
+ui_return_t timeboxd (int key, text_t cap, uint8_t frm, time_t up, time_t down, time_t step, time_t *value)
 {
    static time_t cur, t;
    static int ev=1, speedy=0;

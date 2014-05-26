@@ -1,7 +1,7 @@
 /*!
- * \file valuebox.c
+ * \file valueboxd.c
  * \brief
- *    A plain and demonised value-box functionality.
+ *    A demonised value-box functionality.
  *
  * This file is part of toolbox
  *
@@ -23,7 +23,7 @@
  * Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
  *
  */
-#include <ui/valuebox.h>
+#include <ui/tuid.h>
 
 /*!
  * \brief
@@ -55,7 +55,7 @@
  * LEFT     --    Exit with the previous value
  * ESC      --       "        "        "
  */
-ui_return_t ui_valuebox (int key, text_t cap, text_t units, float up, float down, float step, int dec, float *value)
+ui_return_t valueboxd (int key, text_t cap, text_t units, float up, float down, float step, int dec, float *value)
 {
    static float cur, v;
    static int ev=1, speedy=0;

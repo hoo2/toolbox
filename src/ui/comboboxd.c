@@ -1,7 +1,7 @@
 /*!
- * \file combobox.c
+ * \file comboboxd.c
  * \brief
- *    A plain and demonised combo-box functionality.
+ *    A demonised combo-box functionality.
  *
  * This file is part of toolbox
  *
@@ -23,7 +23,7 @@
  * Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
  *
  */
-#include <ui/combobox.h>
+#include <ui/tuid.h>
 
 /*!
  * \brief
@@ -61,7 +61,7 @@
  * LEFT     --    Exit with the previous selected item
  * ESC      --       "        "        "
  */
-ui_return_t ui_combobox (int key, combobox_item_t *items, int *id, Lang_en ln)
+ui_return_t comboboxd (int key, combobox_item_t *items, int *id, Lang_en ln)
 {
    static uint8_t ev=1;
    static int i, cur;
