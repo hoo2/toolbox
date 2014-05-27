@@ -1,5 +1,5 @@
 /*!
- * \file menu.c
+ * \file tui_menud.c
  * \brief
  *    A demonised menu functionality.
  *
@@ -40,7 +40,13 @@ static void _mk_caption (tuid_t *tuid, Lang_en ln);
 static void   _mk_frame (tuid_t *tuid, Lang_en ln);
 static void  _mk_window (tuid_t *tuid, Lang_en ln);
 
-// Push the current menu to stack
+/*!
+ * \brief
+ *    Push the current menu to call menu stack
+ * \param  st     Pointer to the stack to use
+ * \param  mn     Pointer to the menu instant to push.
+ * \return none
+ */
 static void _push_menu (menu_stack_t* st, ui_menu_t* mn)
 {
    if (st->sp >= UI_CALLMENU_SIZE)
@@ -51,7 +57,13 @@ static void _push_menu (menu_stack_t* st, ui_menu_t* mn)
    }
 }
 
-// Pop the last menu from stack
+/*!
+ * \brief
+ *    Pop from the call menu stack
+ * \param  st     Pointer to the stack to use
+ * \param  mn     Pointer to the menu instant.
+ * \return none
+ */
 static void _pop_menu (menu_stack_t* st, ui_menu_t* mn)
 {
    if (st->sp > 0) {
@@ -62,18 +74,43 @@ static void _pop_menu (menu_stack_t* st, ui_menu_t* mn)
       memset ((void*)mn, 0, sizeof (ui_menu_t));
 }
 
-// Discard the stack stored menu and return
+/*!
+ * \brief
+ *    Discard all the stack stored menu and return.
+ *    Escape from all sub-menus.
+ * \param  st     Pointer to the stack to use
+ * \param  mn     Pointer to the poped menu instant.
+ * \return none
+ */
 static void _esc_menu (menu_stack_t* st, ui_menu_t* mn)
 {
    memset ((void*)st, 0, sizeof (menu_stack_t));
    memset ((void*)mn, 0, sizeof (ui_menu_t));
 }
 
+/*!
+ * \brief
+ *    Check if call menu stack is empty
+ * \param  tuid   Pointer to the active tuid_t struct
+ * \return        The stack emptiness status
+ *    \arg  1     The stack is empty.
+ *    \arg  0     The stack is NOT empty.
+ */
 static int _menu_stack_empty (tuid_t *tuid)
 {
    return (tuid->hist.sp) ? 0:1;
 }
 
+/*!
+ * \brief
+ *    Check if the menu indexed by it is active (can be shown)
+ *    or not.
+ * \param  tuid   Pointer to the active tuid_t struct
+ * \param  it     The menu indexed item to check ex: tuid->menu_data.menu[it]
+ * \return        The active status
+ *    \arg  1     The menu is active (enabled).
+ *    \arg  0     The menu is not active (disabled).
+ */
 static int _menu_item_active (tuid_t *tuid, int it)
 {
    uint8_t i;
@@ -92,6 +129,15 @@ static int _menu_item_active (tuid_t *tuid, int it)
                     && !p[MM_NOT]);
 }
 
+/*!
+ * \brief
+ *    Finds the next active item in the menu array
+ * \param  tuid   Pointer to the active tuid_t struct
+ * \param  it     The menu indexer item to update ex: tuid->menu_data.menu[*it]
+ * \return        The operation's status
+ *    \arg  1     The it updated successfully
+ *    \arg  0     The it doesn't updated successfully (no items left).
+ */
 static int _next_item (tuid_t *tuid, int *it)
 {
    int st = *it;
@@ -104,6 +150,15 @@ static int _next_item (tuid_t *tuid, int *it)
    return 1;
 }
 
+/*!
+ * \brief
+ *    Finds the previous active item in the menu array
+ * \param  tuid   Pointer to the active tuid_t struct
+ * \param  it     The menu indexer item to update ex: tuid->menu_data.menu[*it]
+ * \return        The operation's status
+ *    \arg  1     The it updated successfully
+ *    \arg  0     The it doesn't updated successfully (no items left).
+ */
 static int _prev_item (tuid_t *tuid, int *it)
 {
    int st = *it;
@@ -119,6 +174,13 @@ static int _prev_item (tuid_t *tuid, int *it)
    return 1;
 }
 
+/*!
+ * \brief
+ *    Paints the Caption line in the frame buffer
+ * \param  tuid   Pointer to the active tuid_t struct
+ * \param  ln     The language to use
+ * \return none
+ */
 static void _mk_caption (tuid_t *tuid, Lang_en ln)
 {
    if (!tuid->frame_buffer.fb)
@@ -135,9 +197,16 @@ static void _mk_caption (tuid_t *tuid, Lang_en ln)
     */
 }
 
-#define _LINE(_l)    (tuid->frame_buffer.c*(_l))
+/*!
+ * \brief
+ *    Paints the frame in the frame buffer
+ * \param  tuid   Pointer to the active tuid_t struct
+ * \param  ln     The language to use
+ * \return none
+ */
 static void _mk_frame (tuid_t *tuid, Lang_en ln)
 {
+   #define _LINE(_l)    (tuid->frame_buffer.c*(_l))
    int line, offset;
    int start, frame;
 
@@ -180,9 +249,17 @@ static void _mk_frame (tuid_t *tuid, Lang_en ln)
       if (frame == start)
          break;
    }
+   #undef _LINE
 }
-#undef _LINE
 
+/*!
+ * \brief
+ *    Paints all the window (caption and frame)
+ *    in the frame buffer.
+ * \param  tuid   Pointer to the active tuid_t struct
+ * \param  ln     The language to use
+ * \return none
+ */
 static void _mk_window (tuid_t *tuid, Lang_en ln)
 {
    _mk_caption (tuid, ln);
@@ -193,7 +270,14 @@ static void _mk_window (tuid_t *tuid, Lang_en ln)
  * ============================ Public Functions ============================
  */
 
-void menud_set_mask (tuid_t *tuid, uint8_t pos)
+/*!
+ * \brief
+ *    Set the menu mask bit in the position pos.
+ * \param  tuid   Pointer to the active tuid_t struct
+ * \param  pos    The bit position inside the manu_mask to set.
+ * \return none
+ */
+void tui_menud_set_mask (tuid_t *tuid, uint8_t pos)
 {
    uint8_t  p, _p;
 
@@ -202,7 +286,14 @@ void menud_set_mask (tuid_t *tuid, uint8_t pos)
    tuid->menu_mask[p] |= (0x01 << _p);
 }
 
-void menud_clear_mask (tuid_t *tuid, uint8_t pos)
+/*!
+ * \brief
+ *    Clear the menu mask bit in the position pos.
+ * \param  tuid   Pointer to the active tuid_t struct
+ * \param  pos    The bit position inside the manu_mask to clear.
+ * \return none
+ */
+void tui_menud_clear_mask (tuid_t *tuid, uint8_t pos)
 {
    uint8_t  p, _p;
 
@@ -211,7 +302,13 @@ void menud_clear_mask (tuid_t *tuid, uint8_t pos)
    tuid->menu_mask[p] &= ~(0x01 << _p);
 }
 
-void menud_init (tuid_t *tuid)
+/*!
+ * \brief
+ *    Initialise the menu mask array
+ * \param  tuid   Pointer to the active tuid_t struct
+ * \return none
+ */
+void tui_menud_init (tuid_t *tuid)
 {
    int i;
 
@@ -226,14 +323,16 @@ void menud_init (tuid_t *tuid)
 /*!
  * \brief
  *    Returns the current menu.
+ * \param  tuid   Pointer to the active tuid_t struct
+ * \return        Pointer to the current menu item.
  */
-inline menu_item_t* menu_this (tuid_t *tuid) {
+inline menu_item_t* tui_menu_this (tuid_t *tuid) {
    return (menu_item_t*)& tuid->menu_data.menu[tuid->menu_data.mn_it];
 }
 
 /*!
  * \brief
- *    A demonized version of menu function. It creates a menu by reading
+ *    A demonised version of menu function. It creates a menu by reading
  *    the mn table.
  *
  * This function can create a nested menus based on the context of a table. While the function
@@ -243,31 +342,41 @@ inline menu_item_t* menu_this (tuid_t *tuid) {
  *
  * For example:
  *
- * ui_return_t task_a (void);
- * ui_return_t info_entrance (void);
- * ui_return_t info_a (void);
- * ui_return_t info_b (void);
+ * #define  MM_INFOMENU          (1)
+ * #define  MM_TASK_B            (2)
+ *
+ * ui_return_t task_a (void) {return EXIT_RETURN;}
+ * ui_return_t task_b (void) {return EXIT_RETURN;}
+ * ui_return_t info_entrance (void) {return EXIT_RETURN;}
+ * ui_return_t info_a (void) {return EXIT_RETURN;}
+ * ui_return_t info_b (void) {return EXIT_RETURN;}
  *
  * const menu_item_t  main_menu [];
  * const menu_item_t  info_menu [];
- *
  * const menu_item_t  main_menu [] =
  * {
- *    {{"MENU",            "MENU"},             UI_EMPTY},           <-- Caption
- *    {{">View Info",      ">Info anzeigen"},   UI_MENU(info_menu)}, <-- Items
- *    {{">Task a",         ">Aufgabe a"},       UI_TASK(task_a)},          "  (call task_a)
- *    {{"<BACK",           "<ZURUCK"},          UI_BACK},            <-- special back function
- *    {{0,0}, UI_EMPTY}                                              <-- Terminator
+ *    {{"MENU",           "MENU"},            UI_EMPTY,            UI_MM_EN},                                        // <-- Caption
+ *    {{"Task a",         "Aufgabe a"},       UI_TASK(task_a),     UI_MM_EN},                                        // <-- Items  (call task_a)
+ *    {{"Task b",         "Aufgabe b"},       UI_TASK(task_b),     {MM_TASK_B, UI_IT_DIS, UI_IT_EN, UI_IT_DIS}},     //       "    (call task_b)
+ *    {{"View Info",      "Info anzeigen"},   UI_MENU(info_menu),  {MM_INFOMENU, UI_IT_DIS, MM_TASK_B, UI_IT_DIS}},  // <-- Sub-menu
+ *    {{"BACK",           "ZURUCK"},          UI_BACK,             UI_MM_EN},                                        // <-- special back function
+ *    {{0,0}, UI_EMPTY,                                            UI_MM_EN}                                         // <-- Terminator
  * };
  *
  * const menu_item_t  info_menu [] =
  * {
- *    {{"Informations", "Information"},   UI_TASK(info_entrance)},   <--Caption and optional info_entrance call on entrance
- *    {{">Info a",      ">Info a"},       UI_TASK(info_a)},          <-- Items (call info_a)
- *    {{">Info b",      ">Info b"},       UI_TASK(info_b)},                "   (call info_b)
- *    {{"<BACK",        "<ZURUCK"},       UI_BACK},                        "
- *    {{0,0}, UI_EMPTY}                                              <-- Terminator
+ *    {{"Informations", "Information"},   UI_TASK(info_entrance),    UI_MM_EN},  // <-- Caption and optional info_entrance
+ *                                                                               //     call on entrance
+ *    {{"Info a",       "Info a"},        UI_TASK(info_a),           UI_MM_EN},  // <-- Items  (call task_a)
+ *    {{"Info b",       "Info b"},        UI_TASK(info_b),           UI_MM_EN},  //       "    (call task_b)
+ *    {{"BACK",         "ZURUCK"},        UI_BACK,                   UI_MM_EN},  // <-- special back function
+ *    {{0,0}, UI_EMPTY,                                              UI_MM_EN}   // <-- Terminator
  * };
+ * //
+ * // The task_b is enabled if we call       tui_menud_set_mask (MM_TASK_B);
+ * // The info_menu is enabled if we call    tui_menud_set_mask (MM_TASK_B); and tui_menud_set_mask (MM_INFOMENU);
+ * // To disable task_a we call              tui_menud_clear_mask (MM_TASK_B)
+ * //
  *
  * Navigation
  * ==========================
@@ -278,15 +387,16 @@ inline menu_item_t* menu_this (tuid_t *tuid) {
  * ESC      --    Exit the entire menu
  *
  *
+ * \param   tuid     Pointer to the active tuid_t struct
  * \param   key      User input
  * \param   mn       The menu table
  * \param   ln       The language to use.
  *
  * \return  ui_return_t
- *    \arg  EXIT_RETURN    :  Indicates that function returns
- *    \arg  EXIT_STAY      :  Indicates that functions has not returned
+ *    \arg  EXIT_RETURN    Indicates that function returns
+ *    \arg  EXIT_STAY      Indicates that functions has not returned
  */
-ui_return_t menud (tuid_t *tuid, int key, menu_item_t *mn, Lang_en ln)
+ui_return_t tui_menud (tuid_t *tuid, int key, menu_item_t *mn, Lang_en ln)
 {
    static uint8_t ev=1, task=EXIT_RETURN;
 
@@ -369,6 +479,5 @@ ui_return_t menud (tuid_t *tuid, int key, menu_item_t *mn, Lang_en ln)
       _mk_window (tuid, ln);
 
    }
-
    return EXIT_STAY;
 }

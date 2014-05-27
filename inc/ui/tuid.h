@@ -74,26 +74,33 @@ extern "C" {
 /*
  * ================= Menud types ===================
  */
+/*!
+ * Enumerator for the node types
+ */
 typedef enum
 {
-   UI_NONE=0,
-   UI_RETURN,
-   UI_TASK_ITEM,
-   UI_MENU_ITEM
+   UI_NONE=0,     /*!< The node is empty - place holder */
+   UI_RETURN,     /*!< The node is type return, we pop menu */
+   UI_TASK_ITEM,  /*!< The node is task (user function) */
+   UI_MENU_ITEM   /*!< The node is sub-menu */
 }menu_item_type_en;
 
-typedef ui_return_t (*task_ft) (void);           // Menu function Task
+typedef ui_return_t (*task_ft) (void);       /*!< Menu function Task */
 typedef struct _menu_item menu_item_t;
 
+/*!
+ * Node union structrure
+ */
 typedef union _node
 {
-   task_ft        task;
-   menu_item_t    *menu;
+   task_ft        task;    /*!< Pointer to a task function */
+   menu_item_t    *menu;   /*!< Pointer to a submenu via the menu_item_t */
 }node_t;
 
 typedef  uint8_t    mm_item_t;  /*!< menu mask item type. Change this for size */
-
-
+/*!
+ * Enum for menu mask system
+ */
 typedef enum
 {
    MM_CTRL=0, MM_OR, MM_AND, MM_NOT
@@ -195,13 +202,13 @@ void   tuid_set_key_esc (int k);
 /*
  * =============== Menu API ===================
  */
-void   menud_set_mask (tuid_t *tuid, uint8_t pos);
-void menud_clear_mask (tuid_t *tuid, uint8_t pos);
+void   tui_menud_set_mask (tuid_t *tuid, uint8_t pos);
+void tui_menud_clear_mask (tuid_t *tuid, uint8_t pos);
 
-void menud_init (tuid_t *tuid);
-menu_item_t* menud_this (tuid_t *tuid);
+void tui_menud_init (tuid_t *tuid);
+menu_item_t* tui_menud_this (tuid_t *tuid);
 
-ui_return_t menud (tuid_t *tuid, int key, menu_item_t *mn, Lang_en ln);
+ui_return_t tui_menud (tuid_t *tuid, int key, menu_item_t *mn, Lang_en ln);
 ui_return_t comboboxd (int key, combobox_item_t *items, int *id, Lang_en ln);
 ui_return_t valueboxd (int key, text_t cap, text_t units, float up, float down, float step, int dec, float *value);
 ui_return_t  timeboxd (int key, text_t cap, uint8_t frm, time_t up, time_t down, time_t step, time_t *value);
