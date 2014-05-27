@@ -38,7 +38,6 @@ static int _prev_item (tuid_t *tuid, int *it);
 
 static void _mk_caption (tuid_t *tuid, Lang_en ln);
 static void   _mk_frame (tuid_t *tuid, Lang_en ln);
-static void  _mk_window (tuid_t *tuid, Lang_en ln);
 
 /*!
  * \brief
@@ -252,20 +251,6 @@ static void _mk_frame (tuid_t *tuid, Lang_en ln)
    #undef _LINE
 }
 
-/*!
- * \brief
- *    Paints all the window (caption and frame)
- *    in the frame buffer.
- * \param  tuid   Pointer to the active tuid_t struct
- * \param  ln     The language to use
- * \return none
- */
-static void _mk_window (tuid_t *tuid, Lang_en ln)
-{
-   _mk_caption (tuid, ln);
-   _mk_frame (tuid, ln);
-}
-
 /*
  * ============================ Public Functions ============================
  */
@@ -340,6 +325,16 @@ inline menu_item_t* tui_menu_this (tuid_t *tuid) {
  * This assumes that the caller must handle with return status in order to continues call or not
  * the function.
  *
+ * \param   tuid     Pointer to the active tuid_t structure
+ * \param   key      User input
+ * \param   mn       The menu table
+ * \param   ln       The language to use.
+ *
+ * \return  ui_return_t
+ *    \arg  EXIT_RETURN    Indicates that function returns
+ *    \arg  EXIT_STAY      Indicates that functions has not returned
+ *
+ *
  * For example:
  *
  * #define  MM_INFOMENU          (1)
@@ -382,19 +377,10 @@ inline menu_item_t* tui_menu_this (tuid_t *tuid) {
  * ==========================
  * UP       --    Previous item on the list (table)
  * DOWN     --    Next item on the list
- * RIGHT    --    Call selected function or submenu
+ * RIGHT    --    Call selected function or sub-menu
  * LEFT     --    Exit the item (or the entire menu if the current menu is the first call)
  * ESC      --    Exit the entire menu
  *
- *
- * \param   tuid     Pointer to the active tuid_t struct
- * \param   key      User input
- * \param   mn       The menu table
- * \param   ln       The language to use.
- *
- * \return  ui_return_t
- *    \arg  EXIT_RETURN    Indicates that function returns
- *    \arg  EXIT_STAY      Indicates that functions has not returned
  */
 ui_return_t tui_menud (tuid_t *tuid, int key, menu_item_t *mn, Lang_en ln)
 {
@@ -476,8 +462,8 @@ ui_return_t tui_menud (tuid_t *tuid, int key, menu_item_t *mn, Lang_en ln)
          _next_item (tuid, &tuid->menu_data.mn_frm);
       }
       //Send current window for printing
-      _mk_window (tuid, ln);
-
+      _mk_caption (tuid, ln);
+      _mk_frame (tuid, ln);
    }
    return EXIT_STAY;
 }
