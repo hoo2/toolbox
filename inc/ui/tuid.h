@@ -210,7 +210,7 @@ menu_item_t* tui_menud_this (tuid_t *tuid);
 
 ui_return_t tui_menud (tuid_t *tuid, int key, menu_item_t *mn, Lang_en ln);
 ui_return_t tui_comboboxd (tuid_t *tuid, int key, combobox_item_t *items, int *id, Lang_en ln);
-ui_return_t valueboxd (int key, text_t cap, text_t units, float up, float down, float step, int dec, float *value);
+ui_return_t tui_valueboxd (tuid_t *tuid, int key, text_t cap, text_t units, float up, float down, float step, int dec, float *value);
 ui_return_t  timeboxd (int key, text_t cap, uint8_t frm, time_t up, time_t down, time_t step, time_t *value);
 ui_return_t  textboxd (int key, text_t cap, char* str, int8_t size, Lang_en ln);
 
