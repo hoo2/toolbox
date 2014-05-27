@@ -144,6 +144,7 @@ static void _mk_frame (tuid_t *tuid, combobox_item_t *items, int frame, int item
  * \brief
  *    Creates a Combo box by reading the items table
  *
+ * \param   tuid     Pointer to the active tuid_t structure
  * \param   key      User input
  * \param   items    The Combo Box table
  * \param   id       Pointer to combo box id (current and returned)
@@ -192,6 +193,9 @@ ui_return_t tui_comboboxd (tuid_t *tuid, int key, combobox_item_t *items, int *i
             break;
          }
       }
+      // Print caption
+      _mk_caption (tuid, items, ln);
+
       // Update counters
       cur = vi = vfrm = frm = i;
       ev = 0;
@@ -223,8 +227,7 @@ ui_return_t tui_comboboxd (tuid_t *tuid, int key, combobox_item_t *items, int *i
       _next_item (items, &frm);
    }
 
-   // Printing
-   _mk_caption (tuid, items, ln);
+   // Printing frame
    _mk_frame (tuid, items, frm, i, ln);
 
    return EXIT_STAY;
