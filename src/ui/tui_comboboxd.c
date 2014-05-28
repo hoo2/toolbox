@@ -119,17 +119,14 @@ static void _mk_frame (tuid_t *tuid, combobox_item_t *items, int frame, int item
    for (line=1 ; line < tuid->frame_buffer.l ; ++line) {
       offset=0;
       if (frame == item) {
-         sprintf ((char*)&tuid->frame_buffer.fb[_LINE(line)], "[%s", (char*)items[frame].text[ln]);
-         offset = 1;
+         offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(line)], "[%s", (char*)items[frame].text[ln]);
          post = ']';
       }
       else {
-         sprintf ((char*)&tuid->frame_buffer.fb[_LINE(line)], "%s", (char*)items[frame].text[ln]);
+         offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(line)], "%s", (char*)items[frame].text[ln]);
          post = ' ';
       }
-
       // discard null termination inside frame buffer
-      offset += strlen ((const char*)items[frame].text[ln]);
       tuid->frame_buffer.fb[_LINE(line)+offset] = post;
 
       // Escape if no items left

@@ -226,20 +226,15 @@ static void _mk_frame (tuid_t *tuid, Lang_en ln)
    for (line=1 ; line<tuid->frame_buffer.l ; ++line) {
       offset=0;
       if (frame == tuid->menu_data.mn_it) {
-         if (tuid->menu_data.menu[frame].item_type == UI_RETURN) {
-            sprintf ((char*)&tuid->frame_buffer.fb[_LINE(line)], "<%s", (char*)tuid->menu_data.menu[frame].text[ln]);
-            offset = 1;    // Add '<' character
-         }
-         else {
-            sprintf ((char*)&tuid->frame_buffer.fb[_LINE(line)], ">%s", (char*)tuid->menu_data.menu[frame].text[ln]);
-            offset = 1;    // Add '>' character
-         }
+         if (tuid->menu_data.menu[frame].item_type == UI_RETURN)
+            offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(line)], "<%s", (char*)tuid->menu_data.menu[frame].text[ln]);
+         else
+            offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(line)], ">%s", (char*)tuid->menu_data.menu[frame].text[ln]);
       }
       else
-         sprintf ((char*)&tuid->frame_buffer.fb[_LINE(line)], "%s", (char*)tuid->menu_data.menu[frame].text[ln]);
+         offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(line)], "%s", (char*)tuid->menu_data.menu[frame].text[ln]);
 
       // discard null termination inside frame buffer
-      offset += strlen ((const char*)tuid->menu_data.menu[frame].text[ln]);
       tuid->frame_buffer.fb[_LINE(line)+offset] = ' ';
 
       // Escape if no items left
