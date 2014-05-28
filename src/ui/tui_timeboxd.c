@@ -132,7 +132,6 @@ ui_return_t tui_timeboxd (tuid_t *tuid, int key, text_t cap, uint8_t frm, time_t
 {
    static time_t cur, t;
    static int ev=1, speedy=0;
-   int i=0;
 
    // First (each) time
    if (ev) {
