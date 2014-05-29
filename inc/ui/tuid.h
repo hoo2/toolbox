@@ -184,16 +184,16 @@ void tuid_link_framebuffer (tuid_t *tuid, uint8_t *fb);
 /*
  * Set functions
  */
-void tuid_set_fb_lines (int l);
-void tuid_set_fb_columns (int c);
+void   tuid_set_fb_lines (tuid_t *tuid, int l);
+void tuid_set_fb_columns (tuid_t *tuid, int c);
 
-void    tuid_set_key_up (int k);
-void  tuid_set_key_down (int k);
-void  tuid_set_key_left (int k);
-void tuid_set_key_right (int k);
-void tuid_set_key_enter (int k);
-void tuid_set_key_enter_l (int k);
-void   tuid_set_key_esc (int k);
+void    tuid_set_key_up (tuid_t *tuid, int k);
+void  tuid_set_key_down (tuid_t *tuid, int k);
+void  tuid_set_key_left (tuid_t *tuid, int k);
+void tuid_set_key_right (tuid_t *tuid, int k);
+void tuid_set_key_enter (tuid_t *tuid, int k);
+void tuid_set_key_enter_l (tuid_t *tuid, int k);
+void   tuid_set_key_esc (tuid_t *tuid, int k);
 
 /*
  * User Functions

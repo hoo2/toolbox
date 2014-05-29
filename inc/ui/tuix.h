@@ -96,6 +96,9 @@ typedef enum
    EXIT_RETURN
 }ui_return_t;
 
+/*
+ * =============== Exported API ===================
+ */
 
 #ifdef  __cplusplus
 }
