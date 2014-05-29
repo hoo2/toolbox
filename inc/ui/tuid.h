@@ -86,16 +86,6 @@ typedef volatile struct
 }menud_stack_t;
 
 /*
- * ============== Combo Box types ==================
- */
-typedef struct
-{
-   text_t      text[UI_NUM_OF_LANGUAGES];
-   int         id;
-}combobox_item_t;
-
-
-/*
  * ============ Text UI user type ============
  */
 

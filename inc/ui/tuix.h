@@ -121,6 +121,15 @@ typedef enum
 }mm_item_en;
 
 /*
+ * ============== Combo Box types ==================
+ */
+typedef struct
+{
+   text_t      text[UI_NUM_OF_LANGUAGES];
+   int         id;
+}combobox_item_t;
+
+/*
  * =============== Exported API ===================
  */
 
