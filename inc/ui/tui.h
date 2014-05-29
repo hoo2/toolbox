@@ -125,7 +125,7 @@ void      tui_menu (tui_t *tui, menu_item_t *menu, Lang_en ln);
 int   tui_combobox (tui_t *tui, combobox_item_t *items, int cur, Lang_en ln);
 float tui_valuebox (tui_t *tui, text_t cap, text_t units, float up, float down, float step, int dec, float cur);
 time_t tui_timebox (tui_t *tui, text_t cap, uint8_t frm, time_t up, time_t down, time_t step, time_t cur);
-//ui_return_t tui_textbox (tui_t *tui, int key, text_t cap, char* str, int8_t size);
+void   tui_textbox (tui_t *tui, text_t cap, char* str, int size);
 
 
 #ifdef  __cplusplus
