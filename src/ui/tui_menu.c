@@ -329,11 +329,12 @@ void tui_menu (tui_t *tui, menu_item_t *menu, Lang_en ln)
       else if (in == tui->keys.DOWN)   vi += _next_item (tui, menu, &i);
       //Actions
       else if (in == tui->keys.ESC) {
-         esc=1; --calls;
+         calls -= (calls) ? 1:0;
+         esc=1;
          return;
       }
       else if (in == tui->keys.LEFT) {
-         --calls;
+         calls -= (calls) ? 1:0;
          return;
       }
       else if (in == tui->keys.RIGHT || in == tui->keys.ENTER) {
@@ -341,7 +342,7 @@ void tui_menu (tui_t *tui, menu_item_t *menu, Lang_en ln)
          {
             case UI_NONE:
             case UI_RETURN:
-               --calls;
+               calls -= (calls) ? 1:0;
                return;
             case UI_TASK_ITEM:
                menu[i].node.task ();
