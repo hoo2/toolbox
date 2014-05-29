@@ -24,66 +24,6 @@
  *
  */
 
-#include <ui.h>
-
-
-
-/*!
- * \brief
- *    Creates a Value box between a min-max domain
- *
- * \param   cap      The Value box caption
- * \param   up       The upper value box value
- * \param   down     The lower value box value
- * \param   step     The step to use.
- *
- * \return  The selected value.
- *
- * This function can create a Value box between a min-max domain.
- *
- * Navigation
- * ==========================
- * UP       --    Increase the value by step
- * DOWN     --    Decrease the value by step
- * RIGHT    --    Selected and return the current value.
- * LEFT     --    Exit with the previous value
- * ESC      --       "        "        "
- */
-float ui_valuebox (text_t cap, float up, float down, float step, float cur)
-{
-   float value = cur;
-   int in=0;
-   char value_str[12];
-
-   //User Interface Loop
-   ui_print_ctrl ('\f');
-   ui_print_caption (cap);
-   ui_print_ctrl ('\n');
-   for ( ; ; )
-   {
-      sprintf (value_str, "\r=%10.2f", value);
-      ui_print_box (value_str);
-      in = ui_getkey (1);
-      switch (in)
-      {
-         case UP:       value += step; break;
-         case DOWN:     value -= step; break;
-         //Actions
-         case ESC:
-         case LEFT:
-            return cur;
-         case RIGHT:
-         case ENTER:
-            return value;
-         default:
-            break;
-      }
-      //Cycle the values
-      if (value > up)   value = down;
-      if (value < down) value = up;
-   }
-}
-
 /*!
  * \brief
  *    Creates a Time value box between a min-max domain
