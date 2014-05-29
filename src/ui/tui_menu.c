@@ -239,19 +239,13 @@ void tui_menu_init (tui_t *tui)
  *    A menu function for RTOS environments. It creates a menu by reading
  *    the mn table.
  *
- * This function can create a nested menus based on the context of a table. While the function
- * returns EXIT_STAY it is still in progress. When the function is done returns EXIT_RETURN.
- * This assumes that the caller must handle with return status in order to continues call or not
- * the function.
+ * This function can create a nested menus based on the context of a table.
  *
  * \param   tui      Pointer to the active tui_t structure
  * \param   mn       The menu table
  * \param   ln       The language to use.
  *
- * \return  ui_return_t
- *    \arg  EXIT_RETURN    Indicates that function returns
- *    \arg  EXIT_STAY      Indicates that functions has not returned
- *
+ * \return  none
  *
  * For example:
  *
@@ -307,7 +301,7 @@ void tui_menu (tui_t *tui, menu_item_t *menu, Lang_en ln)
    static uint8_t esc=0, calls=0;
    /*!<
     * \note
-    * DON'T PANIC! We use this variables as static, (yes I know what I'm doing)
+    * DON'T PANIC! We use these variables as static, (yes I know what I'm doing)
     * to count recursive calls. We increase <calls> at every call and decrease it
     * at every return. This way we know how to deal with ESC functionality.
     */
