@@ -35,21 +35,21 @@ extern "C" {
 #include <stdint.h>
 #include <ctype.h>
 
+/*
+ * ============== User Defines ==============
+ */
+
+#define  UI_CALLMENU_SIZE        (3)
+#define  UI_TEXTBOX_SIZE      (14)
+#define  UI_TIMEBOX_SIZE      (12)
+
 
 /*
- * ============= Menu ==============
+ * ============== General Defines ==============
  */
 #define  UI_NUM_OF_LANGUAGES     (2)
 #define  UI_MENU_MASK_SIZE       (128) // multiplier of 8
 
-/*
- * =========== Text Box ============
- */
-
-
-/*
- * =========== Time Box ============
- */
 #define  UI_TIME_SS              (0x01)
 #define  UI_TIME_MM              (0x02)
 #define  UI_TIME_HH              (0x04)
@@ -95,6 +95,30 @@ typedef enum
    EXIT_STAY=0,
    EXIT_RETURN
 }ui_return_t;
+
+/*
+ * ================= Menu types ===================
+ */
+/*!
+ * Enumerator for the node types
+ */
+typedef enum
+{
+   UI_NONE=0,     /*!< The node is empty - place holder */
+   UI_RETURN,     /*!< The node is type return, we pop menu */
+   UI_TASK_ITEM,  /*!< The node is task (user function) */
+   UI_MENU_ITEM   /*!< The node is sub-menu */
+}menu_item_type_en;
+
+typedef  uint8_t    mm_item_t;  /*!< menu mask item type. Change this for size */
+
+/*!
+ * Enum for menu mask system
+ */
+typedef enum
+{
+   MM_CTRL=0, MM_OR, MM_AND, MM_NOT
+}mm_item_en;
 
 /*
  * =============== Exported API ===================

@@ -26,9 +26,9 @@
 #include <ui/tuid.h>
 
 // Static functions
-static void _push_menu (menu_stack_t* st, ui_menu_t* mn);
-static void  _pop_menu (menu_stack_t* st, ui_menu_t* mn);
-static void  _esc_menu (menu_stack_t* st, ui_menu_t* mn);
+static void _push_menu (menud_stack_t* st, ui_menud_t* mn);
+static void  _pop_menu (menud_stack_t* st, ui_menud_t* mn);
+static void  _esc_menu (menud_stack_t* st, ui_menud_t* mn);
 
 static int _menu_stack_empty (tuid_t *tuid);
 static int _menu_item_active (tuid_t *tuid, int it);
@@ -46,7 +46,7 @@ static void   _mk_frame (tuid_t *tuid, Lang_en ln);
  * \param  mn     Pointer to the menu instant to push.
  * \return none
  */
-static void _push_menu (menu_stack_t* st, ui_menu_t* mn)
+static void _push_menu (menud_stack_t* st, ui_menud_t* mn)
 {
    if (st->sp >= UI_CALLMENU_SIZE)
       return;
@@ -63,14 +63,14 @@ static void _push_menu (menu_stack_t* st, ui_menu_t* mn)
  * \param  mn     Pointer to the menu instant.
  * \return none
  */
-static void _pop_menu (menu_stack_t* st, ui_menu_t* mn)
+static void _pop_menu (menud_stack_t* st, ui_menud_t* mn)
 {
    if (st->sp > 0) {
       --st->sp;
       *mn = st->mstack[st->sp];
    }
    else
-      memset ((void*)mn, 0, sizeof (ui_menu_t));
+      memset ((void*)mn, 0, sizeof (ui_menud_t));
 }
 
 /*!
@@ -81,10 +81,10 @@ static void _pop_menu (menu_stack_t* st, ui_menu_t* mn)
  * \param  mn     Pointer to the poped menu instant.
  * \return none
  */
-static void _esc_menu (menu_stack_t* st, ui_menu_t* mn)
+static void _esc_menu (menud_stack_t* st, ui_menud_t* mn)
 {
-   memset ((void*)st, 0, sizeof (menu_stack_t));
-   memset ((void*)mn, 0, sizeof (ui_menu_t));
+   memset ((void*)st, 0, sizeof (menud_stack_t));
+   memset ((void*)mn, 0, sizeof (ui_menud_t));
 }
 
 /*!
@@ -306,8 +306,8 @@ void tui_menud_init (tuid_t *tuid)
  * \param  tuid   Pointer to the active tuid_t struct
  * \return        Pointer to the current menu item.
  */
-inline menu_item_t* tui_menu_this (tuid_t *tuid) {
-   return (menu_item_t*)& tuid->menu_data.menu[tuid->menu_data.mn_it];
+inline menud_item_t* tui_menu_this (tuid_t *tuid) {
+   return (menud_item_t*)& tuid->menu_data.menu[tuid->menu_data.mn_it];
 }
 
 /*!
@@ -341,9 +341,9 @@ inline menu_item_t* tui_menu_this (tuid_t *tuid) {
  * ui_return_t info_a (void) {return EXIT_RETURN;}
  * ui_return_t info_b (void) {return EXIT_RETURN;}
  *
- * const menu_item_t  main_menu [];
- * const menu_item_t  info_menu [];
- * const menu_item_t  main_menu [] =
+ * const menud_item_t  main_menu [];
+ * const menud_item_t  info_menu [];
+ * const menud_item_t  main_menu [] =
  * {
  *    {{"MENU",           "MENU"},            UI_EMPTY,            UI_MM_EN},                                        // <-- Caption
  *    {{"Task a",         "Aufgabe a"},       UI_TASK(task_a),     UI_MM_EN},                                        // <-- Items  (call task_a)
@@ -353,7 +353,7 @@ inline menu_item_t* tui_menu_this (tuid_t *tuid) {
  *    {{0,0}, UI_EMPTY,                                            UI_MM_EN}                                         // <-- Terminator
  * };
  *
- * const menu_item_t  info_menu [] =
+ * const menud_item_t  info_menu [] =
  * {
  *    {{"Informations", "Information"},   UI_TASK(info_entrance),    UI_MM_EN},  // <-- Caption and optional info_entrance
  *                                                                               //     call on entrance
@@ -377,7 +377,7 @@ inline menu_item_t* tui_menu_this (tuid_t *tuid) {
  * ESC      --    Exit the entire menu
  *
  */
-ui_return_t tui_menud (tuid_t *tuid, int key, menu_item_t *mn, Lang_en ln)
+ui_return_t tui_menud (tuid_t *tuid, int key, menud_item_t *mn, Lang_en ln)
 {
    static uint8_t ev=1, task=EXIT_RETURN;
 
