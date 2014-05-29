@@ -57,9 +57,7 @@ static void _mk_caption (tuid_t *tuid, text_t cap)
  * \brief
  *    Paints the frame in the frame buffer
  * \param  tuid   Pointer to the active tuid_t struct
- * \param  v      Value to print
- * \param  dec    The number of decimal points to use
- * \param  units  The units string to append.
+ * \param  str    The string to print
  * \return none
  */
 static void _mk_frame (tuid_t *tuid, char* str)
@@ -115,7 +113,6 @@ static int _strcpy (char* to, const char* from, int size)
  * \param   cap      The Value box caption
  * \param   str      Pointer to string
  * \param   size     The string's size
- * \param   ln       The language to use. (Currently unused).
  *
  * * \return  ui_return_t
  *    \arg  EXIT_RETURN    :  Indicates that function returns
@@ -128,13 +125,15 @@ static int _strcpy (char* to, const char* from, int size)
  *
  * Navigation
  * ==========================
- * UP       --    Increase the current character
- * DOWN     --    Decrease the current character
- * RIGHT    --    Deletes the last character.
- * LEFT     --    Save current character and go to next.
- * ESC      --    Returns the string "as is"
+ * UP      --    Increase the current character
+ * DOWN    --    Decrease the current character
+ * LEFT    --    Deletes the last character.
+ * RIGHT   --    Copy the current character to next and go to next (at end returns)
+ * ENTER   --       "  "
+ * ENTER_L --    Return the string as is (don't need to reach the end).
+ * ESC     --    Returns the string "as is"
  */
-ui_return_t tui_textboxd (tuid_t *tuid, int key, text_t cap, char* str, int8_t size)
+ui_return_t tui_textboxd (tuid_t *tuid, int key, text_t cap, char* str, int size)
 {
    static int ev=1;
    static int8_t i=0;
@@ -158,16 +157,16 @@ ui_return_t tui_textboxd (tuid_t *tuid, int key, text_t cap, char* str, int8_t s
       // Increment character
       do
          bf[i]++;
-      while ( !isalnum ((int)str[i]) &&
-              str[i]!='-' &&
-              str[i]!='_' );
+      while ( !isalnum ((int)bf[i]) &&
+              bf[i]!='-' &&
+              bf[i]!='_' );
    if (key == tuid->keys.DOWN)
       // Decrement character
       do
          bf[i]--;
-      while ( !isalnum ((int)str[i]) &&
-              str[i]!='-' &&
-              str[i]!='_' );
+      while ( !isalnum ((int)bf[i]) &&
+              bf[i]!='-' &&
+              bf[i]!='_' );
    if (key == tuid->keys.LEFT) {
       // Manual backspace
       bf[i] = 0;
