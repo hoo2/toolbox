@@ -91,7 +91,7 @@
 #define LCD_SHIFT_RIGHT             (0x1C)
 #define LCD_SHIFT_LEFT              (0x18)
 
-typedef void (*ALCD_Pin_t) (int8_t);
+typedef void (*ALCD_Pin_t) (uint8_t);
 typedef int (*ALCD_Remap_ft) (int);
 
 /*!
