@@ -26,42 +26,18 @@
 #include <ui/tui.h>
 
 // Static functions
-static void _next_item (combobox_item_t *items, int *it);
-static void _prev_item (combobox_item_t *items, int *it);
-
 static void _mk_caption (tui_t *tui, combobox_item_t *items, Lang_en ln);
 static void   _mk_frame (tui_t *tui, combobox_item_t *items, int frame, int item, Lang_en ln);
 
-/*!
- * \brief
- *    Increment \a it to point to the next item in combobox and
- *    roll the numbers if necessary.
- * \param  items  Pointer to the active combobox
- * \param  it     Pointer to the item to update
- * \return none
- */
-static void _next_item (combobox_item_t *items, int *it)
-{
-   if (!items[++*it].text[0])
-      *it=1;
-}
+// Common API
+extern void _cmb_next_item (combobox_item_t *items, int *it);
+extern void _cmb_prev_item (combobox_item_t *items, int *it);
+extern void _cmb_frame_lines (fb_t *fb, combobox_item_t *items, int frame, int item, Lang_en ln);
 
-/*!
- * \brief
- *    Decrement \a it to point to the next item in combobox and
- *    roll the numbers if necessary.
- * \param  items  Pointer to the active combobox
- * \param  it     Pointer to the item to update
- * \return none
- */
-static void _prev_item (combobox_item_t *items, int *it)
-{
-   if (!--*it) {
-      for (*it=1 ; items[*it].text[0]; ++*it)
-         ;
-      --*it;
-   }
-}
+extern int _tuix_clear_frame (fb_t *fb);
+extern void _tuix_mk_caption (fb_t *fb, text_t cap);
+
+
 
 /*!
  * \brief
@@ -71,22 +47,9 @@ static void _prev_item (combobox_item_t *items, int *it)
  * \param  ln     The language to use
  * \return none
  */
-static void _mk_caption (tui_t *tui, combobox_item_t *items, Lang_en ln)
+void _mk_caption (tui_t *tui, combobox_item_t *items, Lang_en ln)
 {
-   int offset;
-
-   if (!tui->frame_buffer.fb)
-      return;
-   // Clear ALL fb's caption first
-   memset ((char*)&tui->frame_buffer.fb[0], ' ', tui->frame_buffer.c-1);
-   tui->frame_buffer.fb[tui->frame_buffer.c-1] = 0; // Keep null termination at end of line
-
-   // Print caption
-   offset = sprintf ((char*)&tui->frame_buffer.fb[0], "%s", (char*)items[0].text[ln]);
-   tui->frame_buffer.fb[offset] = ' ';
-   /*
-    * discard null termination inside frame buffer
-    */
+   _tuix_mk_caption (&tui->frame_buffer, items[0].text[ln]);
 }
 
 /*!
@@ -94,48 +57,18 @@ static void _mk_caption (tui_t *tui, combobox_item_t *items, Lang_en ln)
  *    Paints the frame in the frame buffer
  * \param  tui    Pointer to the active tui_t structure
  * \param  items  Pointer to the active combo-box
+ * \param  frame  The frame buffer's start position
+ * \param  item   The frame buffer's active line
  * \param  ln     The language to use
  * \return none
  */
-static void _mk_frame (tui_t *tui, combobox_item_t *items, int frame, int item, Lang_en ln)
+void _mk_frame (tui_t *tui, combobox_item_t *items, int frame, int item, Lang_en ln)
 {
-   #define _LINE(_l)    (tui->frame_buffer.c*(_l))
-   int line, offset;
-   int start;
-   char post;
-
-   if (!tui->frame_buffer.fb)
+   // CLear frame
+   if (_tuix_clear_frame (&tui->frame_buffer))
       return;
-   // Clear fb's frame first
-   for (line=1 ; line<tui->frame_buffer.l ; ++line) {
-      memset ((char*)&tui->frame_buffer.fb[_LINE(line)], ' ', tui->frame_buffer.c-1);
-      tui->frame_buffer.fb[_LINE(line+1)-1] = 0;
-      /*
-       * Keep null termination at end of each
-       * frame buffer's line
-       */
-   }
    // Print each line
-   start = frame;
-   for (line=1 ; line < tui->frame_buffer.l ; ++line) {
-      offset=0;
-      if (frame == item) {
-         offset = sprintf ((char*)&tui->frame_buffer.fb[_LINE(line)], "[%s", (char*)items[frame].text[ln]);
-         post = ']';
-      }
-      else {
-         offset = sprintf ((char*)&tui->frame_buffer.fb[_LINE(line)], "%s", (char*)items[frame].text[ln]);
-         post = ' ';
-      }
-      // discard null termination inside frame buffer
-      tui->frame_buffer.fb[_LINE(line)+offset] = post;
-
-      // Escape if no items left
-      _next_item (items, &frame);
-      if (frame == start)
-         break;
-   }
-   #undef _LINE
+   _cmb_frame_lines (&tui->frame_buffer, items, frame, item, ln);
 }
 
 /*!
@@ -196,11 +129,11 @@ int tui_combobox (tui_t *tui, combobox_item_t *items, int cur, Lang_en ln)
 
       // UI loop - Navigating
       if (in == tui->keys.UP) {
-         _prev_item (items, &i);
+         _cmb_prev_item (items, &i);
          --vi;
       }
       if (in == tui->keys.DOWN) {
-         _next_item (items, &i);
+         _cmb_next_item (items, &i);
          ++vi;
       }
       if (in == tui->keys.ESC || in == tui->keys.LEFT)
@@ -215,7 +148,7 @@ int tui_combobox (tui_t *tui, combobox_item_t *items, int cur, Lang_en ln)
       }
       else if (vi - vfrm>= tui->frame_buffer.l - 1) {
          ++vfrm;
-         _next_item (items, &frm);
+         _cmb_next_item (items, &frm);
       }
    }
 }

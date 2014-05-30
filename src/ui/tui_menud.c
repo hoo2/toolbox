@@ -39,6 +39,10 @@ static int _prev_item (tuid_t *tuid, int *it);
 static void _mk_caption (tuid_t *tuid, Lang_en ln);
 static void   _mk_frame (tuid_t *tuid, Lang_en ln);
 
+// Common API
+extern int _tuix_clear_frame (fb_t *fb);
+extern void _tuix_mk_caption (fb_t *fb, text_t cap);
+
 /*!
  * \brief
  *    Push the current menu to call menu stack
@@ -182,18 +186,7 @@ static int _prev_item (tuid_t *tuid, int *it)
  */
 static void _mk_caption (tuid_t *tuid, Lang_en ln)
 {
-   if (!tuid->frame_buffer.fb)
-      return;
-   // Clear ALL fb's caption first
-   memset ((char*)&tuid->frame_buffer.fb[0], ' ', tuid->frame_buffer.c-1);
-   tuid->frame_buffer.fb[tuid->frame_buffer.c-1] = 0; // Keep null termination at end of line
-
-   // Print caption
-   sprintf ((char*)&tuid->frame_buffer.fb[0], "%s", (char*)tuid->menu_data.menu[0].text[ln]);
-   tuid->frame_buffer.fb[strlen ((const char*)tuid->menu_data.menu[0].text[ln])] = ' ';
-   /*
-    * discard null termination inside frame buffer
-    */
+   _tuix_mk_caption (&tuid->frame_buffer, tuid->menu_data.menu[0].text[ln]);
 }
 
 /*!
@@ -209,18 +202,9 @@ static void _mk_frame (tuid_t *tuid, Lang_en ln)
    int line, offset;
    int start, frame;
 
-   if (!tuid->frame_buffer.fb)
+   // CLear frame
+   if (_tuix_clear_frame (&tuid->frame_buffer))
       return;
-   // Clear fb's frame first
-   for (line=1 ; line<tuid->frame_buffer.l ; ++line) {
-      memset ((char*)&tuid->frame_buffer.fb[_LINE(line)], ' ', tuid->frame_buffer.c-1);
-      tuid->frame_buffer.fb[_LINE(line+1)-1] = 0;
-      /*
-       * Keep null termination at end of each
-       * frame buffer's line
-       */
-   }
-
    // Print each line
    start = frame = tuid->menu_data.mn_frm;
    for (line=1 ; line<tuid->frame_buffer.l ; ++line) {

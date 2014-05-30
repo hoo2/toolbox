@@ -26,115 +26,48 @@
 #include <ui/tuid.h>
 
 // Static functions
-static void _next_item (combobox_item_t *items, int *it);
-static void _prev_item (combobox_item_t *items, int *it);
-
 static void _mk_caption (tuid_t *tuid, combobox_item_t *items, Lang_en ln);
 static void   _mk_frame (tuid_t *tuid, combobox_item_t *items, int frame, int item, Lang_en ln);
 
-/*!
- * \brief
- *    Increment it to point to the next item in combobox and
- *    roll the numbers if necessary.
- * \param  items  Pointer to the active combobox
- * \param  it     Pointer to the item to update
- * \return none
- */
-static void _next_item (combobox_item_t *items, int *it)
-{
-   if (!items[++*it].text[0])
-      *it=1;
-}
+// Common API
+extern void _cmb_next_item (combobox_item_t *items, int *it);
+extern void _cmb_prev_item (combobox_item_t *items, int *it);
+extern void _cmb_frame_lines (fb_t *fb, combobox_item_t *items, int frame, int item, Lang_en ln);
+
+extern int _tuix_clear_frame (fb_t *fb);
+extern void _tuix_mk_caption (fb_t *fb, text_t cap);
 
 /*!
  * \brief
- *    Decrement it to point to the next item in combobox and
- *    roll the numbers if necessary.
- * \param  items  Pointer to the active combobox
- * \param  it     Pointer to the item to update
- * \return none
- */
-static void _prev_item (combobox_item_t *items, int *it)
-{
-   if (!--*it) {
-      for (*it=1 ; items[*it].text[0]; ++*it)
-         ;
-      --*it;
-   }
-}
-
-/*!
- * \brief
- *    Paints the Caption line in the frame buffer
- * \param  tuid   Pointer to the active tuid_t struct
- * \param  items  Pointer to the active combobox
- * \param  ln     The language to use
+ * Paints the Caption line in the frame buffer
+ * \param tuid Pointer to the active tuid_t structure
+ * \param items Pointer to the active combobox
+ * \param ln The language to use
  * \return none
  */
 static void _mk_caption (tuid_t *tuid, combobox_item_t *items, Lang_en ln)
 {
-   if (!tuid->frame_buffer.fb)
-      return;
-   // Clear ALL fb's caption first
-   memset ((char*)&tuid->frame_buffer.fb[0], ' ', tuid->frame_buffer.c-1);
-   tuid->frame_buffer.fb[tuid->frame_buffer.c-1] = 0; // Keep null termination at end of line
-
-   // Print caption
-   sprintf ((char*)&tuid->frame_buffer.fb[0], "%s", (char*)items[0].text[ln]);
-   tuid->frame_buffer.fb[strlen ((const char*)items[0].text[ln])] = ' ';
-   /*
-    * discard null termination inside frame buffer
-    */
+   _tuix_mk_caption (&tuid->frame_buffer, items[0].text[ln]);
 }
 
 /*!
  * \brief
- *    Paints the frame in the frame buffer
- * \param  tuid   Pointer to the active tuid_t struct
- * \param  items  Pointer to the active combobox
- * \param  ln     The language to use
+ * Paints the frame in the frame buffer
+ * \param tuid Pointer to the active tuid_t structure
+ * \param items Pointer to the active combobox
+ * \param  frame  The frame buffer's start position
+ * \param  item   The frame buffer's active line
+ * \param ln The language to use
  * \return none
  */
 static void _mk_frame (tuid_t *tuid, combobox_item_t *items, int frame, int item, Lang_en ln)
 {
-   #define _LINE(_l)    (tuid->frame_buffer.c*(_l))
-   int line, offset;
-   int start;
-   char post;
-
-   if (!tuid->frame_buffer.fb)
+   // CLear frame
+   if (_tuix_clear_frame (&tuid->frame_buffer))
       return;
-   // Clear fb's frame first
-   for (line=1 ; line<tuid->frame_buffer.l ; ++line) {
-      memset ((char*)&tuid->frame_buffer.fb[_LINE(line)], ' ', tuid->frame_buffer.c-1);
-      tuid->frame_buffer.fb[_LINE(line+1)-1] = 0;
-      /*
-       * Keep null termination at end of each
-       * frame buffer's line
-       */
-   }
-
    // Print each line
-   start = frame;
-   for (line=1 ; line < tuid->frame_buffer.l ; ++line) {
-      offset=0;
-      if (frame == item) {
-         offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(line)], "[%s", (char*)items[frame].text[ln]);
-         post = ']';
-      }
-      else {
-         offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(line)], "%s", (char*)items[frame].text[ln]);
-         post = ' ';
-      }
-      // discard null termination inside frame buffer
-      tuid->frame_buffer.fb[_LINE(line)+offset] = post;
-
-      // Escape if no items left
-      _next_item (items, &frame);
-      if (frame == start)
-         break;
-   }
-   #undef _LINE
+   // Print each line
+   _cmb_frame_lines (&tuid->frame_buffer, items, frame, item, ln);
 }
 
 /*!
@@ -199,8 +132,8 @@ ui_return_t tui_comboboxd (tuid_t *tuid, int key, combobox_item_t *items, int *i
    }
 
    // UI loop - Navigating
-   if (key == tuid->keys.UP)     { _prev_item (items, &i); --vi; }
-   if (key == tuid->keys.DOWN)   { _next_item (items, &i); ++vi; }
+   if (key == tuid->keys.UP)     { _cmb_prev_item (items, &i); --vi; }
+   if (key == tuid->keys.DOWN)   { _cmb_next_item (items, &i); ++vi; }
    if (key == tuid->keys.ESC || key == tuid->keys.LEFT) {
       // Restore previous value
       *id = items[cur].id;
@@ -221,7 +154,7 @@ ui_return_t tui_comboboxd (tuid_t *tuid, int key, combobox_item_t *items, int *i
    }
    else if (vi - vfrm>= tuid->frame_buffer.l - 1) {
       ++vfrm;
-      _next_item (items, &frm);
+      _cmb_next_item (items, &frm);
    }
 
    // Printing frame

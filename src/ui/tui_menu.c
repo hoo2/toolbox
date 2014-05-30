@@ -33,6 +33,9 @@ static int _prev_item (tui_t *tui, menu_item_t *menu, int *it);
 static void _mk_caption (tui_t *tui, menu_item_t *menu, Lang_en ln);
 static void   _mk_frame (tui_t *tui, menu_item_t *menu, int frame, int item, Lang_en ln);
 
+// Common API
+extern int _tuix_clear_frame (fb_t *fb);
+extern void _tuix_mk_caption (fb_t *fb, text_t cap);
 
 /*!
  * \brief
@@ -116,19 +119,7 @@ static int _prev_item (tui_t *tui, menu_item_t *menu, int *it)
  */
 static void _mk_caption (tui_t *tui, menu_item_t *menu, Lang_en ln)
 {
-   int offset = 0;
-   if (!tui->frame_buffer.fb)
-      return;
-   // Clear ALL fb's caption first
-   memset ((char*)&tui->frame_buffer.fb[0], ' ', tui->frame_buffer.c-1);
-   tui->frame_buffer.fb[tui->frame_buffer.c-1] = 0; // Keep null termination at end of line
-
-   // Print caption
-   offset = sprintf ((char*)&tui->frame_buffer.fb[0], "%s", (char*)menu[0].text[ln]);
-   tui->frame_buffer.fb[offset] = ' ';
-   /*
-    * discard null termination inside frame buffer
-    */
+   _tuix_mk_caption (&tui->frame_buffer, menu[0].text[ln]);
 }
 
 /*!
@@ -145,18 +136,9 @@ static void   _mk_frame (tui_t *tui, menu_item_t *menu, int frame, int item, Lan
    int line, offset;
    int start;
 
-   if (!tui->frame_buffer.fb)
+   // CLear frame
+   if (_tuix_clear_frame (&tui->frame_buffer))
       return;
-   // Clear fb's frame first
-   for (line=1 ; line<tui->frame_buffer.l ; ++line) {
-      memset ((char*)&tui->frame_buffer.fb[_LINE(line)], ' ', tui->frame_buffer.c-1);
-      tui->frame_buffer.fb[_LINE(line+1)-1] = 0;
-      /*
-       * Keep null termination at end of each
-       * frame buffer's line
-       */
-   }
-
    start = frame;
    for (line=1 ; line < tui->frame_buffer.l ; ++line) {
       offset=0;
@@ -172,7 +154,8 @@ static void   _mk_frame (tui_t *tui, menu_item_t *menu, int frame, int item, Lan
       tui->frame_buffer.fb[_LINE(line)+offset] = ' ';
 
       // Escape if no items left
-      _next_item (tui, menu, &frame);
+      if ( !_next_item (tui, menu, &frame) )
+         break;
       if (frame == start)
          break;
    }

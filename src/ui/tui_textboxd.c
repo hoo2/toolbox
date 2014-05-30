@@ -30,6 +30,10 @@ static void _mk_caption (tuid_t *tuid, text_t cap);
 static void _mk_frame (tuid_t *tuid, char* str);
 static int _strcpy (char* to, const char* from, int size);
 
+// Common API
+extern int _tuix_clear_frame (fb_t *fb);
+extern void _tuix_mk_caption (fb_t *fb, text_t cap);
+
 /*!
  * \brief
  *    Paints the Caption line in the frame buffer
@@ -39,18 +43,7 @@ static int _strcpy (char* to, const char* from, int size);
  */
 static void _mk_caption (tuid_t *tuid, text_t cap)
 {
-   if (!tuid->frame_buffer.fb)
-      return;
-   // Clear ALL fb's caption first
-   memset ((char*)&tuid->frame_buffer.fb[0], ' ', tuid->frame_buffer.c-1);
-   tuid->frame_buffer.fb[tuid->frame_buffer.c-1] = 0; // Keep null termination at end of line
-
-   // Print caption
-   sprintf ((char*)&tuid->frame_buffer.fb[0], "%s", (char*)cap);
-   tuid->frame_buffer.fb[strlen ((const char*)cap)] = ' ';
-   /*
-    * discard null termination inside frame buffer
-    */
+   _tuix_mk_caption (&tuid->frame_buffer, cap);
 }
 
 /*!
@@ -63,19 +56,11 @@ static void _mk_caption (tuid_t *tuid, text_t cap)
 static void _mk_frame (tuid_t *tuid, char* str)
 {
    #define _LINE(_l)    (tuid->frame_buffer.c*(_l))
-   int line, offset=0;
+   int offset=0;
 
-   if (!tuid->frame_buffer.fb)
+   // CLear frame
+   if (_tuix_clear_frame (&tuid->frame_buffer))
       return;
-   // Clear fb's frame first
-   for (line=1 ; line<tuid->frame_buffer.l ; ++line) {
-      memset ((char*)&tuid->frame_buffer.fb[_LINE(line)], ' ', tuid->frame_buffer.c-1);
-      tuid->frame_buffer.fb[_LINE(line+1)-1] = 0;
-      /*
-       * Keep null termination at end of each
-       * frame buffer's line
-       */
-   }
    // Print text
    offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)], ":%s<", str);
    // discard null termination inside frame buffer
