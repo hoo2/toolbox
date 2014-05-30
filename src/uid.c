@@ -608,15 +608,12 @@ ui_return_t ui_textbox (int key, text_t cap, char* str, int8_t size, Lang_en ln)
    }
    if (key == ui_keys.RIGHT || key == ui_keys.ENTER)
    {
-      if (!str[i+1])
-         str[i+1] = str[i];
-
-      ++i;
-      if (i>=size)
-      {
+      if (++i>=size) {
          ev=1;
          return EXIT_RETURN;
       }
+      if (!str[i]) str[i] = str[i-1];
+      str[i+1] = 0;
    }
    if (key == ui_keys.ESC)
    {
