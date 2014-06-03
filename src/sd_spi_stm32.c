@@ -83,8 +83,8 @@ static uint8_t _sd_chk_power (void)
 static void _sd_select (uint8_t on)
 {
    if (!SD.IO.CS) return;
-   if (on)        SD.IO.CS (0);
-   else           SD.IO.CS (1);
+   if (on)        SD.IO.CS (1);
+   else           SD.IO.CS (0);
 }
 
 /*!
@@ -241,10 +241,11 @@ static void _sd_spi_init (void)
    SPI_InitTypeDef  SPI_InitStructure;
 
    // Check function pointers first
-   if (!SD.IO.SPI_CLK_EN || !SD.IO.SPI)
+   if (!SD.IO.SPI)
       return;
    // Clock enable
-   SD.IO.SPI_CLK_EN(1);
+   //SD.IO.SPI_CLK_EN(1);
+   RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
 
    // Struct preparation
    SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
@@ -273,7 +274,8 @@ static void _sd_spi_deinit (void)
 
    SPI_I2S_DeInit(SD.IO.SPI);
    SPI_Cmd(SD.IO.SPI, DISABLE);
-   SD.IO.SPI_CLK_EN(0);
+   RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, DISABLE);
+   //SD.IO.SPI_CLK_EN(0);
 }
 
 /*!
@@ -542,7 +544,7 @@ SD_Status_t SD_init (int8_t drv)
    if (type) {  // Initialization succeeded
       SD.status &= ~STA_NOINIT;    // Clear STA_NOINIT
       // Reads the maximum data transfer rate from CSD
-      SD_ioctl(drv, MMC_GET_CSD, csd);
+      SD_ioctl(drv, CTRL_MMC_GET_CSD, csd);
       _sd_iface_speed(INTERFACE_FAST, csd);
    }
    else        // Initialization failed
@@ -697,7 +699,7 @@ SD_Result_t SD_ioctl (uint8_t drv, sd_dat_t ctrl, void *buff)
                res = RES_OK;
             break;
          // Get number of sectors on the disk (uint32_t)
-         case GET_SECTOR_COUNT :
+         case CTRL_GET_SECTOR_COUNT :
             if ((_sd_send_cmd(SD_CMD9, 0) == 0) && _sd_rx_datablock(csd, 16)) {
                if ((csd[0] >> 6) == 1) { // SDC version 2.00
                   csize = csd[9] + ((uint16_t)csd[8] << 8) + 1;
@@ -711,12 +713,12 @@ SD_Result_t SD_ioctl (uint8_t drv, sd_dat_t ctrl, void *buff)
             }
             break;
          // Get R/W sector size (uin16_t)
-         case GET_SECTOR_SIZE :
+         case CTRL_GET_SECTOR_SIZE :
             *(uint16_t*)buff = 512;
             res = RES_OK;
             break;
          // Get erase block size in unit of sector (uint32_t)
-         case GET_BLOCK_SIZE :
+         case CTRL_GET_BLOCK_SIZE :
             if (SD.type & CT_SD2) {  // SDC version 2.00
                if (_sd_send_cmd(SD_ACMD13, 0) == 0) {  /* Read SD status */
                   _sd_rx();
@@ -738,24 +740,24 @@ SD_Result_t SD_ioctl (uint8_t drv, sd_dat_t ctrl, void *buff)
             }
             break;
          // Get card type flags (1 byte)
-         case MMC_GET_TYPE :
+         case CTRL_MMC_GET_TYPE :
             *ptr = SD.type;
             res = RES_OK;
             break;
          // Receive CSD as a data block (16 bytes)
-         case MMC_GET_CSD :
+         case CTRL_MMC_GET_CSD :
             if (_sd_send_cmd(SD_CMD9, 0) == 0      // READ_CSD
                && _sd_rx_datablock(ptr, 16))
                res = RES_OK;
             break;
          // Receive CID as a data block (16 bytes)
-         case MMC_GET_CID :
+         case CTRL_MMC_GET_CID :
             if (_sd_send_cmd(SD_CMD10, 0) == 0     // READ_CID
                && _sd_rx_datablock(ptr, 16))
                res = RES_OK;
             break;
          // Receive OCR as an R3 response (4 bytes)
-         case MMC_GET_OCR :
+         case CTRL_MMC_GET_OCR :
             if (_sd_send_cmd(SD_CMD58, 0) == 0) {   // READ_OCR
                for (n = 4; n; --n)
                   *ptr++ = _sd_rx();
@@ -763,7 +765,7 @@ SD_Result_t SD_ioctl (uint8_t drv, sd_dat_t ctrl, void *buff)
             }
             break;
          // Receive SD status as a data block (64 bytes)
-         case MMC_GET_SDSTAT :
+         case CTRL_MMC_GET_SDSTAT :
             if (_sd_send_cmd(SD_ACMD13, 0) == 0) {  // SD_STATUS
                _sd_rx();
                if (_sd_rx_datablock(ptr, 64))

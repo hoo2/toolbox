@@ -26,14 +26,16 @@
 #define  __SD_spi_stm32_h__
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #include <sys/types.h>
 #include <sys/diskio.h>
-#include <stm32f10x.h>
-#include <stm32f10x_clock.h>
-#include <stm32f10x_spi.h>
+#include <toolbox.h>
+
+#include <stm32f4xx.h>
+#include <stm32f4xx_spi.h>
+#include <stm32f4xx_rcc.h>
 
 
 /* =================== User Defines ===================== */
