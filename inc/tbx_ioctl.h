@@ -80,6 +80,17 @@ extern "C" {
 #define CTRL_SHIFT               0x41
 #define CTRL_BACKLIGHT           0x42
 
+/*
+ * Interface set commands
+ */
+#define  CTRL_SET_STATUS         0x50
+#define  CTRL_SET_TYPE           0x51
+#define  CTRL_SET_SPEED          0x52
+#define  CTRL_SET_CLOCK          0x53
+#define  CTRL_SET_VALUE          0x54
+#define  CTRL_SET_DIR            0x55
+
+
 typedef uint8_t   ioctl_cmd_t;   /*!< Generic ioctl command type */
 typedef uint8_t   ioctl_buf_t;  /*!< Generic ioctl buffer data type */
 
