@@ -585,28 +585,26 @@ drv_status_en sd_init (sd_spi_t *sd)
 }
 
 /*!
- * \brief Get Disk Status
+ * \brief
+ *    Get Disk Status.
  *
- * \param   drv  Physical drive number (0)
+ * \param   sd    Pointer to active sd structure.
+ * \return  The status.
  */
-SD_Status_t SD_getstatus (int8_t drv)
-{
-   if (drv) // Supports only single drive
-      return STA_NOINIT;
-   return SD.status;
+inline drv_status_en sd_getstatus (sd_spi_t *sd) {
+   return sd->status;
 }
 
 /*!
- * \brief Set Disk Status
+ * \brief
+ *    Set Disk Status.
  *
- * \param   drv   Physical drive number (0)
+ * \param   sd    Pointer to active sd structure.
  * \param   st    Disk status
+ * \return  The updated status.
  */
-SD_Status_t SD_setstatus (int8_t drv, SD_Status_t st)
-{
-   if (drv) // Supports only single drive
-      return STA_NOINIT;
-   return (SD.status = st);
+inline drv_status_en sd_setstatus (sd_spi_t *sd, drv_status_en st) {
+   return (sd->status = st);
 }
 
 /*!
