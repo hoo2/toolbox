@@ -53,6 +53,7 @@ extern "C" {
 #include <drv/ntc3997k.h>
 #include <drv/jtype.h>
 #include <drv/sim_ee.h>
+#include <drv/sd_spi.h>
 
 
 // DSP
