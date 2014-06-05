@@ -36,25 +36,27 @@ extern "C" {
 
 #include <tbx_ioctl.h>
 #include <tbx_iotypes.h>
+#include <string.h>
 #include <stdint.h>
 
 /* =================== User Defines ===================== */
 
-#define SD_TIMEBASE_TICKS        (10)                       /*!< Time base periode is 10 msec */
-#define SD_WAIT_TIMEOUT          (500/SD_TIMEBASE_TICKS)    /*!< Timeout in msec/SD_TIMEBASE_TICKS for sd card ready */
+#define SD_TIMEBASE_TICKS        (10)                       /*!< Time base period is 10 msec */
+#define SD_WAIT_TIMEOUT          (500/SD_TIMEBASE_TICKS)    /*!< Timeout in msec/SD_TIMEBASE_TICKS for SD card ready */
 #define SD_POWER_TIMEOUT         (250/SD_TIMEBASE_TICKS)    /*!< Delay in in msec/SD_TIMEBASE_TICKS after power on */
 #define SD_RX_TIMEOUT            (100/SD_TIMEBASE_TICKS)    /*!< Timeout in in msec/SD_TIMEBASE_TICKS for receive data */
-#define SD_INIT_TIMEOUT          (2000/SD_TIMEBASE_TICKS)   /*!< Initialization timeout in in msec/SD_TIMEBASE_TICKS */
+#define SD_INIT_TIMEOUT          (2000/SD_TIMEBASE_TICKS)   /*!< Initialisation timeout in in msec/SD_TIMEBASE_TICKS */
 
+#define SD_NUMBER_OF_DRIVES      (2)
 
 /* =================== General Defines ===================== */
 
-#define SD_CRON_SET        (SD_GetTickFreq() / (SD_GetTickFreq() / SD_TIMEBASE_TICKS))
+#define SD_CRON_SET        (get_freq() / (get_freq() / SD_TIMEBASE_TICKS))
  /*!<
-  * Define to produse a time base of SD_TIMEBASE_TICKS msec
+  * Define to produce a time base of SD_TIMEBASE_TICKS msec
   * \note
   *   Use this for cron settings in crontab calls, or in any time base
-  *   methode is used in the project.
+  *   method is used in the project.
   * \example
   *   crontab (SD_timerbase, SD_CRON_SET);
   * \sa SD_timerbase
@@ -84,7 +86,12 @@ extern "C" {
 #define SD_CMD55  (0x40+55)   /*!< APP_CMD */
 #define SD_CMD58  (0x40+58)   /*!< READ_OCR */
 
-
+/* MMC card type flags (MMC_GET_TYPE) */
+#define CT_MMC    0x01     /* MMC ver 3 */
+#define CT_SD1    0x02     /* SD ver 1 */
+#define CT_SD2    0x04     /* SD ver 2 */
+#define CT_SDC    (CT_SD1|CT_SD2)   /* SD */
+#define CT_BLOCK  0x08     /* Block addressing */
 
 typedef uint8_t   sd_dat_t;
 typedef uint32_t  sd_idx_t;
@@ -100,20 +107,24 @@ typedef volatile struct
    drv_pinin_t    cd;            /*!< Card detect pin */
    drv_pinout_t   cs;            /*!< Chip Select pin */
    drv_pinout_t   pw;            /*!< SD Card Power pin */
-   void*          spi;           /*!< SPI type structure */
+   void*          spi;           /*!< void SPI type structure */
    spi_ioctl_t    spi_ioctl;     /*!< SPI ioctl function */
    spi_rw_t       spi_rw;        /*!< SPI read/write function */
 }sd_io_t;
 
 typedef volatile struct
 {
-   sd_io_t        sd_io;   /*!< Connection to the driver functions */
-   sd_speed_en    speed;   /*!< speed setting */
-   //int8_t         drv;     /*!< Physical drive number (0) */
+   uint32_t       speed;   /*!< speed setting */
    uint8_t        type;    /*!< Card type flags */
    uint8_t        pow;     /*!< power on flag */
    drv_status_en  status;  /*!< Disk status */
    uint32_t       t1, t2;  /*!< General decrement timers on time-base \sa SD_timebase() */
+}sd_data_t;
+
+typedef volatile struct
+{
+   sd_io_t        sd_io[SD_NUMBER_OF_DRIVES];      /*!< Connection to the driver functions */
+   sd_data_t      drive[SD_NUMBER_OF_DRIVES];      /*!< Physical drive table */
 }sd_spi_t;
 
 
@@ -122,14 +133,14 @@ typedef volatile struct
  * \note To use this module with a filesystem like FatFS cast this
  *       to FatFS types inside the tailoring functions
  */
-typedef DSTATUS   SD_Status_t;    /*!< Status of SD Functions FAT compatible to cast */
+//typedef DSTATUS   SD_Status_t;    /*!< Status of SD Functions FAT compatible to cast */
 
 /*!
  * Results of SD Functions. FAT compatible to cast
  * \note To use this module with a filesystem like FatFS cast this
  *       to FatFS types inside the tailoring functions.
  */
-typedef DRESULT   SD_Result_t;
+//typedef DRESULT   SD_Result_t;
 
 
 
@@ -140,13 +151,13 @@ typedef DRESULT   SD_Result_t;
 /*
  * Link and Glue functions
  */
-void sd_link_wp (sd_spi_t *sd, drv_pinin_t fun);
-void sd_link_cd (sd_spi_t *sd, drv_pinin_t fun);
-void sd_link_cs (sd_spi_t *sd, drv_pinout_t fun);
-void sd_link_pw (sd_spi_t *sd, drv_pinout_t fun);
-void sd_link_spi_ioctl (sd_spi_t *sd, spi_ioctl_t fun);
-void sd_link_spi_rw (sd_spi_t *sd, spi_rw_t fun);
-void sd_link_spi (sd_spi_t *sd, void* spi);
+void sd_link_wp (int drv, drv_pinin_t fun);
+void sd_link_cd (int drv, drv_pinin_t fun);
+void sd_link_cs (int drv, drv_pinout_t fun);
+void sd_link_pw (int drv, drv_pinout_t fun);
+void sd_link_spi_ioctl (int drv, spi_ioctl_t fun);
+void sd_link_spi_rw (int drv, spi_rw_t fun);
+void sd_link_spi (int drv, void* spi);
 
 /*
  * Set functions
@@ -157,14 +168,14 @@ void sd_link_spi (sd_spi_t *sd, void* spi);
  */
 void sd_service (void);
 
-void sd_deinit (sd_spi_t *sd);                  /*!< for compatibility */
-drv_status_en sd_init (sd_spi_t *sd);           /*!< for compatibility */
-drv_status_en sd_getstatus (sd_spi_t *sd);      /*!< for compatibility */
-drv_status_en sd_setstatus (sd_spi_t *sd, drv_status_en st);   /*!< for compatibility */
+void sd_deinit (int drv);                  /*!< for compatibility */
+drv_status_en sd_init (int drv);           /*!< for compatibility */
+drv_status_en sd_getstatus (int drv);      /*!< for compatibility */
+drv_status_en sd_setstatus (int drv, drv_status_en st);   /*!< for compatibility */
 
-SD_Result_t  sd_read (sd_spi_t *sd, sd_idx_t sector, sd_dat_t *buff, size_t count);
-SD_Result_t sd_write (sd_spi_t *sd, sd_idx_t sector, const sd_dat_t *buff, size_t count);
-SD_Result_t sd_ioctl (sd_spi_t *sd, ioctl_cmd_t ctrl, ioctl_buf_t *buff);
+drv_status_en  sd_read (int drv, sd_idx_t sector, sd_dat_t *buff, size_t count);
+drv_status_en sd_write (int drv, sd_idx_t sector, const sd_dat_t *buff, size_t count);
+drv_status_en sd_ioctl (int drv, ioctl_cmd_t ctrl, ioctl_buf_t *buff);
 
 #ifdef __cplusplus
  }
