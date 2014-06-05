@@ -371,7 +371,7 @@ drv_status_en ee_writebuffer (ee_t *ee, ee_idx_t add, uint8_t *buf, size_t n)
  *    EEPROM ioctl function
  *
  * \param  ee     The active see struct.
- * \param  cmd    specifies the command to i2c and get back the replay.
+ * \param  cmd    specifies the command to i2c and get back the reply.
  *    \arg CTRL_GET_STATUS
  *    \arg CTRL_DEINIT
  *    \arg CTRL_INIT
