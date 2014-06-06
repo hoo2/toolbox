@@ -281,7 +281,7 @@ keys_t btn_getkey (uint8_t wait)
  *    \arg DRV_READY
  *    \arg DRV_ERROR
  */
-drv_status_en btn_ioctl (ioctl_cmd_t cmd, ioctl_buf_t *buf)
+drv_status_en btn_ioctl (ioctl_cmd_t cmd, ioctl_buf_t buf)
 {
    switch (cmd)
    {

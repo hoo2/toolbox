@@ -84,7 +84,7 @@ drv_status_en  ee_readbuffer (ee_t *ee, ee_idx_t add, uint8_t *buf, size_t n);
 drv_status_en   ee_writebyte (ee_t *ee, ee_idx_t add, uint8_t byte);
 drv_status_en ee_writebuffer (ee_t *ee, ee_idx_t add, uint8_t *buf, size_t n);
 
-drv_status_en       ee_ioctl (ee_t *ee, ioctl_cmd_t cmd, ioctl_buf_t *buf);
+drv_status_en       ee_ioctl (ee_t *ee, ioctl_cmd_t cmd, ioctl_buf_t buf);
 
 #ifdef __cplusplus
 }

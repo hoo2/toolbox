@@ -74,7 +74,7 @@ void  i2c_stop (i2c_pol_t *i2c);
 int     i2c_tx (i2c_pol_t *i2c, uint8_t byte);
 uint8_t i2c_rx (i2c_pol_t *i2c, uint8_t ack);
 
-drv_status_en i2c_ioctl (i2c_pol_t *i2c, ioctl_cmd_t cmd, ioctl_buf_t *buf);
+drv_status_en i2c_ioctl (i2c_pol_t *i2c, ioctl_cmd_t cmd, ioctl_buf_t buf);
 
 #ifdef __cplusplus
 }

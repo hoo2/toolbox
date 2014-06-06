@@ -644,7 +644,7 @@ drv_status_en see_write (see_t *see, see_index_t idx, see_data_t *d, size_t size
  *    \arg DRV_READY
  *    \arg DRV_ERROR
  */
-drv_status_en see_ioctl (see_t *see, ioctl_cmd_t cmd, ioctl_buf_t *buf)
+drv_status_en see_ioctl (see_t *see, ioctl_cmd_t cmd, ioctl_buf_t buf)
 {
    switch (cmd)
    {

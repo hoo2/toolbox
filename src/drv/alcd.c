@@ -450,7 +450,7 @@ void alcd_shift (alcd_t *alcd, int pos)
  *    \arg DRV_READY
  *    \arg DRV_ERROR
  */
-drv_status_en  alcd_ioctl (alcd_t *alcd, ioctl_cmd_t cmd, ioctl_buf_t *buf)
+drv_status_en  alcd_ioctl (alcd_t *alcd, ioctl_cmd_t cmd, ioctl_buf_t buf)
 {
    switch (cmd)
    {
@@ -468,16 +468,16 @@ drv_status_en  alcd_ioctl (alcd_t *alcd, ioctl_cmd_t cmd, ioctl_buf_t *buf)
             alcd_init (alcd);
          return DRV_READY;
       case CTRL_POWER:                 /*!< Enable/disable */
-         alcd_enable (alcd, *buf);
+         alcd_enable (alcd, *(uint8_t*)buf);
          return alcd->status = DRV_READY;
       case CTRL_BACKLIGHT:             /*!< Backlight on/off */
-         alcd_backlight (alcd, *buf);
+         alcd_backlight (alcd, *(uint8_t*)buf);
          return alcd->status = DRV_READY;
       case CTRL_CLEAR:                 /*!< BClear screen and return home */
          alcd_cls (alcd);
          return alcd->status = DRV_READY;
       case CTRL_SHIFT:                 /*!< Shift lcd data */
-         alcd_shift (alcd, *buf);
+         alcd_shift (alcd, *(int*)buf);
          return alcd->status = DRV_READY;
       default:                         /*!< Unsupported command, error */
          return DRV_ERROR;

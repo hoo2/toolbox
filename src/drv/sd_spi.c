@@ -759,7 +759,7 @@ drv_status_en sd_write (int drv, sd_idx_t sector, const sd_dat_t *buf, size_t co
  *    \arg  DRV_ERROR   On error.
  *    \arg  DRV_READY   On success.
  */
-drv_status_en sd_ioctl (int drv, ioctl_cmd_t ctrl, ioctl_buf_t *buf)
+drv_status_en sd_ioctl (int drv, ioctl_cmd_t ctrl, ioctl_buf_t buf)
 {
    drv_status_en res = DRV_ERROR;
    uint8_t n, csd[16], *ptr = buf;

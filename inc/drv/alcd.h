@@ -177,7 +177,7 @@ void alcd_enable (alcd_t *alcd, uint8_t on);    /*!< For compatibility */
 void alcd_cls (alcd_t *alcd);                   /*!< For compatibility */
 void alcd_shift (alcd_t *alcd, int pos);        /*!< For compatibility */
 
-drv_status_en  alcd_ioctl (alcd_t *alcd, ioctl_cmd_t cmd, ioctl_buf_t *buf);
+drv_status_en  alcd_ioctl (alcd_t *alcd, ioctl_cmd_t cmd, ioctl_buf_t buf);
 
 #ifdef __cplusplus
 }

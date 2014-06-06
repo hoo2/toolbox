@@ -265,7 +265,7 @@ uint8_t i2c_rx(i2c_pol_t *i2c, uint8_t ack)
  *    \arg DRV_READY
  *    \arg DRV_ERROR
  */
-drv_status_en i2c_ioctl (i2c_pol_t *i2c, ioctl_cmd_t cmd, ioctl_buf_t *buf)
+drv_status_en i2c_ioctl (i2c_pol_t *i2c, ioctl_cmd_t cmd, ioctl_buf_t buf)
 {
    switch (cmd)
    {

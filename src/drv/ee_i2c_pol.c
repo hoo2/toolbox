@@ -384,7 +384,7 @@ drv_status_en ee_writebuffer (ee_t *ee, ee_idx_t add, uint8_t *buf, size_t n)
  *    \arg DRV_READY
  *    \arg DRV_ERROR
  */
-drv_status_en ee_ioctl (ee_t *ee, ioctl_cmd_t cmd, ioctl_buf_t *buf)
+drv_status_en ee_ioctl (ee_t *ee, ioctl_cmd_t cmd, ioctl_buf_t buf)
 {
    switch (cmd)
    {

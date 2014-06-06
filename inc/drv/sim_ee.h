@@ -101,6 +101,6 @@ drv_status_en see_read_word (see_t *see, see_index_t idx, see_data_t *d);
 drv_status_en see_read (see_t *see, see_index_t idx, see_data_t *d, size_t size);
 drv_status_en see_write_word (see_t *see, see_index_t idx, see_data_t *d);
 drv_status_en see_write (see_t *see, see_index_t idx, see_data_t *d, size_t size);
-drv_status_en see_ioctl (see_t *see, ioctl_cmd_t cmd, ioctl_buf_t *buf);
+drv_status_en see_ioctl (see_t *see, ioctl_cmd_t cmd, ioctl_buf_t buf);
 
 #endif   //#ifndef __sim_ee_h__

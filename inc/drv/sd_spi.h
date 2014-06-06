@@ -173,9 +173,9 @@ drv_status_en sd_init (int drv);           /*!< for compatibility */
 drv_status_en sd_getstatus (int drv);      /*!< for compatibility */
 drv_status_en sd_setstatus (int drv, drv_status_en st);   /*!< for compatibility */
 
-drv_status_en  sd_read (int drv, sd_idx_t sector, sd_dat_t *buff, size_t count);
-drv_status_en sd_write (int drv, sd_idx_t sector, const sd_dat_t *buff, size_t count);
-drv_status_en sd_ioctl (int drv, ioctl_cmd_t ctrl, ioctl_buf_t *buff);
+drv_status_en  sd_read (int drv, sd_idx_t sector, sd_dat_t *buf, size_t count);
+drv_status_en sd_write (int drv, sd_idx_t sector, const sd_dat_t *buf, size_t count);
+drv_status_en sd_ioctl (int drv, ioctl_cmd_t ctrl, ioctl_buf_t buf);
 
 #ifdef __cplusplus
  }

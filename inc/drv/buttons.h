@@ -140,7 +140,7 @@ void btn_flush (void);        /*!< for compatibility */
 void btn_service (void);
 
 keys_t btn_getkey (uint8_t wait);
-drv_status_en btn_ioctl (ioctl_cmd_t cmd, ioctl_buf_t *buf);
+drv_status_en btn_ioctl (ioctl_cmd_t cmd, ioctl_buf_t buf);
 
 
 #ifdef __cplusplus
