@@ -46,12 +46,15 @@ extern "C" {
 // Drivers
 #include <drv/alcd.h>
 #include <drv/buttons.h>
-#include <drv/ee_i2c_pol.h>
 #include <drv/i2c_pol.h>
+#include <drv/spi_bb.h>
+
 #include <drv/pt100x.h>
 #include <drv/ktyx.h>
 #include <drv/ntc3997k.h>
 #include <drv/jtype.h>
+
+#include <drv/ee_i2c_pol.h>
 #include <drv/sim_ee.h>
 #include <drv/sd_spi.h>
 
