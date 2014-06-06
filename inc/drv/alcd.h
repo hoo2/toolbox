@@ -172,7 +172,7 @@ int alcd_putchar (alcd_t *alcd, int ch);
 void alcd_deinit (alcd_t *alcd);                /*!< For compatibility */
 drv_status_en alcd_init (alcd_t *alcd);         /*!< For compatibility */
 
-void alcd_backlight (alcd_t *alcd, int8_t on);  /*!< For compatibility */
+void alcd_backlight (alcd_t *alcd, uint8_t on); /*!< For compatibility */
 void alcd_enable (alcd_t *alcd, uint8_t on);    /*!< For compatibility */
 void alcd_cls (alcd_t *alcd);                   /*!< For compatibility */
 void alcd_shift (alcd_t *alcd, int pos);        /*!< For compatibility */

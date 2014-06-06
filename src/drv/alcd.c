@@ -371,7 +371,7 @@ drv_status_en alcd_init (alcd_t *alcd)
  *    \arg 1      enable the backlight
  * \return none
  */
-void alcd_backlight (alcd_t *alcd, int8_t on) {
+void alcd_backlight (alcd_t *alcd, uint8_t on) {
    (on) ? alcd->io.bl (1) : alcd->io.bl (0);
 }
 
