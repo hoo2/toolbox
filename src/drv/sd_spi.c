@@ -301,9 +301,8 @@ static drv_status_en _power (int drv, uint8_t on)
       sd.drive[drv].t2 = SD_POWER_TIMEOUT;
       while (sd.drive[drv].t2)
          ;
-      _select (drv, 1);                // Select the Card
+      _select (drv, 0);                // De-Select the Card
       if ( _spi_init (drv) != DRV_READY) {
-         _select (drv, 0);
          _power_pin (drv, 0);
          return sd.drive[drv].status = DRV_ERROR;
       }
@@ -515,6 +514,36 @@ inline void sd_link_spi (int drv, void* spi) {
 
 /*!
  * \brief
+ *    * Inner timer functionality
+ *    * present status update
+ *
+ * \note This function must be called in period of \sa SD_TIMEBASE_TICKS
+ */
+void sd_service (void)
+{
+   int i;   // Drives
+   static uint8_t pr[SD_NUMBER_OF_DRIVES];  // Inner present flag
+
+   // Roll all drives
+   for (i=0 ; i<SD_NUMBER_OF_DRIVES ; ++i) {
+      // Time base decrement timers
+      if (sd.drive[i].t1)     --sd.drive[i].t1;
+      if (sd.drive[i].t2)     --sd.drive[i].t2;
+
+      // Get current status
+      if (pr[i] == 1 && !_is_present (i)) {
+         sd.drive[i].status = DRV_NODEV;
+         pr[i] = 0;
+      }
+      if (pr[i] == 0 && _is_present (i)) {
+         sd.drive[i].status = DRV_NOINIT;
+         pr[i] = 1;
+      }
+   }
+}
+
+/*!
+ * \brief
  *    De-Initialize SD Drive.
  *
  * \param   drv   The number of physical drive.
@@ -537,13 +566,15 @@ void sd_deinit (int drv)
  *    Initialise SD Drive.
  *
  * \param   drv   The number of physical drive.
- * \return  None
+ * \return  The status of the operation
+ *    \arg  DRV_ERROR   On error.
+ *    \arg  DRV_READY   On success.
  */
 drv_status_en sd_init (int drv)
 {
    #define _bad_link(_link)   (!sd.sd_io[drv]._link) ? 1:0
 
-   uint32_t speed;
+   uint32_t clk;
    uint8_t n, cmd, type, ocr[4];
    uint8_t csd[16];
 
@@ -554,15 +585,16 @@ drv_status_en sd_init (int drv)
    if (_bad_link(spi_rw))     return DRV_ERROR;
 
    _power_pin (drv, 0);                      // Initially power off the card
-   if (sd.drive[drv].status == DRV_NODEV)    // No card in the socket
-      return sd.drive[drv].status;
-
+   if (!_is_present (drv)) {                 // No card in the socket
+      sd.drive[drv].status = DRV_NODEV;
+      return DRV_ERROR;
+   }
    sd.drive[drv].status = DRV_BUSY;
    if (_power (drv, 1) == DRV_ERROR) { // Force socket power on and initialise interface
       return DRV_ERROR;
    }
-   speed = 400000;      // Start at lower speed
-   sd.sd_io[drv].spi_ioctl (sd.sd_io[drv].spi, CTRL_SET_SPEED, (ioctl_buf_t*)&speed);
+   clk = 400000;      // Start at lower clk
+   sd.sd_io[drv].spi_ioctl (sd.sd_io[drv].spi, CTRL_SET_CLOCK, (ioctl_buf_t*)&clk);
    for (n=10; n; --n)   // 80 dummy clocks
       _spi_rx (drv);
 
@@ -612,8 +644,8 @@ drv_status_en sd_init (int drv)
       sd.drive[drv].status = DRV_READY;
       // Reads the maximum data transfer rate from CSD
       sd_ioctl (drv, CTRL_MMC_GET_CSD, csd);
-      speed = _csd2bautrate (csd);
-      sd.sd_io[drv].spi_ioctl (sd.sd_io[drv].spi, CTRL_SET_SPEED, (ioctl_buf_t*)&speed);
+      clk = _csd2bautrate (csd);
+      sd.sd_io[drv].spi_ioctl (sd.sd_io[drv].spi, CTRL_SET_CLOCK, (ioctl_buf_t*)&clk);
    }
    else {
       // Initialisation failed
@@ -657,7 +689,7 @@ inline drv_status_en sd_setstatus (int drv, drv_status_en st) {
  * \param   drv    The number of physical drive.
  * \param   sector Start sector number (LBA)
  * \param   buf    Pointer to the data buffer to store read data
- * \param   count  Sector count (1..255)
+ * \param   count  Sector (512 bytes) count (1..255)
  * \return  The status of the operation
  *    \arg  DRV_ERROR   On error.
  *    \arg  DRV_READY   On success.
@@ -698,7 +730,7 @@ drv_status_en sd_read (int drv, sd_idx_t sector, sd_dat_t *buf, size_t count)
  * \param   drv   The number of physical drive.
  * \param   sector Start sector number (LBA)
  * \param   buf    Pointer to the data to be written
- * \param   count  Sector count (1..255)
+ * \param   count  Sector(512 bytes) count (1..255)
  * \return  The status of the operation
  *    \arg  DRV_ERROR   On error.
  *    \arg  DRV_READY   On success.
@@ -897,33 +929,4 @@ drv_status_en sd_ioctl (int drv, ioctl_cmd_t ctrl, ioctl_buf_t buf)
    return DRV_ERROR;
 }
 
-/*!
- * \brief
- *    * Inner timer functionality
- *    * present status update
- *
- * \note This function must be called in period of \sa SD_TIMEBASE_TICKS
- */
-void sd_service (void)
-{
-   int i;   // Drives
-   static uint8_t pr[SD_NUMBER_OF_DRIVES];  // Inner present flag
-
-   // Roll all drives
-   for (i=0 ; i<SD_NUMBER_OF_DRIVES ; ++i) {
-      // Time base decrement timers
-      if (sd.drive[i].t1)     --sd.drive[i].t1;
-      if (sd.drive[i].t2)     --sd.drive[i].t2;
-
-      // Get current status
-      if (pr[i] == 1 && !_is_present (i)) {
-         sd.drive[i].status = DRV_NODEV;
-         pr[i] = 0;
-      }
-      if (pr[i] == 0 && _is_present (i)) {
-         sd.drive[i].status = DRV_NOINIT;
-         pr[i] = 1;
-      }
-   }
-}
 #undef _bad_drive
