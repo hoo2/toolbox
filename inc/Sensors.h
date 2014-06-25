@@ -72,7 +72,8 @@ Temp_t SEN_KTY8x_122 (Res_t r);
 Temp_t SEN_KTY11_6 (Res_t r);
 Temp_t SEN_NTC10k (Res_t r);
 
-Lux_t SENS_A906011_Res2Lux(Res_t r);
+Lux_t SENS_A906011(Res_t r);
+Lux_t SENS_BRH_2K7 (Res_t r);
 
 #endif //#ifndef __Sensors_h__
 

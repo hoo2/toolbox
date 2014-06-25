@@ -155,6 +155,17 @@ static LuxLUT_t const A906011_LUX[] =
    1, 10, 100, 1000, INT_MAX
 };
 
+//                      Ringel/Brahma BRH-2K7
+//   ----------------------------------------------------------------------------
+static ResLUT_t const RN_BRH_RES[] =
+{
+   2701, 2581, 2197, 1916, 1495, 1148, 816,  563,  317,  63
+};
+
+static LuxLUT_t const RN_BRH_LUX[] =
+{
+   0,    1,    10,   20,   50,   100,  200,  400,  1000, 10000, INT_MAX
+};
 
 
 /* 
@@ -244,7 +255,6 @@ Get_PC_SensorValue (Measurement_t v, const FROM_RefLUT_t * F, const TO_RefLUT_t 
    return (t + ((v - F[i-1]) / (F[i] - F[i-1])) * (T[i] - T[i-1]) );
 }
 
-
 /* 
  * =================================================================================   
  *                      Temperature Sensor Exported Functions
@@ -320,9 +330,22 @@ Temp_t SEN_NTC10k (Res_t r)
   * @param  Res_t r : The resistance in Ohm
   * @retval Temp_t Temperature in 'C
  */
-Lux_t SENS_A906011_Res2Lux(Res_t r)
+Lux_t SENS_A906011 (Res_t r)
 {
    return (Lux_t)Get_NC_SensorValue(r, A906011_RES, A906011_LUX);
 }
 
+/*
+   Lux_t SENS_xxxxx_Res2Lux(Res_t r)
+
+  * @brief  These functions calculate the temperature
+            from the resistance of a sensor using
+            TS_NTC_Res2Temp () or TS_PTC_Res2Temp ()
+  * @param  Res_t r : The resistance in Ohm
+  * @retval Temp_t Temperature in 'C
+ */
+Lux_t SENS_BRH_2K7 (Res_t r)
+{
+   return (Lux_t)Get_NC_SensorValue(r, RN_BRH_RES, RN_BRH_LUX);
+}
 
