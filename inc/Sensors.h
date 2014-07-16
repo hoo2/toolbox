@@ -1,4 +1,4 @@
- /*
+/*
 
 	Sensors.h - Is the sensors input resistance to temperature, lux etx translator
       API header file, for various sensor types.
@@ -73,7 +73,7 @@ Temp_t SEN_KTY11_6 (Res_t r);
 Temp_t SEN_NTC10k (Res_t r);
 
 Lux_t SENS_A906011(Res_t r);
-Lux_t SENS_BRH_2K7 (Res_t r);
+Lux_t SENS_LUX_FC8 (Res_t r);
+Lux_t SENS_LUX_FC13 (Res_t r);
 
 #endif //#ifndef __Sensors_h__
-

@@ -1,4 +1,4 @@
- /*
+/*
 
 	Sensors.c - Is the sensors input resistance to temperature, lux etx translator
       API file, for various sensor types.
@@ -157,16 +157,25 @@ static LuxLUT_t const A906011_LUX[] =
 
 //                      Ringel/Brahma BRH-2K7
 //   ----------------------------------------------------------------------------
-static ResLUT_t const RN_BRH_RES[] =
+static ResLUT_t const RN_FC8_RES[] =
 {
    2701, 2581, 2197, 1916, 1495, 1148, 816,  563,  317,  63
 };
 
-static LuxLUT_t const RN_BRH_LUX[] =
+static LuxLUT_t const RN_FC8_LUX[] =
 {
    0,    1,    10,   20,   50,   100,  200,  400,  1000, 10000, INT_MAX
 };
 
+static ResLUT_t const RN_FC13_RES[] =
+{
+   2701, 2560, 2043, 1758, 1318, 986, 697,  471,  266,  53
+};
+
+static LuxLUT_t const RN_FC13_LUX[] =
+{
+   0,    1,    10,   22,   54,   108,  215,  430,  1076, 10000, INT_MAX
+};
 
 /* 
  * =================================================================================   
@@ -344,8 +353,22 @@ Lux_t SENS_A906011 (Res_t r)
   * @param  Res_t r : The resistance in Ohm
   * @retval Temp_t Temperature in 'C
  */
-Lux_t SENS_BRH_2K7 (Res_t r)
+Lux_t SENS_LUX_FC8 (Res_t r)
 {
-   return (Lux_t)Get_NC_SensorValue(r, RN_BRH_RES, RN_BRH_LUX);
+   return (Lux_t)Get_NC_SensorValue(r, RN_FC8_RES, RN_FC8_LUX);
+}
+
+/*
+   Lux_t SENS_xxxxx_Res2Lux(Res_t r)
+
+  * @brief  These functions calculate the temperature
+            from the resistance of a sensor using
+            TS_NTC_Res2Temp () or TS_PTC_Res2Temp ()
+  * @param  Res_t r : The resistance in Ohm
+  * @retval Temp_t Temperature in 'C
+ */
+Lux_t SENS_LUX_FC13 (Res_t r)
+{
+   return (Lux_t)Get_NC_SensorValue(r, RN_FC13_RES, RN_FC13_LUX);
 }
 
