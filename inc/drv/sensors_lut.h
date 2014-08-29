@@ -40,6 +40,7 @@
 // Local type Definition
 typedef float  res_t;
 typedef float  temp_t;
+typedef float  lux_t;
 typedef float  lut_t;
 
 /*
@@ -51,7 +52,7 @@ float sen_pclut (float v, const lut_t *F, const float *T);
 /*!
  * \note
  *    Dont need to use these functions directly. The sen_pt100(), sen_pt1000(),
- *    sen_kty8x_121() etc... functions are beter ;)
+ *    sen_kty8x_121() etc... functions are better ;)
  */
 
 #endif //#ifndef __sensors_lut_h__
