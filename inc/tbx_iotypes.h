@@ -40,6 +40,21 @@ typedef    void (*drv_pinout_t) (uint8_t on);
 typedef uint8_t (*drv_pinin_t)  (void);
 typedef    void (*drv_pindir_t) (uint8_t on);
 
+/*!
+ * Analog input function pointer
+ */
+typedef  float (*drv_ain_f_t) (void);
+typedef    int (*drv_ain_i_t) (void);
+
+/*!
+ * Digital I/O function pointers
+ * \note
+ *    These function pointers do not correspond to circuit/port/pin levels.
+ *    They correspond to the enable/disable functionality.
+ */
+typedef  uint8_t (*drv_din_t)  (void);
+typedef     void (*drv_dout_t) (uint8_t);
+
 #ifdef __cplusplus
 }
 #endif
