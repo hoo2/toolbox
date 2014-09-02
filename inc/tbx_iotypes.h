@@ -36,15 +36,15 @@ extern "C" {
  *    These function pointers do not correspond to pin levels.
  *    They correspond to the enable/disable functionality of that pin.
  */
-typedef    void (*drv_pinout_t) (uint8_t on);
-typedef uint8_t (*drv_pinin_t)  (void);
-typedef    void (*drv_pindir_t) (uint8_t on);
+typedef    void (*drv_pinout_ft) (uint8_t on);
+typedef uint8_t (*drv_pinin_ft)  (void);
+typedef    void (*drv_pindir_ft) (uint8_t on);
 
 /*!
  * Analog input function pointer
  */
-typedef  float (*drv_ain_f_t) (void);
-typedef    int (*drv_ain_i_t) (void);
+typedef  float (*drv_ain_f_ft) (void);
+typedef    int (*drv_ain_i_ft) (void);
 
 /*!
  * Digital I/O function pointers
@@ -52,8 +52,10 @@ typedef    int (*drv_ain_i_t) (void);
  *    These function pointers do not correspond to circuit/port/pin levels.
  *    They correspond to the enable/disable functionality.
  */
-typedef  uint8_t (*drv_din_t)  (void);
-typedef     void (*drv_dout_t) (uint8_t);
+typedef  uint8_t (*drv_din_ft)   (void);
+typedef     void (*drv_dout_ft)  (uint8_t);
+typedef     void (*drv_out_i_ft) (int);
+typedef     void (*drv_out_f_ft) (float);
 
 #ifdef __cplusplus
 }
