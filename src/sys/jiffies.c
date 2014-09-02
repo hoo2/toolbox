@@ -93,13 +93,15 @@ void jf_deinit (void)
  *    \sa jf_connect_setfreq() and \sa jf_connect_value() first.
  * \return Zero on success, non zero on error
  */
-int jf_init (uint32_t f)
+int jf_init (uint32_t jf_freq, uint32_t jiffies)
 {
    if (_jf.setfreq)
    {
       _jf.status = DRV_NOINIT;
-      _jf.jiffies = _jf.setfreq (f);
-      _jf.freq = f;
+      if ( _jf.setfreq (jf_freq, jiffies) )
+         return 1;
+      _jf.jiffies = jiffies;
+      _jf.freq = jf_freq;
       _jf.jpus = jf_per_usec ();
       _jf.status = DRV_READY;
       return 0;
@@ -138,15 +140,16 @@ inline jiffy_t jf_get_jiffy (void){
  */
 jiffy_t jf_per_msec (void)
 {
-   if (_jf.freq <=1000)
-      return (_jf.jiffies * _jf.freq) / 1000;
-      // We can not count beyond timer's reload
-   else
-      return 0;
+   jiffy_t jf = _jf.freq / 1000;
    /*            1
     * 1000Hz = -----  , Its not a magic number
     *          1msec
     */
+   if (jf <= _jf.jiffies)
+      return jf;
+   else
+      // We can not count beyond timer's reload
+      return 0;
 }
 
 /*!
@@ -160,15 +163,16 @@ jiffy_t jf_per_msec (void)
  */
 jiffy_t jf_per_usec (void)
 {
-   if (_jf.freq <=1000000) // 1000000Hz = 1/1usec
-      return (_jf.jiffies * _jf.freq) / 1000000;
-      // We can not count beyond timer's reload
-   else
-      return 0;
-   /*               1
+   jiffy_t jf = _jf.freq / 1000000;
+   /*            1
     * 1000000Hz = -----  , Its not a magic number
-    *             1usec
+    *          1usec
     */
+   if (jf <= _jf.jiffies)
+      return jf;
+   else
+      // We can not count beyond timer's reload
+      return 0;
 }
 
 /*!
@@ -189,18 +193,49 @@ void jf_delay_us (int32_t usec)
       return;
 
    // Delay loop: Eat the time difference from usec value.
-   while (usec>0)
-   {
+   while (usec>0) {
       m2 = *_jf.value;
-      if (m2 > m1)
-      {
+      if (m2 > m1) {
          usec -= (m2 - m1);
          m1 = m2;
       }
-      else if (m2 < m1)
-      {
+      else if (m2 < m1) {
          // Overflow
          usec -= _jf.jiffies - m1 + m2;
+         m1 = m2;
+      }
+   }
+}
+
+/*!
+ * \brief
+ *    A code based delay implementation, using jiffies for timing.
+ *    This is NOT accurate but it ensures that the time passed is always
+ *    more than the requested value.
+ *    The delay values are multiplications of 1 msec.
+ * \param
+ *    msec     Time in msec for delay
+ */
+void jf_delay_ms (int32_t msec)
+{
+   jiffy_t m2, m1 = *_jf.value;
+   jiffy_t jpms = jf_per_msec ();
+
+   if (jpms > _jf.jiffies)
+      // Sorry no delay for that big time values.
+      return;
+
+   msec *= jpms;
+   // Delay loop: Eat the time difference from msec value.
+   while (msec>0) {
+      m2 = *_jf.value;
+      if (m2 > m1) {
+         msec -= (m2 - m1);
+         m1 = m2;
+      }
+      else if (m2 < m1) {
+         // Overflow
+         msec -= _jf.jiffies - m1 + m2;
          m1 = m2;
       }
    }
