@@ -63,7 +63,16 @@ inline void _set_output (bldc_t *bldc, bldc_state_en state, float speed)
                                  bldc->io.vh (speed);    bldc->io.wl (speed);
          break;
    }
+}
 
+inline float _i_suppressor (bldc_t *bldc, float dc, float i)
+{
+   float i_th = bldc->set.I_br - bldc->set.I_th_diff;
+
+   if (i > i_th)
+      return (dc - dc * (i - i_th)/bldc->set.I_th_diff);
+   else
+      return dc;
 }
 
 /*
@@ -145,7 +154,8 @@ drv_status_en bldc_set_dir (bldc_t *bldc, bldc_dir_en dir) {
 
 void bldc_startup (bldc_t *bldc)
 {
-   int i;// dl = BLDC_RPM2USEC (600, bldc->set.poles);
+   float dc = BLDC_STARTING_DC;
+   int i;
 
    // Clear all outputs
    _set_output_off (bldc);
@@ -156,17 +166,13 @@ void bldc_startup (bldc_t *bldc)
    jf_delay_ms (500);
    bldc->io.ul (0);     bldc->io.vl (0);     bldc->io.wl (0);
 
-   /*
-   // find rotor
-   for (i=0 ; i<bldc->set.poles*2 ; ++i) {
-      _set_output (bldc, i);
-      jf_delay_us (dl);
-   }
-   */
-   _set_output (bldc, BLDC_ST5, 0.1);
-   jf_delay_ms (200);
-   _set_output_off (bldc);
 
+   // find rotor
+   for (i=0 ; i<BLDC_STARTING_TIME*2 ; ++i) {
+      _set_output (bldc, BLDC_ST5, _i_suppressor (bldc, dc, bldc->io.I_br()));
+      jf_delay_us (500);
+   }
+   _set_output_off (bldc);
 }
 
 void bldc_roll (bldc_t *bldc)

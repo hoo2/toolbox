@@ -61,6 +61,9 @@ extern "C" {
 
 #define BLDC_RPM2USEC(_rpm, _poles)    ( (60 * 1000000) / ((_rpm)*(_poles)) )
 
+#define BLDC_STARTING_DC               (10)  // 10% dc
+#define BLDC_STARTING_TIME             (500) // msec
+
 typedef int bldc_rpm_t;
 
 
@@ -114,7 +117,8 @@ typedef struct {
 typedef struct {
    int            Freq_r;     /*!< Desired rotation frequency */
    float          I_br;       /*!< Desired Maximum bridge current */
-   bldc_dir_en   dir;        /*!< Desired direction of rotation */
+   float          I_th_diff;
+   bldc_dir_en    dir;        /*!< Desired direction of rotation */
    int            poles;      /*!< Number of Motor poles */
 }bldc_set_t;
 
