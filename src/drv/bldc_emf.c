@@ -40,27 +40,27 @@ inline void _set_output (bldc_t *bldc, bldc_state_en state, float speed)
       default:
       case BLDC_ST0:
          bldc->io.uh (0); bldc->io.vl (0); bldc->io.wh (0); bldc->io.wl (0);
-         bldc->io.ul (100);      bldc->io.vh (100);
+         bldc->io.ul (speed);    bldc->io.vh (speed);
          break;
       case BLDC_ST1:
          bldc->io.uh (0); bldc->io.vh (0); bldc->io.vl (0); bldc->io.wl (0);
-         bldc->io.ul (100);                              bldc->io.wh (100);
+         bldc->io.ul (speed);                            bldc->io.wh (speed);
          break;
       case BLDC_ST2:
          bldc->io.uh (0); bldc->io.ul (0); bldc->io.vh (0); bldc->io.wl (0);
-                                 bldc->io.vl (100);      bldc->io.wh (100);
+                                 bldc->io.vl (speed);    bldc->io.wh (speed);
          break;
       case BLDC_ST3:
          bldc->io.ul (0); bldc->io.vh (0); bldc->io.wh (0); bldc->io.wl (0);
-         bldc->io.uh (100);      bldc->io.vl (100);
+         bldc->io.uh (speed);    bldc->io.vl (speed);
          break;
       case BLDC_ST4:
          bldc->io.ul (0); bldc->io.vh (0); bldc->io.vl (0); bldc->io.wh (0);
-         bldc->io.uh (100);                              bldc->io.wl (100);
+         bldc->io.uh (speed);                            bldc->io.wl (speed);
          break;
       case BLDC_ST5:
          bldc->io.uh (0); bldc->io.ul (0); bldc->io.vl (0); bldc->io.wh (0);
-                                 bldc->io.vh (100);      bldc->io.wl (100);
+                                 bldc->io.vh (speed);    bldc->io.wl (speed);
          break;
    }
 
