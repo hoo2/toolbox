@@ -1,0 +1,345 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dependencies>
+   <includePath signature="/ID:\Work\Software\Libraries\toolbox\develop /ID:\Work\Software\Libraries\Devices\CMSIS\Include /ID:\Work\Software\Libraries\toolbox /ID:\Work\Software\Libraries\Devices\STM32F10x_StdPeriph_Driver\inc /ID:\Work\Software\Libraries\toolbox\develop\cmsis_boot /ID:\Work\Software\Libraries\drivers\inc /ID:\Work\Software\Libraries\toolbox\inc">
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_crc.h" lastModified="1451796c2cd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_adc.h" lastModified="1451796c2cd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\drv\sim_ee.c" lastModified="1461946be20">
+         <include file="..\..\..\..\..\inc\drv\sim_ee.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\drv\sensors_lut.c" lastModified="145f992312c">
+         <include file="..\..\..\..\..\inc\drv\sensors_lut.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\crypt\des.c" lastModified="1461e60ca1b">
+         <include file="..\..\..\..\..\inc\crypt\des.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\drv\sensors_lut.h" lastModified="145f9923cc4">
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\misc.h" lastModified="14618b5aab9">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\drv\ee_i2c_pol.c" lastModified="146191cc178">
+         <include file="..\..\..\..\..\inc\drv\ee_i2c_pol.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\src\stm32f10x_clock.c" lastModified="1451796c2dd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_clock.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\tbx_ioctl.h" lastModified="14604697f13">
+      </source>
+      <source file="..\..\..\..\..\inc\crypt\aes.h" lastModified="1461d926001">
+         <include file="..\..\..\..\..\inc\crypt\cryptint.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_i2c.h" lastModified="1451796c2cd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\drv\ee_i2c_pol.h" lastModified="1461912ff5c">
+         <include file="..\..\..\..\..\inc\drv\i2c_pol.h"/>
+         <include file="..\..\..\..\..\inc\tbx_ioctl.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_pwr.h" lastModified="1451796c2cd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_can.h" lastModified="1451796c2cd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_clock.h" lastModified="1451796c2cd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_rtc.h" lastModified="1451796c2cd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\drv\pt100x.c" lastModified="145f992315b">
+         <include file="..\..\..\..\..\inc\drv\pt100x.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\std\_vsxprintf.c" lastModified="145f99232d2">
+         <include file="..\..\..\..\..\inc\std\_vsxprintf.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_tim.h" lastModified="1451796c2dd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\drv\ntc3997k.c" lastModified="145f99231a9">
+         <include file="..\..\..\..\..\inc\drv\ntc3997k.h"/>
+      </source>
+      <source file="..\..\..\..\cmsis_boot\startup\startup_stm32f10x_md_vl.c" lastModified="1461dec5ea4">
+      </source>
+      <source file="..\..\..\..\..\src\crypt\sha3.c" lastModified="1461de8dc72">
+         <include file="..\..\..\..\..\inc\crypt\sha3.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_exti.h" lastModified="1451796c2cd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\crypt\md5.c" lastModified="14619a60bf4">
+         <include file="..\..\..\..\..\inc\crypt\md5.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\std\sprintf.c" lastModified="145f99232f1">
+         <include file="..\..\..\..\..\inc\std\sprintf.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\crypt\sha2.c" lastModified="1461d9c5b7c">
+         <include file="..\..\..\..\..\inc\crypt\sha2.h"/>
+      </source>
+      <source file="..\..\..\..\cmsis_boot\system_stm32f10x.h" lastModified="1461896658e">
+      </source>
+      <source file="..\..\..\..\..\inc\toolbox.h" lastModified="1461e44c8fb">
+         <include file="..\..\..\..\..\inc\toolbox_defs.h"/>
+         <include file="..\..\..\..\..\inc\acs\pid.h"/>
+         <include file="..\..\..\..\..\inc\acs\tne.h"/>
+         <include file="..\..\..\..\..\inc\crypt\md5.h"/>
+         <include file="..\..\..\..\..\inc\crypt\sha1.h"/>
+         <include file="..\..\..\..\..\inc\crypt\sha2.h"/>
+         <include file="..\..\..\..\..\inc\crypt\sha3.h"/>
+         <include file="..\..\..\..\..\inc\crypt\aes.h"/>
+         <include file="..\..\..\..\..\inc\crypt\des.h"/>
+         <include file="..\..\..\..\..\inc\drv\alcd.h"/>
+         <include file="..\..\..\..\..\inc\drv\buttons.h"/>
+         <include file="..\..\..\..\..\inc\drv\ee_i2c_pol.h"/>
+         <include file="..\..\..\..\..\inc\drv\i2c_pol.h"/>
+         <include file="..\..\..\..\..\inc\drv\pt100x.h"/>
+         <include file="..\..\..\..\..\inc\drv\ktyx.h"/>
+         <include file="..\..\..\..\..\inc\drv\ntc3997k.h"/>
+         <include file="..\..\..\..\..\inc\drv\jtype.h"/>
+         <include file="..\..\..\..\..\inc\drv\sim_ee.h"/>
+         <include file="..\..\..\..\..\inc\dsp\leaky_int.h"/>
+         <include file="..\..\..\..\..\inc\dsp\moving_av.h"/>
+         <include file="..\..\..\..\..\inc\std\sprintf.h"/>
+         <include file="..\..\..\..\..\inc\std\printf.h"/>
+         <include file="..\..\..\..\..\inc\std\stime.h"/>
+         <include file="..\..\..\..\..\inc\sys\jiffies.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\crypt\sha1.c" lastModified="1461dc5b954">
+         <include file="..\..\..\..\..\inc\crypt\sha1.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\drv\ntc3997k.h" lastModified="145f99231b8">
+         <include file="..\..\..\..\..\inc\drv\sensors_lut.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\std\printf.h" lastModified="145f992334f">
+         <include file="..\..\..\..\..\inc\std\_vsxprintf.h"/>
+      </source>
+      <source file="..\..\..\..\cmsis_boot\system_stm32f10x.c" lastModified="1461896658e">
+         <include file="..\..\..\..\cmsis_boot\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\drivers\inc\RN_DPEC.h" lastModified="14618a9e26d">
+         <include file="..\..\..\..\..\..\Devices\CMSIS\Include\core_cm3.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_clock.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_rcc.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_gpio.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_rtc.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\misc.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_clock.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\misc.h"/>
+         <include file="..\..\..\..\..\inc\drv\buttons.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_sadc.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_dac.h" lastModified="1451796c2cd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\dsp\leaky_int.h" lastModified="145f9923b3e">
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_fsmc.h" lastModified="1451796c2cd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\std\_vsxprintf.h" lastModified="145f99242ef">
+      </source>
+      <source file="..\..\..\..\..\..\Devices\CMSIS\Include\core_cm3.h" lastModified="1451796a90b">
+         <include file="..\..\..\..\..\..\Devices\CMSIS\Include\core_cmInstr.h"/>
+         <include file="..\..\..\..\..\..\Devices\CMSIS\Include\core_cmFunc.h"/>
+      </source>
+      <source file="..\..\..\..\main.c" lastModified="1461e77c6df">
+         <include file="..\..\..\..\..\inc\toolbox.h"/>
+         <include file="..\..\..\..\..\..\drivers\inc\RN_DPEC.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_systick.h"/>
+      </source>
+      <source file="..\..\..\..\cmsis_boot\stm32f10x_conf.h" lastModified="1461896658e">
+      </source>
+      <source file="..\..\..\..\..\inc\std\stime.h" lastModified="145f9923b0f">
+      </source>
+      <source file="..\..\..\..\syscalls\syscalls.c" lastModified="14580e61ec0">
+      </source>
+      <source file="..\..\..\..\..\src\dsp\leaky_int.c" lastModified="145f99232b2">
+         <include file="..\..\..\..\..\inc\dsp\leaky_int.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\std\sprintf.h" lastModified="145f992334f">
+         <include file="..\..\..\..\..\inc\std\_vsxprintf.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\drv\alcd.c" lastModified="1461946be30">
+         <include file="..\..\..\..\..\inc\drv\alcd.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\drivers\src\RN_DPEC.c" lastModified="145928ac88e">
+         <include file="..\..\..\..\..\..\drivers\inc\RN_DPEC.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\CMSIS\Include\core_cmFunc.h" lastModified="1451796ad03">
+      </source>
+      <source file="..\..\..\..\..\src\drv\i2c_pol.c" lastModified="14619419e1d">
+         <include file="..\..\..\..\..\inc\drv\i2c_pol.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\drv\ktyx.c" lastModified="145f992316a">
+         <include file="..\..\..\..\..\inc\drv\ktyx.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h" lastModified="1451796c6b5">
+         <include file="..\..\..\..\..\..\Devices\CMSIS\Include\core_cm3.h"/>
+         <include file="..\..\..\..\cmsis_boot\system_stm32f10x.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_conf.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\src\stm32f10x_systick.c" lastModified="1451796c2ec">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_systick.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\drv\jtype.h" lastModified="145f99231e7">
+         <include file="..\..\..\..\..\inc\drv\sensors_lut.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\acs\pid.h" lastModified="145f9923b4d">
+         <include file="..\..\..\..\..\inc\toolbox_defs.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\toolbox_defs.h" lastModified="145ff6532ae">
+      </source>
+      <source file="..\..\..\..\..\inc\drv\alcd.h" lastModified="1460411a11e">
+         <include file="..\..\..\..\..\inc\sys\jiffies.h"/>
+         <include file="..\..\..\..\..\inc\tbx_ioctl.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\drv\ktyx.h" lastModified="145f992317a">
+         <include file="..\..\..\..\..\inc\drv\sensors_lut.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\drv\sim_ee.h" lastModified="14605105680">
+         <include file="..\..\..\..\..\inc\tbx_ioctl.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_sadc.h" lastModified="1451796c2cd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_conf.h" lastModified="1451796c2cd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_adc.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_bkp.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_can.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_cec.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_crc.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_dac.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_dbgmcu.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_dma.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_exti.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_flash.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_fsmc.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_gpio.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_i2c.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_iwdg.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_pwr.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_rcc.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_rtc.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_sdio.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_spi.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_tim.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_usart.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_wwdg.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\misc.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_bkp.h" lastModified="1451796c2cd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\crypt\aes.c" lastModified="1461d925822">
+         <include file="..\..\..\..\..\inc\crypt\aes.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_gpio.h" lastModified="1451796c2cd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\crypt\des.h" lastModified="1461e5a0ac0">
+         <include file="..\..\..\..\..\inc\crypt\cryptint.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\acs\pid.c" lastModified="145f9923206">
+         <include file="..\..\..\..\..\inc\acs\pid.h"/>
+      </source>
+      <source file="..\..\..\..\cmsis_boot\stm32f10x.h" lastModified="14618966976">
+         <include file="..\..\..\..\..\..\Devices\CMSIS\Include\core_cm3.h"/>
+         <include file="..\..\..\..\cmsis_boot\system_stm32f10x.h"/>
+         <include file="..\..\..\..\cmsis_boot\stm32f10x_conf.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_cec.h" lastModified="1451796c2cd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\crypt\cryptint.h" lastModified="14619e37bdc">
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_dbgmcu.h" lastModified="1451796c2cd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\sys\jiffies.c" lastModified="14604178de7">
+         <include file="..\..\..\..\..\inc\sys\jiffies.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\drv\buttons.c" lastModified="146045126c7">
+         <include file="..\..\..\..\..\inc\drv\buttons.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\dsp\moving_av.h" lastModified="145f9923b2e">
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_iwdg.h" lastModified="1451796c2cd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_spi.h" lastModified="1451796c2dd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_dma.h" lastModified="1451796c2cd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_flash.h" lastModified="1451796c2cd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\drv\i2c_pol.h" lastModified="14619425567">
+         <include file="..\..\..\..\..\inc\toolbox_defs.h"/>
+         <include file="..\..\..\..\..\inc\sys\jiffies.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_sdio.h" lastModified="1451796c2cd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\drv\pt100x.h" lastModified="145f992316a">
+         <include file="..\..\..\..\..\inc\drv\sensors_lut.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_rcc.h" lastModified="1451796c2cd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\std\printf.c" lastModified="145f99232d2">
+         <include file="..\..\..\..\..\inc\std\printf.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_usart.h" lastModified="1451796c2dd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\dsp\moving_av.c" lastModified="145f99232c2">
+         <include file="..\..\..\..\..\inc\dsp\moving_av.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\crypt\sha3.h" lastModified="1461de29d15">
+         <include file="..\..\..\..\..\inc\crypt\cryptint.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\CMSIS\Include\core_cmInstr.h" lastModified="1451796ad03">
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_systick.h" lastModified="145d1201b61">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_clock.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\std\stime.c" lastModified="145f9923310">
+         <include file="..\..\..\..\..\inc\std\stime.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\crypt\md5.h" lastModified="14619a4ed74">
+         <include file="..\..\..\..\..\inc\crypt\cryptint.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\crypt\sha2.h" lastModified="14619cc259e">
+         <include file="..\..\..\..\..\inc\crypt\cryptint.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\acs\tne.h" lastModified="145f9923b4d">
+         <include file="..\..\..\..\..\inc\toolbox_defs.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\crypt\sha1.h" lastModified="1461dc0f646">
+         <include file="..\..\..\..\..\inc\crypt\cryptint.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\drv\buttons.h" lastModified="14604512ea6">
+         <include file="..\..\..\..\..\inc\tbx_ioctl.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x_wwdg.h" lastModified="1451796c2dd">
+         <include file="..\..\..\..\..\..\Devices\STM32F10x_StdPeriph_Driver\inc\stm32f10x.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\drv\jtype.c" lastModified="145f99231d8">
+         <include file="..\..\..\..\..\inc\drv\jtype.h"/>
+      </source>
+      <source file="..\..\..\..\..\src\acs\tne.c" lastModified="145f9923216">
+         <include file="..\..\..\..\..\inc\acs\tne.h"/>
+      </source>
+      <source file="..\..\..\..\..\inc\sys\jiffies.h" lastModified="145ffc71621">
+         <include file="..\..\..\..\..\inc\tbx_ioctl.h"/>
+      </source>
+   </includePath>
+</dependencies>

@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<history>
+   <processor signature="4.7.2 -mcpu=cortex-m4 -mthumb -g -nostartfiles -Map=coocox_ex.map -O0 --gc-sections -LC:\CooCox\CoIDE\configuration\ProgramData\coocox_ex -TC:\CooCox\CoIDE\configuration\ProgramData\coocox_ex/arm-gcc-link.ld -g -L..\..\..\.. -lm">
+      <target file="coocox_ex.elf" lastModified="146713eeae1">
+         <source file="..\obj\tui_timebox.o" lastModified="14671185f05"/>
+         <source file="..\obj\tui_textboxd.o" lastModified="14671185f82"/>
+         <source file="..\obj\STM32F4_Discovery.o" lastModified="14671185ff0"/>
+         <source file="..\obj\tui_menu.o" lastModified="1467118607c"/>
+         <source file="..\obj\tui_timeboxd.o" lastModified="146711860ea"/>
+         <source file="..\obj\jtype.o" lastModified="14671186138"/>
+         <source file="..\obj\tui_menud.o" lastModified="146711861c4"/>
+         <source file="..\obj\startup_stm32f4xx.o" lastModified="14671186213"/>
+         <source file="..\obj\_vsxprintf.o" lastModified="146711862ce"/>
+         <source file="..\obj\ntc3997k.o" lastModified="1467118631c"/>
+         <source file="..\obj\moving_av.o" lastModified="1467118636a"/>
+         <source file="..\obj\pt100x.o" lastModified="146711863b8"/>
+         <source file="..\obj\sensors_lut.o" lastModified="14671186416"/>
+         <source file="..\obj\main.o" lastModified="1467118657e"/>
+         <source file="..\obj\stm32f4xx_rcc.o" lastModified="14671186649"/>
+         <source file="..\obj\stime.o" lastModified="146711866a6"/>
+         <source file="..\obj\printf.o" lastModified="146711866f5"/>
+         <source file="..\obj\tuid.o" lastModified="14671186762"/>
+         <source file="..\obj\ktyx.o" lastModified="146711867b0"/>
+         <source file="..\obj\aes.o" lastModified="146711868f8"/>
+         <source file="..\obj\tui_valueboxd.o" lastModified="14671186975"/>
+         <source file="..\obj\sd_spi.o" lastModified="146711e71f4"/>
+         <source file="..\obj\tui.o" lastModified="14671186aae"/>
+         <source file="..\obj\stm32f4xx_gpio.o" lastModified="14671186b3a"/>
+         <source file="..\obj\md5.o" lastModified="14671186bd7"/>
+         <source file="..\obj\system_stm32f4xx.o" lastModified="14671186c44"/>
+         <source file="..\obj\jiffies.o" lastModified="14671186ca2"/>
+         <source file="..\obj\syscalls.o" lastModified="14671186cf0"/>
+         <source file="..\obj\i2c_pol.o" lastModified="14671186d6d"/>
+         <source file="..\obj\tui_comboboxd.o" lastModified="14671186dda"/>
+         <source file="..\obj\sha1.o" lastModified="14671186ea5"/>
+         <source file="..\obj\sha2.o" lastModified="14671186ffd"/>
+         <source file="..\obj\stm32f4xx_systick.o" lastModified="1467118707a"/>
+         <source file="..\obj\alcd.o" lastModified="14671187107"/>
+         <source file="..\obj\stm32f4xx_spi.o" lastModified="146711871a3"/>
+         <source file="..\obj\sha3.o" lastModified="1467118727e"/>
+         <source file="..\obj\sprintf.o" lastModified="146711872cc"/>
+         <source file="..\obj\tui_cmn.o" lastModified="14671187339"/>
+         <source file="..\obj\leaky_int.o" lastModified="14671187387"/>
+         <source file="..\obj\tui_combobox.o" lastModified="146711873f5"/>
+         <source file="..\obj\tui_textbox.o" lastModified="14671187462"/>
+         <source file="..\obj\tui_valuebox.o" lastModified="146711874cf"/>
+         <source file="..\obj\buttons.o" lastModified="1467118754c"/>
+         <source file="..\obj\sim_ee.o" lastModified="146711875e9"/>
+         <source file="..\obj\pid.o" lastModified="14671187637"/>
+         <source file="..\obj\tne.o" lastModified="14671187695"/>
+         <source file="..\obj\des.o" lastModified="14671187750"/>
+         <source file="..\obj\stm32f4xx_tim.o" lastModified="14671187889"/>
+         <source file="..\obj\ee_i2c_pol.o" lastModified="14671187915"/>
+         <source file="..\obj\spi_bb.o" lastModified="146713ee832"/>
+      </target>
+   </processor>
+</history>

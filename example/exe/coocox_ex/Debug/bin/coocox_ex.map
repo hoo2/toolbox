@@ -1,0 +1,1601 @@
+Archive member included because of file (symbol)
+
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a(lib_a-s_fpclassify.o)
+                              ..\obj\_vsxprintf.o (__fpclassifyd)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a(lib_a-s_round.o)
+                              ..\obj\_vsxprintf.o (round)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a(lib_a-sf_fpclassify.o)
+                              ..\obj\leaky_int.o (__fpclassifyf)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_addsubdf3.o)
+                              ..\obj\_vsxprintf.o (__aeabi_dsub)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_muldivdf3.o)
+                              ..\obj\_vsxprintf.o (__aeabi_dmul)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_cmpdf2.o)
+                              ..\obj\_vsxprintf.o (__aeabi_dcmpeq)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_fixdfsi.o)
+                              ..\obj\_vsxprintf.o (__aeabi_d2iz)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_fixunsdfsi.o)
+                              ..\obj\RN_DPEC.o (__aeabi_d2uiz)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_truncdfsf2.o)
+                              ..\obj\tne.o (__aeabi_d2f)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_addsubsf3.o)
+                              ..\obj\sensors_lut.o (__aeabi_fsub)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_muldivsf3.o)
+                              ..\obj\jtype.o (__aeabi_fmul)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_cmpsf2.o)
+                              ..\obj\sensors_lut.o (__aeabi_fcmpeq)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_fixsfsi.o)
+                              ..\obj\sensors_lut.o (__aeabi_f2iz)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_fixunssfsi.o)
+                              ..\obj\RN_DPEC.o (__aeabi_f2uiz)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-calloc.o)
+                              ..\obj\moving_av.o (calloc)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-callocr.o)
+                              c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-calloc.o) (_calloc_r)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-impure.o)
+                              c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-calloc.o) (_impure_ptr)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-malloc.o)
+                              ..\obj\moving_av.o (free)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mallocr.o)
+                              c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-callocr.o) (_malloc_r)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-memcmp.o)
+                              ..\obj\des.o (memcmp)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-memcpy.o)
+                              ..\obj\md5.o (memcpy)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-memset.o)
+                              ..\obj\main.o (memset)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mlock.o)
+                              c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mallocr.o) (__malloc_lock)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-sbrkr.o)
+                              c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mallocr.o) (_sbrk_r)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-strlen.o)
+                              ..\obj\main.o (strlen)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-freer.o)
+                              c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-malloc.o) (_free_r)
+c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-reent.o)
+                              c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-sbrkr.o) (errno)
+
+Allocating common symbols
+Common symbol       size              file
+
+errno               0x4               c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-reent.o)
+Ticks               0x4               ..\obj\stm32f10x_systick.o
+Now                 0x4               ..\obj\stm32f10x_systick.o
+BTN                 0x4c              ..\obj\buttons.o
+DIM                 0x30              ..\obj\RN_DPEC.o
+
+Discarded input sections
+
+ .text          0x00000000        0x0 ..\obj\startup_stm32f10x_md_vl.o
+ .data          0x00000000        0x0 ..\obj\startup_stm32f10x_md_vl.o
+ .bss           0x00000000        0x0 ..\obj\startup_stm32f10x_md_vl.o
+ .text          0x00000000        0x0 ..\obj\system_stm32f10x.o
+ .data          0x00000000       0x14 ..\obj\system_stm32f10x.o
+ .bss           0x00000000        0x0 ..\obj\system_stm32f10x.o
+ .text.SystemCoreClockUpdate
+                0x00000000      0x13c ..\obj\system_stm32f10x.o
+ .text          0x00000000        0x0 ..\obj\jtype.o
+ .data          0x00000000        0x0 ..\obj\jtype.o
+ .bss           0x00000000        0x0 ..\obj\jtype.o
+ .rodata        0x00000000      0x184 ..\obj\jtype.o
+ .text.sen_jtype
+                0x00000000       0x48 ..\obj\jtype.o
+ .debug_info    0x00000000      0x12c ..\obj\jtype.o
+ .debug_abbrev  0x00000000       0x8a ..\obj\jtype.o
+ .debug_loc     0x00000000       0x38 ..\obj\jtype.o
+ .debug_aranges
+                0x00000000       0x20 ..\obj\jtype.o
+ .debug_ranges  0x00000000       0x10 ..\obj\jtype.o
+ .debug_line    0x00000000       0xa2 ..\obj\jtype.o
+ .debug_str     0x00000000      0x161 ..\obj\jtype.o
+ .comment       0x00000000       0x71 ..\obj\jtype.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\jtype.o
+ .debug_frame   0x00000000       0x30 ..\obj\jtype.o
+ .text          0x00000000        0x0 ..\obj\_vsxprintf.o
+ .data          0x00000000       0x18 ..\obj\_vsxprintf.o
+ .bss           0x00000000        0x0 ..\obj\_vsxprintf.o
+ .text._shift_right
+                0x00000000       0x20 ..\obj\_vsxprintf.o
+ .text._shift_left
+                0x00000000       0x20 ..\obj\_vsxprintf.o
+ .text._floorlog10
+                0x00000000      0x118 ..\obj\_vsxprintf.o
+ .text._pw10    0x00000000       0xa8 ..\obj\_vsxprintf.o
+ .text._istype  0x00000000       0x4c ..\obj\_vsxprintf.o
+ .text._isflag  0x00000000       0x4c ..\obj\_vsxprintf.o
+ .text._putc_usr
+                0x00000000       0x20 ..\obj\_vsxprintf.o
+ .text._putc_dst
+                0x00000000       0x24 ..\obj\_vsxprintf.o
+ .text._putc_fil
+                0x00000000       0x1c ..\obj\_vsxprintf.o
+ .text._inschar
+                0x00000000       0x24 ..\obj\_vsxprintf.o
+ .text._insnchar
+                0x00000000       0x44 ..\obj\_vsxprintf.o
+ .text._insstring
+                0x00000000       0x80 ..\obj\_vsxprintf.o
+ .text._insuint
+                0x00000000      0x128 ..\obj\_vsxprintf.o
+ .text._insint  0x00000000      0x24c ..\obj\_vsxprintf.o
+ .text._inshex  0x00000000      0x1a4 ..\obj\_vsxprintf.o
+ .text._inscoredouble
+                0x00000000      0x18c ..\obj\_vsxprintf.o
+ .rodata        0x00000000       0x20 ..\obj\_vsxprintf.o
+ .text._insfdouble
+                0x00000000       0x88 ..\obj\_vsxprintf.o
+ .text._insedouble
+                0x00000000      0x248 ..\obj\_vsxprintf.o
+ .text.vsxprintf
+                0x00000000      0x500 ..\obj\_vsxprintf.o
+ .debug_info    0x00000000      0xb55 ..\obj\_vsxprintf.o
+ .debug_abbrev  0x00000000      0x1fb ..\obj\_vsxprintf.o
+ .debug_loc     0x00000000      0x433 ..\obj\_vsxprintf.o
+ .debug_aranges
+                0x00000000       0xb0 ..\obj\_vsxprintf.o
+ .debug_ranges  0x00000000       0xa0 ..\obj\_vsxprintf.o
+ .debug_line    0x00000000      0x4d5 ..\obj\_vsxprintf.o
+ .debug_str     0x00000000      0x3f6 ..\obj\_vsxprintf.o
+ .comment       0x00000000       0x71 ..\obj\_vsxprintf.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\_vsxprintf.o
+ .debug_frame   0x00000000      0x268 ..\obj\_vsxprintf.o
+ .text          0x00000000        0x0 ..\obj\ntc3997k.o
+ .data          0x00000000        0x0 ..\obj\ntc3997k.o
+ .bss           0x00000000        0x0 ..\obj\ntc3997k.o
+ .rodata        0x00000000      0x13c ..\obj\ntc3997k.o
+ .text.sen_ntc3997k
+                0x00000000       0x2c ..\obj\ntc3997k.o
+ .debug_info    0x00000000      0x127 ..\obj\ntc3997k.o
+ .debug_abbrev  0x00000000       0x8a ..\obj\ntc3997k.o
+ .debug_loc     0x00000000       0x38 ..\obj\ntc3997k.o
+ .debug_aranges
+                0x00000000       0x20 ..\obj\ntc3997k.o
+ .debug_ranges  0x00000000       0x10 ..\obj\ntc3997k.o
+ .debug_line    0x00000000       0xa3 ..\obj\ntc3997k.o
+ .debug_str     0x00000000      0x161 ..\obj\ntc3997k.o
+ .comment       0x00000000       0x71 ..\obj\ntc3997k.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\ntc3997k.o
+ .debug_frame   0x00000000       0x30 ..\obj\ntc3997k.o
+ .text          0x00000000        0x0 ..\obj\moving_av.o
+ .data          0x00000000        0x0 ..\obj\moving_av.o
+ .bss           0x00000000        0x0 ..\obj\moving_av.o
+ .text.moving_av_deinit
+                0x00000000       0x38 ..\obj\moving_av.o
+ .text.moving_av_init
+                0x00000000       0x48 ..\obj\moving_av.o
+ .text.moving_av
+                0x00000000       0xb0 ..\obj\moving_av.o
+ .debug_info    0x00000000      0x18d ..\obj\moving_av.o
+ .debug_abbrev  0x00000000       0xe0 ..\obj\moving_av.o
+ .debug_loc     0x00000000       0xa8 ..\obj\moving_av.o
+ .debug_aranges
+                0x00000000       0x30 ..\obj\moving_av.o
+ .debug_ranges  0x00000000       0x20 ..\obj\moving_av.o
+ .debug_line    0x00000000      0x13d ..\obj\moving_av.o
+ .debug_str     0x00000000      0x16f ..\obj\moving_av.o
+ .comment       0x00000000       0x71 ..\obj\moving_av.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\moving_av.o
+ .debug_frame   0x00000000       0x70 ..\obj\moving_av.o
+ .text          0x00000000        0x0 ..\obj\pt100x.o
+ .data          0x00000000        0x0 ..\obj\pt100x.o
+ .bss           0x00000000        0x0 ..\obj\pt100x.o
+ .rodata        0x00000000      0x14c ..\obj\pt100x.o
+ .text.sen_pt100
+                0x00000000       0x3c ..\obj\pt100x.o
+ .text.sen_pt1000
+                0x00000000       0x2c ..\obj\pt100x.o
+ .debug_info    0x00000000      0x152 ..\obj\pt100x.o
+ .debug_abbrev  0x00000000       0x8a ..\obj\pt100x.o
+ .debug_loc     0x00000000       0x70 ..\obj\pt100x.o
+ .debug_aranges
+                0x00000000       0x28 ..\obj\pt100x.o
+ .debug_ranges  0x00000000       0x18 ..\obj\pt100x.o
+ .debug_line    0x00000000       0xb5 ..\obj\pt100x.o
+ .debug_str     0x00000000      0x167 ..\obj\pt100x.o
+ .comment       0x00000000       0x71 ..\obj\pt100x.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\pt100x.o
+ .debug_frame   0x00000000       0x50 ..\obj\pt100x.o
+ .text          0x00000000        0x0 ..\obj\sensors_lut.o
+ .data          0x00000000        0x0 ..\obj\sensors_lut.o
+ .bss           0x00000000        0x0 ..\obj\sensors_lut.o
+ .text.sen_nclut
+                0x00000000      0x15c ..\obj\sensors_lut.o
+ .text.sen_pclut
+                0x00000000      0x154 ..\obj\sensors_lut.o
+ .debug_info    0x00000000      0x17a ..\obj\sensors_lut.o
+ .debug_abbrev  0x00000000       0x9b ..\obj\sensors_lut.o
+ .debug_loc     0x00000000       0x70 ..\obj\sensors_lut.o
+ .debug_aranges
+                0x00000000       0x28 ..\obj\sensors_lut.o
+ .debug_ranges  0x00000000       0x18 ..\obj\sensors_lut.o
+ .debug_line    0x00000000       0xf8 ..\obj\sensors_lut.o
+ .debug_str     0x00000000      0x147 ..\obj\sensors_lut.o
+ .comment       0x00000000       0x71 ..\obj\sensors_lut.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\sensors_lut.o
+ .debug_frame   0x00000000       0x58 ..\obj\sensors_lut.o
+ .text          0x00000000        0x0 ..\obj\main.o
+ .data          0x00000000        0x0 ..\obj\main.o
+ .bss           0x00000000        0x0 ..\obj\main.o
+ .text.acs_test
+                0x00000000       0xb4 ..\obj\main.o
+ .text.dsp_test
+                0x00000000       0x8c ..\obj\main.o
+ .text.drv_test
+                0x00000000      0x170 ..\obj\main.o
+ .text.std_test
+                0x00000000       0x60 ..\obj\main.o
+ .text.target_init
+                0x00000000       0x34 ..\obj\main.o
+ .text          0x00000000        0x0 ..\obj\stime.o
+ .data          0x00000000        0x0 ..\obj\stime.o
+ .bss           0x00000000       0x24 ..\obj\stime.o
+ .rodata        0x00000000       0x34 ..\obj\stime.o
+ .text.isleap   0x00000000       0x74 ..\obj\stime.o
+ .text.smktime  0x00000000       0xe0 ..\obj\stime.o
+ .text.sgmtime  0x00000000      0x22c ..\obj\stime.o
+ .debug_info    0x00000000      0x21f ..\obj\stime.o
+ .debug_abbrev  0x00000000       0xeb ..\obj\stime.o
+ .debug_loc     0x00000000       0xa8 ..\obj\stime.o
+ .debug_aranges
+                0x00000000       0x30 ..\obj\stime.o
+ .debug_ranges  0x00000000       0x20 ..\obj\stime.o
+ .debug_line    0x00000000      0x1ac ..\obj\stime.o
+ .debug_str     0x00000000      0x188 ..\obj\stime.o
+ .comment       0x00000000       0x71 ..\obj\stime.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\stime.o
+ .debug_frame   0x00000000       0x68 ..\obj\stime.o
+ .text          0x00000000        0x0 ..\obj\printf.o
+ .data          0x00000000        0x0 ..\obj\printf.o
+ .bss           0x00000000        0x0 ..\obj\printf.o
+ .text.puts     0x00000000       0x4c ..\obj\printf.o
+ .text.vprintf  0x00000000       0x2c ..\obj\printf.o
+ .text.printf   0x00000000       0x2c ..\obj\printf.o
+ .debug_info    0x00000000      0x18a ..\obj\printf.o
+ .debug_abbrev  0x00000000       0xe3 ..\obj\printf.o
+ .debug_loc     0x00000000       0xb4 ..\obj\printf.o
+ .debug_aranges
+                0x00000000       0x30 ..\obj\printf.o
+ .debug_ranges  0x00000000       0x20 ..\obj\printf.o
+ .debug_line    0x00000000      0x13e ..\obj\printf.o
+ .debug_str     0x00000000      0x1b7 ..\obj\printf.o
+ .comment       0x00000000       0x71 ..\obj\printf.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\printf.o
+ .debug_frame   0x00000000       0x78 ..\obj\printf.o
+ .text          0x00000000        0x0 ..\obj\ktyx.o
+ .data          0x00000000        0x0 ..\obj\ktyx.o
+ .bss           0x00000000        0x0 ..\obj\ktyx.o
+ .rodata        0x00000000      0x180 ..\obj\ktyx.o
+ .text.sen_kty8x_121
+                0x00000000       0x2c ..\obj\ktyx.o
+ .text.sen_kty8x_122
+                0x00000000       0x2c ..\obj\ktyx.o
+ .text.sen_kty11_6
+                0x00000000       0x2c ..\obj\ktyx.o
+ .debug_info    0x00000000      0x1a9 ..\obj\ktyx.o
+ .debug_abbrev  0x00000000       0x8a ..\obj\ktyx.o
+ .debug_loc     0x00000000       0xa8 ..\obj\ktyx.o
+ .debug_aranges
+                0x00000000       0x30 ..\obj\ktyx.o
+ .debug_ranges  0x00000000       0x20 ..\obj\ktyx.o
+ .debug_line    0x00000000       0xc4 ..\obj\ktyx.o
+ .debug_str     0x00000000      0x193 ..\obj\ktyx.o
+ .comment       0x00000000       0x71 ..\obj\ktyx.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\ktyx.o
+ .debug_frame   0x00000000       0x70 ..\obj\ktyx.o
+ .text          0x00000000        0x0 ..\obj\aes.o
+ .data          0x00000000        0x0 ..\obj\aes.o
+ .bss           0x00000000        0x0 ..\obj\aes.o
+ .rodata        0x00000000     0x2828 ..\obj\aes.o
+ .text.aes_key_init
+                0x00000000      0x844 ..\obj\aes.o
+ .text.aes_key_deinit
+                0x00000000       0x20 ..\obj\aes.o
+ .text.aes128_key_init
+                0x00000000       0x20 ..\obj\aes.o
+ .text.aes192_key_init
+                0x00000000       0x20 ..\obj\aes.o
+ .text.aes256_key_init
+                0x00000000       0x20 ..\obj\aes.o
+ .text.aes_encrypt
+                0x00000000     0x18d8 ..\obj\aes.o
+ .text.aes_decrypt
+                0x00000000     0x18dc ..\obj\aes.o
+ .debug_info    0x00000000      0x508 ..\obj\aes.o
+ .debug_abbrev  0x00000000      0x131 ..\obj\aes.o
+ .debug_loc     0x00000000      0x18c ..\obj\aes.o
+ .debug_aranges
+                0x00000000       0x50 ..\obj\aes.o
+ .debug_ranges  0x00000000       0x40 ..\obj\aes.o
+ .debug_line    0x00000000      0x48a ..\obj\aes.o
+ .debug_str     0x00000000      0x1c0 ..\obj\aes.o
+ .comment       0x00000000       0x71 ..\obj\aes.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\aes.o
+ .debug_frame   0x00000000       0xe4 ..\obj\aes.o
+ .text          0x00000000        0x0 ..\obj\md5.o
+ .data          0x00000000        0x0 ..\obj\md5.o
+ .bss           0x00000000        0x0 ..\obj\md5.o
+ .text          0x00000000        0x0 ..\obj\jiffies.o
+ .data          0x00000000        0x0 ..\obj\jiffies.o
+ .bss           0x00000000       0x18 ..\obj\jiffies.o
+ .text.jf_link_setfreq
+                0x00000000       0x24 ..\obj\jiffies.o
+ .text.jf_link_value
+                0x00000000       0x24 ..\obj\jiffies.o
+ .text.jf_probe
+                0x00000000       0x1c ..\obj\jiffies.o
+ .text.jf_deinit
+                0x00000000       0x28 ..\obj\jiffies.o
+ .text.jf_init  0x00000000       0x8c ..\obj\jiffies.o
+ .text.jf_get_jiffies
+                0x00000000       0x18 ..\obj\jiffies.o
+ .text.jf_get_jiffy
+                0x00000000       0x18 ..\obj\jiffies.o
+ .text.jf_per_msec
+                0x00000000       0x4c ..\obj\jiffies.o
+ .text.jf_per_usec
+                0x00000000       0x50 ..\obj\jiffies.o
+ .text.jf_delay_us
+                0x00000000       0x9c ..\obj\jiffies.o
+ .debug_info    0x00000000      0x2c8 ..\obj\jiffies.o
+ .debug_abbrev  0x00000000      0x120 ..\obj\jiffies.o
+ .debug_loc     0x00000000      0x1e8 ..\obj\jiffies.o
+ .debug_aranges
+                0x00000000       0x68 ..\obj\jiffies.o
+ .debug_ranges  0x00000000       0x58 ..\obj\jiffies.o
+ .debug_line    0x00000000      0x1f4 ..\obj\jiffies.o
+ .debug_str     0x00000000      0x226 ..\obj\jiffies.o
+ .comment       0x00000000       0x71 ..\obj\jiffies.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\jiffies.o
+ .debug_frame   0x00000000      0x118 ..\obj\jiffies.o
+ .text          0x00000000        0x0 ..\obj\syscalls.o
+ .data          0x00000000        0x0 ..\obj\syscalls.o
+ .bss           0x00000000        0x4 ..\obj\syscalls.o
+ .text._sbrk    0x00000000       0x5c ..\obj\syscalls.o
+ .text.link     0x00000000       0x1c ..\obj\syscalls.o
+ .text._close   0x00000000       0x18 ..\obj\syscalls.o
+ .text._fstat   0x00000000       0x24 ..\obj\syscalls.o
+ .text._isatty  0x00000000       0x18 ..\obj\syscalls.o
+ .text._lseek   0x00000000       0x1c ..\obj\syscalls.o
+ .text._read    0x00000000       0x1c ..\obj\syscalls.o
+ .text._write   0x00000000       0x1c ..\obj\syscalls.o
+ .text.abort    0x00000000        0x8 ..\obj\syscalls.o
+ .debug_info    0x00000000      0x443 ..\obj\syscalls.o
+ .debug_abbrev  0x00000000       0xe4 ..\obj\syscalls.o
+ .debug_loc     0x00000000      0x1ec ..\obj\syscalls.o
+ .debug_aranges
+                0x00000000       0x60 ..\obj\syscalls.o
+ .debug_ranges  0x00000000       0x50 ..\obj\syscalls.o
+ .debug_line    0x00000000      0x176 ..\obj\syscalls.o
+ .debug_str     0x00000000      0x2ab ..\obj\syscalls.o
+ .comment       0x00000000       0x71 ..\obj\syscalls.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\syscalls.o
+ .debug_frame   0x00000000      0x108 ..\obj\syscalls.o
+ .text          0x00000000        0x0 ..\obj\RN_DPEC.o
+ .data          0x00000000        0x8 ..\obj\RN_DPEC.o
+ .text.NVIC_EnableIRQ
+                0x00000000       0x38 ..\obj\RN_DPEC.o
+ .text.NVIC_SetPriority
+                0x00000000       0x5c ..\obj\RN_DPEC.o
+ .text.GPIO_PinMode
+                0x00000000       0xc4 ..\obj\RN_DPEC.o
+ .text.PSC_Calc
+                0x00000000       0x68 ..\obj\RN_DPEC.o
+ .text.DIN0     0x00000000       0x28 ..\obj\RN_DPEC.o
+ .text.DIN1     0x00000000       0x28 ..\obj\RN_DPEC.o
+ .text.DIN2     0x00000000       0x28 ..\obj\RN_DPEC.o
+ .text.DIN3     0x00000000       0x28 ..\obj\RN_DPEC.o
+ .text.DIN4     0x00000000       0x20 ..\obj\RN_DPEC.o
+ .text.DIN5     0x00000000       0x20 ..\obj\RN_DPEC.o
+ .text.DIN6     0x00000000       0x20 ..\obj\RN_DPEC.o
+ .text.nDIN0    0x00000000       0x20 ..\obj\RN_DPEC.o
+ .text.nDIN1    0x00000000       0x20 ..\obj\RN_DPEC.o
+ .text.nDIN2    0x00000000       0x20 ..\obj\RN_DPEC.o
+ .text.nDIN3    0x00000000       0x20 ..\obj\RN_DPEC.o
+ .text.nDIN4    0x00000000       0x28 ..\obj\RN_DPEC.o
+ .text.nDIN5    0x00000000       0x28 ..\obj\RN_DPEC.o
+ .text.nDIN6    0x00000000       0x28 ..\obj\RN_DPEC.o
+ .text.DOUT0_on
+                0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.DOUT0_off
+                0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.DOUT1_on
+                0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.DOUT1_off
+                0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.DOUT2_on
+                0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.DOUT2_off
+                0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.DOUT3_on
+                0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.DOUT3_off
+                0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.DOUT4_on
+                0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.DOUT4_off
+                0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.DOUT5_on
+                0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.DOUT5_off
+                0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.DOUT6_on
+                0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.DOUT6_off
+                0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.DOUT0    0x00000000       0x38 ..\obj\RN_DPEC.o
+ .text.DOUT1    0x00000000       0x38 ..\obj\RN_DPEC.o
+ .text.DOUT2    0x00000000       0x38 ..\obj\RN_DPEC.o
+ .text.DOUT3    0x00000000       0x38 ..\obj\RN_DPEC.o
+ .text.DOUT4    0x00000000       0x38 ..\obj\RN_DPEC.o
+ .text.DOUT5    0x00000000       0x38 ..\obj\RN_DPEC.o
+ .text.DOUT6    0x00000000       0x38 ..\obj\RN_DPEC.o
+ .text.BTN_ButtonA
+                0x00000000       0x28 ..\obj\RN_DPEC.o
+ .text.BTN_ButtonB
+                0x00000000       0x28 ..\obj\RN_DPEC.o
+ .text.BTN_ButtonC
+                0x00000000       0x28 ..\obj\RN_DPEC.o
+ .text.BTN_ButtonD
+                0x00000000       0x28 ..\obj\RN_DPEC.o
+ .text.BTN_ButtonE
+                0x00000000       0x28 ..\obj\RN_DPEC.o
+ .text.LED0_on  0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.LED0_off
+                0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.LED1_on  0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.LED1_off
+                0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.LED2_on  0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.LED2_off
+                0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.LED3_on  0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.LED3_off
+                0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.LED4_on  0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.LED4_off
+                0x00000000       0x18 ..\obj\RN_DPEC.o
+ .text.LED0     0x00000000       0x38 ..\obj\RN_DPEC.o
+ .text.LED1     0x00000000       0x38 ..\obj\RN_DPEC.o
+ .text.LED2     0x00000000       0x38 ..\obj\RN_DPEC.o
+ .text.LED3     0x00000000       0x38 ..\obj\RN_DPEC.o
+ .text.LED4     0x00000000       0x38 ..\obj\RN_DPEC.o
+ .text.LEDS_off
+                0x00000000       0x1c ..\obj\RN_DPEC.o
+ .text.LEDS_on  0x00000000       0x1c ..\obj\RN_DPEC.o
+ .text.ALCD_DB4
+                0x00000000       0x3c ..\obj\RN_DPEC.o
+ .text.ALCD_DB5
+                0x00000000       0x3c ..\obj\RN_DPEC.o
+ .text.ALCD_DB6
+                0x00000000       0x3c ..\obj\RN_DPEC.o
+ .text.ALCD_DB7
+                0x00000000       0x3c ..\obj\RN_DPEC.o
+ .text.ALCD_RS  0x00000000       0x3c ..\obj\RN_DPEC.o
+ .text.ALCD_EN  0x00000000       0x3c ..\obj\RN_DPEC.o
+ .text.ALCD_BL  0x00000000       0x3c ..\obj\RN_DPEC.o
+ .text.ADC_Get_AN0
+                0x00000000       0x14 ..\obj\RN_DPEC.o
+ .text.ADC_Get_AN1
+                0x00000000       0x14 ..\obj\RN_DPEC.o
+ .text.ADC_Get_AN2
+                0x00000000       0x14 ..\obj\RN_DPEC.o
+ .text.ADC_Get_SGND
+                0x00000000       0x14 ..\obj\RN_DPEC.o
+ .text.EE_SDA   0x00000000       0x68 ..\obj\RN_DPEC.o
+ .text.EE_SCL   0x00000000       0x40 ..\obj\RN_DPEC.o
+ .text.EE_SDA_Dir
+                0x00000000       0x4c ..\obj\RN_DPEC.o
+ .text.JF_setfreq
+                0x00000000       0xac ..\obj\RN_DPEC.o
+ .text.CCR_Calc
+                0x00000000       0xb8 ..\obj\RN_DPEC.o
+ .text.DIM_ZeroCross_Init
+                0x00000000       0x2c ..\obj\RN_DPEC.o
+ .text.DIM_ZeroCross_DeInit
+                0x00000000       0x14 ..\obj\RN_DPEC.o
+ .text.DIM_Timer_Init
+                0x00000000      0x1d0 ..\obj\RN_DPEC.o
+ .text.DIM_Timer_DeInit
+                0x00000000       0x60 ..\obj\RN_DPEC.o
+ .text.DIM_Channel_EN
+                0x00000000       0x7c ..\obj\RN_DPEC.o
+ .text.DIM_IsInit
+                0x00000000       0x5c ..\obj\RN_DPEC.o
+ .text.DIMx_Init
+                0x00000000      0x104 ..\obj\RN_DPEC.o
+ .text.DIMx_DeInit
+                0x00000000      0x13c ..\obj\RN_DPEC.o
+ .text.DIM0_DeInit
+                0x00000000       0x10 ..\obj\RN_DPEC.o
+ .text.DIM1_DeInit
+                0x00000000       0x10 ..\obj\RN_DPEC.o
+ .text.DIM2_DeInit
+                0x00000000       0x10 ..\obj\RN_DPEC.o
+ .text.DIM3_DeInit
+                0x00000000       0x10 ..\obj\RN_DPEC.o
+ .text.DIM0_Init
+                0x00000000       0x20 ..\obj\RN_DPEC.o
+ .text.DIM1_Init
+                0x00000000       0x20 ..\obj\RN_DPEC.o
+ .text.DIM2_Init
+                0x00000000       0x20 ..\obj\RN_DPEC.o
+ .text.DIM3_Init
+                0x00000000       0x20 ..\obj\RN_DPEC.o
+ .text.DIM0     0x00000000       0x68 ..\obj\RN_DPEC.o
+ .text.DIM1     0x00000000       0x68 ..\obj\RN_DPEC.o
+ .text.DIM2     0x00000000       0x68 ..\obj\RN_DPEC.o
+ .text.DIM3     0x00000000       0x68 ..\obj\RN_DPEC.o
+ .text.RPM_Init
+                0x00000000       0xfc ..\obj\RN_DPEC.o
+ .text.RPM_DeInit
+                0x00000000       0x2c ..\obj\RN_DPEC.o
+ .text.RPM_Get  0x00000000       0xa4 ..\obj\RN_DPEC.o
+ .text.BUZZER_Freq_Init
+                0x00000000      0x12c ..\obj\RN_DPEC.o
+ .text.BUZZER_Freq_DeInit
+                0x00000000       0x70 ..\obj\RN_DPEC.o
+ .text.BUZZER_Freq
+                0x00000000      0x100 ..\obj\RN_DPEC.o
+ .text.Driver_Init
+                0x00000000      0x1a8 ..\obj\RN_DPEC.o
+ COMMON         0x00000000       0x30 ..\obj\RN_DPEC.o
+ .text          0x00000000        0x0 ..\obj\i2c_pol.o
+ .data          0x00000000        0x0 ..\obj\i2c_pol.o
+ .bss           0x00000000        0x0 ..\obj\i2c_pol.o
+ .text.i2c_link_sda
+                0x00000000       0x1c ..\obj\i2c_pol.o
+ .text.i2c_link_scl
+                0x00000000       0x1c ..\obj\i2c_pol.o
+ .text.i2c_link_sdadir
+                0x00000000       0x1c ..\obj\i2c_pol.o
+ .text.i2c_set_speed
+                0x00000000       0x28 ..\obj\i2c_pol.o
+ .text.i2c_deinit
+                0x00000000       0x44 ..\obj\i2c_pol.o
+ .text.i2c_init
+                0x00000000       0xa0 ..\obj\i2c_pol.o
+ .text.i2c_start
+                0x00000000       0x58 ..\obj\i2c_pol.o
+ .text.i2c_stop
+                0x00000000       0x58 ..\obj\i2c_pol.o
+ .text.i2c_tx   0x00000000       0xe0 ..\obj\i2c_pol.o
+ .text.i2c_rx   0x00000000       0xf0 ..\obj\i2c_pol.o
+ .text.i2c_ioctl
+                0x00000000       0x68 ..\obj\i2c_pol.o
+ .debug_info    0x00000000      0x3f0 ..\obj\i2c_pol.o
+ .debug_abbrev  0x00000000      0x15a ..\obj\i2c_pol.o
+ .debug_loc     0x00000000      0x268 ..\obj\i2c_pol.o
+ .debug_aranges
+                0x00000000       0x70 ..\obj\i2c_pol.o
+ .debug_ranges  0x00000000       0x60 ..\obj\i2c_pol.o
+ .debug_line    0x00000000      0x263 ..\obj\i2c_pol.o
+ .debug_str     0x00000000      0x22d ..\obj\i2c_pol.o
+ .comment       0x00000000       0x71 ..\obj\i2c_pol.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\i2c_pol.o
+ .debug_frame   0x00000000      0x160 ..\obj\i2c_pol.o
+ .text          0x00000000        0x0 ..\obj\sha1.o
+ .data          0x00000000        0x0 ..\obj\sha1.o
+ .bss           0x00000000        0x0 ..\obj\sha1.o
+ .text          0x00000000        0x0 ..\obj\sha2.o
+ .data          0x00000000        0x0 ..\obj\sha2.o
+ .bss           0x00000000        0x0 ..\obj\sha2.o
+ .text          0x00000000        0x0 ..\obj\alcd.o
+ .data          0x00000000        0x0 ..\obj\alcd.o
+ .bss           0x00000000        0x0 ..\obj\alcd.o
+ .text._inc_x   0x00000000       0x30 ..\obj\alcd.o
+ .text._inc_y   0x00000000       0x30 ..\obj\alcd.o
+ .text._dec_x   0x00000000       0x30 ..\obj\alcd.o
+ .text._set_bus
+                0x00000000       0x80 ..\obj\alcd.o
+ .text._write_data
+                0x00000000       0x3c ..\obj\alcd.o
+ .text._command
+                0x00000000       0x34 ..\obj\alcd.o
+ .text._character
+                0x00000000       0x38 ..\obj\alcd.o
+ .text._set_cursor
+                0x00000000       0x58 ..\obj\alcd.o
+ .text.alcd_link_db4
+                0x00000000       0x1c ..\obj\alcd.o
+ .text.alcd_link_db5
+                0x00000000       0x1c ..\obj\alcd.o
+ .text.alcd_link_db6
+                0x00000000       0x1c ..\obj\alcd.o
+ .text.alcd_link_db7
+                0x00000000       0x1c ..\obj\alcd.o
+ .text.alcd_link_rs
+                0x00000000       0x1c ..\obj\alcd.o
+ .text.alcd_link_en
+                0x00000000       0x1c ..\obj\alcd.o
+ .text.alcd_link_bl
+                0x00000000       0x1c ..\obj\alcd.o
+ .text.alcd_putchar
+                0x00000000      0x120 ..\obj\alcd.o
+ .text.alcd_deinit
+                0x00000000       0x20 ..\obj\alcd.o
+ .text.alcd_init
+                0x00000000      0x1f4 ..\obj\alcd.o
+ .text.alcd_backlight
+                0x00000000       0x34 ..\obj\alcd.o
+ .text.alcd_enable
+                0x00000000       0x44 ..\obj\alcd.o
+ .text.alcd_cls
+                0x00000000       0x34 ..\obj\alcd.o
+ .text.alcd_shift
+                0x00000000       0x58 ..\obj\alcd.o
+ .text.alcd_ioctl
+                0x00000000      0x1e4 ..\obj\alcd.o
+ .debug_info    0x00000000      0x714 ..\obj\alcd.o
+ .debug_abbrev  0x00000000      0x1a3 ..\obj\alcd.o
+ .debug_loc     0x00000000      0x508 ..\obj\alcd.o
+ .debug_aranges
+                0x00000000       0xd0 ..\obj\alcd.o
+ .debug_ranges  0x00000000       0xc0 ..\obj\alcd.o
+ .debug_line    0x00000000      0x37f ..\obj\alcd.o
+ .debug_str     0x00000000      0x2ba ..\obj\alcd.o
+ .comment       0x00000000       0x71 ..\obj\alcd.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\alcd.o
+ .debug_frame   0x00000000      0x2c8 ..\obj\alcd.o
+ .text          0x00000000        0x0 ..\obj\sha3.o
+ .data          0x00000000        0x0 ..\obj\sha3.o
+ .bss           0x00000000        0x0 ..\obj\sha3.o
+ .text          0x00000000        0x0 ..\obj\sprintf.o
+ .data          0x00000000        0x0 ..\obj\sprintf.o
+ .bss           0x00000000        0x0 ..\obj\sprintf.o
+ .text.vsprintf
+                0x00000000       0x2c ..\obj\sprintf.o
+ .text.sprintf  0x00000000       0x30 ..\obj\sprintf.o
+ .debug_info    0x00000000      0x171 ..\obj\sprintf.o
+ .debug_abbrev  0x00000000       0xe3 ..\obj\sprintf.o
+ .debug_loc     0x00000000       0x7c ..\obj\sprintf.o
+ .debug_aranges
+                0x00000000       0x28 ..\obj\sprintf.o
+ .debug_ranges  0x00000000       0x18 ..\obj\sprintf.o
+ .debug_line    0x00000000      0x122 ..\obj\sprintf.o
+ .debug_str     0x00000000      0x1b5 ..\obj\sprintf.o
+ .comment       0x00000000       0x71 ..\obj\sprintf.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\sprintf.o
+ .debug_frame   0x00000000       0x58 ..\obj\sprintf.o
+ .text          0x00000000        0x0 ..\obj\leaky_int.o
+ .data          0x00000000        0x0 ..\obj\leaky_int.o
+ .bss           0x00000000        0x0 ..\obj\leaky_int.o
+ .text.leaky_int_deinit
+                0x00000000       0x20 ..\obj\leaky_int.o
+ .text.leaky_int_init
+                0x00000000       0x24 ..\obj\leaky_int.o
+ .text.leaky_int
+                0x00000000       0x6c ..\obj\leaky_int.o
+ .debug_info    0x00000000      0x15c ..\obj\leaky_int.o
+ .debug_abbrev  0x00000000       0xc4 ..\obj\leaky_int.o
+ .debug_loc     0x00000000       0xa8 ..\obj\leaky_int.o
+ .debug_aranges
+                0x00000000       0x30 ..\obj\leaky_int.o
+ .debug_ranges  0x00000000       0x20 ..\obj\leaky_int.o
+ .debug_line    0x00000000       0xc8 ..\obj\leaky_int.o
+ .debug_str     0x00000000      0x16e ..\obj\leaky_int.o
+ .comment       0x00000000       0x71 ..\obj\leaky_int.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\leaky_int.o
+ .debug_frame   0x00000000       0x68 ..\obj\leaky_int.o
+ .text          0x00000000        0x0 ..\obj\stm32f10x_clock.o
+ .data          0x00000000        0x0 ..\obj\stm32f10x_clock.o
+ .bss           0x00000000        0x0 ..\obj\stm32f10x_clock.o
+ .text.Sys_Sysclk_Update
+                0x00000000       0xec ..\obj\stm32f10x_clock.o
+ .text.Sys_GetSysclk_src
+                0x00000000       0x20 ..\obj\stm32f10x_clock.o
+ .text.Sys_SetSysclk_src
+                0x00000000       0x48 ..\obj\stm32f10x_clock.o
+ .text.Sys_HSI_Cmd
+                0x00000000       0xa0 ..\obj\stm32f10x_clock.o
+ .text.Sys_HSE_Cmd
+                0x00000000       0x9c ..\obj\stm32f10x_clock.o
+ .text.Sys_ExtClock_Cmd
+                0x00000000       0x64 ..\obj\stm32f10x_clock.o
+ .text.Sys_PLL_Cmd
+                0x00000000       0x9c ..\obj\stm32f10x_clock.o
+ .text.Sys_SetPLLClock
+                0x00000000      0x244 ..\obj\stm32f10x_clock.o
+ .debug_info    0x00000000      0x4be ..\obj\stm32f10x_clock.o
+ .debug_abbrev  0x00000000      0x154 ..\obj\stm32f10x_clock.o
+ .debug_loc     0x00000000      0x1b4 ..\obj\stm32f10x_clock.o
+ .debug_aranges
+                0x00000000       0x58 ..\obj\stm32f10x_clock.o
+ .debug_ranges  0x00000000       0x48 ..\obj\stm32f10x_clock.o
+ .debug_line    0x00000000      0x2f5 ..\obj\stm32f10x_clock.o
+ .debug_str     0x00000000      0x2ea ..\obj\stm32f10x_clock.o
+ .comment       0x00000000       0x71 ..\obj\stm32f10x_clock.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\stm32f10x_clock.o
+ .debug_frame   0x00000000       0xf8 ..\obj\stm32f10x_clock.o
+ .text          0x00000000        0x0 ..\obj\stm32f10x_systick.o
+ .data          0x00000000        0x0 ..\obj\stm32f10x_systick.o
+ .text.SysTick_DeInit
+                0x00000000       0x30 ..\obj\stm32f10x_systick.o
+ .text.SysTick_Init
+                0x00000000       0x50 ..\obj\stm32f10x_systick.o
+ .text.get_freq
+                0x00000000       0x18 ..\obj\stm32f10x_systick.o
+ .text.set_freq
+                0x00000000       0x48 ..\obj\stm32f10x_systick.o
+ .text.service_add
+                0x00000000       0x64 ..\obj\stm32f10x_systick.o
+ .text.service_rem
+                0x00000000       0x50 ..\obj\stm32f10x_systick.o
+ .text.clock    0x00000000       0x18 ..\obj\stm32f10x_systick.o
+ .text.time     0x00000000       0x34 ..\obj\stm32f10x_systick.o
+ .text          0x00000000        0x0 ..\obj\buttons.o
+ .data          0x00000000        0x0 ..\obj\buttons.o
+ .bss           0x00000000       0x50 ..\obj\buttons.o
+ .text._ib_put  0x00000000       0x84 ..\obj\buttons.o
+ .text._ib_get  0x00000000       0x80 ..\obj\buttons.o
+ .text._ib_capacity
+                0x00000000       0xa4 ..\obj\buttons.o
+ .text._get_buttons
+                0x00000000      0x2b0 ..\obj\buttons.o
+ .text.btn_link
+                0x00000000       0x1c ..\obj\buttons.o
+ .text.btn_set_holdtime
+                0x00000000       0x20 ..\obj\buttons.o
+ .text.btn_set_reptime
+                0x00000000       0x20 ..\obj\buttons.o
+ .text.btn_set_repetitive
+                0x00000000       0x30 ..\obj\buttons.o
+ .text.btn_flush
+                0x00000000       0x28 ..\obj\buttons.o
+ .text.btn_service
+                0x00000000      0x2a4 ..\obj\buttons.o
+ .text.btn_getkey
+                0x00000000       0x2c ..\obj\buttons.o
+ .text.btn_ioctl
+                0x00000000       0x70 ..\obj\buttons.o
+ .debug_info    0x00000000      0x5c0 ..\obj\buttons.o
+ .debug_abbrev  0x00000000      0x1bd ..\obj\buttons.o
+ .debug_loc     0x00000000      0x288 ..\obj\buttons.o
+ .debug_aranges
+                0x00000000       0x78 ..\obj\buttons.o
+ .debug_ranges  0x00000000       0x68 ..\obj\buttons.o
+ .debug_line    0x00000000      0x330 ..\obj\buttons.o
+ .debug_str     0x00000000      0x334 ..\obj\buttons.o
+ .comment       0x00000000       0x71 ..\obj\buttons.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\buttons.o
+ .debug_frame   0x00000000      0x170 ..\obj\buttons.o
+ COMMON         0x00000000       0x4c ..\obj\buttons.o
+ .text          0x00000000        0x0 ..\obj\sim_ee.o
+ .data          0x00000000        0x0 ..\obj\sim_ee.o
+ .bss           0x00000000        0x0 ..\obj\sim_ee.o
+ .text._valid_page
+                0x00000000       0x28 ..\obj\sim_ee.o
+ .text._try_read
+                0x00000000       0x94 ..\obj\sim_ee.o
+ .text._try_write
+                0x00000000       0xdc ..\obj\sim_ee.o
+ .text._erase_page
+                0x00000000       0x6c ..\obj\sim_ee.o
+ .text._page_swap
+                0x00000000      0x180 ..\obj\sim_ee.o
+ .text._format  0x00000000      0x100 ..\obj\sim_ee.o
+ .text.see_link_flash_read
+                0x00000000       0x1c ..\obj\sim_ee.o
+ .text.see_link_flash_write
+                0x00000000       0x1c ..\obj\sim_ee.o
+ .text.see_link_flash_ioctl
+                0x00000000       0x1c ..\obj\sim_ee.o
+ .text.see_set_page0_add
+                0x00000000       0x1c ..\obj\sim_ee.o
+ .text.see_set_page1_add
+                0x00000000       0x1c ..\obj\sim_ee.o
+ .text.see_set_page_size
+                0x00000000       0x1c ..\obj\sim_ee.o
+ .text.see_set_flash_page_size
+                0x00000000       0x1c ..\obj\sim_ee.o
+ .text.see_deinit
+                0x00000000       0x20 ..\obj\sim_ee.o
+ .text.see_init
+                0x00000000      0x228 ..\obj\sim_ee.o
+ .text.see_read_word
+                0x00000000       0x68 ..\obj\sim_ee.o
+ .text.see_read
+                0x00000000       0xe8 ..\obj\sim_ee.o
+ .text.see_write_word
+                0x00000000       0xe0 ..\obj\sim_ee.o
+ .text.see_write
+                0x00000000       0xec ..\obj\sim_ee.o
+ .text.see_ioctl
+                0x00000000      0x16c ..\obj\sim_ee.o
+ .debug_info    0x00000000      0x99d ..\obj\sim_ee.o
+ .debug_abbrev  0x00000000      0x1e7 ..\obj\sim_ee.o
+ .debug_loc     0x00000000      0x460 ..\obj\sim_ee.o
+ .debug_aranges
+                0x00000000       0xb8 ..\obj\sim_ee.o
+ .debug_ranges  0x00000000       0xa8 ..\obj\sim_ee.o
+ .debug_line    0x00000000      0x439 ..\obj\sim_ee.o
+ .debug_str     0x00000000      0x428 ..\obj\sim_ee.o
+ .comment       0x00000000       0x71 ..\obj\sim_ee.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\sim_ee.o
+ .debug_frame   0x00000000      0x270 ..\obj\sim_ee.o
+ .text          0x00000000        0x0 ..\obj\pid.o
+ .data          0x00000000        0x0 ..\obj\pid.o
+ .bss           0x00000000        0x0 ..\obj\pid.o
+ .text.pid_init
+                0x00000000       0x5c ..\obj\pid.o
+ .text.pid_deinit
+                0x00000000       0x20 ..\obj\pid.o
+ .text.pid_sat  0x00000000       0x24 ..\obj\pid.o
+ .text.pid_clear
+                0x00000000       0x1c ..\obj\pid.o
+ .text.pid_out  0x00000000      0x104 ..\obj\pid.o
+ .debug_info    0x00000000      0x287 ..\obj\pid.o
+ .debug_abbrev  0x00000000       0xed ..\obj\pid.o
+ .debug_loc     0x00000000      0x118 ..\obj\pid.o
+ .debug_aranges
+                0x00000000       0x40 ..\obj\pid.o
+ .debug_ranges  0x00000000       0x30 ..\obj\pid.o
+ .debug_line    0x00000000      0x107 ..\obj\pid.o
+ .debug_str     0x00000000      0x16a ..\obj\pid.o
+ .comment       0x00000000       0x71 ..\obj\pid.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\pid.o
+ .debug_frame   0x00000000       0xa4 ..\obj\pid.o
+ .text          0x00000000        0x0 ..\obj\tne.o
+ .data          0x00000000        0x0 ..\obj\tne.o
+ .bss           0x00000000        0x0 ..\obj\tne.o
+ .text.tne_deinit
+                0x00000000       0x20 ..\obj\tne.o
+ .text.tne_init
+                0x00000000       0x40 ..\obj\tne.o
+ .text.tne_sat  0x00000000       0x24 ..\obj\tne.o
+ .text.tne_out  0x00000000      0x154 ..\obj\tne.o
+ .debug_info    0x00000000      0x21a ..\obj\tne.o
+ .debug_abbrev  0x00000000       0xde ..\obj\tne.o
+ .debug_loc     0x00000000       0xe0 ..\obj\tne.o
+ .debug_aranges
+                0x00000000       0x38 ..\obj\tne.o
+ .debug_ranges  0x00000000       0x28 ..\obj\tne.o
+ .debug_line    0x00000000      0x103 ..\obj\tne.o
+ .debug_str     0x00000000      0x15e ..\obj\tne.o
+ .comment       0x00000000       0x71 ..\obj\tne.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\tne.o
+ .debug_frame   0x00000000       0x94 ..\obj\tne.o
+ .text          0x00000000        0x0 ..\obj\des.o
+ .data          0x00000000        0x0 ..\obj\des.o
+ .bss           0x00000000        0x0 ..\obj\des.o
+ .text.des_key_check_weak
+                0x00000000       0x54 ..\obj\des.o
+ .text.des_setkey_enc
+                0x00000000       0x20 ..\obj\des.o
+ .text.des_setkey_dec
+                0x00000000       0xc4 ..\obj\des.o
+ .text.des_crypt_ecb
+                0x00000000      0x460 ..\obj\des.o
+ .text          0x00000000        0x0 ..\obj\ee_i2c_pol.o
+ .data          0x00000000        0x0 ..\obj\ee_i2c_pol.o
+ .bss           0x00000000        0x0 ..\obj\ee_i2c_pol.o
+ .text._sendcontrol
+                0x00000000       0x80 ..\obj\ee_i2c_pol.o
+ .text._sendaddress
+                0x00000000       0x84 ..\obj\ee_i2c_pol.o
+ .text._writepage
+                0x00000000       0xbc ..\obj\ee_i2c_pol.o
+ .text.ee_set_hwaddress
+                0x00000000       0x1c ..\obj\ee_i2c_pol.o
+ .text.ee_set_size
+                0x00000000       0x1c ..\obj\ee_i2c_pol.o
+ .text.ee_set_pagesize
+                0x00000000       0x1c ..\obj\ee_i2c_pol.o
+ .text.ee_set_speed
+                0x00000000       0x28 ..\obj\ee_i2c_pol.o
+ .text.ee_set_timeout
+                0x00000000       0x1c ..\obj\ee_i2c_pol.o
+ .text.ee_deinit
+                0x00000000       0x50 ..\obj\ee_i2c_pol.o
+ .text.ee_init  0x00000000       0x88 ..\obj\ee_i2c_pol.o
+ .text.ee_read  0x00000000       0x88 ..\obj\ee_i2c_pol.o
+ .text.ee_readbyte
+                0x00000000       0xa8 ..\obj\ee_i2c_pol.o
+ .text.ee_readbuffer
+                0x00000000       0xcc ..\obj\ee_i2c_pol.o
+ .text.ee_writebyte
+                0x00000000       0x94 ..\obj\ee_i2c_pol.o
+ .text.ee_writebuffer
+                0x00000000       0x90 ..\obj\ee_i2c_pol.o
+ .text.ee_ioctl
+                0x00000000       0xd8 ..\obj\ee_i2c_pol.o
+ .debug_info    0x00000000      0x6df ..\obj\ee_i2c_pol.o
+ .debug_abbrev  0x00000000      0x192 ..\obj\ee_i2c_pol.o
+ .debug_loc     0x00000000      0x380 ..\obj\ee_i2c_pol.o
+ .debug_aranges
+                0x00000000       0x98 ..\obj\ee_i2c_pol.o
+ .debug_ranges  0x00000000       0x88 ..\obj\ee_i2c_pol.o
+ .debug_line    0x00000000      0x320 ..\obj\ee_i2c_pol.o
+ .debug_str     0x00000000      0x312 ..\obj\ee_i2c_pol.o
+ .comment       0x00000000       0x71 ..\obj\ee_i2c_pol.o
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\ee_i2c_pol.o
+ .debug_frame   0x00000000      0x200 ..\obj\ee_i2c_pol.o
+ .text          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a(lib_a-s_fpclassify.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a(lib_a-s_fpclassify.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a(lib_a-s_fpclassify.o)
+ .text.__fpclassifyd
+                0x00000000       0x68 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a(lib_a-s_fpclassify.o)
+ .ARM.attributes
+                0x00000000       0x2d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a(lib_a-s_fpclassify.o)
+ .debug_frame   0x00000000       0x20 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a(lib_a-s_fpclassify.o)
+ .text          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a(lib_a-s_round.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a(lib_a-s_round.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a(lib_a-s_round.o)
+ .text.round    0x00000000       0xa0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a(lib_a-s_round.o)
+ .ARM.attributes
+                0x00000000       0x2d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a(lib_a-s_round.o)
+ .debug_frame   0x00000000       0x30 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a(lib_a-s_round.o)
+ .text          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a(lib_a-sf_fpclassify.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a(lib_a-sf_fpclassify.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a(lib_a-sf_fpclassify.o)
+ .text.__fpclassifyf
+                0x00000000       0x58 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a(lib_a-sf_fpclassify.o)
+ .ARM.attributes
+                0x00000000       0x2d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a(lib_a-sf_fpclassify.o)
+ .debug_frame   0x00000000       0x20 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a(lib_a-sf_fpclassify.o)
+ .text          0x00000000      0x370 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_addsubdf3.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_addsubdf3.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_addsubdf3.o)
+ .ARM.attributes
+                0x00000000       0x1d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_addsubdf3.o)
+ .text          0x00000000      0x424 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_muldivdf3.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_muldivdf3.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_muldivdf3.o)
+ .ARM.attributes
+                0x00000000       0x1d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_muldivdf3.o)
+ .text          0x00000000      0x110 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_cmpdf2.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_cmpdf2.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_cmpdf2.o)
+ .ARM.attributes
+                0x00000000       0x1d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_cmpdf2.o)
+ .text          0x00000000       0x50 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_fixdfsi.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_fixdfsi.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_fixdfsi.o)
+ .ARM.attributes
+                0x00000000       0x1d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_fixdfsi.o)
+ .text          0x00000000       0x40 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_fixunsdfsi.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_fixunsdfsi.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_fixunsdfsi.o)
+ .ARM.attributes
+                0x00000000       0x1d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_fixunsdfsi.o)
+ .text          0x00000000       0xa0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_truncdfsf2.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_truncdfsf2.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_truncdfsf2.o)
+ .ARM.attributes
+                0x00000000       0x1d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_truncdfsf2.o)
+ .text          0x00000000      0x21c c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_addsubsf3.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_addsubsf3.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_addsubsf3.o)
+ .ARM.attributes
+                0x00000000       0x1d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_addsubsf3.o)
+ .text          0x00000000      0x2a0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_muldivsf3.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_muldivsf3.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_muldivsf3.o)
+ .ARM.attributes
+                0x00000000       0x1d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_muldivsf3.o)
+ .text          0x00000000       0xec c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_cmpsf2.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_cmpsf2.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_cmpsf2.o)
+ .ARM.attributes
+                0x00000000       0x1d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_cmpsf2.o)
+ .text          0x00000000       0x4c c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_fixsfsi.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_fixsfsi.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_fixsfsi.o)
+ .ARM.attributes
+                0x00000000       0x1d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_fixsfsi.o)
+ .text          0x00000000       0x40 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_fixunssfsi.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_fixunssfsi.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_fixunssfsi.o)
+ .ARM.attributes
+                0x00000000       0x1d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a(_arm_fixunssfsi.o)
+ .text          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-calloc.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-calloc.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-calloc.o)
+ .text.calloc   0x00000000       0x18 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-calloc.o)
+ .ARM.attributes
+                0x00000000       0x2d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-calloc.o)
+ .debug_frame   0x00000000       0x28 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-calloc.o)
+ .text          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-callocr.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-callocr.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-callocr.o)
+ .text._calloc_r
+                0x00000000       0x60 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-callocr.o)
+ .ARM.attributes
+                0x00000000       0x2d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-callocr.o)
+ .debug_frame   0x00000000       0x28 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-callocr.o)
+ .text          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-impure.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-impure.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-impure.o)
+ .data.impure_data
+                0x00000000      0x428 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-impure.o)
+ .data._impure_ptr
+                0x00000000        0x4 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-impure.o)
+ .rodata.str1.4
+                0x00000000        0x4 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-impure.o)
+ .rodata._global_impure_ptr
+                0x00000000        0x4 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-impure.o)
+ .ARM.attributes
+                0x00000000       0x2d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-impure.o)
+ .text          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-malloc.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-malloc.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-malloc.o)
+ .text.malloc   0x00000000       0x10 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-malloc.o)
+ .text.free     0x00000000       0x10 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-malloc.o)
+ .ARM.attributes
+                0x00000000       0x2d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-malloc.o)
+ .debug_frame   0x00000000       0x30 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-malloc.o)
+ .text          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mallocr.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mallocr.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mallocr.o)
+ .text._malloc_r
+                0x00000000      0x530 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mallocr.o)
+ .data.__malloc_av_
+                0x00000000      0x408 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mallocr.o)
+ .data.__malloc_trim_threshold
+                0x00000000        0x4 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mallocr.o)
+ .bss.__malloc_max_total_mem
+                0x00000000        0x4 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mallocr.o)
+ .bss.__malloc_max_sbrked_mem
+                0x00000000        0x4 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mallocr.o)
+ .bss.__malloc_top_pad
+                0x00000000        0x4 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mallocr.o)
+ .bss.__malloc_current_mallinfo
+                0x00000000       0x28 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mallocr.o)
+ .data.__malloc_sbrk_base
+                0x00000000        0x4 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mallocr.o)
+ .ARM.attributes
+                0x00000000       0x2d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mallocr.o)
+ .debug_frame   0x00000000       0x38 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mallocr.o)
+ .text          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-memcmp.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-memcmp.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-memcmp.o)
+ .text.memcmp   0x00000000       0xb8 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-memcmp.o)
+ .ARM.attributes
+                0x00000000       0x2d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-memcmp.o)
+ .debug_frame   0x00000000       0x2c c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-memcmp.o)
+ .text          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-memcpy.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-memcpy.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-memcpy.o)
+ .text          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-memset.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-memset.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-memset.o)
+ .text          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mlock.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mlock.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mlock.o)
+ .text.__malloc_lock
+                0x00000000        0x4 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mlock.o)
+ .text.__malloc_unlock
+                0x00000000        0x4 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mlock.o)
+ .ARM.attributes
+                0x00000000       0x2d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mlock.o)
+ .debug_frame   0x00000000       0x30 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-mlock.o)
+ .text          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-sbrkr.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-sbrkr.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-sbrkr.o)
+ .text._sbrk_r  0x00000000       0x24 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-sbrkr.o)
+ .ARM.attributes
+                0x00000000       0x2d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-sbrkr.o)
+ .debug_frame   0x00000000       0x2c c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-sbrkr.o)
+ .text          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-strlen.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-strlen.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-strlen.o)
+ .text.strlen   0x00000000       0x60 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-strlen.o)
+ .ARM.attributes
+                0x00000000       0x2d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-strlen.o)
+ .debug_frame   0x00000000       0x20 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-strlen.o)
+ .text          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-freer.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-freer.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-freer.o)
+ .text._malloc_trim_r
+                0x00000000       0x98 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-freer.o)
+ .text._free_r  0x00000000      0x194 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-freer.o)
+ .ARM.attributes
+                0x00000000       0x2d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-freer.o)
+ .debug_frame   0x00000000       0x50 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-freer.o)
+ .text          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-reent.o)
+ .data          0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-reent.o)
+ .bss           0x00000000        0x0 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-reent.o)
+ .text.cleanup_glue
+                0x00000000       0x1c c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-reent.o)
+ .text._reclaim_reent
+                0x00000000       0x8c c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-reent.o)
+ .text._wrapup_reent
+                0x00000000       0x74 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-reent.o)
+ .ARM.attributes
+                0x00000000       0x2d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-reent.o)
+ .debug_frame   0x00000000       0x6c c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-reent.o)
+ COMMON         0x00000000        0x4 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-reent.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+rom              0x08000000         0x00020000         xr
+ram              0x20000000         0x00002000         xrw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+                0x20002000                _eram = 0x20002000
+
+.text           0x08000000     0xc8c8
+ *(.isr_vector)
+ .isr_vector    0x08000000      0x124 ..\obj\startup_stm32f10x_md_vl.o
+                0x08000000                g_pfnVectors
+ *(.text*)
+ .text.Default_Reset_Handler
+                0x08000124       0x70 ..\obj\startup_stm32f10x_md_vl.o
+                0x08000124                Default_Reset_Handler
+                0x08000124                Reset_Handler
+ .text.Default_Handler
+                0x08000194        0x8 ..\obj\startup_stm32f10x_md_vl.o
+                0x08000194                DebugMon_Handler
+                0x08000194                TIM1_CC_IRQHandler
+                0x08000194                HardFault_Handler
+                0x08000194                PVD_IRQHandler
+                0x08000194                PendSV_Handler
+                0x08000194                NMI_Handler
+                0x08000194                EXTI3_IRQHandler
+                0x08000194                EXTI0_IRQHandler
+                0x08000194                I2C2_EV_IRQHandler
+                0x08000194                TIM1_UP_TIM16_IRQHandler
+                0x08000194                UsageFault_Handler
+                0x08000194                SPI1_IRQHandler
+                0x08000194                TAMPER_IRQHandler
+                0x08000194                TIM6_DAC_IRQHandler
+                0x08000194                DMA1_Channel4_IRQHandler
+                0x08000194                ADC1_IRQHandler
+                0x08000194                USART3_IRQHandler
+                0x08000194                RTC_IRQHandler
+                0x08000194                DMA1_Channel7_IRQHandler
+                0x08000194                TIM4_IRQHandler
+                0x08000194                I2C1_EV_IRQHandler
+                0x08000194                DMA1_Channel6_IRQHandler
+                0x08000194                TIM3_IRQHandler
+                0x08000194                RCC_IRQHandler
+                0x08000194                DMA1_Channel1_IRQHandler
+                0x08000194                CEC_IRQHandler
+                0x08000194                TIM7_IRQHandler
+                0x08000194                EXTI9_5_IRQHandler
+                0x08000194                SPI2_IRQHandler
+                0x08000194                MemManage_Handler
+                0x08000194                SVC_Handler
+                0x08000194                DMA1_Channel5_IRQHandler
+                0x08000194                EXTI4_IRQHandler
+                0x08000194                TIM1_TRG_COM_TIM17_IRQHandler
+                0x08000194                DMA1_Channel3_IRQHandler
+                0x08000194                WWDG_IRQHandler
+                0x08000194                TIM2_IRQHandler
+                0x08000194                EXTI1_IRQHandler
+                0x08000194                RTCAlarm_IRQHandler
+                0x08000194                USART2_IRQHandler
+                0x08000194                I2C2_ER_IRQHandler
+                0x08000194                DMA1_Channel2_IRQHandler
+                0x08000194                FLASH_IRQHandler
+                0x08000194                BusFault_Handler
+                0x08000194                USART1_IRQHandler
+                0x08000194                I2C1_ER_IRQHandler
+                0x08000194                TIM1_BRK_TIM15_IRQHandler
+ .text.SystemInit
+                0x0800019c       0xb8 ..\obj\system_stm32f10x.o
+                0x0800019c                SystemInit
+ .text.SetSysClock
+                0x08000254        0xc ..\obj\system_stm32f10x.o
+ .text.SetSysClockTo24
+                0x08000260      0x15c ..\obj\system_stm32f10x.o
+ .text.crypt_test
+                0x080003bc      0x170 ..\obj\main.o
+                0x080003bc                crypt_test
+ .text.main     0x0800052c        0xc ..\obj\main.o
+                0x0800052c                main
+ .text.md5_pre  0x08000538       0x54 ..\obj\md5.o
+ .text.md5_process
+                0x0800058c      0xef4 ..\obj\md5.o
+ .text.md5_update
+                0x08001480       0xdc ..\obj\md5.o
+ .text.md5_finish
+                0x0800155c      0x1c4 ..\obj\md5.o
+ .text.md5      0x08001720       0x4c ..\obj\md5.o
+                0x08001720                md5
+ .text.EXTI2_IRQHandler
+                0x0800176c       0x40 ..\obj\RN_DPEC.o
+                0x0800176c                EXTI2_IRQHandler
+ .text.EXTI15_10_IRQHandler
+                0x080017ac       0x74 ..\obj\RN_DPEC.o
+                0x080017ac                EXTI15_10_IRQHandler
+ .text.sha1_pre
+                0x08001820       0x60 ..\obj\sha1.o
+ .text.sha1_process
+                0x08001880     0x18fc ..\obj\sha1.o
+ .text.sha1_update
+                0x0800317c       0xe4 ..\obj\sha1.o
+ .text.sha1_finish
+                0x08003260      0x208 ..\obj\sha1.o
+ .text.sha1     0x08003468       0x4c ..\obj\sha1.o
+                0x08003468                sha1
+ .text.sha2_pre
+                0x080034b4      0x100 ..\obj\sha2.o
+ .text.sha2_process
+                0x080035b4     0x42d4 ..\obj\sha2.o
+ .text.sha2_update
+                0x08007888       0xdc ..\obj\sha2.o
+ .text.sha2_finish
+                0x08007964      0x2e0 ..\obj\sha2.o
+ .text.sha2     0x08007c44       0x50 ..\obj\sha2.o
+ .text.sha224   0x08007c94       0x24 ..\obj\sha2.o
+                0x08007c94                sha224
+ .text.sha256   0x08007cb8       0x24 ..\obj\sha2.o
+                0x08007cb8                sha256
+ *fill*         0x08007cdc        0x4 00
+ .text.sha3_pre
+                0x08007ce0      0x190 ..\obj\sha3.o
+ .text.sha3_process
+                0x08007e70     0x1928 ..\obj\sha3.o
+ .text.sha3_update
+                0x08009798      0x100 ..\obj\sha3.o
+ .text.sha3_finish
+                0x08009898      0xd54 ..\obj\sha3.o
+ .text.sha3     0x0800a5ec       0x50 ..\obj\sha3.o
+ .text.sha384   0x0800a63c       0x24 ..\obj\sha3.o
+                0x0800a63c                sha384
+ .text.sha512   0x0800a660       0x24 ..\obj\sha3.o
+                0x0800a660                sha512
+ .text.SysTick_Handler
+                0x0800a684       0xc4 ..\obj\stm32f10x_systick.o
+                0x0800a684                SysTick_Handler
+ .text._setkey  0x0800a748      0x510 ..\obj\des.o
+ .text._set2key
+                0x0800ac58      0x13c ..\obj\des.o
+ .text._set3key
+                0x0800ad94      0x118 ..\obj\des.o
+ .text.des_key_set_parity
+                0x0800aeac       0x4c ..\obj\des.o
+                0x0800aeac                des_key_set_parity
+ .text.des_key_check_parity
+                0x0800aef8       0x5c ..\obj\des.o
+                0x0800aef8                des_key_check_parity
+ .text.des3_set2key_enc
+                0x0800af54       0x44 ..\obj\des.o
+                0x0800af54                des3_set2key_enc
+ .text.des3_set2key_dec
+                0x0800af98       0x44 ..\obj\des.o
+                0x0800af98                des3_set2key_dec
+ .text.des3_set3key_enc
+                0x0800afdc       0x44 ..\obj\des.o
+                0x0800afdc                des3_set3key_enc
+ .text.des3_set3key_dec
+                0x0800b020       0x44 ..\obj\des.o
+                0x0800b020                des3_set3key_dec
+ .text.des3_crypt_ecb
+                0x0800b064      0x830 ..\obj\des.o
+                0x0800b064                des3_crypt_ecb
+ .text.memcpy   0x0800b894      0x15c c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-memcpy.o)
+                0x0800b894                memcpy
+ .text.memset   0x0800b9f0      0x12c c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-memset.o)
+                0x0800b9f0                memset
+ *(.init)
+ *(.fini)
+ *crtbegin.o(.ctors)
+ *crtbegin?.o(.ctors)
+ *(EXCLUDE_FILE(*crtend.o *crtend?.o) .ctors)
+ *(SORT(.ctors.*))
+ *(.ctors)
+ *crtbegin.o(.dtors)
+ *crtbegin?.o(.dtors)
+ *(EXCLUDE_FILE(*crtend.o *crtend?.o) .dtors)
+ *(SORT(.dtors.*))
+ *(.dtors)
+ *(.rodata*)
+ .rodata        0x0800bb1c       0x68 ..\obj\main.o
+ .rodata        0x0800bb84       0x40 ..\obj\md5.o
+ .rodata        0x0800bbc4       0x40 ..\obj\sha1.o
+ .rodata        0x0800bc04       0x40 ..\obj\sha2.o
+ *fill*         0x0800bc44        0x4 00
+ .rodata        0x0800bc48      0x300 ..\obj\sha3.o
+ .rodata        0x0800bf48      0x980 ..\obj\des.o
+ *(.eh_fram e*)
+
+.glue_7         0x0800c8c8        0x0
+ .glue_7        0x00000000        0x0 linker stubs
+
+.glue_7t        0x0800c8c8        0x0
+ .glue_7t       0x00000000        0x0 linker stubs
+
+.vfp11_veneer   0x0800c8c8        0x0
+ .vfp11_veneer  0x00000000        0x0 linker stubs
+
+.v4_bx          0x0800c8c8        0x0
+ .v4_bx         0x00000000        0x0 linker stubs
+
+.iplt           0x0800c8c8        0x0
+ .iplt          0x00000000        0x0 ..\obj\startup_stm32f10x_md_vl.o
+
+.rel.dyn        0x0800c8c8        0x0
+ .rel.iplt      0x00000000        0x0 ..\obj\startup_stm32f10x_md_vl.o
+
+.ARM.extab
+ *(.ARM.extab* .gnu.linkonce.armextab.*)
+                0x0800c8c8                __exidx_start = .
+
+.ARM.exidx
+ *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+                0x0800c8c8                __exidx_end = .
+                0x0800c8c8                __etext = .
+                0x0800c8c8                _sidata = __etext
+
+.data           0x20000000        0x0 load address 0x0800c8c8
+                0x20000000                __data_start__ = .
+                0x20000000                _sdata = __data_start__
+ *(vtable)
+ *(.data*)
+                0x20000000                . = ALIGN (0x4)
+                0x20000000                PROVIDE (__preinit_array_start, .)
+ *(.preinit_array)
+                0x20000000                PROVIDE (__preinit_array_end, .)
+                0x20000000                . = ALIGN (0x4)
+                0x20000000                PROVIDE (__init_array_start, .)
+ *(SORT(.init_array.*))
+ *(.init_array)
+                0x20000000                PROVIDE (__init_array_end, .)
+                0x20000000                . = ALIGN (0x4)
+                0x20000000                PROVIDE (__fini_array_start, .)
+ *(SORT(.fini_array.*))
+ *(.fini_array)
+                0x20000000                PROVIDE (__fini_array_end, .)
+ *(.jcr*)
+                0x20000000                . = ALIGN (0x4)
+                0x20000000                __data_end__ = .
+                0x20000000                _edata = __data_end__
+
+.igot.plt       0x20000000        0x0
+ .igot.plt      0x00000000        0x0 ..\obj\startup_stm32f10x_md_vl.o
+
+.bss            0x20000000       0x64
+                0x20000000                . = ALIGN (0x4)
+                0x20000000                __bss_start__ = .
+                0x20000000                _sbss = __bss_start__
+ *(.bss*)
+ .bss           0x20000000        0x8 ..\obj\RN_DPEC.o
+ .bss           0x20000008       0x54 ..\obj\stm32f10x_systick.o
+ *(COMMON)
+ COMMON         0x2000005c        0x8 ..\obj\stm32f10x_systick.o
+                0x2000005c                Ticks
+                0x20000060                Now
+                0x20000064                . = ALIGN (0x4)
+                0x20000064                __bss_end__ = .
+                0x20000064                _ebss = __bss_end__
+
+.heap           0x20000064        0x0
+                0x20000064                __end__ = .
+                0x20000064                _end = __end__
+                0x20000064                end = __end__
+ *(.heap*)
+                0x20000064                __HeapLimit = .
+
+.co_stack       0x20000064     0x1804
+                0x20000068                . = ALIGN (0x8)
+ *fill*         0x20000064        0x4 00
+ *(.co_stack .co_stack.*)
+ .co_stack      0x20000068     0x1800 ..\obj\startup_stm32f10x_md_vl.o
+                0x20000068                pulStack
+                0x20002000                __StackTop = (ORIGIN (ram) + 0x2000)
+                0x200007fc                __StackLimit = (__StackTop - SIZEOF (.co_stack))
+                0x20002000                PROVIDE (__stack, __StackTop)
+                0x00000001                ASSERT ((__StackLimit >= __HeapLimit), region ram  overflowed with stack)
+LOAD ..\obj\startup_stm32f10x_md_vl.o
+LOAD ..\obj\system_stm32f10x.o
+LOAD ..\obj\jtype.o
+LOAD ..\obj\_vsxprintf.o
+LOAD ..\obj\ntc3997k.o
+LOAD ..\obj\moving_av.o
+LOAD ..\obj\pt100x.o
+LOAD ..\obj\sensors_lut.o
+LOAD ..\obj\main.o
+LOAD ..\obj\stime.o
+LOAD ..\obj\printf.o
+LOAD ..\obj\ktyx.o
+LOAD ..\obj\aes.o
+LOAD ..\obj\md5.o
+LOAD ..\obj\jiffies.o
+LOAD ..\obj\syscalls.o
+LOAD ..\obj\RN_DPEC.o
+LOAD ..\obj\i2c_pol.o
+LOAD ..\obj\sha1.o
+LOAD ..\obj\sha2.o
+LOAD ..\obj\alcd.o
+LOAD ..\obj\sha3.o
+LOAD ..\obj\sprintf.o
+LOAD ..\obj\leaky_int.o
+LOAD ..\obj\stm32f10x_clock.o
+LOAD ..\obj\stm32f10x_systick.o
+LOAD ..\obj\buttons.o
+LOAD ..\obj\sim_ee.o
+LOAD ..\obj\pid.o
+LOAD ..\obj\tne.o
+LOAD ..\obj\des.o
+LOAD ..\obj\ee_i2c_pol.o
+LOAD c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libm.a
+START GROUP
+LOAD c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/armv7-m\libgcc.a
+LOAD c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a
+LOAD c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libc.a
+END GROUP
+OUTPUT(coocox_ex.elf elf32-littlearm)
+
+.debug_info     0x00000000     0x440e
+ .debug_info    0x00000000      0x100 ..\obj\startup_stm32f10x_md_vl.o
+ .debug_info    0x00000100      0x44b ..\obj\system_stm32f10x.o
+ .debug_info    0x0000054b      0x943 ..\obj\main.o
+ .debug_info    0x00000e8e      0x32b ..\obj\md5.o
+ .debug_info    0x000011b9     0x1bcf ..\obj\RN_DPEC.o
+ .debug_info    0x00002d88      0x34c ..\obj\sha1.o
+ .debug_info    0x000030d4      0x457 ..\obj\sha2.o
+ .debug_info    0x0000352b      0x482 ..\obj\sha3.o
+ .debug_info    0x000039ad      0x324 ..\obj\stm32f10x_systick.o
+ .debug_info    0x00003cd1      0x73d ..\obj\des.o
+
+.debug_abbrev   0x00000000      0xf8c
+ .debug_abbrev  0x00000000       0xb2 ..\obj\startup_stm32f10x_md_vl.o
+ .debug_abbrev  0x000000b2      0x14e ..\obj\system_stm32f10x.o
+ .debug_abbrev  0x00000200      0x186 ..\obj\main.o
+ .debug_abbrev  0x00000386      0x119 ..\obj\md5.o
+ .debug_abbrev  0x0000049f      0x37e ..\obj\RN_DPEC.o
+ .debug_abbrev  0x0000081d      0x14f ..\obj\sha1.o
+ .debug_abbrev  0x0000096c      0x174 ..\obj\sha2.o
+ .debug_abbrev  0x00000ae0      0x174 ..\obj\sha3.o
+ .debug_abbrev  0x00000c54      0x1ac ..\obj\stm32f10x_systick.o
+ .debug_abbrev  0x00000e00      0x18c ..\obj\des.o
+
+.debug_loc      0x00000000     0x212a
+ .debug_loc     0x00000000       0x64 ..\obj\startup_stm32f10x_md_vl.o
+ .debug_loc     0x00000064       0xc8 ..\obj\system_stm32f10x.o
+ .debug_loc     0x0000012c      0x178 ..\obj\main.o
+ .debug_loc     0x000002a4      0x11c ..\obj\md5.o
+ .debug_loc     0x000003c0     0x1448 ..\obj\RN_DPEC.o
+ .debug_loc     0x00001808      0x11c ..\obj\sha1.o
+ .debug_loc     0x00001924      0x18c ..\obj\sha2.o
+ .debug_loc     0x00001ab0      0x18e ..\obj\sha3.o
+ .debug_loc     0x00001c3e      0x1d4 ..\obj\stm32f10x_systick.o
+ .debug_loc     0x00001e12      0x318 ..\obj\des.o
+
+.debug_aranges  0x00000000      0x620
+ .debug_aranges
+                0x00000000       0x28 ..\obj\startup_stm32f10x_md_vl.o
+ .debug_aranges
+                0x00000028       0x38 ..\obj\system_stm32f10x.o
+ .debug_aranges
+                0x00000060       0x50 ..\obj\main.o
+ .debug_aranges
+                0x000000b0       0x40 ..\obj\md5.o
+ .debug_aranges
+                0x000000f0      0x368 ..\obj\RN_DPEC.o
+ .debug_aranges
+                0x00000458       0x40 ..\obj\sha1.o
+ .debug_aranges
+                0x00000498       0x50 ..\obj\sha2.o
+ .debug_aranges
+                0x000004e8       0x50 ..\obj\sha3.o
+ .debug_aranges
+                0x00000538       0x60 ..\obj\stm32f10x_systick.o
+ .debug_aranges
+                0x00000598       0x88 ..\obj\des.o
+
+.debug_ranges   0x00000000      0x580
+ .debug_ranges  0x00000000       0x18 ..\obj\startup_stm32f10x_md_vl.o
+ .debug_ranges  0x00000018       0x28 ..\obj\system_stm32f10x.o
+ .debug_ranges  0x00000040       0x40 ..\obj\main.o
+ .debug_ranges  0x00000080       0x30 ..\obj\md5.o
+ .debug_ranges  0x000000b0      0x358 ..\obj\RN_DPEC.o
+ .debug_ranges  0x00000408       0x30 ..\obj\sha1.o
+ .debug_ranges  0x00000438       0x40 ..\obj\sha2.o
+ .debug_ranges  0x00000478       0x40 ..\obj\sha3.o
+ .debug_ranges  0x000004b8       0x50 ..\obj\stm32f10x_systick.o
+ .debug_ranges  0x00000508       0x78 ..\obj\des.o
+
+.debug_line     0x00000000     0x2423
+ .debug_line    0x00000000       0xab ..\obj\startup_stm32f10x_md_vl.o
+ .debug_line    0x000000ab      0x1b2 ..\obj\system_stm32f10x.o
+ .debug_line    0x0000025d      0x407 ..\obj\main.o
+ .debug_line    0x00000664      0x291 ..\obj\md5.o
+ .debug_line    0x000008f5      0xbf4 ..\obj\RN_DPEC.o
+ .debug_line    0x000014e9      0x2fe ..\obj\sha1.o
+ .debug_line    0x000017e7      0x359 ..\obj\sha2.o
+ .debug_line    0x00001b40      0x2de ..\obj\sha3.o
+ .debug_line    0x00001e1e      0x29a ..\obj\stm32f10x_systick.o
+ .debug_line    0x000020b8      0x36b ..\obj\des.o
+
+.debug_str      0x00000000     0x15ab
+ .debug_str     0x00000000      0x10b ..\obj\startup_stm32f10x_md_vl.o
+                                0x11d (size before relaxing)
+ .debug_str     0x0000010b      0x1fd ..\obj\system_stm32f10x.o
+                                0x28b (size before relaxing)
+ .debug_str     0x00000308      0x348 ..\obj\main.o
+                                0x472 (size before relaxing)
+ .debug_str     0x00000650       0xbb ..\obj\md5.o
+                                0x1ac (size before relaxing)
+ .debug_str     0x0000070b      0xa8a ..\obj\RN_DPEC.o
+                                0xd86 (size before relaxing)
+ .debug_str     0x00001195       0x80 ..\obj\sha1.o
+                                0x1bd (size before relaxing)
+ .debug_str     0x00001215       0xb1 ..\obj\sha2.o
+                                0x1ee (size before relaxing)
+ .debug_str     0x000012c6       0xae ..\obj\sha3.o
+                                0x1ee (size before relaxing)
+ .debug_str     0x00001374      0x10a ..\obj\stm32f10x_systick.o
+                                0x212 (size before relaxing)
+ .debug_str     0x0000147e      0x12d ..\obj\des.o
+                                0x232 (size before relaxing)
+
+.comment        0x00000000       0x70
+ .comment       0x00000000       0x70 ..\obj\startup_stm32f10x_md_vl.o
+                                 0x71 (size before relaxing)
+ .comment       0x00000000       0x71 ..\obj\system_stm32f10x.o
+ .comment       0x00000000       0x71 ..\obj\main.o
+ .comment       0x00000000       0x71 ..\obj\md5.o
+ .comment       0x00000000       0x71 ..\obj\RN_DPEC.o
+ .comment       0x00000000       0x71 ..\obj\sha1.o
+ .comment       0x00000000       0x71 ..\obj\sha2.o
+ .comment       0x00000000       0x71 ..\obj\sha3.o
+ .comment       0x00000000       0x71 ..\obj\stm32f10x_systick.o
+ .comment       0x00000000       0x71 ..\obj\des.o
+
+.ARM.attributes
+                0x00000000       0x33
+ .ARM.attributes
+                0x00000000       0x33 ..\obj\startup_stm32f10x_md_vl.o
+ .ARM.attributes
+                0x00000033       0x33 ..\obj\system_stm32f10x.o
+ .ARM.attributes
+                0x00000066       0x33 ..\obj\main.o
+ .ARM.attributes
+                0x00000099       0x33 ..\obj\md5.o
+ .ARM.attributes
+                0x000000cc       0x33 ..\obj\RN_DPEC.o
+ .ARM.attributes
+                0x000000ff       0x33 ..\obj\sha1.o
+ .ARM.attributes
+                0x00000132       0x33 ..\obj\sha2.o
+ .ARM.attributes
+                0x00000165       0x33 ..\obj\sha3.o
+ .ARM.attributes
+                0x00000198       0x33 ..\obj\stm32f10x_systick.o
+ .ARM.attributes
+                0x000001cb       0x33 ..\obj\des.o
+ .ARM.attributes
+                0x000001fe       0x2d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-memcpy.o)
+ .ARM.attributes
+                0x0000022b       0x2d c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-memset.o)
+
+.debug_frame    0x00000000     0x1348
+ .debug_frame   0x00000000       0x48 ..\obj\startup_stm32f10x_md_vl.o
+ .debug_frame   0x00000048       0x80 ..\obj\system_stm32f10x.o
+ .debug_frame   0x000000c8       0xf0 ..\obj\main.o
+ .debug_frame   0x000001b8       0xa8 ..\obj\md5.o
+ .debug_frame   0x00000260      0xb34 ..\obj\RN_DPEC.o
+ .debug_frame   0x00000d94       0xa8 ..\obj\sha1.o
+ .debug_frame   0x00000e3c       0xe8 ..\obj\sha2.o
+ .debug_frame   0x00000f24      0x100 ..\obj\sha3.o
+ .debug_frame   0x00001024      0x10c ..\obj\stm32f10x_systick.o
+ .debug_frame   0x00001130      0x1bc ..\obj\des.o
+ .debug_frame   0x000012ec       0x30 c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-memcpy.o)
+ .debug_frame   0x0000131c       0x2c c:/gccarm/bin/../lib/gcc/arm-none-eabi/4.7.3/../../../../arm-none-eabi/lib/armv7-m\libg.a(lib_a-memset.o)
