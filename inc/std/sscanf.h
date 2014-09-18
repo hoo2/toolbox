@@ -1,7 +1,7 @@
 /*
- * \file sprintf.h
+ * \file sscanf.h
  * \brief
- *    A small footprint sprintf with floating point support
+ *    A small footprint sscanf with floating point support
  *
  * Copyright (C) 2014 Houtouridis Christos <houtouridis.ch@gmail.com>
  *
@@ -17,10 +17,6 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
- * Date:       06/2013
- * Version:
  *
  */
 
@@ -127,30 +123,31 @@
  *
  */
 
-#ifndef __sprintf_h__
-#define __sprintf_h__
+#ifndef __sscanf_h__
+#define __sscanf_h__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <std/_vsxprintf.h>
+#include <std/_vsxscanf.h>
 
 
 /*
  * ============================ Public Functions ============================
  */
-int vsprintf(char *dst, const char *frm, __VALIST ap);
-int sprintf(char *dst, const char *frm, ...);
+int vsscanf (const char *src, const char *frm, __VALIST ap);
+int sscanf (const char *src, const char *frm, ...);
+
 
 /*!
- * Tailor this in order to connect printf functionality
- * to your hardware (stdout).
+ * Tailor this in order to connect scanf functionality
+ * to your hardware (stdin).
  */
-extern int __putchar(char c);
+extern int __getchar (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //#ifndef __sprintf_h__
+#endif //#ifndef __sscanf_h__

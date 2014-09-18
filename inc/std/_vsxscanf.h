@@ -1,7 +1,7 @@
 /*
- * \file _vsxprintf.h
+ * \file _vsxscanf.h
  * \brief
- *    A small footprint printf with floating point support
+ *    A small footprint scanf with floating point support
  *
  * this file is part of toolbox (std part)
  *
@@ -20,20 +20,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
- * Date:       06/2013
- * Version:
- *
- *
- * \todo
- * 1. Implement the long long int type
- * 2. Implement the long double type
- * 3. Report the bug and fix the code
- *
  */
 
-#ifndef __vsxprintf_h__
-#define __vsxprintf_h__
+#ifndef __vsxscanf_h__
+#define __vsxscanf_h__
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,27 +34,27 @@ extern "C" {
 /*!
  * callback function pointer to use in:
  *
- *  1) user's __putchar ()
- *  2) destination string for sprintf family
- *  3) file destination (fprintf family)
+ *  1) user's __getchar ()
+ *  2) source string for sscanf family
+ *  3) source file for fscanf family
  */
-typedef int (*_putc_out_t) (char *, const char );
+typedef int (*_getc_in_t) (const char *);
 
-int _putc_usr (char *dst, const char c);  /*!< back end for user's device stdout */
-int _putc_dst (char *dst, const char c);  /*!< back end for sprintf family */
-int _putc_fil (char *dst, const char c);  /*!< back end for file printf family */
+int _getc_usr (const char *src);  /*!< back end for user's device stdin */
+int _getc_src (const char *src);  /*!< back end for sscanf family */
+int _getc_fil (const char *src);  /*!< back end for file fscanf family */
 
 /*
  * ============================ Public Functions ============================
  */
 
-int vsxprintf(_putc_out_t _putc_out, char *dst, char *pfrm, __VALIST ap);
+int vsxscanf (_getc_in_t _in, const char *src, const char *frm, __VALIST ap);
 
 /*!
- * Tailor this in order to connect printf functionality
- * to your hardware (stdout).
+ * Tailor this in order to connect scanf functionality
+ * to your hardware (stdin).
  */
-extern int __putchar(char c);
+extern int __getchar (void);
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 /*!
- * \file sprintf.c
+ * \file sscanf.c
  * \brief
- *    A small footprint printf with floating point support
+ *    A small footprint sscanf with floating point support
  *
  * Copyright (C) 2013 Houtouridis Christos <houtouridis.ch@gmail.com>
  *
@@ -19,8 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#include <std/sprintf.h>
-
+#include <std/sscanf.h>
 
 /*
  * ============================ Public Functions ============================
@@ -28,40 +27,38 @@
 
 /*!
  * \brief
- *    Stores the result of a formatted string into another string. Format
- *    arguments are given in a va_list instance.
+ *    Read formatted data from string into variable argument list.
  *
- * \param pdst     Destination string.
- * \param pfrmt    Format string.
+ * \param src      Source string.
+ * \param rmt      Format string.
  * \param ap       Argument list.
  *
- * \return  The number of characters written.
+ * \return  The function returns the number of items in the argument list successfully filled.
  */
-inline int vsprintf(char *dst, const char *frm, va_list ap)
+inline int vsscanf (const char *src, const char *frm, __VALIST ap)
 {
    // Forward call NO buffer ;-)
-   return vsxprintf(_putc_dst, dst, (char *)frm, ap);
+   return vsxscanf (_getc_src, src, (char *)frm, ap);
 }
-
-
 
 /*!
  * \brief
- *    Writes a formatted string inside another string.
+ *    Read formatted data from string.
  *
- * \param pdst   storage string.
- * \param pfrmt  Format string.
+ * \param src     source string.
+ * \param rmt     Format string.
+ *
+ * \return        The number of items in the argument list successfully filled
  */
-int sprintf(char *dst, const char *frm, ...)
+int sscanf (const char *src, const char *frm, ...)
 {
    __VALIST ap;
    int result;
 
-   // Forward call to vsprintf
+   // Forward call to vsscanf
    va_start(ap, (char *)frm);
-   result = vsprintf(dst, frm, ap);
+   result = vsscanf (src, frm, ap);
    va_end(ap);
 
    return result;
 }
-

@@ -140,9 +140,9 @@ extern "C" {
 /*
  * ============================ Public Functions ============================
  */
-int vprintf(const char *pfrmt, va_list ap);
-int printf(const char *pfrmt, ...);
-int puts(const char *pdst);
+int vprintf (const char *frm, __VALIST ap);
+int  printf (const char *frm, ...);
+int    puts (const char *dst);
 
 /*!
  * Tailor this in order to connect printf functionality

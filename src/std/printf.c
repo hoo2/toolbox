@@ -31,16 +31,16 @@
  *
  * \param pdst  String to output.
  */
-int puts(const char *pdst)
+int puts(const char *dst)
 {
    int num = 0;
 
-   while (*pdst != 0)
+   while (*dst != 0)
    {
-      if (__putchar(*pdst) == -1)
+      if (__putchar(*dst) == -1)
          return -1;
       num++;
-      pdst++;
+      dst++;
    }
    return num;
 }
@@ -53,10 +53,10 @@ int puts(const char *pdst)
  * \param pfrmt  Format string.
  * \param ap  Argument list.
  */
-inline int vprintf(const char *pfrmt, va_list ap)
+inline int vprintf(const char *frm, __VALIST ap)
 {
    // Forward call NO buffer ;-)
-   return vsxprintf (_putc_usr, (char*)0, pfrmt, ap);
+   return vsxprintf (_putc_usr, (char*)0, (char *)frm, ap);
 }
 
 /*!
@@ -66,14 +66,14 @@ inline int vprintf(const char *pfrmt, va_list ap)
  *
  * \param  pfrmt  Format string.
  */
-int printf(const char *pfrmt, ...)
+int printf(const char *frm, ...)
 {
-   va_list ap;
+   __VALIST ap;
    int result;
 
    // Forward call to vprintf
-   va_start(ap, (char *)pfrmt);
-   result = vprintf(pfrmt, ap);
+   va_start(ap, (char *)frm);
+   result = vprintf(frm, ap);
    va_end(ap);
 
    return result;

@@ -23,35 +23,20 @@
  */
 #include <std/_vsxprintf.h>
 
-#define  _PRINTF_NUM_OF_TYPES    (16)
-#define  _PRINTF_NUM_OF_FLAGS    (7)
-/*!
- * The supported type conversion characters.
- * \note They MUST be in the same order as _printf_types_en \sa _printf_types_en
- */
-static char pr_let[_PRINTF_NUM_OF_TYPES] = "cdeEfgGilLosuxX";
-
-/*!
- * The supported(or not) flag characters.
- * \note They MUST be in the same order as _printf_flags_en \sa _printf_flags_en
- */
-static char pr_flags[_PRINTF_NUM_OF_FLAGS] = "+- #'0";
-
 static inline void _shift_right (unsigned int *i);
 static inline void _shift_left (unsigned int *i);
 static int _floorlog10 (double d);
 static double _pw10(int e);
-static _printf_types_en _istype (char c);
-static _printf_flags_en _isflag (char c);
+
 static int _inschar (_putc_out_t _out, char* dst, char c);
 static int _insnchar (_putc_out_t _out, char *dst, char c, int n);
-static int _insstring (_putc_out_t _out, char *dst, const char *psrc, int width);
-static int _insuint(_putc_out_t _out, char *dst, char lead, int width, unsigned int value);
-static int _insint (_putc_out_t _out, char *dst, char lead, int width, char sign, char min, int value);
-static int _inshex (_putc_out_t _out, char *dst, char lead, int width, unsigned char maj, unsigned int value);
-static int _inscoredouble (_putc_out_t _out, char *dst, char lead, int width, int frac, char sign, double value);
-static int _insfdouble (_putc_out_t _out, char *dst, char lead, int width, int frac, char sign, double value);
-static int _insedouble (_putc_out_t _out, char *dst, char lead, int width, int frac, char sign, double value);
+static int _insstring (_putc_out_t _out, char *dst, const char *src, int length);
+static int _insuint(_putc_out_t _out, char *dst, _io_frm_spec_t *fs, unsigned int value);
+static int _insint (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, char min, int value);
+static int _inshex (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, unsigned int value);
+static int _inscoredouble (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, double value);
+static int _insfdouble (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, double value);
+static int _insedouble (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, double value);
 
 
 
@@ -63,7 +48,6 @@ static int _insedouble (_putc_out_t _out, char *dst, char lead, int width, int f
 static inline void _shift_right (unsigned int *i) { *i >>= 1; }
 // Shift 1 bit to the left
 static inline void _shift_left (unsigned int *i) { *i <<= 1; }
-
 
 /*!
  * \brief
@@ -78,28 +62,32 @@ static inline void _shift_left (unsigned int *i) { *i <<= 1; }
  */
 static int _floorlog10 (double d)
 {
-   #define _max_dec_digits    1e18
    int lg=0;
    register unsigned long long tenb=1;
 
    if (d<=0)      // No Log10 for these numbers, return 0
       return 0;
    else if (d<1) {
-      while (1 > d) {
+      do {
          d *= 10;
          --lg;
-      }
+      } while (d < 1);
       return lg+1;
       /*!
        * \note
        * Unfortunately here, we have to multiply the double.
        * A better solution to replace that is well appreciated.
        */
-   } else {
-      if (d < _max_dec_digits) {
-         while (tenb < d)  { tenb *= 10; ++lg; }
+   }
+   else {
+      if (d < _IO_MAX_FLOAT) {
+         while (tenb < d) {
+            tenb *= 10;
+            ++lg;
+         }
          return lg-1;
-      } else {
+      }
+      else {
          return -1;
       }
       /*!
@@ -109,7 +97,6 @@ static int _floorlog10 (double d)
        *  we do the loop with floating point arithmetic. sorry :(
        */
    }
-   #undef _max_dec_digits
 }
 
 
@@ -136,40 +123,6 @@ static double _pw10(int e)
 }
 
 
-/*!
- * \brief
- *    Find if the current character is a type conversion
- *    character.
- *
- * \param   The character to check.
- * \return  The type in an enum form.
- */
-static _printf_types_en _istype (char c)
-{
-   int i;
-   for (i=0 ; i<_PRINTF_NUM_OF_TYPES ; ++i)
-      if (pr_let[i] == c)
-         return (_printf_types_en)(i);
-   return NO_TYPE;
-}
-
-/*!
- * \brief
- *    Find if the current character is a flag character.
- *
- * \param   The character to check.
- * \return  The flag in an enum form.
- */
-static _printf_flags_en _isflag (char c)
-{
-   int i;
-   for (i=0 ; i<_PRINTF_NUM_OF_FLAGS ; ++i)
-      if (pr_flags[i] == c)
-         return (_printf_flags_en)(i);
-   return NO_FLAG;
-}
-
-
 /*
  * Tailoring functions
  */
@@ -178,7 +131,7 @@ static _printf_flags_en _isflag (char c)
  * \brief
  *    inster a char to user defined output function
  */
-int _putc_usr (char *dst, const char c)
+inline int _putc_usr (char *dst, const char c)
 {
    return __putchar (c);
 }
@@ -187,7 +140,7 @@ int _putc_usr (char *dst, const char c)
  * \brief
  *    insert a char to destination string.
  */
-int _putc_dst (char *dst, const char c)
+inline int _putc_dst (char *dst, const char c)
 {
    *dst = c;
    return 1;
@@ -197,9 +150,9 @@ int _putc_dst (char *dst, const char c)
  * \brief
  *    insert a char to file output function
  */
-int _putc_fil (char *dst, const char c)
+inline int _putc_fil (char *dst, const char c)
 {
-   return 1;
+   return 0;
 }
 
 
@@ -245,7 +198,7 @@ static int _insnchar(_putc_out_t _out, char *dst, char c, int n)
  * \param  width  Minimum string width, or 0 for default.
  * \return The size of the written
  */
-static int _insstring(_putc_out_t _out, char *dst, const char *src, int width)
+static int _insstring(_putc_out_t _out, char *dst, const char *src, int length)
 {
    int n=0;
 
@@ -253,8 +206,8 @@ static int _insstring(_putc_out_t _out, char *dst, const char *src, int width)
    for (n=0 ; *src ; ++n)
       _out (dst++, *src++);
    // Send remaining - if any
-   if (width && width>n)
-      n += _insnchar (_out, dst, ' ', width-n);
+   if (length && length>n)
+      n += _insnchar (_out, dst, ' ', length-n);
    return n;
 }
 
@@ -281,7 +234,7 @@ static int _insstring(_putc_out_t _out, char *dst, const char *src, int width)
  *
  * \return The number of written characters.
  */
-static int _insuint(_putc_out_t _out, char *dst, char lead, int width, unsigned int value)
+static int _insuint(_putc_out_t _out, char *dst, _io_frm_spec_t *fs, unsigned int value)
 {
    int num = 0, i, j;
    unsigned int bf[PF_MAX_INT_DIGITS];
@@ -295,8 +248,8 @@ static int _insuint(_putc_out_t _out, char *dst, char lead, int width, unsigned 
    }
 
    // Write leading characters
-   for (j=i ; j<width ; ++j)
-      num += _inschar (_out, dst++, lead);
+   for (j=i ; j<fs->width ; ++j)
+      num += _inschar (_out, dst++, fs->flags.lead);
 
    // Write actual numbers
    for ( ; i ; --i)
@@ -330,17 +283,17 @@ static int _insuint(_putc_out_t _out, char *dst, char lead, int width, unsigned 
  *
  * \return The number of written characters.
  */
-static int _insint (_putc_out_t _out, char *dst, char lead, int width, char sign, char min, int value)
+static int _insint (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, char min, int value)
 {
    int num = 0, i, j;
    int bf[PF_MAX_INT_DIGITS];
-   unsigned int absv, minus=min, scr;
+   unsigned int absv, negative=min, scr;
    void (*pshift) (unsigned int*);
 
    // Compute absolute value
    if (value < 0)
    {
-      minus=1;
+      negative=1;
       absv = -value;
    }
    else
@@ -353,13 +306,15 @@ static int _insint (_putc_out_t _out, char *dst, char lead, int width, char sign
       if (!bf[++i])
          break;
    }
-   j = i + (sign || minus);
+   j = i + (fs->flags.plus || negative);
 
    /*
     *  Decide to run lead characters code or sign code first.
     */
-   if (lead == '0')  pshift = _shift_left;
-   else              pshift = _shift_right;
+   if (fs->flags.lead == '0')
+      pshift = _shift_left;
+   else
+      pshift = _shift_right;
 
    for (scr=0x04 ; scr ; )
    {
@@ -369,16 +324,16 @@ static int _insint (_putc_out_t _out, char *dst, char lead, int width, char sign
          case 0x01:
          case 0x08:
             // Write sign
-            if (minus)
+            if (negative)
                num += _inschar (_out, dst++, '-');
-            else if (sign)
+            else if (fs->flags.plus)
                num += _inschar (_out, dst++, '+');
             break;
          case 0x02:
          case 0x10:
             // Write lead characters
-            for ( ; j<width ; ++j)
-               num += _inschar (_out, dst++, lead);
+            for ( ; j<fs->width ; ++j)
+               num += _inschar (_out, dst++, fs->flags.lead);
             break;
          default:
             scr = 0;
@@ -416,7 +371,7 @@ static int _insint (_putc_out_t _out, char *dst, char lead, int width, char sign
  *
  * \return  The number of char written
  */
-static int _inshex (_putc_out_t _out, char *dst, char lead, int width, unsigned char maj, unsigned int value)
+static int _inshex (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, unsigned int value)
 {
    int num = 0, i, j;
    unsigned int bf[PF_MAX_INT_DIGITS];
@@ -430,15 +385,15 @@ static int _inshex (_putc_out_t _out, char *dst, char lead, int width, unsigned 
    }
 
    // Write lead characters
-   for (j=i ; j<width ; ++j)
-      num += _inschar (_out, dst++, lead);
+   for (j=i ; j<fs->width ; ++j)
+      num += _inschar (_out, dst++, fs->flags.lead);
 
    // Write actual numbers
    for ( ; i ; --i)
    {
       if ((bf[i-1] & 0xF) < 0xA)
          num += _inschar (_out, dst++, (bf[i-1] & 0xF) + '0');
-      else if (maj)
+      else if (fs->type == INT_X)
          num += _inschar (_out, dst++, ((bf[i-1] & 0xF) - 0xA) + 'A');
       else
          num += _inschar (_out, dst++, ((bf[i-1] & 0xF) - 0xA) + 'a');
@@ -461,30 +416,31 @@ static int _inshex (_putc_out_t _out, char *dst, char lead, int width, unsigned 
  *
  * \return  The number of char written
  */
-static int _inscoredouble (_putc_out_t _out, char *dst, char lead, int width, int frac, char sign, double value)
+static int _inscoredouble (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, double value)
 {
-   int num, fr_num, n_int, n_dec, minus=0;
+   int num, fr_num, n_int, n_dec, negative=0;
    double absv, r_absv, scrl;
+   _io_frm_spec_t n_int_fs, n_dec_fs;
 
    if (value<0) {
-      minus = 1;
+      negative = 1;
       absv = -value;
    } else
       absv = value;
 
    // fix width
-   if (!width)
-      width = PF_WIDTH;
+   if (!fs->width)
+      fs->width = PF_WIDTH;
    // fix frac
-   if (!frac)
-      frac = PF_FRACTIONAL_WIDTH;
+   if (!fs->frac)
+      fs->frac = PF_FRACTIONAL_WIDTH;
 
-   // Calculate the parts
+   // Calculate the n_int and n_dec parts
    n_int = (int)absv;
-   scrl = _pw10 (frac);    // Calculate the scroll multiplier
-   absv -= n_int;          // Cut the decimal part
-   absv *= scrl;           // Scroll the fractional part frac positions to the left
-   r_absv = round (absv);  // Round the scrolled frac part
+   scrl = _pw10 (fs->frac);   // Calculate the scroll multiplier
+   absv -= n_int;             // Cut the decimal part
+   absv *= scrl;              // Scroll the fractional part frac positions to the left
+   r_absv = round (absv);     // Round the scrolled frac part
    if (r_absv >= scrl)
    {  // The rounding result, give as an integer "reminder"
       ++n_int;
@@ -495,17 +451,30 @@ static int _inscoredouble (_putc_out_t _out, char *dst, char lead, int width, in
    /*
     * Write the number
     */
-   num = _insint (_out, dst, lead, width-frac-1, sign, minus, n_int); // Insert the decimal part
+   // Prepare n_int
+   n_int_fs.width = fs->width-fs->frac-1;
+   n_int_fs.frac = 0;
+   n_int_fs.flags.lead = fs->flags.lead;
+   n_int_fs.flags.plus = fs->flags.plus;
+   n_int_fs.flags.minus = n_int_fs.flags.sharp = 0;
+   // Prepare n_dec
+   n_dec_fs.width = fs->frac;
+   n_dec_fs.frac = 0;
+   n_dec_fs.flags.lead ='0';
+   n_dec_fs.flags.plus = n_int_fs.flags.minus = n_int_fs.flags.sharp = 0;
+
+   num = _insint (_out, dst, &n_int_fs, negative, n_int); // Insert the decimal part
    dst += num;
+
    num += _inschar (_out, dst++, '.');  // Insert point
 
-   fr_num = _insint (_out, dst, '0', frac, 0, 0, n_dec);  // Insert fractional
+   fr_num = _insint (_out, dst, &n_dec_fs, 0, n_dec);  // Insert fractional
    num += fr_num;          // Update counters
    dst += fr_num;
 
    // Write trailing zeros, if any
-   if (fr_num < frac)
-      num += _insnchar (_out, dst, '0', frac-fr_num);
+   if (fr_num < fs->frac)
+      num += _insnchar (_out, dst, '0', fs->frac-fr_num);
    return num;
 }
 
@@ -524,14 +493,14 @@ static int _inscoredouble (_putc_out_t _out, char *dst, char lead, int width, in
  *
  * \return  The number of char written
  */
-static int _insfdouble(_putc_out_t _out, char *dst, char lead, int width, int frac, char sign, double value)
+static int _insfdouble(_putc_out_t _out, char *dst, _io_frm_spec_t *fs, double value)
 {
    if ( isinf (value) )          // INF
       return _insstring(_out, dst, "INF", 0);
    else if ( isnan (value) )     // NAN
       return _insstring(_out, dst, "NaN", 0);
    else
-      return _inscoredouble (_out, dst, lead, width, frac, sign, value);
+      return _inscoredouble (_out, dst, fs, value);
    return 0;
 }
 
@@ -552,11 +521,12 @@ static int _insfdouble(_putc_out_t _out, char *dst, char lead, int width, int fr
  *
  * \return  The number of char written
  */
-static int _insedouble(_putc_out_t _out, char *dst, char lead, int width, int frac, char sign, double value)
+static int _insedouble(_putc_out_t _out, char *dst, _io_frm_spec_t *fs, double value)
 {
    int exp=0, num=0;
    char exp_str[6];
-   int sexp, minus=0;
+   int sexp, negative=0;
+   _io_frm_spec_t exp_fs;
 
    if ( isinf (value) )          // INF
       return _insstring(_out, dst, "INF", 0);
@@ -566,17 +536,20 @@ static int _insedouble(_putc_out_t _out, char *dst, char lead, int width, int fr
       return _insstring(_out, dst, "0.0e0", 0);
    else
    {
-      if (value <0)
-      {
-         minus = 1;
+      if (value < 0) {
+         negative = 1;
          exp = _floorlog10(-value);
-         if (exp < 0)
+         if (value <-1 && (exp == -1 || exp > _IO_MAX_FLOAT_EXP))
             return _insstring(_out, dst, "-BIG", 0);
+         if (value >-1 && exp < _IO_MIN_FLOAT_EXP)
+            return _insstring(_out, dst, "LIM-0", 0);
       }
       else {
          exp = _floorlog10(value);
-         if (exp < 0)
+         if (value >1 && (exp == -1 || exp > _IO_MAX_FLOAT_EXP))
             return _insstring(_out, dst, "+BIG", 0);
+         if (value <1 && exp < _IO_MIN_FLOAT_EXP)
+            return _insstring(_out, dst, "LIM+0", 0);
       }
 
       value = value / _pw10(exp);
@@ -585,16 +558,20 @@ static int _insedouble(_putc_out_t _out, char *dst, char lead, int width, int fr
        */
 
       // Prepare exponential and use _putc_dst() for that.
+      exp_fs.width = exp_fs.frac = 0;
+      exp_fs.flags.lead = ' ';
+      exp_fs.flags.plus = 1;
+      exp_fs.flags.minus = exp_fs.flags.sharp = 0;
       sexp = _inschar (_putc_dst, exp_str, 'e');   // Insert e
-      sexp += _insint (_putc_dst, &exp_str[1], ' ', 0, 1, 0, exp);
+      sexp += _insint (_putc_dst, &exp_str[1], &exp_fs, 0, exp);
       exp_str[sexp]=0;
 
 
-      if (!width)  width = PF_WIDTH;      // fix width
-      if (!frac)   frac = PF_FRACTIONAL_WIDTH; // fix frac
-      if (width < sexp+frac+2+(sign || minus))
-         width = sexp+frac+2+(sign || minus);
-      width -= sexp;       // significant's width
+      if (!fs->width)  fs->width = PF_WIDTH;      // fix width
+      if (!fs->frac)   fs->frac = PF_FRACTIONAL_WIDTH; // fix frac
+      if (fs->width < sexp+fs->frac+2+(fs->flags.plus || negative))
+         fs->width = sexp+fs->frac+2+(fs->flags.plus || negative);
+      fs->width -= sexp;       // significant's width
       /*
        * Calculate width from users request (full number width)
        *
@@ -605,7 +582,7 @@ static int _insedouble(_putc_out_t _out, char *dst, char lead, int width, int fr
        */
 
       // Insert results to string
-      num = _inscoredouble (_out, dst, lead, width, frac, sign, value);
+      num = _inscoredouble (_out, dst, fs, value);
       dst += num;
       num += _insstring(_out, dst, exp_str, 0);
       return num;
@@ -617,119 +594,63 @@ static int _insedouble(_putc_out_t _out, char *dst, char lead, int width, int fr
  * ============================ Public Functions ============================
  */
 
+
 /*!
  * \brief
  *    Stores the result of a formatted string into another string. Format
  *    arguments are given in a va_list instance.
- *    First lexicon analysis is made to the pfrm
+ *    First lexicon analysis is made to the frm
  *    Second the proper conversion function is called
  *    The procedure is continued until we reach \see PF_MAX_STRING_SIZE
  *    or NULL character..
  *
+ * \param _out    callback function to use for output streaming
  * \param dst     Destination string (if any).
- * \param pfrm    Format string.
+ * \param frm     Format string.
  * \param ap      Argument list.
  *
  * \return  The number of characters written.
  */
-int vsxprintf(_putc_out_t _out, char *dst, const char *pfrm, va_list ap)
+int vsxprintf(_putc_out_t _out, char *dst, char *frm, __VALIST ap)
 {
-   char lead=' ', sign=0;           // Supported flags
-   unsigned char width=0, frac=0;
-   int num=0, size=0, arg=1;        // argument count starts with 1.
-   _printf_types_en ct = NO_TYPE;   // Type holder
-   _printf_flags_en cf = NO_FLAG;   // Flag holder
-   _double_un_t du;                 // Bug workaround
-   _parser_st_t  state;
+   _io_frm_obj_t  obj;              // object place holder
+   _io_frm_obj_type_en  obj_type;   // object type place holder
+   //_double_un_t du;                 // Bug workaround
+   char* dst_start = dst;           // Destination starting address
 
-   // Clear the string
-   //_out (dst, 0);
-
-   /*
-    * Parse string
-    * Note: Try to parse all the libc/newlib valid conversions and to
-    *       ignore the not supported.
-    */
-   state = ST_STREAM;
-   while (*pfrm != 0)
-   {
-      switch (state)
-      {
-         case ST_STREAM:
-            if (IS_ALL_BUT_PC (*pfrm)) {
-               _out (dst++, *pfrm);  ++size;
-            }
-            else
-               state = ST_PC;
+   while (*frm != 0) {
+      frm += _io_read (frm, &obj, &obj_type);
+      switch (obj_type) {
+         case _IO_FRM_STREAM:
+            _out (dst++, obj.character);
             break;
-         case ST_PC:
-            if ((ct = _istype (*pfrm)) != NO_TYPE)
-               state = ST_TYPE;
-            else if (IS_1TO9(*pfrm)) {
-               state = ST_WIDTH;
-               width = (width*10) + *pfrm-'0';
-            }
-            else if ((cf = _isflag (*pfrm)) != NO_FLAG)
-               state = ST_FLAG;
-            else if (IS_DOT (*pfrm))
-               state = ST_FRAC;
-            else if (IS_PC (*pfrm)) {
-               state = ST_STREAM;
-               _out (dst++, *pfrm);  ++size;
-            }
-            break;
-         case ST_FLAG:
-            if (cf == FLAG_PLUS)       sign = 1;
-            else if (cf == FLAG_SPACE) lead = ' ';
-            else if (cf == FLAG_ZERO)  lead = '0';
-
-            if (IS_1TO9(*pfrm)) {
-               state = ST_WIDTH;
-               width = (width*10) + *pfrm-'0';
-            }
-            else if ((ct = _istype (*pfrm)) != NO_TYPE)
-               state = ST_TYPE;
-            else if ((cf = _isflag (*pfrm)) != NO_FLAG)
-               ;
-            break;
-         case ST_WIDTH:
-            if (IS_0TO9(*pfrm))
-               width = (width*10) + *pfrm-'0';
-            else if ((ct = _istype (*pfrm)) != NO_TYPE)
-               state = ST_TYPE;
-            else if (IS_DOT (*pfrm))
-               state = ST_FRAC;
-            break;
-         case ST_FRAC:
-            if (IS_0TO9(*pfrm))
-               frac = (frac*10) + *pfrm-'0';
-            else if ((ct = _istype (*pfrm)) != NO_TYPE)
-               state = ST_TYPE;
-            break;
-         case ST_TYPE:
-         #ifndef PRINTF_TINY
-            ++arg;   //We have next argument
-            if (ct == INT_d || ct == INT_i || ct == INT_l)
-               num = _insint(_out, dst, lead, width, sign, 0, va_arg(ap, signed int));
-            else if (ct == INT_u)
-               num = _insuint(_out, dst, lead, width, va_arg(ap, unsigned int));
-            else if (ct == INT_x || ct == INT_o)
-               num = _inshex(_out, dst, lead, width, 0, va_arg(ap, unsigned int));
-            else if (ct == INT_X)
-               num = _inshex(_out, dst, lead, width, 1, va_arg(ap, unsigned int));
-            else if (ct == INT_c)
-               num = _inschar(_out, dst, va_arg(ap, unsigned int));
-            else if (ct == INT_s)
-               num = _insstring(_out, dst, va_arg(ap, char *), width);
-            else if (ct == FL_f || ct == FL_g || ct == FL_G || ct == FL_L)
+         case _IO_FRM_SPECIFIER:
+            if (obj.frm_specifier.type == INT_d ||
+                obj.frm_specifier.type == INT_i ||
+                obj.frm_specifier.type == INT_l)
+               dst += _insint(_out, dst, &obj.frm_specifier, 0, va_arg(ap, signed int));
+            else if (obj.frm_specifier.type == INT_u)
+               dst += _insuint(_out, dst, &obj.frm_specifier, va_arg(ap, unsigned int));
+            else if (obj.frm_specifier.type == INT_x ||
+                     obj.frm_specifier.type == INT_X ||
+                     obj.frm_specifier.type == INT_o)
+               dst += _inshex(_out, dst, &obj.frm_specifier, va_arg(ap, unsigned int));
+            else if (obj.frm_specifier.type == INT_c)
+               dst += _inschar(_out, dst, va_arg(ap, unsigned int));
+            else if (obj.frm_specifier.type == INT_s)
+               dst += _insstring(_out, dst, va_arg(ap, char *), obj.frm_specifier.width);
+            else if (obj.frm_specifier.type == FL_f ||
+                     obj.frm_specifier.type == FL_g ||
+                     obj.frm_specifier.type == FL_G ||
+                     obj.frm_specifier.type == FL_L)
             {
                /*
                 * if (!(arg%2))
                 *    va_arg(ap, unsigned int);
                 * This works only if the call with double has more than one argument :(
                 */
-               du.i[0] = va_arg(ap, unsigned int);
-               du.i[1] = va_arg(ap, unsigned int);
+               //du.i[0] = va_arg(ap, unsigned int);
+               //du.i[1] = va_arg(ap, unsigned int);
                /*
                 * XXX: BUG(s) workaround
                 * All printf with double calls MUST HAVE ONLY ONE ARGUMENT, THE double.
@@ -737,17 +658,18 @@ int vsxprintf(_putc_out_t _out, char *dst, const char *pfrm, va_list ap)
                 * 2) va_arg(ap, double) comes in odd argument number fails cause it skips 4bytes before reading.
                 * Someone have miss-correct a bug i think.
                 */
-               num = _insfdouble (_out, dst, lead, width, frac, sign, du.d);
+               dst += _insfdouble (_out, dst, &obj.frm_specifier, va_arg(ap, double));
             }
-            else if (ct == FL_e || ct == FL_E)
+            else if (obj.frm_specifier.type == FL_e ||
+                     obj.frm_specifier.type == FL_E)
             {
                /*
                 * if (!(arg%2))
                 *    va_arg(ap, unsigned int);
                 * This works only if the call with double has more than one argument :(
                 */
-                 du.i[0] = va_arg(ap, unsigned int);
-                 du.i[1] = va_arg(ap, unsigned int);
+                 //du.i[0] = va_arg(ap, unsigned int);
+                 //du.i[1] = va_arg(ap, unsigned int);
                  /*
                   * XXX: BUG(s) workaround
                   * All printf with double calls MUST HAVE ONLY ONE ARGUMENT, THE double.
@@ -755,56 +677,17 @@ int vsxprintf(_putc_out_t _out, char *dst, const char *pfrm, va_list ap)
                   * 2) va_arg(ap, double) comes in odd argument number fails cause it skips 4bytes before reading.
                   * Someone have miss-correct a bug i think.
                   */
-                 num = _insedouble (_out, dst, lead, width, frac, sign, du.d);
+                 dst += _insedouble (_out, dst, &obj.frm_specifier, va_arg(ap, double));
             }
             else  // eat the wrong type to unsigned int
-               num = _insuint(_out, dst, lead, width, va_arg(ap, unsigned int));
-         #else
-            ++arg;   //We have next argument
-            if (ct == INT_d || ct == INT_i || ct == INT_l)
-               num = _insint(_out, dst, lead, width, sign, 0, va_arg(ap, signed int));
-            else if (ct == INT_u || ct == INT_x || ct == INT_o || ct == INT_X)
-               num = _insuint(_out, dst, lead, width, va_arg(ap, unsigned int));
-            else if (ct == INT_c)
-               num = _inschar(_out, dst, va_arg(ap, unsigned int));
-            else if (ct == INT_s)
-               num = _insstring(_out, dst, va_arg(ap, char *), width);
-            else if (ct == FL_f || ct == FL_g || ct == FL_G || ct == FL_L || ct == FL_e || ct == FL_E)
-            {
-               if (!(arg%2))
-                  va_arg(ap, unsigned int);
-               /*
-                * This works only if the call with double has more than one argument :(
-                */
-               du.i[0] = va_arg(ap, unsigned int);
-               du.i[1] = va_arg(ap, unsigned int);
-               /*
-                * XXX: BUG(s) workaround
-                * All printf with double calls MUST HAVE ONLY ONE ARGUMENT, THE double.
-                * 1) When double argument comes in even number it has 4bytes crap in front of it.
-                * 2) va_arg(ap, double) comes in odd argument number fails cause it skips 4bytes before reading.
-                * Someone have miss-correct a bug i think.
-                */
-               num = _inscoredouble (_out, dst, lead, width, frac, sign, du.d);
-            }
-            else  // eat the wrong type to unsigned int
-               num = _insuint(_out, dst, lead, width, va_arg(ap, unsigned int));
-         #endif   //#ifndef PRINTF_TINY
-            // Clear supported flags
-            width = sign = frac = 0;
-            lead = ' ';
-            state = ST_STREAM;
-
-            // update pointers
-            dst += num;
-            size += num;
+               dst += _insuint(_out, dst, &obj.frm_specifier, va_arg(ap, unsigned int));
+            break;
+         case _IO_FRM_TERMINATOR:
+            _out (dst++, 0);
+            break;
+         case _IO_FRM_CRAP:
             break;
       }
-      if (state != ST_TYPE)
-         ++pfrm;
    }
-
-   // NULL-terminated (final \0 is not counted)
-   _out (dst, 0);
-   return size;
+   return (int)(dst - dst_start);
 }
