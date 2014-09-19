@@ -56,7 +56,7 @@ int puts(const char *dst)
 inline int vprintf(const char *frm, __VALIST ap)
 {
    // Forward call NO buffer ;-)
-   return vsxprintf (_putc_usr, (char*)0, (char *)frm, ap);
+   return vsxprintf (_putc_usr, (char *)0, (char *)frm, ap);
 }
 
 /*!

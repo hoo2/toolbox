@@ -32,17 +32,27 @@ extern "C" {
 #include <std/_base_io.h>
 
 /*!
+ * Callback read mode type.
+ */
+typedef enum
+{
+   _GETC_HEAD=0,     /*!< Return the head character and stay at head */
+   _GETC_READ,       /*!< Return the head character and go to next one */
+   _GETC_NEXT        /*!< Return the next character and stay to next one */
+}_io_getc_read_en;
+
+/*!
  * callback function pointer to use in:
  *
  *  1) user's __getchar ()
  *  2) source string for sscanf family
  *  3) source file for fscanf family
  */
-typedef int (*_getc_in_t) (const char *);
+typedef int (*_getc_in_t) (const char *, _io_getc_read_en);
 
-int _getc_usr (const char *src);  /*!< back end for user's device stdin */
-int _getc_src (const char *src);  /*!< back end for sscanf family */
-int _getc_fil (const char *src);  /*!< back end for file fscanf family */
+int _getc_usr (const char *src, _io_getc_read_en mode);  /*!< back end for user's device stdin */
+int _getc_src (const char *src, _io_getc_read_en mode);  /*!< back end for sscanf family */
+int _getc_fil (const char *src, _io_getc_read_en mode);  /*!< back end for file fscanf family */
 
 /*
  * ============================ Public Functions ============================

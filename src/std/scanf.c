@@ -70,7 +70,7 @@ char* gets (char *dst)
 inline int vscanf (const char *frm, __VALIST ap)
 {
    // Forward call
-   return vsxscanf (_getc_usr, (char*)0, (char *)frm, ap);
+   return vsxscanf (_getc_usr, (char *)0, (char *)frm, ap);
 }
 
 /*!
