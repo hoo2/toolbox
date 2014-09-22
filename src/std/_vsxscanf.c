@@ -23,13 +23,17 @@
  */
 #include <std/_vsxscanf.h>
 
-static int      _isspace (char c);
-static int       _isterm (char c);
-static int  _stream_getc (_getc_in_t _in, const char *src);
-static int  _stream_copy (_getc_in_t _in, const char *src, char *dst);
+static int         _isspace (char c);
+static int          _isterm (char c);
+static int _stream_getfirst (_getc_in_t _in, const char *src, char **psrc);
+static int     _stream_copy (_getc_in_t _in, const char *src, char **psrc, char *dst);
 
-static int   _read_char (_getc_in_t _in, const char *src, char *ch);
-static int _read_string (_getc_in_t _in, const char *src, char *dst);
+static int   _read_char (_getc_in_t _in, const char *src, char **psrc, char *ch);
+static int _read_string (_getc_in_t _in, const char *src, char **psrc, char *dst);
+static int   _read_uint (_getc_in_t _in, const char *src, char **psrc, unsigned int *dst);
+static int    _read_int (_getc_in_t _in, const char *src, char **psrc, int *dst);
+static int    _read_hex (_getc_in_t _in, const char *src, char **psrc, unsigned int *dst);
+static int _read_ffloat (_getc_in_t _in, const char *src, char **psrc, float *dst);
 
 
 /*
@@ -85,14 +89,16 @@ static int _isterm (char c)
  *
  * \return        The non-whitespace character from the stream
  */
-static int _stream_getc (_getc_in_t _in, const char *src)
+static int _stream_getfirst (_getc_in_t _in, const char *src, char **psrc)
 {
    int ch;
    // Search for the first non-whitespace character
-   ch = _in (src, _GETC_HEAD);
+   ch = _in (src, (char**)&src, _GETC_HEAD);
    while ( _isspace (ch) && !_isterm (ch) )
-      ch = _in (src, _GETC_NEXT);
+      ch = _in (src, (char**)&src, _GETC_NEXT);
 
+   // Update caller's source pointer
+   *psrc = (char *)src;
    return ch;
 }
 
@@ -107,17 +113,18 @@ static int _stream_getc (_getc_in_t _in, const char *src)
  *
  * \return        The number of non-whitespace character from the stream
  */
-static int _stream_copy (_getc_in_t _in, const char *src, char *dst)
+static int _stream_copy (_getc_in_t _in, const char *src, char **psrc, char *dst)
 {
    int ch, n=0;
    // Search for the first whitespace character
-   ch = _in (src, _GETC_HEAD);
+   ch = _in (src, (char**)&src, _GETC_HEAD);
    while ( ! (_isspace (ch) || _isterm (ch)) ) {
       *dst++ = ch;
-      ch = _in (src, _GETC_NEXT);
+      ch = _in (src, (char**)&src, _GETC_NEXT);
       ++n;
    }
-   *dst = 0;   // Destination string termination
+   *dst = 0;               // Destination string termination
+   *psrc = (char *)src;    // Update caller source pointer
    return n;
 }
 
@@ -125,7 +132,7 @@ static int _stream_copy (_getc_in_t _in, const char *src, char *dst)
  * Tailoring functions
  */
 
-inline int _getc_usr (const char *src, _io_getc_read_en mode)
+inline int _getc_usr (const char *src, char **psrc, _io_getc_read_en mode)
 {
    static int buffer, ret=0;
 
@@ -138,16 +145,18 @@ inline int _getc_usr (const char *src, _io_getc_read_en mode)
       case _GETC_NEXT:  return buffer = __getchar();
    }
 }
-inline int _getc_src (const char *src, _io_getc_read_en mode)
+inline int _getc_src (const char *src, char **psrc, _io_getc_read_en mode)
 {
+   int ret;
+
    switch (mode) {
       case _GETC_HEAD:  return *src;
       default:
-      case _GETC_READ:  return *src++;
-      case _GETC_NEXT:  return *++src;
+      case _GETC_READ:  ret = *src; ++*psrc; return ret;
+      case _GETC_NEXT:  ++*psrc; return *++src;
    }
 }
-inline int _getc_fil (const char *src, _io_getc_read_en mode)
+inline int _getc_fil (const char *src, char **psrc, _io_getc_read_en mode)
 {
    return 0;
 }
@@ -165,13 +174,14 @@ inline int _getc_fil (const char *src, _io_getc_read_en mode)
  *
  * \param   _in   Callback function to use for input streaming
  * \param   src   Destination string (if any).
+ * \param  psrc   Caller's source string pointer address
  * \param   ch    The pointer to return the character
  *
  * \return        The number of input stream characters read.
  */
-static int _read_char (_getc_in_t _in, const char *src, char *ch)
+static int _read_char (_getc_in_t _in, const char *src, char **psrc, char *ch)
 {
-   *ch = _in (src, _GETC_READ);
+   *ch = _in (src, psrc, _GETC_READ);
    return 1;
 }
 
@@ -181,13 +191,15 @@ static int _read_char (_getc_in_t _in, const char *src, char *ch)
  *
  * \param   _in   Callback function to use for input streaming
  * \param   src   Destination string (if any).
+ * \param  psrc   Caller's source string pointer address
  * \param   dst   The pointer to return the string
  *
  * \return        The number of input stream characters read.
  */
-static int _read_string (_getc_in_t _in, const char *src, char *dst)
+static int _read_string (_getc_in_t _in, const char *src, char **psrc, char *dst)
 {
-   return _stream_copy (_in, src, dst);
+   // Just forward call to _stream_copy()
+   return _stream_copy (_in, src, psrc, dst);
 }
 
 /*!
@@ -196,16 +208,232 @@ static int _read_string (_getc_in_t _in, const char *src, char *dst)
  *
  * \param   _in   Callback function to use for input streaming
  * \param   src   Destination string (if any).
- * \param   obj   The format specifier object
- * \param   dst   The pointer to return the string
+ * \param  psrc   Caller's source string pointer address
+ * \param   dst   The pointer to return the number
  *
  * \return        The number of input stream characters read.
  */
-static int _read_uint (_getc_in_t _in, const char *src, _io_frm_obj_t *obj, char *dst)
+static int _read_uint (_getc_in_t _in, const char *src, char **psrc, unsigned int *dst)
 {
-   //_strcpy_tw (in, dst);
-   return 0;
+   char num_str[_IO_MAX_INT_DIGITS];      // number string
+   unsigned int result = 0;               // The converted value
+   int str_pos, num_pos;   // fake pointers
+   int n = 0;              // The read characters
+   char got_crap=0;        // Got crap flag
+
+   // Init pointers
+   num_pos = 1;
+   str_pos = _stream_copy (_in, src, psrc, num_str) - 1;
+
+   // Conversion loop
+   do {
+      if ( got_crap && IS_0TO9 (num_str[str_pos]) ) {
+         // Start over
+         got_crap = 0;
+         num_pos = 1;
+         result = (num_str[str_pos] - '0');
+      }
+      else if ( !got_crap && IS_0TO9 (num_str[str_pos]) )
+         result += (num_str[str_pos] - '0') * num_pos;
+      else {
+         // crap, start over
+         got_crap = 1;
+      }
+      // update pointers
+      num_pos *= 10;
+      ++n;
+   } while (str_pos--);
+
+   *dst = result;
+   return n;
 }
+
+/*!
+ * \brief
+ *    Convert the signed int from input stream
+ *
+ * \param   _in   Callback function to use for input streaming
+ * \param   src   Destination string (if any).
+ * \param  psrc   Caller's source string pointer address
+ * \param   dst   The pointer to return the number
+ *
+ * \return        The number of input stream characters read.
+ */
+static int _read_int (_getc_in_t _in, const char *src, char **psrc, int *dst)
+{
+   char num_str[_IO_MAX_INT_DIGITS];   // number string
+   int result = 0;                     // The converted value
+   int str_pos, num_pos;   // fake pointers
+   int n = 0;              // The read characters
+   int sign = 1;           // The sign, start positive
+   char got_crap=0;        // Got crap flag
+
+   // Init pointers
+   num_pos = 1;
+   str_pos = _stream_copy (_in, src, psrc, num_str) - 1;
+
+   // Conversion loop
+   do {
+      if ( got_crap && IS_0TO9 (num_str[str_pos]) ) {
+         // Start over
+         got_crap = 0;
+         num_pos = sign = 1;
+         result = (num_str[str_pos] - '0');
+      }
+      else if ( !got_crap && IS_0TO9 (num_str[str_pos]) )
+         result += (num_str[str_pos] - '0') * num_pos;
+      else if (!got_crap && IS_MINUS (num_str[str_pos]) )
+         sign *= -1;
+      else if (!got_crap && IS_PLUS (num_str[str_pos]) )
+         ;  // Do not change sign
+      else {
+         // crap, start over
+         got_crap = 1;
+      }
+      // update pointers
+      num_pos *= 10;
+      ++n;
+   } while (str_pos--);
+
+   *dst = result * sign;
+   return n;
+}
+
+/*!
+ * \brief
+ *    Convert the unsigned int (hexadimal) from input stream
+ *
+ * \param   _in   Callback function to use for input streaming
+ * \param   src   Destination string (if any).
+ * \param  psrc   Caller's source string pointer address
+ * \param   dst   The pointer to return the number
+ *
+ * \return        The number of input stream characters read.
+ */
+static int _read_hex (_getc_in_t _in, const char *src, char **psrc, unsigned int *dst)
+{
+   char num_str[_IO_MAX_INT_DIGITS];      // number string
+   unsigned int result = 0;               // The converted value
+   int str_pos, num_pos;   // fake pointers
+   int n = 0;              // The read characters
+   enum {NORMAL, _X, _0, CRAP} state = NORMAL;
+
+   // Init pointers
+   num_pos = 1;
+   str_pos = _stream_copy (_in, src, psrc, num_str) - 1;
+
+   // Conversion loop
+   do {
+      switch (state) {
+         default:
+         case NORMAL:
+            if ( IS_0TO9 (num_str[str_pos]) )
+               result += (num_str[str_pos] - '0') * num_pos;
+            else if ( IS_ATOF (num_str[str_pos]) )
+               result += (num_str[str_pos] - 'A' + 0x0A) * num_pos;
+            else if ( IS_aTOf (num_str[str_pos]) )
+               result += (num_str[str_pos] - 'a' + 0x0A) * num_pos;
+            else if (num_str[str_pos] == 'x')
+               state = _X;
+            else
+               state = CRAP;
+            break;
+         case _X:
+            if (num_str[str_pos] == '0')
+               state = _0;
+            else
+               state = CRAP;
+            break;
+         case _0:
+            // More character? CRAP
+            state = CRAP;
+            /*
+             * Do not break. Switch to CRAP NOW!!
+             */
+         case CRAP:
+            if ( IS_0TO9 (num_str[str_pos]) ) {
+               // Start over
+               state = NORMAL;
+               num_pos = 1;
+               result = (num_str[str_pos] - '0');
+            }
+            else if ( IS_ATOF (num_str[str_pos]) ) {
+               // Start over
+               state = NORMAL;
+               num_pos = 1;
+               result = (num_str[str_pos] - 'A' + 0x0A);
+            }
+            else if ( IS_aTOf (num_str[str_pos]) ) {
+               // Start over
+               state = NORMAL;
+               num_pos = 1;
+               result = (num_str[str_pos] - 'a' + 0x0A);
+            }
+            break;
+      }
+
+      // update pointers
+      num_pos *= 0x10;
+      ++n;
+   } while (str_pos--);
+
+   *dst = result;
+   return n;
+}
+
+/*!
+ * \brief
+ *    Convert the double from input stream
+ *
+ * \param   _in   Callback function to use for input streaming
+ * \param   src   Destination string (if any).
+ * \param  psrc   Caller's source string pointer address
+ * \param   dst   The pointer to return the number
+ *
+ * \return        The number of input stream characters read.
+ */
+static int _read_ffloat (_getc_in_t _in, const char *src, char **psrc, float *dst)
+{
+   char num_str[_IO_MAX_DOUBLE_WIDTH];    // number string
+   int n;                                 // The read characters
+   int f;                                 // fractional index counters
+   int n_dec;                             // Decimal part
+   float n_frac;                          // Fractional part
+   float frac_pos = 0.1;                  // Fractional pos/multiplier
+
+   // Get string
+   n = _stream_copy (_in, src, psrc, num_str);
+
+   // Find dot if any
+   for (f=0; f<_IO_MAX_DOUBLE_WIDTH; ++f) {
+      if ( IS_DOT (num_str[f]) )
+         break;
+   }
+
+   // Conversions
+   if (f != _IO_MAX_DOUBLE_WIDTH) {
+      // Fractional part conversion loop
+      ++f;
+      n_frac = 0;
+      do {
+         if ( IS_0TO9 (num_str[f]) )
+            n_frac += (num_str[f] - '0') * frac_pos;
+         else
+            break;
+         // update pointers
+         frac_pos *= 0.1;
+         ++f;
+      } while (num_str[f] && f<_IO_MAX_DOUBLE_WIDTH);
+   }
+   _read_int (_getc_src, num_str, (char **)&num_str, &n_dec);
+
+   if (n_dec<0)
+      *dst = n_dec - n_frac;
+   else
+      *dst = n_dec + n_frac;
+   return n;
+}
+
 /*
  * ============================ Public Functions ============================
  */
@@ -233,6 +461,7 @@ int vsxscanf (_getc_in_t _in, const char *src, const char *frm, __VALIST ap)
    _io_frm_obj_t  obj;              // object place holder
    _io_frm_obj_type_en  obj_type;   // object type place holder
    int arg=0;                       // Number of parsed arguments
+   int ch=0;
 
    while (*frm != 0) {
       // Read the format string and skip spaces
@@ -243,53 +472,48 @@ int vsxscanf (_getc_in_t _in, const char *src, const char *frm, __VALIST ap)
          else if (!_isspace (obj.character))
             break;
       }
+      // Skip source string's spaces
+      ch = _stream_getfirst (_in, src, (char**)&src);
 
       // Dispatch based on object type
       switch (obj_type) {
          case _IO_FRM_STREAM:
-            if (obj.character != _stream_getc (_in, src)) {
+            if (obj.character != ch) {
                // Matching error
                return arg;
             }
             // Discard matching character
-            _in (src, _GETC_NEXT);
+            _in (src, (char**)&src, _GETC_NEXT);
             break;
 
          case _IO_FRM_SPECIFIER:
             if (obj.frm_specifier.type == INT_d ||
                 obj.frm_specifier.type == INT_i ||
                 obj.frm_specifier.type == INT_l)
-               ;//arg += _insint(_out, dst, &obj.frm_specifier, 0, _va_arg(ap, signed int*));
+               _read_int (_in, src, (char**)&src, va_arg(ap, int*));
             else if (obj.frm_specifier.type == INT_u)
-               ;//arg += _insuint(_out, dst, &obj.frm_specifier, va_arg(ap, unsigned int));
+               _read_uint (_in, src, (char**)&src, va_arg(ap, unsigned int*));
             else if (obj.frm_specifier.type == INT_x ||
                      obj.frm_specifier.type == INT_X ||
                      obj.frm_specifier.type == INT_o)
-               ;//arg += _inshex(_out, dst, &obj.frm_specifier, va_arg(ap, unsigned int));
+               _read_hex (_in, src, (char**)&src, va_arg(ap, unsigned int*));
             else if (obj.frm_specifier.type == INT_c)
-               _read_char (_in, src, va_arg(ap, char*));
+               _read_char (_in, src, (char**)&src, va_arg(ap, char*));
             else if (obj.frm_specifier.type == INT_s)
-               _read_string (_in, src, va_arg(ap, char*));
+               _read_string (_in, src, (char**)&src, va_arg(ap, char*));
             else if (obj.frm_specifier.type == FL_f ||
                      obj.frm_specifier.type == FL_g ||
                      obj.frm_specifier.type == FL_G ||
                      obj.frm_specifier.type == FL_L)
-               ;//arg += _insfdouble (_out, dst, &obj.frm_specifier, va_arg(ap, double)); // XXX
+               _read_ffloat (_in, src, (char**)&src, va_arg(ap, float*));
             else if (obj.frm_specifier.type == FL_e ||
                      obj.frm_specifier.type == FL_E)
-               ;//arg += _insedouble (_out, dst, &obj.frm_specifier, va_arg(ap, double)); // XXX
+               _read_ffloat (_in, src, (char**)&src, va_arg(ap, float*));
             else  // eat the wrong type to unsigned int
-               ;//arg += _insuint(_out, dst, &obj.frm_specifier, va_arg(ap, unsigned int));
+               _read_uint (_in, src, (char**)&src, va_arg(ap, unsigned int*));
 
             ++arg;
             break;
-            /*
-             * XXX: BUG(s)
-             * All printf with double calls MUST HAVE ONLY ONE ARGUMENT, THE double.
-             * 1) When va_arg(ap, double) comes in even argument number, it has 4bytes crap in front of it.
-             * 2) When va_arg(ap, double) comes in odd argument number, it fails cause it skips 4bytes before reading.
-             * Someone have miss-correct a bug i think.
-             */
 
          case _IO_FRM_TERMINATOR:
             return arg;
@@ -298,5 +522,5 @@ int vsxscanf (_getc_in_t _in, const char *src, const char *frm, __VALIST ap)
             return arg;
       }
    }
-   return (int)(0);
+   return (int)arg;
 }

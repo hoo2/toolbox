@@ -48,14 +48,19 @@ extern const char pr_flags[_IO_NUM_OF_FLAGS];
 #define IS_ALL_BUT_PC(_c)  ((_c) != '%')  /*!< match all chars except '%' symbol */
 #define IS_PC(_c)          ((_c) == '%')  /*!< match '%' symbol */
 #define IS_ZERO(_c)        ((_c) == '0')  /*!< match '0'*/
-#define IS_1TO9(_c)        ((_c) >= '1' && (_c)<='9') /*!< match 1 to 9 digits */
-#define IS_0TO9(_c)        ((_c) >= '0' && (_c)<='9') /*!< match all digits */
-#define IS_DOT(_c)         ((_c) == '.')              /*!< match '.' symbol */
-#define IS_PLUS(_c)        ((_c) == '+')              /*!< match '+' symbol */
+#define IS_1TO9(_c)        ((_c) >= '1' && (_c) <= '9')  /*!< match 1 to 9 digits */
+#define IS_0TO9(_c)        ((_c) >= '0' && (_c) <= '9')  /*!< match all digits */
+#define IS_ATOF(_c)        ((_c) >= 'A' && (_c) <= 'F')  /*!< match HEX characters */
+#define IS_aTOf(_c)        ((_c) >= 'a' && (_c) <= 'f')  /*!< match hex characters */
+#define IS_DOT(_c)         ((_c) == '.')                 /*!< match '.' symbol */
+#define IS_PLUS(_c)        ((_c) == '+')                 /*!< match '+' symbol */
+#define IS_MINUS(_c)       ((_c) == '-')                 /*!< match '+' symbol */
+#define IS_EXP(_c)         ((_c) == 'e' || (_c) == 'E')  /*!< match exponement sympol */
 
-#define PF_FRACTIONAL_WIDTH         (3)
-#define PF_WIDTH                    (5)
-#define PF_MAX_INT_DIGITS           (15)
+#define _IO_FRACTIONAL_WIDTH        (3)
+#define _IO_WIDTH                   (5)
+#define _IO_MAX_INT_DIGITS          (15)
+#define _IO_MAX_DOUBLE_WIDTH        (20)
 
 #define _IO_MAX_FLOAT               (1e18)
 #define _IO_MAX_FLOAT_EXP           (18)

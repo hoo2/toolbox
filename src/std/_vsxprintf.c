@@ -237,10 +237,10 @@ static int _insstring(_putc_out_t _out, char *dst, const char *src, int length)
 static int _insuint(_putc_out_t _out, char *dst, _io_frm_spec_t *fs, unsigned int value)
 {
    int num = 0, i, j;
-   unsigned int bf[PF_MAX_INT_DIGITS];
+   unsigned int bf[_IO_MAX_INT_DIGITS];
 
    // Spread value
-   for (i=0, bf[0]=value ; i<PF_MAX_INT_DIGITS-1 ; )
+   for (i=0, bf[0]=value ; i<_IO_MAX_INT_DIGITS-1 ; )
    {
       bf[i+1] = bf[i]/10;
       if (!bf[++i])
@@ -286,7 +286,7 @@ static int _insuint(_putc_out_t _out, char *dst, _io_frm_spec_t *fs, unsigned in
 static int _insint (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, char min, int value)
 {
    int num = 0, i, j;
-   int bf[PF_MAX_INT_DIGITS];
+   int bf[_IO_MAX_INT_DIGITS];
    unsigned int absv, negative=min, scr;
    void (*pshift) (unsigned int*);
 
@@ -300,7 +300,7 @@ static int _insint (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, char min, i
       absv = value;
 
    // Spread absolute value
-   for (i=0, bf[0]=absv ; i<PF_MAX_INT_DIGITS-1 ; )
+   for (i=0, bf[0]=absv ; i<_IO_MAX_INT_DIGITS-1 ; )
    {
       bf[i+1] = bf[i]/10;
       if (!bf[++i])
@@ -374,10 +374,10 @@ static int _insint (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, char min, i
 static int _inshex (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, unsigned int value)
 {
    int num = 0, i, j;
-   unsigned int bf[PF_MAX_INT_DIGITS];
+   unsigned int bf[_IO_MAX_INT_DIGITS];
 
    // Spread value
-   for (i=0, bf[0]=value ; i<PF_MAX_INT_DIGITS-1 ; )
+   for (i=0, bf[0]=value ; i<_IO_MAX_INT_DIGITS-1 ; )
    {
       bf[i+1] = bf[i]>>4;
       if (!bf[++i])
@@ -430,10 +430,10 @@ static int _inscoredouble (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, doub
 
    // fix width
    if (!fs->width)
-      fs->width = PF_WIDTH;
+      fs->width = _IO_WIDTH;
    // fix frac
    if (!fs->frac)
-      fs->frac = PF_FRACTIONAL_WIDTH;
+      fs->frac = _IO_FRACTIONAL_WIDTH;
 
    // Calculate the n_int and n_dec parts
    n_int = (int)absv;
@@ -567,8 +567,8 @@ static int _insedouble(_putc_out_t _out, char *dst, _io_frm_spec_t *fs, double v
       exp_str[sexp]=0;
 
 
-      if (!fs->width)  fs->width = PF_WIDTH;      // fix width
-      if (!fs->frac)   fs->frac = PF_FRACTIONAL_WIDTH; // fix frac
+      if (!fs->width)  fs->width = _IO_WIDTH;        // fix width
+      if (!fs->frac)   fs->frac = _IO_FRACTIONAL_WIDTH;   // fix frac
       if (fs->width < sexp+fs->frac+2+(fs->flags.plus || negative))
          fs->width = sexp+fs->frac+2+(fs->flags.plus || negative);
       fs->width -= sexp;       // significant's width

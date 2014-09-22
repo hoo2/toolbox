@@ -48,11 +48,11 @@ typedef enum
  *  2) source string for sscanf family
  *  3) source file for fscanf family
  */
-typedef int (*_getc_in_t) (const char *, _io_getc_read_en);
+typedef int (*_getc_in_t) (const char *, char **psrc, _io_getc_read_en);
 
-int _getc_usr (const char *src, _io_getc_read_en mode);  /*!< back end for user's device stdin */
-int _getc_src (const char *src, _io_getc_read_en mode);  /*!< back end for sscanf family */
-int _getc_fil (const char *src, _io_getc_read_en mode);  /*!< back end for file fscanf family */
+int _getc_usr (const char *src, char **psrc, _io_getc_read_en mode);  /*!< back end for user's device stdin */
+int _getc_src (const char *src, char **psrc, _io_getc_read_en mode);  /*!< back end for sscanf family */
+int _getc_fil (const char *src, char **psrc, _io_getc_read_en mode);  /*!< back end for file fscanf family */
 
 /*
  * ============================ Public Functions ============================
