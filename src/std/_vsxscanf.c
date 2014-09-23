@@ -73,7 +73,7 @@ static int _isspace (char c)
  */
 static int _isterm (char c)
 {
-   if (c == '\0' || c == -1 )
+   if (c == '\0' || c == -1)
       return 1;
    else
       return 0;
@@ -118,6 +118,7 @@ static int _stream_copy (_getc_in_t _in, const char *src, char **psrc, char *dst
    int ch, n=0;
    // Search for the first whitespace character
    ch = _in (src, (char**)&src, _GETC_HEAD);
+   ++n;
    while ( ! (_isspace (ch) || _isterm (ch)) ) {
       *dst++ = ch;
       ch = _in (src, (char**)&src, _GETC_NEXT);
@@ -125,8 +126,9 @@ static int _stream_copy (_getc_in_t _in, const char *src, char **psrc, char *dst
    }
    *dst = 0;               // Destination string termination
    *psrc = (char *)src;    // Update caller source pointer
-   return n;
+   return n-1;
 }
+
 
 /*
  * Tailoring functions
@@ -137,14 +139,16 @@ inline int _getc_usr (const char *src, char **psrc, _io_getc_read_en mode)
    static int buffer, ret=0;
 
    // Init last
-   if (ret == 0)  buffer = __getchar();
+   if (ret == 0)
+      ret = buffer = __getchar();
    switch (mode) {
-      case _GETC_HEAD:  return buffer;
+      case _GETC_HEAD:  return ret = buffer;
       default:
       case _GETC_READ:  ret = buffer; buffer = __getchar(); return ret;
-      case _GETC_NEXT:  return buffer = __getchar();
+      case _GETC_NEXT:  return ret = buffer = __getchar();
    }
 }
+
 inline int _getc_src (const char *src, char **psrc, _io_getc_read_en mode)
 {
    int ret;
@@ -156,6 +160,7 @@ inline int _getc_src (const char *src, char **psrc, _io_getc_read_en mode)
       case _GETC_NEXT:  ++*psrc; return *++src;
    }
 }
+
 inline int _getc_fil (const char *src, char **psrc, _io_getc_read_en mode)
 {
    return 0;
