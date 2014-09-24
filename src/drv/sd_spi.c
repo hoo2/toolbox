@@ -472,22 +472,22 @@ static sd_dat_t _send_command (int drv, sd_dat_t cmd, uint32_t arg)
 /*
  * Link and Glue functions
  */
-inline void sd_link_wp (int drv, drv_pinin_t fun) {
+inline void sd_link_wp (int drv, drv_pinin_ft fun) {
    if (_bad_drive(drv))
       return;
    sd.sd_io[drv].wp = fun;
 }
-inline void sd_link_cd (int drv, drv_pinin_t fun) {
+inline void sd_link_cd (int drv, drv_pinin_ft fun) {
    if (_bad_drive(drv))
       return;
    sd.sd_io[drv].cd = fun;
 }
-inline void sd_link_cs (int drv, drv_pinout_t fun) {
+inline void sd_link_cs (int drv, drv_pinout_ft fun) {
    if (_bad_drive(drv))
       return;
    sd.sd_io[drv].cs = fun;
 }
-inline void sd_link_pw (int drv, drv_pinout_t fun) {
+inline void sd_link_pw (int drv, drv_pinout_ft fun) {
    if (_bad_drive(drv))
       return;
    sd.sd_io[drv].pw = fun;

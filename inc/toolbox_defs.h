@@ -44,7 +44,6 @@ extern "C" {
  */
 #define tbx_assert(x)  ((void)sizeof(x))
 
-
 #ifdef __cplusplus
 }
 #endif

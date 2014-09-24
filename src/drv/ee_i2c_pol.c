@@ -103,10 +103,10 @@ static int _writepage (ee_t *ee, ee_idx_t add, uint8_t *buf, size_t n)
 
    // Control byte (write)
    if (_sendcontrol (ee, EE_WRITE, 1) == EE_ERROR)
-      return EE_ERROR;
+      return -1;
 
    if (_sendaddress (ee, add) == EE_ERROR)
-      return EE_ERROR;
+      return -1;
 
    // Try to write the data
    for (i=0 ; i<nl ; ++i, ++buf)
@@ -345,7 +345,8 @@ drv_status_en ee_writebyte (ee_t *ee, ee_idx_t add, uint8_t byte)
  */
 drv_status_en ee_writebuffer (ee_t *ee, ee_idx_t add, uint8_t *buf, size_t n)
 {
-   uint32_t    wb=0;    // The written bytes
+   uint32_t wb=0;    // The written bytes
+   int      ret;
 
    // ACK polling
    if (_sendcontrol (ee, EE_WRITE, 1) == EE_ERROR)
@@ -354,14 +355,16 @@ drv_status_en ee_writebuffer (ee_t *ee, ee_idx_t add, uint8_t *buf, size_t n)
    if (_sendaddress (ee, add) == EE_ERROR)
       return ee->status = DRV_ERROR;
 
-   do
-      wb += _writepage (ee, add+wb, &buf[wb], n-wb);
+   do {
+      ret = _writepage (ee, add+wb, &buf[wb], n-wb);
+      if (ret == -1)    return ee->status = DRV_ERROR;
+      else              wb += ret;
       /*!
        * \note
        * Each _writepage writes only until the page limit, so we
        * call _writepage until we have no more data to send.
        */
-   while (wb < n);
+   } while (wb < n);
 
    return DRV_READY;
 }

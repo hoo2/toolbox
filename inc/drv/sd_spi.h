@@ -96,17 +96,17 @@ extern "C" {
 typedef uint8_t   sd_dat_t;
 typedef uint32_t  sd_idx_t;
 
-typedef drv_status_en (*spi_ioctl_t) (void *spi, ioctl_cmd_t ctrl, ioctl_buf_t *buff);
-typedef uint8_t (*spi_read_t) (void *spi);
-typedef void    (*spi_write_t) (void *spi, uint8_t data);
+typedef drv_status_en (*spi_ioctl_t) (void *, ioctl_cmd_t, ioctl_buf_t *);
+//typedef uint8_t (*spi_read_t) (void *, int);
+//typedef void    (*spi_write_t) (void *, uint8_t, int);
 typedef uint8_t (*spi_rw_t) (void *spi, uint8_t data);
 
 typedef volatile struct
 {
-   drv_pinin_t    wp;            /*!< Write protect pin */
-   drv_pinin_t    cd;            /*!< Card detect pin */
-   drv_pinout_t   cs;            /*!< Chip Select pin */
-   drv_pinout_t   pw;            /*!< SD Card Power pin */
+   drv_pinin_ft   wp;            /*!< Write protect pin */
+   drv_pinin_ft   cd;            /*!< Card detect pin */
+   drv_pinout_ft  cs;            /*!< Chip Select pin */
+   drv_pinout_ft  pw;            /*!< SD Card Power pin */
    void*          spi;           /*!< void SPI type structure */
    spi_ioctl_t    spi_ioctl;     /*!< SPI ioctl function */
    spi_rw_t       spi_rw;        /*!< SPI read/write function */
@@ -151,10 +151,10 @@ typedef volatile struct
 /*
  * Link and Glue functions
  */
-void sd_link_wp (int drv, drv_pinin_t fun);
-void sd_link_cd (int drv, drv_pinin_t fun);
-void sd_link_cs (int drv, drv_pinout_t fun);
-void sd_link_pw (int drv, drv_pinout_t fun);
+void sd_link_wp (int drv, drv_pinin_ft fun);
+void sd_link_cd (int drv, drv_pinin_ft fun);
+void sd_link_cs (int drv, drv_pinout_ft fun);
+void sd_link_pw (int drv, drv_pinout_ft fun);
 void sd_link_spi_ioctl (int drv, spi_ioctl_t fun);
 void sd_link_spi_rw (int drv, spi_rw_t fun);
 void sd_link_spi (int drv, void* spi);

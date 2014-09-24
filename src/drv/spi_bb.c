@@ -36,7 +36,7 @@
  * \param   f     drv_pinout_t functionality to link
  * \return  None
  */
-inline void spi_link_mosi (spi_bb_t *spi, drv_pinout_t f) {
+inline void spi_link_mosi (spi_bb_t *spi, drv_pinout_ft f) {
    spi->mosi = f;
 }
 
@@ -47,7 +47,7 @@ inline void spi_link_mosi (spi_bb_t *spi, drv_pinout_t f) {
  * \param   f     drv_pinin_t functionality to link
  * \return  None
  */
-inline void spi_link_miso (spi_bb_t *spi, drv_pinin_t f) {
+inline void spi_link_miso (spi_bb_t *spi, drv_pinin_ft f) {
    spi->miso = f;
 }
 
@@ -58,7 +58,7 @@ inline void spi_link_miso (spi_bb_t *spi, drv_pinin_t f) {
  * \param   f     drv_pinout_t functionality to link
  * \return  None
  */
-inline void spi_link_sclk (spi_bb_t *spi, drv_pinout_t f) {
+inline void spi_link_sclk (spi_bb_t *spi, drv_pinout_ft f) {
    spi->sclk = f;
 }
 
@@ -71,7 +71,7 @@ inline void spi_link_sclk (spi_bb_t *spi, drv_pinout_t f) {
  * \param   f     drv_pinout_t functionality to link
  * \return  None
  */
-inline void spi_link_ss (spi_bb_t *spi, drv_pinout_t f) {
+inline void spi_link_ss (spi_bb_t *spi, drv_pinout_ft f) {
    spi->ss = f;
 }
 

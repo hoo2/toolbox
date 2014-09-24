@@ -51,17 +51,17 @@ extern "C" {
 /*
  *  ============= DATA TYPES =============
  */
-typedef  uint8_t     spi_dat_t;
+typedef  byte_t     spi_dat_t;
 
 /*!
  * SPI bus protocol data structure
  */
 typedef volatile struct
 {
-   drv_pinout_t   mosi;       /*!< Link to driver's MOSI function */
-   drv_pinin_t    miso;       /*!< Link to driver's MISO function */
-   drv_pinout_t   sclk;       /*!< Link to driver's SCLK function */
-   drv_pinout_t   ss;         /*!< Link to driver's SS function */
+   drv_pinout_ft  mosi;       /*!< Link to driver's MOSI function */
+   drv_pinin_ft   miso;       /*!< Link to driver's MISO function */
+   drv_pinout_ft  sclk;       /*!< Link to driver's SCLK function */
+   drv_pinout_ft  ss;         /*!< Link to driver's SS function */
    uint32_t       clk_delay;  /*!< Clock delay to configure SPI frequency */
    drv_status_en  status;     /*!< toolbox driver status */
    uint8_t        CPOL  :1;   /*!< CPOL option setting */
@@ -77,10 +77,10 @@ typedef volatile struct
 /*
  * Link and Glue functions
  */
-void spi_link_mosi (spi_bb_t *spi, drv_pinout_t f);
-void spi_link_miso (spi_bb_t *spi, drv_pinin_t f);
-void spi_link_sclk (spi_bb_t *spi, drv_pinout_t f);
-void spi_link_ss (spi_bb_t *spi, drv_pinout_t f);
+void spi_link_mosi (spi_bb_t *spi, drv_pinout_ft f);
+void spi_link_miso (spi_bb_t *spi, drv_pinin_ft f);
+void spi_link_sclk (spi_bb_t *spi, drv_pinout_ft f);
+void spi_link_ss (spi_bb_t *spi, drv_pinout_ft f);
 
 /*
  * Set functions

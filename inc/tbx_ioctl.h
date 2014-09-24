@@ -93,7 +93,7 @@ extern "C" {
 
 
 typedef uint8_t   ioctl_cmd_t;   /*!< Generic ioctl command type */
-typedef void*     ioctl_buf_t;  /*!< Generic ioctl buffer data type */
+typedef void*     ioctl_buf_t;   /*!< Generic ioctl buffer data type */
 
 /*!
  * This is a toolbox wide generic driver status type.
