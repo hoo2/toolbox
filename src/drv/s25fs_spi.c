@@ -25,17 +25,15 @@
 #include <drv/s25fs_spi.h>
 
 
-static drv_status_en  _read (s25fs_t *drv, s25fs_cmd_t cmd, s25fs_idx_t idx, int al, s25fs_data_t *buf, size_t len);
-static drv_status_en _write (s25fs_t *drv, s25fs_cmd_t cmd, s25fs_idx_t idx, int al, s25fs_data_t *buf, size_t len);
+static drv_status_en  _read (s25fs_t *drv, s25fs_cmd_t cmd, s25fs_idx_t idx, int al, s25fs_data_t *buf, int len);
+static drv_status_en _write (s25fs_t *drv, s25fs_cmd_t cmd, s25fs_idx_t idx, int al, s25fs_data_t *buf, int len);
 
 static drv_status_en _cmd_RDSR1 (s25fs_t *drv, byte_t *sr);
-static drv_status_en _cmd_RDSR2 (s25fs_t *drv, byte_t *sr);
-static drv_status_en _cmd_RDCR3 (s25fs_t *drv, byte_t *sr);
 static drv_status_en _cmd_WREN (s25fs_t *drv);
 static drv_status_en _cmd_WRDI (s25fs_t *drv);
 
 static int _wait_ready (s25fs_t *drv);
-static int  _writepage (s25fs_t *drv, s25fs_idx_t idx, byte_t *buf, size_t n);
+static int  _writepage (s25fs_t *drv, s25fs_idx_t idx, byte_t *buf, int n);
 /*!
  * \brief
  *    Read data from FLASH drive by sending a read command before. The
@@ -53,20 +51,24 @@ static int  _writepage (s25fs_t *drv, s25fs_idx_t idx, byte_t *buf, size_t n);
  *    \arg  DRV_READY      Done, no error
  */
 static drv_status_en
- _read (s25fs_t *drv, s25fs_cmd_t cmd, s25fs_idx_t idx, int al, s25fs_data_t *buf, size_t len)
+ _read (s25fs_t *drv, s25fs_cmd_t cmd, s25fs_idx_t idx, int al, s25fs_data_t *buf, int len)
 {
+   byte_t _idx[4];
+
+   PUT_UINT32_BE(idx, _idx, 0);     // Get MSB first
+
    // Read operation
-   drv->s25fs_io.cs (ENABLE);
+   drv->io.cs (ENABLE);
    // Command
-   if ( drv->s25fs_io.spi_write (drv->s25fs_io.spi, &cmd, 1) != DRV_READY )
+   if ( drv->io.spi_write (drv->io.spi, &cmd, 1) != DRV_READY )
       return DRV_ERROR;
    // Address
-   if (al && drv->s25fs_io.spi_write (drv->s25fs_io.spi, (byte_t*)&idx, al) != DRV_READY )
+   if (al && drv->io.spi_write (drv->io.spi, (byte_t*)&_idx, al) != DRV_READY )
       return DRV_ERROR;
    // Data
-   if (len && drv->s25fs_io.spi_read (drv->s25fs_io.spi, buf, len) != DRV_READY )
+   if (len && drv->io.spi_read (drv->io.spi, buf, len) != DRV_READY )
       return DRV_ERROR;
-   drv->s25fs_io.cs (DISABLE);
+   drv->io.cs (DISABLE);
 
    return DRV_READY;
 }
@@ -88,20 +90,24 @@ static drv_status_en
  *    \arg  DRV_READY      Done, no error
  */
 static drv_status_en
- _write (s25fs_t *drv, s25fs_cmd_t cmd, s25fs_idx_t idx, int al, s25fs_data_t *buf, size_t len)
+ _write (s25fs_t *drv, s25fs_cmd_t cmd, s25fs_idx_t idx, int al, s25fs_data_t *buf, int len)
 {
+   byte_t _idx[4];
+
+   PUT_UINT32_BE(idx, _idx, 0);     // Get MSB first
+
    // write operation
-   drv->s25fs_io.cs (ENABLE);
+   drv->io.cs (ENABLE);
    // Command
-   if ( drv->s25fs_io.spi_write (drv->s25fs_io.spi, &cmd, 1) != DRV_READY )
+   if ( drv->io.spi_write (drv->io.spi, &cmd, 1) != DRV_READY )
       return DRV_ERROR;
    // Address
-   if (al && drv->s25fs_io.spi_write (drv->s25fs_io.spi, (byte_t*)&idx, al) != DRV_READY )
+   if (al && drv->io.spi_write (drv->io.spi, (byte_t*)&_idx, al) != DRV_READY )
       return DRV_ERROR;
    // Data
-   if (len && drv->s25fs_io.spi_write (drv->s25fs_io.spi, buf, len) != DRV_READY )
+   if (len && drv->io.spi_write (drv->io.spi, buf, len) != DRV_READY )
       return DRV_ERROR;
-   drv->s25fs_io.cs (DISABLE);
+   drv->io.cs (DISABLE);
 
    return DRV_READY;
 }
@@ -116,32 +122,11 @@ static drv_status_en _cmd_RDSR1 (s25fs_t *drv, byte_t *sr)
    return DRV_READY;
 }
 
-static drv_status_en _cmd_RDSR2 (s25fs_t *drv, byte_t *sr)
-{
-   s25fs_data_t cmd = S25FS_SPI_RDSR2_CMD;
-
-   if ( _read (drv, cmd, ADDRESS_NOT_USED, 0, sr, 1) != DRV_READY )
-      return DRV_ERROR;
-   return DRV_READY;
-}
-
-static drv_status_en _cmd_RDCR3 (s25fs_t *drv, byte_t *sr)
-{
-   s25fs_data_t cmd = S25FS_SPI_RDAR_CMD;
-   byte_t reg[2];
-
-   if ( _read (drv, cmd, CR3V, 3, reg, 2) != DRV_READY )
-      return DRV_ERROR;
-   // Discard 8 bit dummy read
-   *sr = reg[1];
-   return DRV_READY;
-}
-
 static drv_status_en _cmd_WREN (s25fs_t *drv)
 {
    s25fs_data_t cmd = S25FS_SPI_WREN_CMD;
 
-   if ( _write (drv, cmd, ADDRESS_NOT_USED, 0, BUFFER_NOT_USED, 1) != DRV_READY )
+   if ( _write (drv, cmd, ADDRESS_NOT_USED, 0, BUFFER_NOT_USED, 0) != DRV_READY )
       return DRV_ERROR;
    return DRV_READY;
 }
@@ -150,7 +135,7 @@ static drv_status_en _cmd_WRDI (s25fs_t *drv)
 {
    s25fs_data_t cmd = S25FS_SPI_WRDI_CMD;
 
-   if ( _write (drv, cmd, ADDRESS_NOT_USED, 0, BUFFER_NOT_USED, 1) != DRV_READY )
+   if ( _write (drv, cmd, ADDRESS_NOT_USED, 0, BUFFER_NOT_USED, 0) != DRV_READY )
       return DRV_ERROR;
    return DRV_READY;
 }
@@ -173,7 +158,7 @@ static int _wait_ready (s25fs_t *drv)
 
    do {
       _cmd_RDSR1 (drv, &sr);
-      if (sr & B0_MASK)    return 1;
+      if (!(sr & B0_MASK)) return 1;
       if (ms)              jf_delay_ms (1);
    } while (++ms<S25FS_TIMEOUT);
 
@@ -195,11 +180,11 @@ static int _wait_ready (s25fs_t *drv)
  * \return
  *    The number of written bytes
  */
-static int _writepage (s25fs_t *drv, s25fs_idx_t idx, byte_t *buf, size_t n)
+static int _writepage (s25fs_t *drv, s25fs_idx_t idx, byte_t *buf, int n)
 {
    // Page start and page offset and num to write
-   uint8_t pg_offset = idx % drv->write_page_sz;
-   uint8_t nl = drv->write_page_sz - pg_offset; // num up saturation
+   int pg_offset = idx % drv->conf.write_page_sz;
+   int nl = drv->conf.write_page_sz - pg_offset; // num up saturation
 
    if (nl > n)  nl = n;   // Cut out the unnecessary bytes
 
@@ -218,29 +203,37 @@ static int _writepage (s25fs_t *drv, s25fs_idx_t idx, byte_t *buf, size_t n)
 /*
  * Link and Glue functions
  */
-void s25fs_link_wp (s25fs_t *drv, drv_pinin_ft fun) {
-   drv->s25fs_io.wp = fun;
+void s25fs_link_wp (s25fs_t *drv, drv_pinout_ft fun) {
+   drv->io.wp = fun;
 }
 void s25fs_link_cs (s25fs_t *drv, drv_pinout_ft fun) {
-   drv->s25fs_io.cs = fun;
+   drv->io.cs = fun;
 }
-void s25fs_link_spi_ioctl (s25fs_t *drv, spi_ioctl_t fun) {
-   drv->s25fs_io.spi_ioctl = fun;
+void s25fs_link_spi_ioctl (s25fs_t *drv, s25fs_spi_ioctl_t fun) {
+   drv->io.spi_ioctl = fun;
 }
-void s25fs_link_spi_read (s25fs_t *drv, spi_read_t fun) {
-   drv->s25fs_io.spi_read = fun;
+void s25fs_link_spi_read (s25fs_t *drv, s25fs_spi_rw_t fun) {
+   drv->io.spi_read = fun;
 }
-void s25fs_link_spi_write (s25fs_t *drv, spi_write_t fun) {
-   drv->s25fs_io.spi_write = fun;
+void s25fs_link_spi_write (s25fs_t *drv, s25fs_spi_rw_t fun) {
+   drv->io.spi_write = fun;
 }
 void s25fs_link_spi (s25fs_t *drv, void* spi) {
-   drv->s25fs_io.spi = spi;
+   drv->io.spi = spi;
 }
 
 /*
  * Set functions
  */
-
+void s25fs_set_write_page_sz (s25fs_t *drv, uint32_t size) {
+   drv->conf.write_page_sz = size;
+}
+void s25fs_set_erase_page_sz (s25fs_t *drv, uint32_t size) {
+   drv->conf.erase_page_sz = size;
+}
+void s25fs_set_sector_size (s25fs_t *drv, uint32_t size) {
+   drv->conf.sector_sz = size;
+}
 
 /*
  * User Functions
@@ -248,7 +241,10 @@ void s25fs_link_spi (s25fs_t *drv, void* spi) {
 
 void s25fs_deinit (s25fs_t *drv)
 {
-   //XXX: Deal with that please
+   // Clean port I/O
+   if ( drv->io.cs)  drv->io.cs (DISABLE);
+   if (drv->io.wp)   drv->io.wp (ENABLE);
+
    memset ((void*)drv, 0, sizeof (s25fs_t));
    /*!<
     * This leaves the status = DRV_NOINIT
@@ -257,12 +253,9 @@ void s25fs_deinit (s25fs_t *drv)
 
 drv_status_en s25fs_init (s25fs_t *drv)
 {
-   #define _bad_link(_link)   (!drv->s25fs_io._link) ? 1:0
-
-   byte_t reg;
+   #define _bad_link(_link)   (!drv->io._link) ? 1:0
 
    // Connectivity check
-   if (_bad_link(wp))         return drv->status = DRV_ERROR;
    if (_bad_link(cs))         return drv->status = DRV_ERROR;
    if (_bad_link(spi))        return drv->status = DRV_ERROR;
    if (_bad_link(spi_ioctl))  return drv->status = DRV_ERROR;
@@ -273,33 +266,36 @@ drv_status_en s25fs_init (s25fs_t *drv)
       return drv->status = DRV_ERROR;
 
    drv->status = DRV_BUSY;
-   // Set mode 0
-   spi_set_cpha ((spi_bb_t*)drv->s25fs_io.spi, 0);
-   spi_set_cpol ((spi_bb_t*)drv->s25fs_io.spi, 0);
 
-   if (_cmd_RDCR3 (drv, &reg) != DRV_READY)
-      return drv->status = DRV_ERROR;
-   // Page Buffer Wrap
-   if (reg & B4_MASK)   drv->write_page_sz = 512;
-   else                 drv->write_page_sz = 256;
-   // Block Erase Size
-   if (reg & B1_MASK)   drv->write_page_sz = 256;
-   else                 drv->write_page_sz = 64;
+   // Bus SPI set mode 0
+   spi_set_cpha ((spi_bb_t*)drv->io.spi, 0);
+   spi_set_cpol ((spi_bb_t*)drv->io.spi, 0);
+
+   // port init
+   drv->io.cs (DISABLE);
+   if (drv->io.wp)   drv->io.wp (ENABLE);
+
+   if (!drv->conf.write_page_sz)    drv->conf.write_page_sz = S25FS_WRITE_PAGE_SZ_DEF;
+   if (!drv->conf.erase_page_sz)    drv->conf.erase_page_sz = S25FS_ERASE_PAGE_SZ_DEF;
+   if (!drv->conf.sector_sz)        drv->conf.sector_sz = S25FS_SECTOR_SIZE_DEF;
 
    return drv->status = DRV_READY;
    #undef _bad_link
 }
 
-drv_status_en  s25fs_read_buffer (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *buf, size_t count)
+drv_status_en  s25fs_read (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *buf, int count)
 {
+   if ( !_wait_ready (drv) )
+      return DRV_BUSY;
    return _read (drv, S25FS_SPI_READ_4B_CMD, idx, 4, buf, count);
 }
 
-drv_status_en s25fs_write_buffer (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *buf, size_t count)
+drv_status_en s25fs_write (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *buf, int count)
 {
    uint32_t wb=0;    // The written bytes
    int      ret;
 
+   if (drv->io.wp)   drv->io.wp (DISABLE);
    if ( _cmd_WREN (drv) != DRV_READY )
       return DRV_ERROR;
 
@@ -316,8 +312,29 @@ drv_status_en s25fs_write_buffer (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *b
 
    if ( _cmd_WRDI (drv) != DRV_READY )
       return DRV_ERROR;
+   if (drv->io.wp)   drv->io.wp (ENABLE);
 
    return DRV_READY;
+}
+
+drv_status_en  s25fs_read_sector (s25fs_t *drv, int sector, s25fs_data_t *buf, int count)
+{
+   // Virtual sector conversions
+   s25fs_idx_t idx = sector * drv->conf.sector_sz;
+   count *= drv->conf.sector_sz;
+
+   // Forward call to buffer version
+   return s25fs_read (drv, idx, buf, count);
+}
+
+drv_status_en s25fs_write_sector (s25fs_t *drv, int sector, s25fs_data_t *buf, int count)
+{
+   // Virtual sector conversions
+   s25fs_idx_t idx = sector * drv->conf.sector_sz;
+   count *= drv->conf.sector_sz;
+
+   // Forward call to buffer version
+   return s25fs_write (drv, idx, buf, count);
 }
 
 drv_status_en s25fs_ioctl (s25fs_t *drv, ioctl_cmd_t ctrl, ioctl_buf_t buf);

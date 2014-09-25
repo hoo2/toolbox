@@ -33,6 +33,7 @@ extern "C" {
 #include <stddef.h>
 #include <drv/spi_bb.h>
 #include <sys/jiffies.h>
+#include <crypt/cryptint.h>
 
 /*
  * =================== User Defines =====================
@@ -56,10 +57,16 @@ extern "C" {
 
 #define S25FS_TIMEOUT      (1000)      // 1000 msec
 
+#define  ARCH_LE           (1)
+//#define  ARCH_BE           (1)
 
 /*
  * =================== General Defines =====================
  */
+
+#define S25FS_WRITE_PAGE_SZ_DEF        (256)          // 256 bytes
+#define S25FS_ERASE_PAGE_SZ_DEF        (0x10000)      // 64k
+#define S25FS_SECTOR_SIZE_DEF          (512)          // 512 bytes
 
 /*!
  * SPI Flash Commands info
@@ -257,6 +264,15 @@ extern "C" {
 #define DISABLE   (0)
 #endif
 
+
+#ifdef ARCH_BE
+#define S25FS_PUT_UINT32   PUT_UINT32_BE
+#endif
+
+#ifdef ARCH_LE
+#define S25FS_PUT_UINT32   PUT_UINT32_LE
+#endif
+
 /*
  * =================== Data types =====================
  */
@@ -294,9 +310,9 @@ typedef enum {
 }s25fs_devstatus_en;
 
 
-typedef drv_status_en (*spi_ioctl_t) (void *, ioctl_cmd_t, ioctl_buf_t *);
-typedef drv_status_en (*spi_read_t)  (void *, byte_t *, int);
-typedef drv_status_en (*spi_write_t) (void *, byte_t *, int);
+typedef drv_status_en (*s25fs_spi_ioctl_t) (void *, ioctl_cmd_t, ioctl_buf_t *);
+typedef drv_status_en (*s25fs_spi_rw_t)  (void *, byte_t *, int);
+
 
 typedef enum {
    S25FS_4B_ADDR_BAR = 0,
@@ -305,20 +321,36 @@ typedef enum {
 
 typedef uint8_t   s25fs_cmd_t;
 
+/*!
+ * The drivers link data struct.
+ */
 typedef volatile struct {
-   drv_pinin_ft   wp;            /*!< Write protect pin */
+   drv_pinout_ft  wp;            /*!< Write protect pin - Optional */
    drv_pinout_ft  cs;            /*!< Chip Select pin */
-   void*          spi;           /*!< void SPI type structure */
-   spi_ioctl_t    spi_ioctl;     /*!< SPI ioctl function */
-   spi_read_t     spi_read;      /*!< SPI read/write function */
-   spi_write_t    spi_write;     /*!< SPI read/write function */
+   void*          spi;           /*!< void SPI type structure - NULL for hardware SPI */
+   s25fs_spi_ioctl_t
+                  spi_ioctl;     /*!< SPI ioctl function */
+   s25fs_spi_rw_t spi_read;      /*!< SPI read/write function */
+   s25fs_spi_rw_t spi_write;     /*!< SPI read/write function */
 }s25fs_io_t;
 
+/*!
+ * The s25fs configuration and settings struct
+ */
 typedef volatile struct {
-   s25fs_io_t           s25fs_io;
-   int                  write_page_sz;
-   int                  erase_page_sz;
-   drv_status_en        status;     /*!< Flash status */
+   uint32_t write_page_sz;    /*!< The flash write page buffer size */
+   uint32_t erase_page_sz;    /*!< The flash erase page size */
+   uint32_t sector_sz;        /*!< The virtual sector size, used in file systems */
+}s25fs_conf_t;
+
+/*!
+ * The s25fs driver data type. Each one refers to
+ * each flash chip in the PCB.
+ */
+typedef volatile struct {
+   s25fs_io_t     io;         /*!< driver links */
+   s25fs_conf_t   conf;       /*!< Configuration and settings */
+   drv_status_en  status;     /*!< Flash driver status, NOT the device status */
 }s25fs_t;
 
 
@@ -329,17 +361,19 @@ typedef volatile struct {
 /*
  * Link and Glue functions
  */
-void s25fs_link_wp (s25fs_t *drv, drv_pinin_ft fun);
+void s25fs_link_wp (s25fs_t *drv, drv_pinout_ft fun);
 void s25fs_link_cs (s25fs_t *drv, drv_pinout_ft fun);
-void s25fs_link_spi_ioctl (s25fs_t *drv, spi_ioctl_t fun);
-void s25fs_link_spi_read (s25fs_t *drv, spi_read_t fun);
-void s25fs_link_spi_write (s25fs_t *drv, spi_write_t fun);
+void s25fs_link_spi_ioctl (s25fs_t *drv, s25fs_spi_ioctl_t fun);
+void s25fs_link_spi_read (s25fs_t *drv, s25fs_spi_rw_t fun);
+void s25fs_link_spi_write (s25fs_t *drv, s25fs_spi_rw_t fun);
 void s25fs_link_spi (s25fs_t *drv, void* spi);
 
 /*
  * Set functions
  */
-void s25fs_set_address_mode (s25fs_t *drv, s25fs_add_mode_en mode);
+void s25fs_set_write_page_sz (s25fs_t *drv, uint32_t size);
+void s25fs_set_erase_page_sz (s25fs_t *drv, uint32_t size);
+void   s25fs_set_sector_size (s25fs_t *drv, uint32_t size);
 
 /*
  * User Functions
@@ -347,8 +381,10 @@ void s25fs_set_address_mode (s25fs_t *drv, s25fs_add_mode_en mode);
 void s25fs_deinit (s25fs_t *drv);                  /*!< for compatibility */
 drv_status_en s25fs_init (s25fs_t *drv);           /*!< for compatibility */
 
-drv_status_en  s25fs_read_buffer (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *buf, size_t count);
-drv_status_en s25fs_write_buffer (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *buf, size_t count);
+drv_status_en         s25fs_read (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *buf, int count);
+drv_status_en        s25fs_write (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *buf, int count);
+drv_status_en  s25fs_read_sector (s25fs_t *drv, int sector, s25fs_data_t *buf, int count);
+drv_status_en s25fs_write_sector (s25fs_t *drv, int sector, s25fs_data_t *buf, int count);
 drv_status_en        s25fs_ioctl (s25fs_t *drv, ioctl_cmd_t ctrl, ioctl_buf_t buf);
 
 #ifdef __cplusplus

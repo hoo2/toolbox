@@ -58,6 +58,7 @@ extern "C" {
 #include <drv/sim_ee.h>
 #include <drv/sd_spi.h>
 
+#include <drv/s25fs_spi.h>
 
 // DSP
 #include <dsp/leaky_int.h>

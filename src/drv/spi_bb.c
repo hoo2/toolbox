@@ -264,14 +264,14 @@ drv_status_en spi_rx (spi_bb_t *spi, spi_dat_t *buf, int count)
    nss = spi->NSS;
    spi->NSS = 0;
 
-   if (nss) spi->ss (1);   // Select chip when ss is ours
+   if (nss == SPI_NSS_HARD) spi->ss (1);   // Select chip when ss is ours
    while (count--) {
       *buf++ = spi_rw (spi, 0xFF);
    }
    if (nss) spi->ss (0);   // De-Select chip when ss is ours
 
    spi->NSS = nss;         // Reset NSS option
-   return DRV_READY;
+   return spi->status = DRV_READY;
 }
 
 /*!
@@ -294,14 +294,14 @@ drv_status_en spi_tx (spi_bb_t *spi, spi_dat_t *buf, int count)
    nss = spi->NSS;
    spi->NSS = 0;
 
-   if (nss) spi->ss (1);   // Select chip when ss is ours
+   if (nss == SPI_NSS_HARD) spi->ss (1);   // Select chip when ss is ours
    while (count--) {
       spi_rw (spi, *buf++);
    }
    if (nss) spi->ss (0);   // De-Select chip when ss is ours
 
    spi->NSS = nss;         // Reset NSS option
-   return DRV_READY;
+   return spi->status = DRV_READY;
 }
 
 /*!
