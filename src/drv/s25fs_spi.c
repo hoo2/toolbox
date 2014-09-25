@@ -29,8 +29,9 @@ static drv_status_en  _read (s25fs_t *drv, s25fs_cmd_t cmd, s25fs_idx_t idx, int
 static drv_status_en _write (s25fs_t *drv, s25fs_cmd_t cmd, s25fs_idx_t idx, int al, s25fs_data_t *buf, int len);
 
 static drv_status_en _cmd_RDSR1 (s25fs_t *drv, byte_t *sr);
-static drv_status_en _cmd_WREN (s25fs_t *drv);
-static drv_status_en _cmd_WRDI (s25fs_t *drv);
+static drv_status_en  _cmd_WREN (s25fs_t *drv);
+static drv_status_en  _cmd_WRDI (s25fs_t *drv);
+static drv_status_en    _cmd_SE (s25fs_t *drv, s25fs_idx_t idx);
 
 static int _wait_ready (s25fs_t *drv);
 static int  _writepage (s25fs_t *drv, s25fs_idx_t idx, byte_t *buf, int n);
@@ -140,6 +141,15 @@ static drv_status_en _cmd_WRDI (s25fs_t *drv)
    return DRV_READY;
 }
 
+static drv_status_en _cmd_SE (s25fs_t *drv, s25fs_idx_t idx)
+{
+   s25fs_data_t cmd = S25FS_SPI_SE_4B_CMD;
+
+   if ( _write (drv, cmd, idx, 4, BUFFER_NOT_USED, 0) != DRV_READY )
+      return DRV_ERROR;
+   return DRV_READY;
+}
+
 /*
 * \brief
 *    Wait for SD card ready.
@@ -158,7 +168,7 @@ static int _wait_ready (s25fs_t *drv)
 
    do {
       _cmd_RDSR1 (drv, &sr);
-      if (!(sr & B0_MASK)) return 1;
+      if (!(sr & 0x01))    return 1;
       if (ms)              jf_delay_ms (1);
    } while (++ms<S25FS_TIMEOUT);
 
@@ -283,6 +293,24 @@ drv_status_en s25fs_init (s25fs_t *drv)
    #undef _bad_link
 }
 
+drv_status_en  s25fs_erase (s25fs_t *drv, s25fs_idx_t idx)
+{
+   // Wait last operation
+   if ( !_wait_ready (drv) )                return DRV_BUSY;
+   // Write enable
+   if (drv->io.wp)   drv->io.wp (DISABLE);
+   if ( _cmd_WREN (drv) != DRV_READY )      return DRV_ERROR;
+   // Execute Sector erase command
+   if ( _cmd_SE (drv, idx) != DRV_READY )   return DRV_ERROR;
+   // Wait to finish
+   if ( !_wait_ready (drv) )                return DRV_BUSY;
+   // Write disable again
+   if ( _cmd_WRDI (drv) != DRV_READY )      return DRV_ERROR;
+   if (drv->io.wp)   drv->io.wp (ENABLE);
+
+   return DRV_READY;
+}
+
 drv_status_en  s25fs_read (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *buf, int count)
 {
    if ( !_wait_ready (drv) )
@@ -310,6 +338,8 @@ drv_status_en s25fs_write (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *buf, int
        */
    } while (wb < count);
 
+   if ( !_wait_ready (drv) )
+      return DRV_ERROR;
    if ( _cmd_WRDI (drv) != DRV_READY )
       return DRV_ERROR;
    if (drv->io.wp)   drv->io.wp (ENABLE);
