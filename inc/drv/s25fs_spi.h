@@ -174,7 +174,6 @@ typedef volatile struct {
  */
 void s25fs_link_wp (s25fs_t *drv, drv_pinout_ft fun);
 void s25fs_link_cs (s25fs_t *drv, drv_pinout_ft fun);
-void s25fs_link_spi_ioctl (s25fs_t *drv, s25fs_spi_ioctl_t fun);
 void s25fs_link_spi_read (s25fs_t *drv, s25fs_spi_rw_t fun);
 void s25fs_link_spi_write (s25fs_t *drv, s25fs_spi_rw_t fun);
 void s25fs_link_spi (s25fs_t *drv, void* spi);

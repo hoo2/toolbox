@@ -21,7 +21,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #include <drv/s25fs_spi.h>
 
 
@@ -29,9 +28,9 @@ static drv_status_en  _read (s25fs_t *drv, s25fs_cmd_t cmd, s25fs_idx_t idx, int
 static drv_status_en _write (s25fs_t *drv, s25fs_cmd_t cmd, s25fs_idx_t idx, int al, s25fs_data_t *buf, int len);
 
 static drv_status_en _cmd_RDSR1 (s25fs_t *drv, byte_t *sr);
-static drv_status_en  _cmd_WREN (s25fs_t *drv);
-static drv_status_en  _cmd_WRDI (s25fs_t *drv);
-static drv_status_en    _cmd_SE (s25fs_t *drv, s25fs_idx_t idx);
+static drv_status_en _cmd_WREN (s25fs_t *drv);
+static drv_status_en _cmd_WRDI (s25fs_t *drv);
+static drv_status_en _cmd_SE (s25fs_t *drv, s25fs_idx_t idx);
 
 static int _wait_ready (s25fs_t *drv);
 static int  _writepage (s25fs_t *drv, s25fs_idx_t idx, byte_t *buf, int n);
@@ -113,7 +112,17 @@ static drv_status_en
    return DRV_READY;
 }
 
-
+/*!
+ * \brief
+ *    Send a RDSR1 "Read status register 1" command to flash
+ *
+ * \param   drv   Pointer to the drive to use
+ * \param    sr   Pointer to return the SR1 data
+ *
+ * \return The status of Operation
+ *    \arg  DRV_ERROR      A read error occurred
+ *    \arg  DRV_READY      Done, no error
+ */
 static drv_status_en _cmd_RDSR1 (s25fs_t *drv, byte_t *sr)
 {
    s25fs_data_t cmd = S25FS_RDSR_CMD;
@@ -123,6 +132,16 @@ static drv_status_en _cmd_RDSR1 (s25fs_t *drv, byte_t *sr)
    return DRV_READY;
 }
 
+/*!
+ * \brief
+ *    Send a WREN "Write enable" command to flash
+ *
+ * \param   drv   Pointer to the drive to use
+ *
+ * \return The status of Operation
+ *    \arg  DRV_ERROR      A read error occurred
+ *    \arg  DRV_READY      Done, no error
+ */
 static drv_status_en _cmd_WREN (s25fs_t *drv)
 {
    s25fs_data_t cmd = S25FS_WREN_CMD;
@@ -132,6 +151,16 @@ static drv_status_en _cmd_WREN (s25fs_t *drv)
    return DRV_READY;
 }
 
+/*!
+ * \brief
+ *    Send a WRDI "Write disable" command to flash
+ *
+ * \param   drv   Pointer to the drive to use
+ *
+ * \return The status of Operation
+ *    \arg  DRV_ERROR      A read error occurred
+ *    \arg  DRV_READY      Done, no error
+ */
 static drv_status_en _cmd_WRDI (s25fs_t *drv)
 {
    s25fs_data_t cmd = S25FS_WRDI_CMD;
@@ -141,6 +170,20 @@ static drv_status_en _cmd_WRDI (s25fs_t *drv)
    return DRV_READY;
 }
 
+/*!
+ * \brief
+ *    Send a SE "Sector erase" command to flash
+ * \note
+ *    If the requested address is inside sector range it
+ *    still erase the sector from the sector starting address.
+ *
+ * \param   drv   Pointer to the drive to use
+ * \param   idx   The sector address.
+ *
+ * \return The status of Operation
+ *    \arg  DRV_ERROR      A read error occurred
+ *    \arg  DRV_READY      Done, no error
+ */
 static drv_status_en _cmd_SE (s25fs_t *drv, s25fs_idx_t idx)
 {
    s25fs_data_t cmd = S25FS_SE_4B_CMD;
@@ -152,9 +195,9 @@ static drv_status_en _cmd_SE (s25fs_t *drv, s25fs_idx_t idx)
 
 /*
 * \brief
-*    Wait for SD card ready.
+*    Wait for flash to become ready.
 * \note
-*    This function has a timeout of \a SD_WAIT_TIMEOUT
+*    This function has a timeout of \a S25FS_TIMEOUT
 *
 * \param   drv   Pointer indicate the flash data stuct to use
 * \return        Ready status
@@ -206,6 +249,10 @@ static int _writepage (s25fs_t *drv, s25fs_idx_t idx, byte_t *buf, int n)
 
    return nl;
 }
+
+
+
+
 /*
  *  ============= PUBLIC S25FS API =============
  */
@@ -213,42 +260,91 @@ static int _writepage (s25fs_t *drv, s25fs_idx_t idx, byte_t *buf, int n)
 /*
  * Link and Glue functions
  */
+
+/*!
+ * \brief
+ *    Link write protect pin to driver
+ * \note Optional
+ */
 void s25fs_link_wp (s25fs_t *drv, drv_pinout_ft fun) {
    drv->io.wp = fun;
 }
+/*!
+ * \brief
+ *    Link chip select pin to driver
+ */
 void s25fs_link_cs (s25fs_t *drv, drv_pinout_ft fun) {
    drv->io.cs = fun;
 }
-void s25fs_link_spi_ioctl (s25fs_t *drv, s25fs_spi_ioctl_t fun) {
-   drv->io.spi_ioctl = fun;
-}
+/*!
+ * \brief
+ *    Link spi bus read functionality to driver
+ */
 void s25fs_link_spi_read (s25fs_t *drv, s25fs_spi_rw_t fun) {
    drv->io.spi_read = fun;
 }
+/*!
+ * \brief
+ *    Link spi bus write functionality to driver
+ */
 void s25fs_link_spi_write (s25fs_t *drv, s25fs_spi_rw_t fun) {
    drv->io.spi_write = fun;
 }
+/*!
+ * \brief
+ *    Link application or Low level driver spi data struct to s25fs.
+ *    If the application uses a hardware SPI version use NULL.
+ *
+ * \param  drv    pointer to active s25fs_t structure.
+ * \param  spi    Pointer to SPI data struct to link, or NULL for simple
+ *                or hardware implementations.
+ */
 void s25fs_link_spi (s25fs_t *drv, void* spi) {
    drv->io.spi = spi;
 }
 
+
+
+
 /*
  * Set functions
+ */
+
+/*!
+ * \brief
+ *    Set flash write page size
  */
 void s25fs_set_write_page_sz (s25fs_t *drv, uint32_t size) {
    drv->conf.write_page_sz = size;
 }
+/*!
+ * \brief
+ *    Set flash erase sector size
+ */
 void s25fs_set_erase_page_sz (s25fs_t *drv, uint32_t size) {
    drv->conf.erase_page_sz = size;
 }
+/*!
+ * \brief
+ *    Set flash virtual sector size
+ */
 void s25fs_set_sector_size (s25fs_t *drv, uint32_t size) {
    drv->conf.sector_sz = size;
 }
+
+
+
 
 /*
  * User Functions
  */
 
+/*!
+ * \brief
+ *    De-Initialize s25fs flash pointed by \a drv
+ *
+ * \param  drv    pointer to active s25fs_t structure.
+ */
 void s25fs_deinit (s25fs_t *drv)
 {
    // Clean port I/O
@@ -261,6 +357,16 @@ void s25fs_deinit (s25fs_t *drv)
     */
 }
 
+/*!
+ * \brief
+ *    Initialize s25fs flash pointed by \a drv
+ *
+ * \param  drv    pointer to active s25fs_t structure.
+ *
+ * \return The status of the init operation.
+ *    \arg DRV_READY
+ *    \arg DRV_ERROR
+ */
 drv_status_en s25fs_init (s25fs_t *drv)
 {
    #define _bad_link(_link)   (!drv->io._link) ? 1:0
@@ -293,6 +399,21 @@ drv_status_en s25fs_init (s25fs_t *drv)
    #undef _bad_link
 }
 
+/*!
+ * \brief
+ *    Erase a sector at address \a idx
+ * \note
+ *    If the requested address is inside sector range it
+ *    still erase the sector from the sector starting address.
+ *
+ * \param  drv    pointer to active s25fs_t structure.
+ * \param  idx    Sector address
+ *
+ * \return The status of the erase operation.
+ *    \arg DRV_READY
+ *    \arg DRV_BUSY
+ *    \arg DRV_ERROR
+ */
 drv_status_en  s25fs_erase (s25fs_t *drv, s25fs_idx_t idx)
 {
    // Wait last operation
@@ -311,6 +432,20 @@ drv_status_en  s25fs_erase (s25fs_t *drv, s25fs_idx_t idx)
    return DRV_READY;
 }
 
+/*!
+ * \brief
+ *    Read data from flash at address \a idx
+ *
+ * \param   drv   Pointer to active s25fs_t structure.
+ * \param   idx   Sector address
+ * \param   buf   Buffer pointer to store the data from flash
+ * \param count   Number of bytes to read
+ *
+ * \return The status of the erase operation.
+ *    \arg DRV_READY
+ *    \arg DRV_BUSY
+ *    \arg DRV_ERROR
+ */
 drv_status_en  s25fs_read (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *buf, int count)
 {
    if ( !_wait_ready (drv) )
@@ -318,6 +453,19 @@ drv_status_en  s25fs_read (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *buf, int
    return _read (drv, S25FS_READ_4B_CMD, idx, 4, buf, count);
 }
 
+/*!
+ * \brief
+ *    Write data to flash at address \a idx
+ *
+ * \param   drv   Pointer to active s25fs_t structure.
+ * \param   idx   Sector address
+ * \param   buf   Buffer pointer with the data to write
+ * \param count   Number of bytes to write
+ *
+ * \return The status of the erase operation.
+ *    \arg DRV_READY
+ *    \arg DRV_ERROR
+ */
 drv_status_en s25fs_write (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *buf, int count)
 {
    uint32_t wb=0;    // The written bytes
@@ -347,6 +495,20 @@ drv_status_en s25fs_write (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *buf, int
    return DRV_READY;
 }
 
+/*!
+ * \brief
+ *    Read data from flash using sector addressing
+ *
+ * \param   drv   Pointer to active s25fs_t structure.
+ * \param   idx   Sector number
+ * \param   buf   Buffer pointer to store the data from flash
+ * \param count   Number of sectors to read
+ *
+ * \return The status of the erase operation.
+ *    \arg DRV_READY
+ *    \arg DRV_BUSY
+ *    \arg DRV_ERROR
+ */
 drv_status_en  s25fs_read_sector (s25fs_t *drv, int sector, s25fs_data_t *buf, int count)
 {
    // Virtual sector conversions
@@ -357,6 +519,19 @@ drv_status_en  s25fs_read_sector (s25fs_t *drv, int sector, s25fs_data_t *buf, i
    return s25fs_read (drv, idx, buf, count);
 }
 
+/*!
+ * \brief
+ *    Write data to flash using sector addressing
+ *
+ * \param   drv   Pointer to active s25fs_t structure.
+ * \param   idx   Sector number
+ * \param   buf   Buffer pointer with the data to write
+ * \param count   Number of sectors to write
+ *
+ * \return The status of the erase operation.
+ *    \arg DRV_READY
+ *    \arg DRV_ERROR
+ */
 drv_status_en s25fs_write_sector (s25fs_t *drv, int sector, s25fs_data_t *buf, int count)
 {
    // Virtual sector conversions
