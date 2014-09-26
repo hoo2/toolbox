@@ -51,15 +51,16 @@ extern "C" {
 /*!
  * SPI Flash Commands info
  */
-#define S25FS_SPI_WRDI_CMD                (0x04)
-#define S25FS_SPI_RDSR_CMD                (0x05)
-#define S25FS_SPI_WREN_CMD                (0x06)
-#define S25FS_SPI_RDSR2_CMD               (0x07)  // Read Status Register-2
-#define S25FS_SPI_PP_4B_CMD               (0x12)
-#define S25FS_SPI_READ_4B_CMD             (0x13)
-#define S25FS_SPI_BE1_CMD                 (0x60)  // Bulk Erase
-#define S25FS_SPI_RDAR_CMD                (0x65)  // Read Any Register
-#define S25FS_SPI_SE_4B_CMD               (0xDC)
+#define S25FS_WRDI_CMD                 (0x04)
+#define S25FS_RDSR_CMD                 (0x05)
+#define S25FS_WREN_CMD                 (0x06)
+#define S25FS_RDSR2_CMD                (0x07)  // Read Status Register-2
+#define S25FS_PP_4B_CMD                (0x12)
+#define S25FS_READ_4B_CMD              (0x13)
+#define S25FS_BE1_CMD                  (0x60)  // Bulk Erase
+#define S25FS_RDAR_CMD                 (0x65)  // Read Any Register
+#define S25FS_SE_4B_CMD                (0xDC)
+#define S25FS_EES_CMD                  (0xD0)  //Evaluate Erase Status
 
 
 /*!
@@ -75,6 +76,13 @@ extern "C" {
 #define DISABLE   (0)
 #endif
 
+/*!
+ * ============== S25FS ioctl commands =================
+ */
+#define S25FS_CTRL_RDSR1         (0x80)      /*!< Request flash status register SR1 */
+#define S25FS_CTRL_WREN          (0x81)      /*!< Request Write enable command to flash */
+#define S25FS_CTRL_WRDI          (0x82)      /*!< Request Write disable command to flash */
+#define S25FS_CTRL_SE            (0x83)      /*!< Request Sector erase command to flash */
 
 /*
  * =================== Data types =====================

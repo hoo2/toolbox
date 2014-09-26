@@ -116,7 +116,7 @@ static drv_status_en
 
 static drv_status_en _cmd_RDSR1 (s25fs_t *drv, byte_t *sr)
 {
-   s25fs_data_t cmd = S25FS_SPI_RDSR_CMD;
+   s25fs_data_t cmd = S25FS_RDSR_CMD;
 
    if ( _read (drv, cmd, ADDRESS_NOT_USED, 0, sr, 1) != DRV_READY )
       return DRV_ERROR;
@@ -125,7 +125,7 @@ static drv_status_en _cmd_RDSR1 (s25fs_t *drv, byte_t *sr)
 
 static drv_status_en _cmd_WREN (s25fs_t *drv)
 {
-   s25fs_data_t cmd = S25FS_SPI_WREN_CMD;
+   s25fs_data_t cmd = S25FS_WREN_CMD;
 
    if ( _write (drv, cmd, ADDRESS_NOT_USED, 0, BUFFER_NOT_USED, 0) != DRV_READY )
       return DRV_ERROR;
@@ -134,7 +134,7 @@ static drv_status_en _cmd_WREN (s25fs_t *drv)
 
 static drv_status_en _cmd_WRDI (s25fs_t *drv)
 {
-   s25fs_data_t cmd = S25FS_SPI_WRDI_CMD;
+   s25fs_data_t cmd = S25FS_WRDI_CMD;
 
    if ( _write (drv, cmd, ADDRESS_NOT_USED, 0, BUFFER_NOT_USED, 0) != DRV_READY )
       return DRV_ERROR;
@@ -143,7 +143,7 @@ static drv_status_en _cmd_WRDI (s25fs_t *drv)
 
 static drv_status_en _cmd_SE (s25fs_t *drv, s25fs_idx_t idx)
 {
-   s25fs_data_t cmd = S25FS_SPI_SE_4B_CMD;
+   s25fs_data_t cmd = S25FS_SE_4B_CMD;
 
    if ( _write (drv, cmd, idx, 4, BUFFER_NOT_USED, 0) != DRV_READY )
       return DRV_ERROR;
@@ -201,7 +201,7 @@ static int _writepage (s25fs_t *drv, s25fs_idx_t idx, byte_t *buf, int n)
    if ( !_wait_ready (drv) )
       return -1;
 
-   if ( _write (drv, S25FS_SPI_PP_4B_CMD, idx, 4, buf, nl) != DRV_READY )
+   if ( _write (drv, S25FS_PP_4B_CMD, idx, 4, buf, nl) != DRV_READY )
       return -1;
 
    return nl;
@@ -315,7 +315,7 @@ drv_status_en  s25fs_read (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *buf, int
 {
    if ( !_wait_ready (drv) )
       return DRV_BUSY;
-   return _read (drv, S25FS_SPI_READ_4B_CMD, idx, 4, buf, count);
+   return _read (drv, S25FS_READ_4B_CMD, idx, 4, buf, count);
 }
 
 drv_status_en s25fs_write (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *buf, int count)
@@ -367,4 +367,61 @@ drv_status_en s25fs_write_sector (s25fs_t *drv, int sector, s25fs_data_t *buf, i
    return s25fs_write (drv, idx, buf, count);
 }
 
-drv_status_en s25fs_ioctl (s25fs_t *drv, ioctl_cmd_t ctrl, ioctl_buf_t buf);
+
+/*!
+ * \brief
+ *    S25FS ioctl function
+ *
+ * \param  drv    pointer to active s25fs_t structure.
+ *
+ * \param  ctrl   specifies the command to s25fs and get back the reply.
+ *    \arg CTRL_GET_STATUS    Get driver's status, not device status
+ *    \arg CTRL_DEINIT        Initialise the flash
+ *    \arg CTRL_INIT          De-Initialise the flash
+ *    \arg S25FS_CTRL_RDSR1   Request flash status register SR1
+ *    \arg S25FS_CTRL_WREN    Request Write enable command to flash
+ *    \arg S25FS_CTRL_WRDI    Request Write disable command to flash
+ *    \arg S25FS_CTRL_SE      Request Sector erase command to flash
+ *
+ * \param  buf    pointer to buffer for ioctl
+ *
+ * \return The status of the operation. Not the driver's or flash device's
+ *    \arg DRV_READY
+ *    \arg DRV_ERROR
+ */
+drv_status_en s25fs_ioctl (s25fs_t *drv, ioctl_cmd_t ctrl, ioctl_buf_t buf)
+{
+   switch (ctrl)
+   {
+      case CTRL_GET_STATUS:      /*!< Probe function */
+         if (buf)
+            *(drv_status_en*)buf = drv->status;
+         return DRV_READY;
+      case CTRL_DEINIT:          /*!< De-init */
+         s25fs_deinit (drv);
+         return DRV_READY;
+      case CTRL_INIT:            /*!< Init */
+         if (buf)
+            *(drv_status_en*)buf = s25fs_init (drv);
+         else
+            s25fs_init (drv);
+         return DRV_READY;
+      case S25FS_CTRL_RDSR1:     /*!< Get SR1 */
+         if (buf)
+            return _cmd_RDSR1 (drv, (byte_t *)buf);
+         else
+            return DRV_ERROR;
+      case S25FS_CTRL_WREN:      /*!< Write Enable */
+         return _cmd_WREN (drv);
+      case S25FS_CTRL_WRDI:      /*!< Write Disable */
+         return _cmd_WRDI (drv);
+      case S25FS_CTRL_SE:        /*!< Sector erase */
+         if (buf)
+            return s25fs_erase (drv, *(s25fs_idx_t *)buf);
+         else
+            return DRV_ERROR;
+      default:                   /*!< Unsupported command, error */
+         return DRV_ERROR;
+
+   }
+}
