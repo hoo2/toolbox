@@ -553,10 +553,13 @@ drv_status_en s25fs_write_sector (s25fs_t *drv, int sector, s25fs_data_t *buf, i
  *    \arg CTRL_GET_STATUS    Get driver's status, not device status
  *    \arg CTRL_DEINIT        Initialise the flash
  *    \arg CTRL_INIT          De-Initialise the flash
+ *    \arg CTRL_CMD_UNLOCK    Request Write enable command to flash
+ *    \arg CTRL_CMD_LOCK      Request Write disable command to flash
+ *    \arg CTRL_ERASE_PAGE    Request Sector erase command to flash
  *    \arg S25FS_CTRL_RDSR1   Request flash status register SR1
- *    \arg S25FS_CTRL_WREN    Request Write enable command to flash
- *    \arg S25FS_CTRL_WRDI    Request Write disable command to flash
- *    \arg S25FS_CTRL_SE      Request Sector erase command to flash
+ *    \arg S25FS_CTRL_WREN    CTRL_CMD_UNLOCK
+ *    \arg S25FS_CTRL_WRDI    CTRL_CMD_LOCK
+ *    \arg S25FS_CTRL_SE      CTRL_ERASE_PAGE
  *
  * \param  buf    pointer to buffer for ioctl
  *
@@ -586,11 +589,14 @@ drv_status_en s25fs_ioctl (s25fs_t *drv, ioctl_cmd_t ctrl, ioctl_buf_t buf)
             return _cmd_RDSR1 (drv, (byte_t *)buf);
          else
             return DRV_ERROR;
-      case S25FS_CTRL_WREN:      /*!< Write Enable */
+      case CTRL_CMD_UNLOCK:      /*!< Write Enable */
+      case S25FS_CTRL_WREN:
          return _cmd_WREN (drv);
-      case S25FS_CTRL_WRDI:      /*!< Write Disable */
+      case CTRL_CMD_LOCK:        /*!< Write Disable */
+      case S25FS_CTRL_WRDI:
          return _cmd_WRDI (drv);
-      case S25FS_CTRL_SE:        /*!< Sector erase */
+      case CTRL_ERASE_PAGE:        /*!< Sector erase */
+      case S25FS_CTRL_SE:
          if (buf)
             return s25fs_erase (drv, *(s25fs_idx_t *)buf);
          else
