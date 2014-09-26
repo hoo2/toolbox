@@ -35,8 +35,8 @@
 
 /* ================   General Defines   ====================*/
                                                                 
-typedef  uint32_t       see_index_t;
-typedef  uint32_t       see_add_t;
+//typedef  uint32_t       see_index_t;
+typedef  uint32_t       see_idx_t;
 typedef  uint32_t       see_data_t;
 
 typedef enum {
@@ -60,16 +60,35 @@ typedef enum {
 typedef drv_status_en (*fl_io_ft) (void*, see_idx_t, void*, int);        /*!< Flash I/O function pointer */
 typedef drv_status_en (*fl_ioctl_ft) (void*, ioctl_cmd_t, ioctl_buf_t); /*!< Flash io control function pointer */
 
-typedef struct {
+/*!
+ * The drivers link data struct.
+ */
+typedef volatile struct {
+   void *      flash;         /*!< void flash type structure - NULL for hardware or simple flash implementations */
    fl_io_ft    fl_read;       /*!< Link to FLASH read function */
    fl_io_ft    fl_write;      /*!< Link to FLAH write function */
    fl_ioctl_ft fl_ioctl;      /*!< Link to FLASH io control function */
-   see_add_t   page0_add;     /*!< The PAGE0 address, or else the starting address of see */
-   see_add_t   page1_add;     /*!< The PAGE1 address */
-   uint32_t    page_size;     /*!< The size of each pare */
+}see_io_t;
+
+/*!
+ * The see configuration and settings struct
+ */
+typedef volatile struct {
+   see_idx_t   page0_add;     /*!< The PAGE0 address, or else the starting address of see */
+   see_idx_t   page1_add;     /*!< The PAGE1 address */
+   uint32_t    page_size;     /*!< The size of each page */
    uint32_t    flash_page_size;  /*!< The target flash page size */
    uint32_t    size;          /*!< The emulated size of the EEPROM */
-   drv_status_en status;
+}see_conf_t;
+
+/*!
+ * The see driver data type.
+ */
+typedef volatile struct {
+   see_io_t       io;         /*!< driver links */
+   see_conf_t     conf;       /*!< Configuration and settings */
+   see_idx_t      last;       /*!< Holds the last write flash address */
+   drv_status_en status;      /*!< see driver status, NOT the device status */
 }see_t;
 
 /*
@@ -79,6 +98,7 @@ typedef struct {
 /*
  * Link and Glue functions
  */
+void see_link_flash (see_t *see, void* flash);
 void see_link_flash_read (see_t *see, fl_io_ft f);
 void see_link_flash_write (see_t *see, fl_io_ft f);
 void see_link_flash_ioctl (see_t *see, fl_ioctl_ft f);
@@ -86,8 +106,8 @@ void see_link_flash_ioctl (see_t *see, fl_ioctl_ft f);
 /*
  * Set functions
  */
-void see_set_page0_add (see_t *see, see_add_t address);
-void see_set_page1_add (see_t *see, see_add_t address);
+void see_set_page0_add (see_t *see, see_idx_t address);
+void see_set_page1_add (see_t *see, see_idx_t address);
 void see_set_page_size (see_t *see, uint32_t size);
 void see_set_flash_page_size (see_t *see, uint32_t size);
 
@@ -97,10 +117,10 @@ void see_set_flash_page_size (see_t *see, uint32_t size);
 void see_deinit (see_t *see);          /*!< For compatibility */
 drv_status_en see_init (see_t *see);   /*!< For compatibility */
 
-drv_status_en see_read_word (see_t *see, see_index_t idx, see_data_t *d);
-drv_status_en see_read (see_t *see, see_index_t idx, see_data_t *d, size_t size);
-drv_status_en see_write_word (see_t *see, see_index_t idx, see_data_t *d);
-drv_status_en see_write (see_t *see, see_index_t idx, see_data_t *d, size_t size);
+drv_status_en see_read_word (see_t *see, see_idx_t idx, see_data_t *d);
+drv_status_en see_read (see_t *see, see_idx_t idx, see_data_t *d, size_t size);
+drv_status_en see_write_word (see_t *see, see_idx_t idx, see_data_t *d);
+drv_status_en see_write (see_t *see, see_idx_t idx, see_data_t *d, size_t size);
 drv_status_en see_ioctl (see_t *see, ioctl_cmd_t cmd, ioctl_buf_t buf);
 
 #endif   //#ifndef __sim_ee_h__
