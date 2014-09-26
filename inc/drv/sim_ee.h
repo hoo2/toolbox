@@ -57,8 +57,8 @@ typedef enum {
    EE_PAGE0, EE_PAGE1
 }see_page_en;
 
-typedef drv_status_en (*fl_io_ft) (uint32_t , void*, int);   /*!< Flash I/O function pointer */
-typedef drv_status_en (*fl_ioctl_ft) (ioctl_cmd_t, ioctl_buf_t *);   /*!< Flash io control function pointer */
+typedef drv_status_en (*fl_io_ft) (void*, see_idx_t, void*, int);        /*!< Flash I/O function pointer */
+typedef drv_status_en (*fl_ioctl_ft) (void*, ioctl_cmd_t, ioctl_buf_t); /*!< Flash io control function pointer */
 
 typedef struct {
    fl_io_ft    fl_read;       /*!< Link to FLASH read function */

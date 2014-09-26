@@ -156,8 +156,8 @@ static see_status_en  _erase_page (see_t *see, see_add_t address)
    int nop = see->page_size/see->flash_page_size;
 
    while (nop--) {
-      add = address + nop*see->flash_page_size;
-      if ( see->fl_ioctl (CTRL_ERASE_PAGE, (ioctl_buf_t*)&add) != DRV_READY )
+      add = idx + nop*see->conf.flash_page_size;
+      if ( see->io.fl_ioctl (see->io.flash, CTRL_ERASE_PAGE, (ioctl_buf_t)&add) != DRV_READY )
          return EE_FLASHERROR;
    }
    return EE_SUCCESS;
@@ -190,7 +190,7 @@ static see_status_en _page_swap (see_t *see)
    }
 
    // Unlock first
-   see->fl_ioctl (CTRL_CMD_UNLOCK, (ioctl_buf_t*)0);
+   see->io.fl_ioctl (see->io.flash, CTRL_CMD_UNLOCK, (ioctl_buf_t)0);
    // Mark the new Page as RECEIVEDATA
    if ( _erase_page (see, to) != EE_SUCCESS )
       return EE_FLASHERROR;

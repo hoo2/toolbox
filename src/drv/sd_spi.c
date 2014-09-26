@@ -594,7 +594,7 @@ drv_status_en sd_init (int drv)
       return DRV_ERROR;
    }
    clk = 400000;      // Start at lower clk
-   sd.sd_io[drv].spi_ioctl (sd.sd_io[drv].spi, CTRL_SET_CLOCK, (ioctl_buf_t*)&clk);
+   sd.sd_io[drv].spi_ioctl (sd.sd_io[drv].spi, CTRL_SET_CLOCK, (ioctl_buf_t)&clk);
    for (n=10; n; --n)   // 80 dummy clocks
       _spi_rx (drv);
 
@@ -645,7 +645,7 @@ drv_status_en sd_init (int drv)
       // Reads the maximum data transfer rate from CSD
       sd_ioctl (drv, CTRL_MMC_GET_CSD, csd);
       clk = _csd2bautrate (csd);
-      sd.sd_io[drv].spi_ioctl (sd.sd_io[drv].spi, CTRL_SET_CLOCK, (ioctl_buf_t*)&clk);
+      sd.sd_io[drv].spi_ioctl (sd.sd_io[drv].spi, CTRL_SET_CLOCK, (ioctl_buf_t)&clk);
    }
    else {
       // Initialisation failed

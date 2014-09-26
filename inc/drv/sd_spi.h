@@ -96,7 +96,7 @@ extern "C" {
 typedef uint8_t   sd_dat_t;
 typedef uint32_t  sd_idx_t;
 
-typedef drv_status_en (*spi_ioctl_t) (void *, ioctl_cmd_t, ioctl_buf_t *);
+typedef drv_status_en (*spi_ioctl_t) (void *, ioctl_cmd_t, ioctl_buf_t);
 //typedef uint8_t (*spi_read_t) (void *, int);
 //typedef void    (*spi_write_t) (void *, uint8_t, int);
 typedef uint8_t (*spi_rw_t) (void *spi, uint8_t data);
