@@ -58,7 +58,7 @@ typedef  float          Lux_t;
 
 
 // Extern reference at each Driver file
-typedef int16_t  adc_t;
+typedef int  adc_t;
 extern adc_t Temp_GetIntTemp (void);
 
 
