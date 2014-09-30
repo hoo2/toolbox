@@ -34,6 +34,8 @@ typedef uint8_t  byte_t;         /*!< 8 bits wide */
 typedef uint16_t word_t;         /*!< 16 bits wide */
 typedef uint32_t dword_t;        /*!< 32 bits wide */
 
+typedef uint32_t bytecount_t;    /*!< general counter */
+
 /*!
  * Pin function pointers
  * \note

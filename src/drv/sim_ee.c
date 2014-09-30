@@ -28,13 +28,14 @@
 
 static see_page_en   _valid_page (see_t *see);
 static see_idx_t      _find_last (see_t *see, see_idx_t page);
-static see_status_en   _try_read (see_t *see, see_idx_t page, see_idx_t idx, see_data_t *d);
-static see_status_en  _try_write (see_t *see, see_idx_t page, see_idx_t idx, see_data_t *d);
-static see_status_en _erase_page (see_t *see, see_idx_t address);
+static see_status_en _erase_page (see_t *see, see_idx_t page);
 static see_status_en  _page_swap (see_t *see);
 static see_status_en     _format (see_t *see);
+static see_status_en   _try_read (see_t *see, see_idx_t page, see_idx_t idx, byte_t *word);
+static see_status_en  _try_write (see_t *see, see_idx_t page, see_idx_t idx, byte_t *word);
 
-#define _EE_EMULATED_SIZE ( see->conf.page_size / (sizeof(see_data_t) + sizeof(see_idx_t)) )
+static see_status_en  _read_word (see_t *see, see_idx_t idx, byte_t *buf);
+static see_status_en _write_word (see_t *see, see_idx_t idx, byte_t *buf);
 
 /*!
  * \brief
@@ -46,7 +47,10 @@ static see_status_en     _format (see_t *see);
  */
 static see_page_en _valid_page (see_t *see)
 {
-   if ( *(see_idx_t*)see->conf.page0_add == EE_PAGE_ACTIVE)
+   see_page_status_en   PageStatus;
+
+   see->io.fl_read (see->io.flash, see->conf.page0_add, &PageStatus, sizeof (see_page_status_en));
+   if ( PageStatus == EE_PAGE_ACTIVE)
       return EE_PAGE0;
    else
       return EE_PAGE1;
@@ -54,123 +58,52 @@ static see_page_en _valid_page (see_t *see)
 
 /*!
  * \brief
- *    Try to find last written items address in flash
+ *    Try to find last written item address in flash
  *
- * \param  see   The active see struct.
+ * \param  see    The active see struct.
  * \param  page   Which page to seek
  * \return        The flash address of the last written data
  */
 static see_idx_t _find_last (see_t *see, see_idx_t page)
 {
-   #define _top_conv(_t)      (_t + page - sizeof(see_idx_t))
-   see_idx_t   ltop, top, bottom;
-   see_data_t  item;
+   byte_t      bf[SEE_FIND_LAST_BUFFER_SIZE];
+   see_idx_t   fp, acc;
+   uint32_t    i, pairs, bts;
+   uint32_t    bfp, bfp_next;
 
-   ltop = top = see->conf.page_size;
-   bottom = 0;
-   while (top-bottom > sizeof(see_idx_t)) {
-      see->io.fl_read (see->io.flash, _top_conv(top), (void*)&item, sizeof (see_idx_t));
-      if (item != (see_data_t)-1 ) {
-         bottom = top;
-         top = bottom + (ltop-bottom)>>1;
-      }
-      else {
-         ltop = top;
-         top = bottom + (ltop-bottom)>>1;
-      }
-   }
-   return _top_conv(top);
-   #undef _top_conv
-}
+   if ( see->last != (see_idx_t)-1)
+      return see->last;
+   else {
+      // Calculate counters
+      pairs = SEE_FIND_LAST_BUFFER_SIZE / (see->iface.word_size + sizeof (see_idx_t));
+      bts = pairs * (see->iface.word_size + sizeof (see_idx_t));
+      fp = sizeof (see_page_status_en)+page;
+      acc = page;
 
-/*!
- * \brief
- *    Try to find idx in page and read the data and size.
- *
- * \param  see   The active see struct.
- * \param  page   Which page to seek
- * \param  idx    What virtual address
- * \param  d      Pointer to store the data
- * \return        The status of operation
- *    \arg EE_NODATA
- *    \arg EE_SUCCESS
- */
-static see_status_en _try_read (see_t *see, see_idx_t page, see_idx_t idx, see_data_t *d)
-{
-   see_idx_t fp;
-   see_idx_t i;
-   
-   /*
-    * Seek for the first data and jump from data to data after that
-    * Until we find the idx.
-    * Do not search Page base address (fp>page)
-    */
-   for (fp = _find_last (see, page); fp > page ; fp -= sizeof(see_idx_t)) {
-      see->io.fl_read (see->io.flash, fp, (void*)&i, sizeof (see_idx_t));
-      if (i == idx)  //first match
-         break;
-      else
-         fp -= sizeof (see_data_t);
-   }
-   // Check if we got something
-   if (fp > page) {
-      see->io.fl_read (see->io.flash, fp-sizeof(see_data_t), (void*)d, sizeof(see_data_t));
-      return EE_SUCCESS;
-   }
-   d = (void *)0;  //no data
-   return EE_NODATA;
-}
-
-/*!
- * \brief
- *    Try to find room to write idx-data in page
- *
- * \param  see   The active see struct.
- * \param  page   Which page to seak
- * \param  idx    What virtual address
- * \param  d      Pointer of data to save
- * \return        The status of operation
- *    \arg EE_SUCCESS
- *    \arg EE_PAGEFULL
- *    \arg EE_FLASHERROR
- */
-static see_status_en _try_write (see_t *see, see_idx_t page, see_idx_t idx, see_data_t *d)
-{
-   see_idx_t      fp;
-   see_idx_t    i;
-   see_status_en  ee_st;
-
-   /*
-    * Seek for the first data
-    */
-   for (fp = page + see->conf.page_size - sizeof(see_idx_t) ; fp >= page ; fp -= sizeof(see_idx_t)) {
-      see->io.fl_read (see->io.flash, fp, (void*)&i, sizeof (see_idx_t));
-      if (i < (see_idx_t)(-1)) {
-         //not empty 0xFF..FF
-         if (sizeof(size_t) + sizeof (see_idx_t) <= see->conf.page_size+page-fp-sizeof(see_idx_t)) {
-            //Have room to write
-            fp += sizeof(see_idx_t);   //go to place 'n break
-            break;
+      // Loop entire flash page
+      for ( ; fp < page+see->conf.page_size - bts ; ) {
+         // Load buffer
+         if ( see->io.fl_read (see->io.flash, fp, (void*)bf, bts) != DRV_READY)
+            return see->last = 0;
+         // Seek into buffer
+         bfp=0;
+         bfp_next = see->iface.word_size;
+         // One action outside
+         if ( *(see_idx_t*)(bf+bfp_next) == (see_idx_t)-1 )
+            return see->last = (see_idx_t)acc;
+         bfp = bfp_next;
+         bfp_next += see->iface.word_size + sizeof (see_idx_t);
+         // Loop the rest
+         for (i=1 ; i<pairs ; ++i) {
+            if ( *(see_idx_t*)(bf+bfp_next) == (see_idx_t)-1 )
+               return see->last = (see_idx_t)(acc+bfp);
+            bfp = bfp_next;
+            bfp_next += see->iface.word_size + sizeof (see_idx_t);
          }
-         else
-            return EE_PAGEFULL;
+         acc = bfp;
       }
+      return see->last = 0;
    }
-   /* 
-    * - Unlock first
-    * - Write the data
-    * - Write virtual address last (at the end)
-    */
-   see->io.fl_ioctl (see->io.flash, CTRL_CMD_UNLOCK, (void*)0);
-   ee_st = EE_SUCCESS;  //Try that or prove otherwise
-   if ( see->io.fl_write (see->io.flash, fp, (void*)d, sizeof(see_data_t)) != DRV_READY )
-      ee_st = EE_FLASHERROR;
-   fp += sizeof(see_data_t);
-   if ( see->io.fl_write (see->io.flash, fp, (void*)&idx, sizeof(see_idx_t)) != DRV_READY )
-      ee_st = EE_FLASHERROR;
-   // Lock and return
-   see->io.fl_ioctl (see->io.flash, CTRL_CMD_LOCK, (void*)0);
-   return ee_st;
 }
 
 /*!
@@ -178,19 +111,19 @@ static see_status_en _try_write (see_t *see, see_idx_t page, see_idx_t idx, see_
  *    Erase see page
  *
  * \param  see    The active see struct.
- * \param  idx    The page address
+ * \param  page   The page address
  * \return The status of operation
  *    \arg EE_FLASHERROR
  *    \arg EE_SUCCESS
  */
-static see_status_en  _erase_page (see_t *see, see_idx_t idx)
+static see_status_en  _erase_page (see_t *see, see_idx_t page)
 {
-   see_idx_t add;
-   int nop = see->conf.page_size/see->conf.flash_page_size;
+   see_idx_t sector;
+   int nop = see->conf.page_size/see->conf.fl_sector_size;
 
    while (nop--) {
-      add = idx + nop*see->conf.flash_page_size;
-      if ( see->io.fl_ioctl (see->io.flash, CTRL_ERASE_PAGE, (ioctl_buf_t)&add) != DRV_READY )
+      sector = page + nop*see->conf.fl_sector_size;
+      if ( see->io.fl_ioctl (see->io.flash, CTRL_ERASE_PAGE, (ioctl_buf_t)&sector) != DRV_READY )
          return EE_FLASHERROR;
    }
    return EE_SUCCESS;
@@ -198,7 +131,7 @@ static see_status_en  _erase_page (see_t *see, see_idx_t idx)
 
 /*!
  * \brief
- *    Copy each variable instance from a full page to the empty one
+ *    Copy each last word instance from a full page to the empty one
  *
  * \param  see    The active see struct.
  * \return The status of operation
@@ -207,11 +140,11 @@ static see_status_en  _erase_page (see_t *see, see_idx_t idx)
  */
 static see_status_en _page_swap (see_t *see)
 {
-   see_idx_t      from, to;
-   see_data_t     status;
-   see_data_t     data;
-   see_idx_t      idx;
-   see_status_en  ee_st;
+   see_idx_t     from, to;
+   see_page_status_en status;
+   byte_t        data;
+   see_idx_t     idx;
+   see_status_en ee_st;
  
    // From - To dispatcher
    if ( _valid_page (see) == EE_PAGE0 ) {
@@ -222,8 +155,6 @@ static see_status_en _page_swap (see_t *see)
       to   = see->conf.page0_add;
    }
 
-   // Unlock first
-   see->io.fl_ioctl (see->io.flash, CTRL_CMD_UNLOCK, (ioctl_buf_t)0);
    // Mark the new Page as RECEIVEDATA
    if ( _erase_page (see, to) != EE_SUCCESS )
       return EE_FLASHERROR;
@@ -231,8 +162,8 @@ static see_status_en _page_swap (see_t *see)
    if ( see->io.fl_write (see->io.flash, to, (void*)&status, sizeof(status)) != DRV_READY )
       return EE_FLASHERROR;
 
-   // Copy each idx written on "from" page to their new home
-   for (idx=0 ; idx<_EE_EMULATED_SIZE ; ++idx) {
+   // Copy each word written on "from" page to their new home
+   for (idx=0 ; idx<see->iface.size ; idx+=see->iface.word_size) {
       ee_st = _try_read (see, from, idx, &data);
       if (ee_st == EE_SUCCESS) {
          ee_st = _try_write (see, to, idx, &data);
@@ -254,27 +185,23 @@ static see_status_en _page_swap (see_t *see)
    }
 
    /* 
-    * - Unlock
     * - Erase old page (auto status as EMPTY = 0xFFFF)
     * - Mark old page as EMPTY
     * - Re - Mark new as ACTIVE (write 0xAAAA on top of 0xFFFF)
-    * - Lock Flash before return
     */ 
-   see->io.fl_ioctl (see->io.flash, CTRL_CMD_UNLOCK, (void*)0);
    ee_st = EE_SUCCESS;  //Try that or prove otherwise
    if ( _erase_page (see, from) != EE_SUCCESS )
       ee_st = EE_FLASHERROR;
 
    status = EE_PAGE_EMPTY;     // Mark the new Page as EMPTY
-   if ( see->io.fl_write (see->io.flash, from, (void*)&status, sizeof(status)) != DRV_READY )
+   if ( see->io.fl_write (see->io.flash, from, (void*)&status, sizeof(see_page_status_en)) != DRV_READY )
       ee_st = EE_FLASHERROR;
 
    // Mark the new Page as ACTIVE
    status = EE_PAGE_ACTIVE;
-   if ( see->io.fl_write (see->io.flash, to, (void*)&status, sizeof(status)) != DRV_READY )
+   if ( see->io.fl_write (see->io.flash, to, (void*)&status, sizeof(see_page_status_en)) != DRV_READY )
       ee_st = EE_FLASHERROR;
 
-   see->io.fl_ioctl (see->io.flash, CTRL_CMD_LOCK, (void*)0);
    return ee_st;
 }
 
@@ -289,10 +216,9 @@ static see_status_en _page_swap (see_t *see)
  */
 static see_status_en  _format (see_t *see)
 {
-   see_data_t     page0_st, page1_st;
+   see_page_status_en  page0_st, page1_st;
    see_status_en  ee_st;
 
-   see->io.fl_ioctl (see->io.flash, CTRL_CMD_UNLOCK, (void*)0);
    ee_st = EE_SUCCESS;     //Try that or prove otherwise
 
    if ( _erase_page (see, see->conf.page0_add) != EE_SUCCESS ) {
@@ -306,15 +232,175 @@ static see_status_en  _format (see_t *see)
       page0_st = EE_PAGE_ACTIVE;
       page1_st = EE_PAGE_EMPTY;
 
-      if ( see->io.fl_write (see->io.flash, see->conf.page0_add, &page0_st, sizeof(page0_st)) != DRV_READY)
+      if ( see->io.fl_write (see->io.flash, see->conf.page0_add, (void *)&page0_st, sizeof(see_page_status_en)) != DRV_READY)
          ee_st = EE_FLASHERROR;
-      if ( see->io.fl_write (see->io.flash, see->conf.page1_add, &page1_st, sizeof(page1_st)) != DRV_READY)
+      if ( see->io.fl_write (see->io.flash, see->conf.page1_add, (void *)&page1_st, sizeof(see_page_status_en)) != DRV_READY)
          ee_st = EE_FLASHERROR;
    }
-
-   see->io.fl_ioctl (see->io.flash, CTRL_CMD_LOCK, (void*)0);
    return ee_st;
 }
+
+/*!
+ * \brief
+ *    Try to find idx in page and read the word data.
+ *
+ * \param  see    The active see struct.
+ * \param  page   Which page to seek
+ * \param  idx    What virtual address
+ * \param  word   Pointer to store the data
+ * \return        The status of operation
+ *    \arg EE_NODATA
+ *    \arg EE_SUCCESS
+ *    \arg EE_FLASHERROR
+ */
+static see_status_en _try_read (see_t *see, see_idx_t page, see_idx_t idx, byte_t *word)
+{
+   see_idx_t fp;        // Actual flash pointer
+   see_idx_t i;         // Read index from flash
+
+   /*
+    * Seek for the first data and jump from data to data after that
+    * Until we find the idx.
+    * Do not search Page base address (fp>page)
+    */
+   fp = _find_last (see, page);
+   while ( fp > page ) {
+      // Read index data
+      if ( see->io.fl_read (see->io.flash, fp, (void *)&i, sizeof (see_idx_t)) != DRV_READY) {
+         // Error, no data
+         return EE_FLASHERROR;
+      }
+      if (i == idx)  //first match
+         break;
+      fp -= (sizeof(see_idx_t) + see->iface.word_size);
+   }
+   // Check if we got something
+   if (fp > page) {
+      // Go in place
+      fp -= see->iface.word_size;
+      if ( see->io.fl_read (see->io.flash, fp, (void *)word, see->iface.word_size) != DRV_READY) {
+         // Read error, no data
+         return EE_FLASHERROR;
+      }
+      return EE_SUCCESS;
+   }
+   // No error, no data
+   return EE_NODATA;
+}
+
+/*!
+ * \brief
+ *    Try to find room to write [word-idx] pair in page
+ *
+ * \param  see    The active see struct.
+ * \param  page   Which page to seek
+ * \param  idx    What virtual address
+ * \param  word   Pointer of data to save
+ * \return        The status of operation
+ *    \arg EE_SUCCESS
+ *    \arg EE_PAGEFULL
+ *    \arg EE_FLASHERROR
+ */
+static see_status_en _try_write (see_t *see, see_idx_t page, see_idx_t idx, byte_t *word)
+{
+   see_idx_t fp;
+   see_status_en ee_st;
+
+   /*
+    * Seek for the first data
+    */
+   fp = _find_last (see, page);
+   if ( see->iface.word_size + sizeof (see_idx_t) <= see->conf.page_size+page-fp-sizeof(see_idx_t)) {
+      //Have room to write
+      fp += sizeof(see_idx_t);   //go to place 'n break
+   }
+   else
+      return EE_PAGEFULL;
+
+   /*
+    * - Write the data
+    * - Write virtual address last (at the end)
+    * - Update "last" variable
+    */
+   ee_st = EE_SUCCESS;  //Try that or prove otherwise
+   if ( see->io.fl_write (see->io.flash, fp, (void*)word, see->iface.word_size) != DRV_READY )
+      ee_st = EE_FLASHERROR;
+   fp += see->iface.word_size;
+   if ( see->io.fl_write (see->io.flash, fp, (void*)&idx, sizeof(see_idx_t)) != DRV_READY )
+      ee_st = EE_FLASHERROR;
+   see->last = fp;
+   return ee_st;
+}
+
+/*!
+ * \brief
+ *    Try to read a single word data from EEPROM to the pointer buf.
+ *    If there isn't data word with index a in EEPROM, the pointers buf get NULL
+ * \param  see    The active see struct.
+ * \param  idx    The virtual address(index) of data
+ * \param  buf    Pointer to data
+ * \return        The status of operation
+ *    \arg EE_NODATA
+ *    \arg EE_SUCCESS
+ *    \arg EE_FLASHERROR
+ */
+static see_status_en _read_word (see_t *see, see_idx_t idx, byte_t *word)
+{
+   see_idx_t page;
+
+   // From - To dispatcher
+   if ( _valid_page (see) == EE_PAGE0 )   page = see->conf.page0_add;
+   else                                   page = see->conf.page1_add;
+
+   return _try_read (see, page, idx, word);
+}
+
+/*!
+ * \brief
+ *    Try to write a single word data to EEPROM pointed by buf.
+ *    If there isn't room in EEPROM, return EE_PAGEFULL
+ * \param  see  The active see struct.
+ * \param  idx  The virtual address(index) of data
+ * \param  word Pointer to word data
+ * \return      The status of operation
+ *    \arg EE_SUCCESS
+ *    \arg EE_PAGEFULL
+ *    \arg EE_FLASHERROR
+ */
+static see_status_en _write_word (see_t *see, see_idx_t idx, byte_t *word)
+{
+   see_idx_t page;
+   see_status_en ee_st;
+
+   // From - To dispatcher
+   if ( _valid_page (see) == EE_PAGE0 )   page = see->conf.page0_add;
+   else                                   page = see->conf.page1_add;
+
+   /*
+    * Try to write the data.
+    * If the page is full, swap the page and try again.
+    * If both pages are full, then the EEPROM is full
+    */
+   if ( (ee_st = _try_write (see, page, idx, word)) == EE_PAGEFULL) {
+      if (_page_swap (see) == EE_FLASHERROR)
+         return EE_FLASHERROR;
+      if (page == see->conf.page0_add)
+         page = see->conf.page1_add;
+      else
+         page = see->conf.page0_add;
+
+      if ( _try_write (see, page, idx, word) == EE_PAGEFULL)
+         return EE_PAGEFULL;
+      else
+         return EE_SUCCESS;
+   }
+   else
+      return ee_st;
+
+}
+
+
+
 
 /*
  * ========== Public Simulated EE API ================
@@ -411,15 +497,38 @@ void see_set_page_size (see_t *see, uint32_t size) {
 
 /*!
  * \brief
- *    Set the targets actual flash page size
+ *    Set the targets actual inner flash sector size
  * \param   see   The active see struct.
  * \param  size   The size
  * \return none
  */
-void see_set_flash_page_size (see_t *see, uint32_t size) {
-   see->conf.flash_page_size = size;
+void see_set_flash_sector_size (see_t *see, uint32_t size) {
+   see->conf.fl_sector_size = size;
 }
 
+/*!
+ * \brief
+ *    Set the size of simulated memory words.
+ * \param   see   The active see struct.
+ * \param  size   The desired size
+ * \return none
+ */
+void see_set_word_size (see_t *see, uint8_t size) {
+   if (size > SEE_MAX_WORD_SIZE)
+      size = SEE_MAX_WORD_SIZE;
+   see->iface.word_size = size;
+}
+
+/*!
+ * \brief
+ *    Set the size of simulated sector
+ * \param   see   The active see struct.
+ * \param  size   The desired size
+ * \return none
+ */
+void see_set_sector_size (see_t *see, uint32_t size) {
+   see->iface.sector_size = size;
+}
 
 /*
  * User Functions
@@ -465,19 +574,24 @@ drv_status_en see_init (see_t *see)
 {
    drv_status_en        drv_st;
    see_status_en        ee_st;
-   see_page_status_en   PageStatus0, PageStatus1;
-   see_data_t           page_st;
+   see_page_status_en   pg0_st, pg1_st;
+   see_page_status_en   page_st;
 
    if (!see->io.fl_ioctl)  return see->status = DRV_ERROR;
    if (!see->io.fl_read)   return see->status = DRV_ERROR;
    if (!see->io.fl_write)  return see->status = DRV_ERROR;
 
-   see->conf.size = _EE_EMULATED_SIZE;
+   see->iface.size = (see->conf.page_size / (see->iface.word_size + sizeof(see_idx_t))) * see->iface.word_size;
+   see->last = (see_idx_t)-1;
+   /*!
+    * \note
+    *    Initiate a _read_last search routine in the first call.
+    */
    see->status = DRV_NOINIT;
-   see->io.fl_read (see->io.flash, see->conf.page0_add, &PageStatus0, sizeof (see_page_status_en));
-   see->io.fl_read (see->io.flash, see->conf.page1_add, &PageStatus1, sizeof (see_page_status_en));
+   see->io.fl_read (see->io.flash, see->conf.page0_add, &pg0_st, sizeof (see_page_status_en));
+   see->io.fl_read (see->io.flash, see->conf.page1_add, &pg1_st, sizeof (see_page_status_en));
 
-   if (PageStatus0 == PageStatus1) {
+   if (pg0_st == pg1_st) {
       //Invalid state, Format
       _format (see);
       see->status = DRV_READY;
@@ -486,11 +600,11 @@ drv_status_en see_init (see_t *see)
    /*
     *  Normal state. Do nothing
     */
-   else if (PageStatus0 == EE_PAGE_ACTIVE && PageStatus1 == EE_PAGE_EMPTY) {
+   else if (pg0_st == EE_PAGE_ACTIVE && pg1_st == EE_PAGE_EMPTY) {
       see->status = DRV_READY;
       return see->status;
    }
-   else if (PageStatus0 == EE_PAGE_EMPTY && PageStatus1 == EE_PAGE_ACTIVE) {
+   else if (pg0_st == EE_PAGE_EMPTY && pg1_st == EE_PAGE_ACTIVE) {
       see->status = DRV_READY;
       return see->status;
    }
@@ -498,24 +612,20 @@ drv_status_en see_init (see_t *see)
     * Power failure during PageSwap just before marking ACTIVE the new page.
     * We just mark as active the new page.
     */
-   else if (PageStatus0 == EE_PAGE_RECEIVEDATA && PageStatus1 == EE_PAGE_EMPTY)
+   else if (pg0_st == EE_PAGE_RECEIVEDATA && pg1_st == EE_PAGE_EMPTY)
    {
-      see->io.fl_ioctl (see->io.flash, CTRL_CMD_UNLOCK, (void*)0);
       drv_st = DRV_READY;     //Try that or prove otherwise
       page_st = EE_PAGE_ACTIVE;
       if ( see->io.fl_write (see->io.flash, see->conf.page0_add, (void*)&page_st, sizeof(page_st)) != DRV_READY)
          drv_st = DRV_ERROR;
-      see->io.fl_ioctl (see->io.flash, CTRL_CMD_LOCK, (void*)0);
       return (see->status = drv_st);
    }
-   else if (PageStatus0 == EE_PAGE_EMPTY && PageStatus1 == EE_PAGE_RECEIVEDATA)
+   else if (pg0_st == EE_PAGE_EMPTY && pg1_st == EE_PAGE_RECEIVEDATA)
    {
-      see->io.fl_ioctl (see->io.flash, CTRL_CMD_UNLOCK, (void*)0);
       drv_st = DRV_READY;     //Try that or prove otherwise
       page_st = EE_PAGE_ACTIVE;
       if ( see->io.fl_write (see->io.flash, see->conf.page1_add, &page_st, sizeof(page_st)) != DRV_READY)
          drv_st = DRV_ERROR;
-      see->io.fl_ioctl (see->io.flash, CTRL_CMD_LOCK, (void*)0);
       return (see->status = drv_st);
    }
    /*
@@ -523,39 +633,16 @@ drv_status_en see_init (see_t *see)
     * The data are intact in old page (Still active).
     * We Re-call the page swap procedure.
     */
-   else if (PageStatus0 == EE_PAGE_ACTIVE && PageStatus1 == EE_PAGE_RECEIVEDATA)
+   else if (pg0_st == EE_PAGE_ACTIVE && pg1_st == EE_PAGE_RECEIVEDATA)
       ee_st = _page_swap (see);
-   else if (PageStatus0 == EE_PAGE_RECEIVEDATA && PageStatus1 == EE_PAGE_ACTIVE)
+   else if (pg0_st == EE_PAGE_RECEIVEDATA && pg1_st == EE_PAGE_ACTIVE)
       ee_st = _page_swap (see);
 
    if (ee_st == EE_SUCCESS)   return see->status = DRV_READY;
    else                       return see->status = DRV_ERROR;
 }                                      
 
-/*!
- * \brief
- *    Try to read data from EEPROM to the pointer d, for data.
- *    If there isn't data with index a in EEPROM, the pointers d and s get NULL
- * \param  see    The active see struct.
- * \param  idx    The virtual address(index) of data
- * \param  buf    Pointer to data
- * \retval Status
- *    \arg DRV_READY
- *    \arg DRV_ERROR
- */
-drv_status_en see_read_word (see_t *see, see_idx_t idx, see_data_t *buf)
-{
-   see_idx_t page;
 
-   // From - To dispatcher
-   if ( _valid_page (see) == EE_PAGE0 )   page = see->conf.page0_add;
-   else                                   page = see->conf.page1_add;
-
-   if ( _try_read (see, page, idx, buf) == EE_SUCCESS)
-      return see->status = DRV_READY;
-   else
-      return see->status = DRV_ERROR;
-}
 
 /*!
  * \brief
@@ -564,114 +651,147 @@ drv_status_en see_read_word (see_t *see, see_idx_t idx, see_data_t *buf)
  * \param  see    The active see struct.
  * \param  idx    The virtual address(index) of data
  * \param  buf    Pointer to data
- * \param  size   size of data
- * \retval Status
+ * \param  size   number of bytes
+ * \return Status of operation, not drivers
  *    \arg DRV_READY
  *    \arg DRV_ERROR
  */
-drv_status_en see_read (see_t *see, see_idx_t idx, see_data_t *buf, size_t size)
+drv_status_en see_read (see_t *see, see_idx_t idx, byte_t *buf, bytecount_t size)
 {
-   int i, ii = size / sizeof (see_data_t);
-   int rem = size % sizeof (see_data_t);
-   uint8_t      *pr;    // Pointer for the remaining data
-   union {              // Buffer for remaining data
-      uint8_t     b[sizeof(see_data_t)];
-      see_data_t  w;
-   }bf;
+   see_idx_t   fl_idx;     // Index counters
+   uint8_t     ofs_idx;
+   bytecount_t i, words;   // Word counters
+   uint8_t rem;
+   uint8_t n;              // helper variable
+   byte_t bf[SEE_MAX_WORD_SIZE];  // Buffer for not-aligned data
 
-   for (i=0 ; i<ii ; ++i) {
-      if ( see_read_word(see, idx++, buf++) != DRV_READY )
-         return see->status = DRV_ERROR;
+   if ( see->status != DRV_READY )
+      return see->status = DRV_ERROR;
+
+   see->status = DRV_BUSY;
+
+   // Calculate counters
+   ofs_idx = idx % see->iface.word_size;     // Index offset, if any
+   fl_idx = idx - ofs_idx;                   // Actual written flash index
+   words = size / see->iface.word_size;      // How many words
+   rem = size % see->iface.word_size;        // How many remaining bytes
+
+   // If we have unaligned starting data
+   if (ofs_idx) {
+      if ( _read_word (see, fl_idx, bf) == EE_FLASHERROR ) {
+         see->status = DRV_READY;
+         return DRV_ERROR;
+      }
+      n = see->iface.word_size - ofs_idx;
+      if (n <= rem) {   // Consume reminder bytes
+         rem -= n;
+      }
+      else {
+         if (words>0) { // Consume reminder bytes and words
+            --words;
+            rem = n - rem;
+         }
+         else {         // All the data was that
+            n = rem;
+            rem = 0;
+         }
+      }
+      // Copy and update pointers
+      memcpy ((void *)buf, (const void *)bf, n);
+      buf += n;
+      fl_idx += see->iface.word_size;
    }
+   // Read aligned data
+   for (i=0 ; i<words ; ++i) {
+      if ( _read_word (see, fl_idx, buf) == EE_FLASHERROR ) {
+         see->status = DRV_READY;
+         return DRV_ERROR;
+      }
+      buf += see->iface.word_size;
+      fl_idx += see->iface.word_size;
+   }
+   // Read remaining unaligned data
    if (rem) {
-      pr = (uint8_t*)buf;  // Take last memory address
-      if ( see_read_word(see, idx, &bf.w) != DRV_READY )
-         return see->status = DRV_ERROR;
-      for (i=0 ; i<rem ; ++i) // Restore the remaining data
-         *pr++ = bf.b[i];
+      // Take last data
+      if ( _read_word (see, fl_idx, bf) == EE_FLASHERROR ) {
+         see->status = DRV_READY;
+         return DRV_ERROR;
+      }
+      memcpy ((void *)buf, (const void *)bf, rem);
    }
    return see->status = DRV_READY;
 }
 
 /*!
  * \brief
- *    Try to write data to EEPROM the data pointed by d.
+ *    Try to write data to EEPROM.
  *    If there isn't room in EEPROM, return DRV_ERROR
+ *
+ * \note
+ *    We don't allow unaligned writes. This way the reminder
+ *    data will have always empty room before the next written
+ *    index.
+ *
+ *    For ex:
+ *     0A      0F|10 13|14      19|1A 1D|1E      23|24 27|28      2D|2E 31|32
+ *    -----------------------------------------------------------------------
+ *    |   data   |     |   data   |     | data     |     |   data   |     |
+ *    |<--6byte->| idx |<--6byte->| idx |<4byte>---| idx |   6byte  | idx |
+ *    |xxxxxxxxxx| 0x0 |xxxxxxxxxx| 0x6 |xxxxxxx***| 0xC |    xx    | 0x12|
+ *    ------------------------------------------------------------------------
+ *    ^                                        ^ ^                      ^
+ *    |                                        | |                      |
+ *   start                                   end empty           always aligned
+ *
  * \param  see  The active see struct.
  * \param  idx  The virtual address(index) of data
- * \param  d    Pointer to data
- * \return Status
- *    \arg DRV_READY
- *    \arg DRV_ERROR
- */
-drv_status_en see_write_word (see_t *see, see_idx_t idx, see_data_t *d)
-{
-   see_idx_t page;
-   see_status_en ee_st;
-
-   // From - To dispatcher
-   if ( _valid_page (see) == EE_PAGE0 )   page = see->conf.page0_add;
-   else                                   page = see->conf.page1_add;
-
-   /*
-    * Try to write the data.
-    * If the page is full, swap the page and try again.
-    * If both pages are full, then the EEPROM is full
-    */
-   ee_st = _try_write (see, page, idx, d);
-   if ( ee_st == EE_PAGEFULL) {
-      if (_page_swap (see) == EE_FLASHERROR)
-         return see->status = DRV_ERROR;
-      if (page == see->conf.page0_add)
-         page = see->conf.page1_add;
-      else
-         page = see->conf.page0_add;
-
-      ee_st = _try_write (see, page, idx, d);
-      if ( ee_st == EE_PAGEFULL)
-         return see->status = DRV_ERROR;
-      else
-         return see->status = DRV_READY;
-   }
-   else if (ee_st == EE_FLASHERROR)
-      return see->status = DRV_ERROR;
-   else
-      return see->status = DRV_READY;
-}
-
-/*!
- * \brief
- *    Try to write data to EEPROM. The data are d with size size.
- *    If there isn't room in EEPROM, return DRV_ERROR
- * \param  see  The active see struct.
- * \param  idx  The virtual address(index) of data
- * \param  d    Pointer to data
+ * \param  buf  Pointer to data
  * \param size  size of data
- * \return Status
+ *
+ * \return Status of operation, not drivers
  *    \arg DRV_READY
  *    \arg DRV_ERROR
  */
-drv_status_en see_write (see_t *see, see_idx_t idx, see_data_t *d, size_t size)
+drv_status_en see_write (see_t *see, see_idx_t idx, byte_t *buf, bytecount_t size)
 {
-   int i, ii = size / sizeof (see_data_t);
-   int rem = size % sizeof (see_data_t);
-   uint8_t      *pr;    // Pointer for the remaining data
-   union {              // Buffer for remaining data
-      uint8_t     b[sizeof(see_data_t)];
-      see_data_t  w;
-   }bf;
+   bytecount_t i, words;   // Word counters
+   uint8_t rem;
+   byte_t bf[SEE_MAX_WORD_SIZE];  // Buffer for not-aligned data
 
-   for (i=0 ; i<ii ; ++i) {
-      if ( see_write_word(see, idx++, d++) != DRV_READY )
-         return see->status = DRV_ERROR;
+   if ( see->status != DRV_READY )
+      return see->status = DRV_ERROR;
+
+   see->status = DRV_BUSY;
+
+   if (idx % see->iface.word_size) {
+      see->status = DRV_READY;
+      return DRV_ERROR;
+      /*
+       * We don't allow unaligned writes.
+       */
    }
+
+   // Calculate counters
+   words = size / see->iface.word_size;      // How many words
+   rem = size % see->iface.word_size;        // How many remaining bytes
+
+   // Write aligned data
+   for (i=0 ; i<words ; ++i) {
+      if ( _write_word (see, idx, buf) == EE_FLASHERROR ) {
+         see->status = DRV_READY;
+         return DRV_ERROR;
+      }
+      buf += see->iface.word_size;
+      idx += see->iface.word_size;
+   }
+   // Write remaining unaligned data
    if (rem) {
-      pr = (uint8_t*)d;  // Take last memory address
-      // Empty buffer first and Buffer the remaining data
-      for (i=0, bf.w=0; i<rem ; ++i)
-         *pr++ = bf.b[i];
-      if ( see_write_word(see, idx, &bf.w) != DRV_READY )
-         return see->status = DRV_ERROR;
+      memcpy ((void *)bf, (const void *)buf, rem);
+      // Write last data
+      if ( _write_word (see, idx, bf) == EE_FLASHERROR ) {
+         see->status = DRV_READY;
+         return DRV_ERROR;
+      }
    }
    return see->status = DRV_READY;
 }
@@ -705,7 +825,7 @@ drv_status_en see_ioctl (see_t *see, ioctl_cmd_t cmd, ioctl_buf_t buf)
          return DRV_READY;
       case CTRL_GET_SIZE:       /*!< Get size */
          if (buf)
-            *(drv_status_en*)buf = see->conf.size;
+            *(drv_status_en*)buf = see->iface.size;
          return see->status = DRV_READY;
       case CTRL_DEINIT:          /*!< De-init */
          see_deinit(see);
@@ -730,4 +850,3 @@ drv_status_en see_ioctl (see_t *see, ioctl_cmd_t cmd, ioctl_buf_t buf)
    }
 }
 
-#undef _EE_EMULATED_SIZE
