@@ -58,7 +58,7 @@ static drv_status_en
    PUT_UINT32_BE(idx, _idx, 0);     // Get MSB first
 
    // Read operation
-   drv->io.cs (ENABLE);
+   drv->io.cs (S25FS_EN);
    // Command
    if ( drv->io.spi_write (drv->io.spi, &cmd, 1) != DRV_READY )
       return DRV_ERROR;
@@ -68,7 +68,7 @@ static drv_status_en
    // Data
    if (len && drv->io.spi_read (drv->io.spi, buf, len) != DRV_READY )
       return DRV_ERROR;
-   drv->io.cs (DISABLE);
+   drv->io.cs (S25FS_DIS);
 
    return DRV_READY;
 }
@@ -97,7 +97,7 @@ static drv_status_en
    PUT_UINT32_BE(idx, _idx, 0);     // Get MSB first
 
    // write operation
-   drv->io.cs (ENABLE);
+   drv->io.cs (S25FS_EN);
    // Command
    if ( drv->io.spi_write (drv->io.spi, &cmd, 1) != DRV_READY )
       return DRV_ERROR;
@@ -107,7 +107,7 @@ static drv_status_en
    // Data
    if (len && drv->io.spi_write (drv->io.spi, buf, len) != DRV_READY )
       return DRV_ERROR;
-   drv->io.cs (DISABLE);
+   drv->io.cs (S25FS_DIS);
 
    return DRV_READY;
 }
@@ -348,8 +348,8 @@ void s25fs_set_sector_size (s25fs_t *drv, uint32_t size) {
 void s25fs_deinit (s25fs_t *drv)
 {
    // Clean port I/O
-   if ( drv->io.cs)  drv->io.cs (DISABLE);
-   if (drv->io.wp)   drv->io.wp (ENABLE);
+   if ( drv->io.cs)  drv->io.cs (S25FS_DIS);
+   if (drv->io.wp)   drv->io.wp (S25FS_EN);
 
    memset ((void*)drv, 0, sizeof (s25fs_t));
    /*!<
@@ -388,8 +388,8 @@ drv_status_en s25fs_init (s25fs_t *drv)
    spi_set_cpol ((spi_bb_t*)drv->io.spi, 0);
 
    // port init
-   drv->io.cs (DISABLE);
-   if (drv->io.wp)   drv->io.wp (ENABLE);
+   drv->io.cs (S25FS_DIS);
+   if (drv->io.wp)   drv->io.wp (S25FS_EN);
 
    if (!drv->conf.write_page_sz)    drv->conf.write_page_sz = S25FS_WRITE_PAGE_SZ_DEF;
    if (!drv->conf.erase_page_sz)    drv->conf.erase_page_sz = S25FS_ERASE_PAGE_SZ_DEF;
@@ -419,7 +419,7 @@ drv_status_en  s25fs_erase (s25fs_t *drv, s25fs_idx_t idx)
    // Wait last operation
    if ( !_wait_ready (drv) )                return DRV_BUSY;
    // Write enable
-   if (drv->io.wp)   drv->io.wp (DISABLE);
+   if (drv->io.wp)   drv->io.wp (S25FS_DIS);
    if ( _cmd_WREN (drv) != DRV_READY )      return DRV_ERROR;
    // Execute Sector erase command
    if ( _cmd_SE (drv, idx) != DRV_READY )   return DRV_ERROR;
@@ -427,7 +427,7 @@ drv_status_en  s25fs_erase (s25fs_t *drv, s25fs_idx_t idx)
    if ( !_wait_ready (drv) )                return DRV_BUSY;
    // Write disable again
    if ( _cmd_WRDI (drv) != DRV_READY )      return DRV_ERROR;
-   if (drv->io.wp)   drv->io.wp (ENABLE);
+   if (drv->io.wp)   drv->io.wp (S25FS_EN);
 
    return DRV_READY;
 }
@@ -471,7 +471,7 @@ drv_status_en s25fs_write (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *buf, int
    uint32_t wb=0;    // The written bytes
    int      ret;
 
-   if (drv->io.wp)   drv->io.wp (DISABLE);
+   if (drv->io.wp)   drv->io.wp (S25FS_DIS);
    if ( _cmd_WREN (drv) != DRV_READY )
       return DRV_ERROR;
 
@@ -490,7 +490,7 @@ drv_status_en s25fs_write (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *buf, int
       return DRV_ERROR;
    if ( _cmd_WRDI (drv) != DRV_READY )
       return DRV_ERROR;
-   if (drv->io.wp)   drv->io.wp (ENABLE);
+   if (drv->io.wp)   drv->io.wp (S25FS_EN);
 
    return DRV_READY;
 }

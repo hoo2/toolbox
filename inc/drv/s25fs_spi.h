@@ -69,11 +69,11 @@ extern "C" {
 #define ADDRESS_NOT_USED 0xFFFFFFFF
 #define BUFFER_NOT_USED  (byte_t*)0
 
-#ifndef ENABLE
-#define ENABLE    (1)
+#ifndef S25FS_EN
+#define S25FS_EN    (1)
 #endif
-#ifndef DISABLE
-#define DISABLE   (0)
+#ifndef S25FS_DIS
+#define S25FS_DIS   (0)
 #endif
 
 /*!

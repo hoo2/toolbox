@@ -53,6 +53,7 @@ extern "C" {
 #include <drv/ktyx.h>
 #include <drv/ntc3997k.h>
 #include <drv/jtype.h>
+#include <drv/brh_fcx.h>
 
 #include <drv/ee_i2c_pol.h>
 #include <drv/sim_ee.h>

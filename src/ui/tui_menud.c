@@ -290,7 +290,7 @@ void tui_menud_init (tuid_t *tuid)
  * \param  tuid   Pointer to the active tuid_t struct
  * \return        Pointer to the current menu item.
  */
-inline menud_item_t* tui_menu_this (tuid_t *tuid) {
+inline menud_item_t* tui_menud_this (tuid_t *tuid) {
    return (menud_item_t*)& tuid->menu_data.menu[tuid->menu_data.mn_it];
 }
 
