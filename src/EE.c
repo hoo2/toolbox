@@ -27,10 +27,10 @@
 #include <EE.h>
 
 static EE_Page_t        EE_ValidPage (void);
-static EE_ExitStatus_t  EE_TryRead (flash_add_t page, EE_Index_t idx, EE_Data_t *d);
-static EE_ExitStatus_t  EE_TryWrite (flash_add_t page, EE_Index_t idx, EE_Data_t *d);
+static EE_ExitStatus_t  EE_TryRead (FLASH_add_t page, EE_Index_t idx, EE_Data_t *d);
+static EE_ExitStatus_t  EE_TryWrite (FLASH_add_t page, EE_Index_t idx, EE_Data_t *d);
 static EE_ExitStatus_t  EE_PageSwap (void);
-static EE_ExitStatus_t  EE_ErasePage (flash_add_t Page_Address);
+static EE_ExitStatus_t  EE_ErasePage (FLASH_add_t Page_Address);
 
 /**
   * EE_Page_t EE_ValidPage (void)
@@ -41,7 +41,7 @@ static EE_ExitStatus_t  EE_ErasePage (flash_add_t Page_Address);
   */
 static EE_Page_t EE_ValidPage (void)
 {
-   if ( *(__IO flash_data_t*)EE_PAGE0_ADDRESS == EE_PAGE_ACTIVE)
+   if ( *(FLASH_data_t*)EE_PAGE0_ADDRESS == EE_PAGE_ACTIVE)
       return EE_PAGE0;
    else
       return EE_PAGE1;
@@ -56,9 +56,9 @@ static EE_Page_t EE_ValidPage (void)
   *         *d    : pointer to store the data
   * @retval EE_ExitStatus_t : EE_NODATA or EE_SUCCESS
   */
-static EE_ExitStatus_t EE_TryRead (flash_add_t page, EE_Index_t idx, EE_Data_t *d)
+static EE_ExitStatus_t EE_TryRead (FLASH_add_t page, EE_Index_t idx, EE_Data_t *d)
 {
-   flash_add_t  fp;
+   FLASH_add_t  fp;
    EE_Index_t   i;
    
    /*
@@ -68,7 +68,7 @@ static EE_ExitStatus_t EE_TryRead (flash_add_t page, EE_Index_t idx, EE_Data_t *
     */
    for (fp=page+EE_PAGE_SIZE-sizeof(EE_Index_t) ; fp>page ; fp-=sizeof(EE_Index_t))
    {
-      FLASH_LoadData(fp, &i, sizeof (i));
+      FLASH_read(fp, &i, sizeof (i));
       if (i < (EE_Index_t)(-1))   //not empty 0xFF..FF
       {
          if (i == idx)  //first match
@@ -80,7 +80,7 @@ static EE_ExitStatus_t EE_TryRead (flash_add_t page, EE_Index_t idx, EE_Data_t *
    // Check if we got something
    if (fp > page)
    {
-      FLASH_LoadData(fp-sizeof(EE_Data_t), (flash_data_t *)d, sizeof(EE_Data_t));
+      FLASH_read(fp-sizeof(EE_Data_t), (FLASH_data_t *)d, sizeof(EE_Data_t));
       return EE_SUCCESS;
    }
    d = (void *)0;  //no data
@@ -96,9 +96,9 @@ static EE_ExitStatus_t EE_TryRead (flash_add_t page, EE_Index_t idx, EE_Data_t *
   *         *d    : pointer of data to save
   * @retval EE_ExitStatus_t : EE_SUCCESS, EE_PAGEFULL, EE_FLASHERROR
   */
-static EE_ExitStatus_t EE_TryWrite (flash_add_t page, EE_Index_t idx, EE_Data_t *d)
+static EE_ExitStatus_t EE_TryWrite (FLASH_add_t page, EE_Index_t idx, EE_Data_t *d)
 {
-   flash_add_t fp;
+   FLASH_add_t fp;
    EE_Index_t   i;
 
    EE_ExitStatus_t ee_st;
@@ -108,7 +108,7 @@ static EE_ExitStatus_t EE_TryWrite (flash_add_t page, EE_Index_t idx, EE_Data_t 
     */
    for (fp=page+EE_PAGE_SIZE-sizeof(EE_Index_t) ; fp>=page ; fp-=sizeof(EE_Index_t))
    {
-      FLASH_LoadData(fp, &i, sizeof (i));
+      FLASH_read(fp, &i, sizeof (i));
       if (i < (EE_Index_t)(-1))   //not empty 0xFF..FF
       {
          if (sizeof(EE_Data_t) + sizeof (EE_Index_t) <= EE_PAGE_SIZE+page-fp-sizeof(EE_Index_t))  //Have room to write
@@ -127,10 +127,10 @@ static EE_ExitStatus_t EE_TryWrite (flash_add_t page, EE_Index_t idx, EE_Data_t 
    */
    FLASH_Unlock ();
    ee_st = EE_SUCCESS;  //Try that or prove otherwise
-   if (FLASH_WriteData(fp, (flash_data_t *)d, sizeof(EE_Data_t)) != FLASH_COMPLETE)
+   if (FLASH_write(fp, (FLASH_data_t *)d, sizeof(EE_Data_t)) != FLASH_COMPLETE)
       ee_st = EE_FLASHERROR;
    fp += sizeof(EE_Data_t);
-   if (FLASH_WriteData(fp, &idx, sizeof(EE_Index_t)) != FLASH_COMPLETE)
+   if (FLASH_write(fp, &idx, sizeof(EE_Index_t)) != FLASH_COMPLETE)
       ee_st = EE_FLASHERROR;
    // Lock and return
    FLASH_Lock();
@@ -146,8 +146,8 @@ static EE_ExitStatus_t EE_TryWrite (flash_add_t page, EE_Index_t idx, EE_Data_t 
   */
 static EE_ExitStatus_t EE_PageSwap (void)
 {
-   flash_add_t       from, to;
-   flash_data_t      status;
+   FLASH_add_t       from, to;
+   FLASH_data_t      status;
    EE_Data_t         data;
    EE_Index_t        idx;
    EE_ExitStatus_t   ee_st;
@@ -170,7 +170,7 @@ static EE_ExitStatus_t EE_PageSwap (void)
    if (EE_ErasePage (to) != EE_SUCCESS)
       return EE_FLASHERROR;
    status = EE_PAGE_RECEIVEDATA;
-   if (FLASH_WriteData(to, &status, sizeof(status)) != FLASH_COMPLETE)
+   if (FLASH_write(to, &status, sizeof(status)) != FLASH_COMPLETE)
       return EE_FLASHERROR;
 
 
@@ -211,13 +211,13 @@ static EE_ExitStatus_t EE_PageSwap (void)
       ee_st = EE_FLASHERROR;
    
    status = EE_PAGE_EMPTY;     // Mark the new Page as EMPTY
-   if (FLASH_WriteData(from, &status, sizeof(status)) != FLASH_COMPLETE)
+   if (FLASH_write(from, &status, sizeof(status)) != FLASH_COMPLETE)
       ee_st = EE_FLASHERROR;
 
   
    // Mark the new Page as ACTIVE
    status = EE_PAGE_ACTIVE;
-   if (FLASH_WriteData(to, &status, sizeof(status)) != FLASH_COMPLETE)
+   if (FLASH_write(to, &status, sizeof(status)) != FLASH_COMPLETE)
       ee_st = EE_FLASHERROR;
 
    FLASH_Lock();
@@ -226,7 +226,7 @@ static EE_ExitStatus_t EE_PageSwap (void)
 
 
 
-static EE_ExitStatus_t  EE_ErasePage (flash_add_t Page_Address)
+static EE_ExitStatus_t  EE_ErasePage (FLASH_add_t Page_Address)
 {
    uint8_t  nop = EE_PAGE_SIZE/ARM_PAGE_SIZE;
 
@@ -248,10 +248,10 @@ EE_ExitStatus_t   EE_Init (void)
 {
    EE_ExitStatus_t   ee_st;
    EE_PageStatus_t   PageStatus0, PageStatus1; 
-   flash_data_t      page_st;
+   FLASH_data_t      page_st;
 
-   PageStatus0 = (EE_PageStatus_t)*(__IO flash_data_t*)EE_PAGE0_ADDRESS;
-   PageStatus1 = (EE_PageStatus_t)*(__IO flash_data_t*)EE_PAGE1_ADDRESS;
+   PageStatus0 = (EE_PageStatus_t)*(FLASH_data_t*)EE_PAGE0_ADDRESS;
+   PageStatus1 = (EE_PageStatus_t)*(FLASH_data_t*)EE_PAGE1_ADDRESS;
 
    if (PageStatus0 == PageStatus1)  //Invalid state, Format
       EE_Format ();
@@ -271,7 +271,7 @@ EE_ExitStatus_t   EE_Init (void)
       FLASH_Unlock ();
       ee_st = EE_SUCCESS;     //Try that or prove otherwise
       page_st = EE_PAGE_ACTIVE;
-      if ( FLASH_WriteData (EE_PAGE0_ADDRESS, &page_st, sizeof(page_st)) != FLASH_COMPLETE)
+      if ( FLASH_write (EE_PAGE0_ADDRESS, &page_st, sizeof(page_st)) != FLASH_COMPLETE)
          ee_st = EE_FLASHERROR;
       FLASH_Lock ();
       return ee_st;  
@@ -281,7 +281,7 @@ EE_ExitStatus_t   EE_Init (void)
       FLASH_Unlock ();
       ee_st = EE_SUCCESS;     //Try that or prove otherwise
       page_st = EE_PAGE_ACTIVE;
-      if ( FLASH_WriteData (EE_PAGE1_ADDRESS, &page_st, sizeof(page_st)) != FLASH_COMPLETE)
+      if ( FLASH_write (EE_PAGE1_ADDRESS, &page_st, sizeof(page_st)) != FLASH_COMPLETE)
          ee_st = EE_FLASHERROR;
       FLASH_Lock ();
       return ee_st;  
@@ -311,7 +311,7 @@ EE_ExitStatus_t   EE_Init (void)
   */
 EE_ExitStatus_t EE_Format (void)
 {
-   flash_data_t page0_st, page1_st;
+   FLASH_data_t page0_st, page1_st;
    EE_ExitStatus_t   ee_st;
    uint8_t  nop = 2*EE_PAGE_SIZE/ARM_PAGE_SIZE;
 
@@ -331,9 +331,9 @@ EE_ExitStatus_t EE_Format (void)
       page0_st = EE_PAGE_ACTIVE;
       page1_st = EE_PAGE_EMPTY;
          
-      if ( FLASH_WriteData (EE_PAGE0_ADDRESS, &page0_st, sizeof(page0_st)) != FLASH_COMPLETE)
+      if ( FLASH_write (EE_PAGE0_ADDRESS, &page0_st, sizeof(page0_st)) != FLASH_COMPLETE)
          ee_st = EE_FLASHERROR;
-      if ( FLASH_WriteData (EE_PAGE1_ADDRESS, &page1_st, sizeof(page1_st)) != FLASH_COMPLETE)
+      if ( FLASH_write (EE_PAGE1_ADDRESS, &page1_st, sizeof(page1_st)) != FLASH_COMPLETE)
          ee_st = EE_FLASHERROR;
    }
 
@@ -344,7 +344,7 @@ EE_ExitStatus_t EE_Format (void)
 
 
 /**
-  * EE_ExitStatus_t   EE_Read (EE_Index_t idx, flash_data_t *d)
+  * EE_ExitStatus_t   EE_Read (EE_Index_t idx, FLASH_data_t *d)
   *
   * @brief  Try to read data from EEPROM to the pointer d, for data.
   *         If there isn't data with index a in EEPROM, the pointers d and s get NULL
@@ -354,7 +354,7 @@ EE_ExitStatus_t EE_Format (void)
   */
 EE_ExitStatus_t   EE_Read (EE_Index_t idx, EE_Data_t *d)
 {
-   flash_add_t       page;
+   FLASH_add_t       page;
 
    // From - To dispatcher
    if ( EE_ValidPage () == EE_PAGE0 )  page = EE_PAGE0_ADDRESS;
@@ -364,7 +364,7 @@ EE_ExitStatus_t   EE_Read (EE_Index_t idx, EE_Data_t *d)
 }
 
 /**
-  * EE_ExitStatus_t   EE_Write (EE_Index_t idx, flash_data_t *d)
+  * EE_ExitStatus_t   EE_Write (EE_Index_t idx, FLASH_data_t *d)
   *
   * @brief  Try to write data to EEPROM. The data are d with size s.
   *         If there isn't room in EEPROM, return EE_EEFULL
@@ -374,7 +374,7 @@ EE_ExitStatus_t   EE_Read (EE_Index_t idx, EE_Data_t *d)
   */
 EE_ExitStatus_t   EE_Write (EE_Index_t idx, EE_Data_t *d)
 {
-   flash_add_t page;
+   FLASH_add_t page;
    EE_ExitStatus_t ee_st;
 
    // From - To dispatcher
