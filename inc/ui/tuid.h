@@ -140,12 +140,12 @@ void tui_menud_clear_mask (tuid_t *tuid, uint8_t pos);
 void tui_menud_init (tuid_t *tuid);
 menud_item_t* tui_menud_this (tuid_t *tuid);
 
-ui_return_t tui_menud (tuid_t *tuid, int key, menud_item_t *mn, Lang_en ln);
+ui_return_t     tui_menud (tuid_t *tuid, int key, menud_item_t *mn, Lang_en ln);
 ui_return_t tui_comboboxd (tuid_t *tuid, int key, combobox_item_t *items, int *id, Lang_en ln);
 ui_return_t tui_valueboxd (tuid_t *tuid, int key, text_t cap, text_t units, float up, float down, float step, int dec, float *value);
-ui_return_t tui_timeboxd (tuid_t *tuid, int key, text_t cap, uint8_t frm, time_t up, time_t down, time_t step, time_t *value);
-ui_return_t tui_textboxd (tuid_t *tuid, int key, text_t cap, char* str, int size);
-
+ui_return_t  tui_timeboxd (tuid_t *tuid, int key, text_t cap, uint8_t frm, time_t up, time_t down, time_t step, time_t *value);
+ui_return_t  tui_textboxd (tuid_t *tuid, int key, text_t cap, char* str, int size);
+ui_return_t   tui_msgboxd (tuid_t *tuid, int key, text_t cap, text_t msg);
 
 #ifdef  __cplusplus
 }
