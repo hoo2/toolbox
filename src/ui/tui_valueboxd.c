@@ -70,16 +70,20 @@ static void _mk_frame (tuid_t *tuid, float v, int dec, text_t units)
          break;
       default:
       case 1:
-         offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)], "=%.1f %s", v, (char*)units);
+         offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)], "=%.1f", v);
+         offset += sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)+offset], " %s", (char*)units);
          break;
       case 2:
-         offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)], "=%.2f %s", v, (char*)units);
+         offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)], "=%.2f", v);
+         offset += sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)+offset], " %s", (char*)units);
          break;
       case 3:
-         offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)], "=%.3f %s", v, (char*)units);
+         offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)], "=%.3f", v);
+         offset += sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)+offset], " %s", (char*)units);
          break;
       case 4:
-         offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)], "=%.4f %s", v, (char*)units);
+         offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)], "=%.4f", v);
+         offset += sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)+offset], " %s", (char*)units);
          break;
    }
    // discard null termination inside frame buffer
