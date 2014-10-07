@@ -48,14 +48,12 @@ void _tuix_mk_caption (fb_t *fb, text_t cap)
       return;
    // Clear ALL fb's caption first
    memset ((char*)&fb->fb[0], ' ', fb->c-1);
-   fb->fb[fb->c-1] = 0; // Keep null termination at end of line
 
    // Print caption
    offset = sprintf ((char*)&fb->fb[0], "%s", (char*)cap);
-   fb->fb[offset] = ' ';
-   /*
-    * discard null termination inside frame buffer
-    */
+   fb->fb[offset] = ' ';   // discard null termination inside frame buffer
+   fb->fb[fb->c-1] = 0;    // Keep null termination at end of caption line
+
 }
 
 /*!
@@ -72,7 +70,7 @@ int _tuix_clear_frame (fb_t *fb)
 
    if (!fb->fb)   // No frame buffer attached, return
       return 1;
-   // Clear fb's frame first
+   // Clear fb's frame
    for (line=1 ; line < fb->l ; ++line) {
       memset ((char*)&fb->fb[fb->c*line], ' ', fb->c-1);
       fb->fb[fb->c*(line+1)-1] = 0;

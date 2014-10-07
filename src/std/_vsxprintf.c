@@ -682,5 +682,6 @@ int vsxprintf(_putc_out_t _out, char *dst, char *frm, __VALIST ap)
             break;
       }
    }
+   _out (dst, 0); // NULL-terminated (final \0 is not counted)
    return (int)(dst - dst_start);
 }
