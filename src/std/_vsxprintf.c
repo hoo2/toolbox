@@ -37,7 +37,7 @@ static int _inshex (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, unsigned in
 static int _inscoredouble (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, double value);
 static int _insfdouble (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, double value);
 static int _insedouble (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, double value);
-
+static double _va_args_double (__VALIST ap);
 
 
 /*!
@@ -590,6 +590,29 @@ static int _insedouble(_putc_out_t _out, char *dst, _io_frm_spec_t *fs, double v
    return 0;
 }
 
+/*!
+ * \brief
+ *    va_list double with wrong alignment workaround.
+ * 1) When va_arg(ap, double) comes in even argument number, it has 4bytes crap in front of it.
+ * 2) When va_arg(ap, double) comes in odd argument number, it fails cause it skips 4bytes before reading.
+ *
+ */
+static double _va_args_double(__VALIST ap) {
+   double _double;
+   uint32_t *l = (uint32_t *)&_double;
+
+   if (*(uint32_t*)&ap & 4) {
+      l[0]= va_arg(ap, uint32_t);
+      l[1]= va_arg(ap, uint32_t);
+   }
+   else {
+      l[0]= va_arg(ap, uint32_t);   // crap
+      l[0]= va_arg(ap, uint32_t);
+      l[1]= va_arg(ap, uint32_t);
+   }
+    return _double;
+}
+
 /*
  * ============================ Public Functions ============================
  */
@@ -642,19 +665,15 @@ int vsxprintf(_putc_out_t _out, char *dst, char *frm, __VALIST ap)
                      obj.frm_specifier.type == FL_g ||
                      obj.frm_specifier.type == FL_G ||
                      obj.frm_specifier.type == FL_L)
-               dst += _insfdouble (_out, dst, &obj.frm_specifier, va_arg(ap, double)); // XXX
+               dst += _insfdouble (_out, dst, &obj.frm_specifier, _va_args_double(ap)); // XXX
             else if (obj.frm_specifier.type == FL_e ||
                      obj.frm_specifier.type == FL_E)
-               dst += _insedouble (_out, dst, &obj.frm_specifier, va_arg(ap, double)); // XXX
+               dst += _insedouble (_out, dst, &obj.frm_specifier, _va_args_double(ap)); // XXX
             else  // eat the wrong type to unsigned int
                dst += _insuint(_out, dst, &obj.frm_specifier, va_arg(ap, unsigned int));
             break;
             /*
-             * XXX: BUG(s)
-             * All printf with double calls MUST HAVE ONLY ONE ARGUMENT, THE double.
-             * 1) When va_arg(ap, double) comes in even argument number, it has 4bytes crap in front of it.
-             * 2) When va_arg(ap, double) comes in odd argument number, it fails cause it skips 4bytes before reading.
-             * Someone have miss-correct a bug i think.
+             * XXX: BUG workaround
              */
          case _IO_FRM_TERMINATOR:
             _out (dst++, 0);
