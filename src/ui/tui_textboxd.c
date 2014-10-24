@@ -144,14 +144,16 @@ ui_return_t tui_textboxd (tuid_t *tuid, int key, text_t cap, char* str, int size
          bf[i]++;
       while ( !isalnum ((int)bf[i]) &&
               bf[i]!='-' &&
-              bf[i]!='_' );
+              bf[i]!='_' &&
+              bf[i]!=' ');
    if (key == tuid->keys.DOWN)
       // Decrement character
       do
          bf[i]--;
       while ( !isalnum ((int)bf[i]) &&
               bf[i]!='-' &&
-              bf[i]!='_' );
+              bf[i]!='_' &&
+              bf[i]!=' ');
    if (key == tuid->keys.LEFT) {
       // Manual backspace
       bf[i] = 0;

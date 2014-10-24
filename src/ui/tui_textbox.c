@@ -140,13 +140,15 @@ void tui_textbox (tui_t *tui, text_t cap, char* str, int size)
             bf[i]++;
          while ( !isalnum ((int)bf[i]) &&
                  bf[i]!='-' &&
-                 bf[i]!='_' );
+                 bf[i]!='_' &&
+                 bf[i]!=' ');
       if (key == tui->keys.DOWN)    // Decrement character
          do
             bf[i]--;
          while ( !isalnum ((int)bf[i]) &&
                  bf[i]!='-' &&
-                 bf[i]!='_' );
+                 bf[i]!='_' &&
+                 bf[i]!=' ');
       if (key == tui->keys.LEFT) {     // Manual backspace
          bf[i] = 0;
          if (--i<0) return;
