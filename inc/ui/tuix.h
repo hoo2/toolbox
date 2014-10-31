@@ -59,6 +59,7 @@ extern "C" {
  * ================ Common Data types ===================
  */
 typedef char* text_t;
+typedef uint16_t  menu_id_t;                 /*!< Menu item id type */
 
 typedef volatile struct
 {

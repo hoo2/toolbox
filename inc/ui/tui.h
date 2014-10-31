@@ -58,13 +58,15 @@ typedef union _node
  */
 typedef struct _menu_item
 {
-   text_t      text[UI_NUM_OF_LANGUAGES];    /*!< Pointer to caption/frame strings */
-   node_t      node;                         /*!< Pointer to nested menu or the task function to call */
+   menu_id_t      id;
+   text_t         text[UI_NUM_OF_LANGUAGES];    /*!< Pointer to caption/frame strings */
+   node_t         node;                         /*!< Pointer to nested menu or the task function to call */
    menu_item_type_en
-               item_type;                    /*!< Menu item type enumerator */
-   mm_item_t   mm[4];                        /*!< Each member holds the bit posision in the Menu_mask variable
-                                                  of the EN/DIS flag for the menu item.
-                                              */
+                  item_type;                    /*!< Menu item type enumerator */
+   mm_item_t      mm[4];                        /*!<
+                                                 * Each member holds the bit posision in the Menu_mask variable
+                                                 * of the EN/DIS flag for the menu item.
+                                                 */
 }menu_item_t;
 
 /*
@@ -120,6 +122,8 @@ void tui_menu_clear_mask (tui_t *tui, uint8_t pos);
 
 void tui_menu_init (tui_t *tui);
 menu_item_t* tui_menu_this (tui_t *tui);
+menu_item_t* tui_menu_id2idx (menu_item_t *mn, menu_id_t id);
+menu_id_t    tui_menu_idx2id (menu_item_t *mn);
 
 void      tui_menu (tui_t *tui, menu_item_t *menu, Lang_en ln);
 int   tui_combobox (tui_t *tui, combobox_item_t *items, int cur, Lang_en ln);

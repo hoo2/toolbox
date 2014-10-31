@@ -296,6 +296,37 @@ inline menud_item_t* tui_menud_this (tuid_t *tuid) {
 
 /*!
  * \brief
+ *    Return the menu address with id \b id
+ * \param   mn    The top menu to seek
+ * \param   id    The search id
+ * \return  the menu address, or NULL
+ */
+menud_item_t* tui_menud_id2idx (menud_item_t *mn, menu_id_t id)
+{
+   int i;
+   menud_item_t *r;
+
+   for (i=1 ; mn[i].node.task != 0 ; ++i) {
+      if (mn[i].id == id)
+         return (menud_item_t*)&mn[i];
+      else if (mn[i].item_type == UI_MENU_ITEM) {
+         if ( (r = tui_menud_id2idx (mn[i].node.menu, id)) != NULL)
+            return r;
+      }
+   }
+   return NULL;
+}
+
+/*!
+ * \brief
+ *    Return the id of the menu \a mn
+ */
+inline menu_id_t tui_menud_idx2id (menud_item_t *mn) {
+   return mn->id;
+}
+
+/*!
+ * \brief
  *    A demonised version of menu function. It creates a menu by reading
  *    the mn table.
  *

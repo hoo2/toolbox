@@ -36,8 +36,7 @@ extern "C" {
  * ================= Menud types ===================
  */
 
-
-typedef ui_return_t (*taskd_ft) (void);       /*!< Menu function Task */
+typedef ui_return_t (*taskd_ft) (void);      /*!< Menu function Task */
 typedef struct _menud_item menud_item_t;
 
 /*!
@@ -54,13 +53,15 @@ typedef union _noded
  */
 typedef struct _menud_item
 {
-   text_t      text[UI_NUM_OF_LANGUAGES];    /*!< Pointer to caption/frame strings */
-   noded_t     node;                         /*!< Pointer to nested menu or the task function to call */
+   menu_id_t      id;
+   text_t         text[UI_NUM_OF_LANGUAGES];    /*!< Pointer to caption/frame strings */
+   noded_t        node;                         /*!< Pointer to nested menu or the task function to call */
    menu_item_type_en
-               item_type;                    /*!< Menu item type enumerator */
-   mm_item_t   mm[4];                        /*!< Each member holds the bit posision in the Menu_mask variable
-                                                  of the EN/DIS flag for the menu item.
-                                              */
+                  item_type;                    /*!< Menu item type enumerator */
+   mm_item_t      mm[4];                        /*!<
+                                                 *  Each member holds the bit posision in the Menu_mask variable
+                                                 *  of the EN/DIS flag for the menu item.
+                                                 */
 }menud_item_t;
 
 /*!
@@ -139,6 +140,8 @@ void tui_menud_clear_mask (tuid_t *tuid, uint8_t pos);
 
 void tui_menud_init (tuid_t *tuid);
 menud_item_t* tui_menud_this (tuid_t *tuid);
+menud_item_t* tui_menud_id2idx (menud_item_t *mn, menu_id_t id);
+menu_id_t     tui_menud_idx2id (menud_item_t *mn);
 
 ui_return_t     tui_menud (tuid_t *tuid, int key, menud_item_t *mn, Lang_en ln);
 ui_return_t tui_comboboxd (tuid_t *tuid, int key, combobox_item_t *items, int *id, Lang_en ln);
