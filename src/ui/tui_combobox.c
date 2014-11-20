@@ -108,13 +108,13 @@ int tui_combobox (tui_t *tui, combobox_item_t *items, int cur, Lang_en ln)
    int in=0;
 
    // Find cur in combobox table
-   for (i=1 ; items[i].text[ln]; ++i) {
-      if (items[i].id == cur)
-         break;
+   for (i=1 ; 1 ; ++i) {
       if (!items[i].text[ln]) {
          i=1;
          break;
       }
+      if (items[i].id == cur)
+         break;
    }
    // Update counters
    cur = vi = vfrm = frm = i;

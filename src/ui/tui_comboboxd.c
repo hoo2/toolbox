@@ -115,13 +115,13 @@ ui_return_t tui_comboboxd (tuid_t *tuid, int key, combobox_item_t *items, int *i
 
    if (ev) {  // It is the first call of combobox
       // Find cur in combobox table
-      for (i=1 ; items[i].text[ln]; ++i) {
-         if (items[i].id == *id)
-            break;
+      for (i=1 ; 1 ; ++i) {
          if (!items[i].text[ln]) {
             i=1;
             break;
          }
+         if (items[i].id == *id)
+            break;
       }
       // Print caption
       _mk_caption (tuid, items, ln);
