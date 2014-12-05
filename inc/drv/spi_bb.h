@@ -48,10 +48,6 @@ extern "C" {
 #define  SPI_NSS_SOFT            (0)
 #define  SPI_NSS_HARD            (1)
 
-/*
- *  ============= DATA TYPES =============
- */
-typedef  byte_t     spi_dat_t;
 
 /*!
  * SPI bus protocol data structure
@@ -96,9 +92,9 @@ void spi_set_nss  (spi_bb_t *spi, uint8_t nss);       /* for compatibility */
 void spi_deinit (spi_bb_t *spi);                  /* for compatibility */
 drv_status_en spi_init (spi_bb_t *spi);           /* for compatibility */
 
-uint8_t spi_rw (spi_bb_t *spi, uint8_t out);
-drv_status_en spi_rx (spi_bb_t *spi, spi_dat_t *buf, int count);
-drv_status_en spi_tx (spi_bb_t *spi, spi_dat_t *buf, int count);
+byte_t spi_rw (spi_bb_t *spi, byte_t out);
+drv_status_en spi_rx (spi_bb_t *spi, byte_t *buf, int count);
+drv_status_en spi_tx (spi_bb_t *spi, byte_t *buf, int count);
 
 drv_status_en spi_ioctl (spi_bb_t *spi, ioctl_cmd_t ctrl, ioctl_buf_t buf);
 

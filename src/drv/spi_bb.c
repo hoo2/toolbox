@@ -252,7 +252,7 @@ byte_t spi_rw (spi_bb_t *spi, byte_t out)
  * \param  buf    pointer to the buffer.
  * \return        the status of operation.
  */
-drv_status_en spi_rx (spi_bb_t *spi, spi_dat_t *buf, int count)
+drv_status_en spi_rx (spi_bb_t *spi, byte_t *buf, int count)
 {
    uint8_t nss;
 
@@ -282,7 +282,7 @@ drv_status_en spi_rx (spi_bb_t *spi, spi_dat_t *buf, int count)
  * \param  buf    pointer to the buffer.
  * \return        the status of operation.
  */
-drv_status_en spi_tx (spi_bb_t *spi, spi_dat_t *buf, int count)
+drv_status_en spi_tx (spi_bb_t *spi, byte_t *buf, int count)
 {
    uint8_t nss;
 

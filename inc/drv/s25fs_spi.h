@@ -121,7 +121,7 @@ typedef enum {
 }s25fs_devstatus_en;
 
 
-typedef drv_status_en (*s25fs_spi_ioctl_t) (void *, ioctl_cmd_t, ioctl_buf_t *);
+typedef drv_status_en (*s25fs_spi_ioctl_t) (void *, ioctl_cmd_t, ioctl_buf_t);
 typedef drv_status_en (*s25fs_spi_rw_t)  (void *, byte_t *, int);
 
 
