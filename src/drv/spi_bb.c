@@ -214,7 +214,7 @@ drv_status_en spi_init (spi_bb_t *spi)
  * \param  out    pointer to the input buffer.
  * \return        the byte received from the bus.
  */
-uint8_t spi_rw (spi_bb_t *spi, uint8_t out)
+byte_t spi_rw (spi_bb_t *spi, byte_t out)
 {
    int i;
    uint8_t  rc=0;

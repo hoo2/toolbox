@@ -35,6 +35,7 @@ typedef uint16_t word_t;         /*!< 16 bits wide */
 typedef uint32_t dword_t;        /*!< 32 bits wide */
 
 typedef uint32_t bytecount_t;    /*!< general counter */
+typedef uint32_t address_t;      /*!< general index/address type */
 
 /*!
  * Pin function pointers
@@ -42,9 +43,10 @@ typedef uint32_t bytecount_t;    /*!< general counter */
  *    These function pointers do not correspond to pin levels.
  *    They correspond to the enable/disable functionality of that pin.
  */
-typedef    void (*drv_pinout_ft) (uint8_t on);
 typedef uint8_t (*drv_pinin_ft)  (void);
-typedef    void (*drv_pindir_ft) (uint8_t on);
+typedef    void (*drv_pinout_ft) (uint8_t);
+typedef uint8_t (*drv_pinio_ft)  (uint8_t);
+typedef    void (*drv_pindir_ft) (uint8_t);
 
 /*!
  * Analog input function pointer

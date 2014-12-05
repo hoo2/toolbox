@@ -46,7 +46,7 @@ extern "C" {
 // Drivers
 #include <drv/alcd.h>
 #include <drv/buttons.h>
-#include <drv/i2c_pol.h>
+#include <drv/i2c_bb.h>
 #include <drv/spi_bb.h>
 
 #include <drv/pt100x.h>
@@ -55,7 +55,7 @@ extern "C" {
 #include <drv/jtype.h>
 #include <drv/brh_fcx.h>
 
-#include <drv/ee_i2c_pol.h>
+#include <drv/ee_i2c.h>
 #include <drv/sim_ee.h>
 #include <drv/sd_spi.h>
 

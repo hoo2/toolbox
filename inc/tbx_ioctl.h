@@ -91,6 +91,13 @@ extern "C" {
 #define  CTRL_SET_VALUE          0x55
 #define  CTRL_SET_DIR            0x56
 
+/*
+ * Comunication commands
+ */
+#define CTRL_START               0x80  /*!< Generic start command */
+#define CTRL_STOP                0x81  /*!< Generic stop command */
+
+
 
 typedef uint8_t   ioctl_cmd_t;   /*!< Generic ioctl command type */
 typedef void*     ioctl_buf_t;   /*!< Generic ioctl buffer data type */
