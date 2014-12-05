@@ -31,6 +31,10 @@
 #ifndef __base_io_h__
 #define __base_io_h__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <math.h>
@@ -146,5 +150,9 @@ typedef enum
 }_io_frm_obj_type_en;
 
 int _io_read (char* frm, _io_frm_obj_t* obj, _io_frm_obj_type_en *obj_type);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //#ifndef __base_io_h__

@@ -228,7 +228,11 @@ static int _read_uint (_getc_in_t _in, const char *src, char **psrc, unsigned in
 
    // Init pointers
    num_pos = 1;
-   str_pos = _stream_copy (_in, src, psrc, num_str) - 1;
+   str_pos = _stream_copy (_in, src, psrc, num_str);
+   if (str_pos == 0)
+      return 0;
+   else
+      --str_pos;
 
    // Conversion loop
    do {
@@ -275,7 +279,11 @@ static int _read_int (_getc_in_t _in, const char *src, char **psrc, int *dst)
 
    // Init pointers
    num_pos = 1;
-   str_pos = _stream_copy (_in, src, psrc, num_str) - 1;
+   str_pos = _stream_copy (_in, src, psrc, num_str);
+   if (str_pos == 0)
+      return 0;
+   else
+      --str_pos;
 
    // Conversion loop
    do {
@@ -325,7 +333,11 @@ static int _read_hex (_getc_in_t _in, const char *src, char **psrc, unsigned int
 
    // Init pointers
    num_pos = 1;
-   str_pos = _stream_copy (_in, src, psrc, num_str) - 1;
+   str_pos = _stream_copy (_in, src, psrc, num_str);
+   if (str_pos == 0)
+      return 0;
+   else
+      --str_pos;
 
    // Conversion loop
    do {
@@ -408,6 +420,8 @@ static int _read_ffloat (_getc_in_t _in, const char *src, char **psrc, float *ds
 
    // Get string
    n = _stream_copy (_in, src, psrc, num_str);
+   if (n == 0) return 0;
+   else        --n;
 
    // Find dot if any
    for (f=0; f<_IO_MAX_DOUBLE_WIDTH; ++f) {
@@ -478,7 +492,8 @@ int vsxscanf (_getc_in_t _in, const char *src, const char *frm, __VALIST ap)
             break;
       }
       // Skip source string's spaces
-      ch = _stream_getfirst (_in, src, (char**)&src);
+      if ((ch = _stream_getfirst (_in, src, (char**)&src)) == 0)
+         return arg;
 
       // Dispatch based on object type
       switch (obj_type) {
