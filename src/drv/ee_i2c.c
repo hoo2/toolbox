@@ -1,7 +1,7 @@
 /*!
- * \file ee_i2c_pol.c
+ * \file ee_i2c.c
  * \brief
- *    A target independent EEPROM (24xx series) driver using i2c_pol
+ *    A target independent EEPROM (24xx series) driver
  *
  * This file is part of toolbox
  *
@@ -23,11 +23,11 @@
  */
 
 
-#include <drv/ee_i2c_pol.h>
+#include <drv/ee_i2c.h>
 
-static ee_status_en _sendcontrol (ee_t *ee, uint8_t rd, uint8_t ackp);
-static ee_status_en _sendaddress (ee_t *ee, ee_idx_t add);
-static int _writepage (ee_t *ee, ee_idx_t add, uint8_t *buf, size_t n);
+static drv_status_en _sendcontrol (ee_t *ee, uint8_t rd, uint8_t ackp);
+static drv_status_en _sendaddress (ee_t *ee, address_t add);
+static int _writepage (ee_t *ee, address_t add, byte_t *buf, bytecount_t n);
 
 
 /*!
@@ -38,45 +38,51 @@ static int _writepage (ee_t *ee, ee_idx_t add, uint8_t *buf, size_t n);
  * \param  rd    Read flag, 1 to read, 0 to write.
  * \param  ackp  Use Ack polling
  *
- * \retval EE_OK (0) or EE_ERROR(1)
+ * \return
+ *    \arg DRV_READY
+ *    \arg DRV_ERROR
  */
-static ee_status_en _sendcontrol (ee_t *ee, uint8_t rd, uint8_t ackp)
+static drv_status_en _sendcontrol (ee_t *ee, uint8_t rd, uint8_t ackp)
 {
    uint8_t  ack;
-   uint32_t to = ee->timeout;
+   uint32_t to = ee->conf.timeout;
 
    // Cast rd to 0/1
    rd = (rd) ? 1:0;
 
    // Control byte (read/write) with ACK polling or not
    do {
-      i2c_start(&ee->i2c);
-      ack = i2c_tx(&ee->i2c, ee->hw_addr + rd);
+      ee->io.i2c_ioctl (ee->io.i2c, CTRL_START, (void*)0);
+      ack = ee->io.i2c_tx (ee->io.i2c, ee->conf.hw_addr + rd);
       --to;
    }while (!ack && ackp && to);
 
-   return (ee_status_en) !ack;
+   return (drv_status_en) (ack)? DRV_READY : DRV_ERROR;
 }
 
 /*!
  * \brief
  *    Send the address (internal memory address) to the BUS.
  *
- *
+ * \param  ee   Pointer indicate the ee data stuct to use
+ * \param  add  The address to send
+ * \return
+ *    \arg DRV_READY
+ *    \arg DRV_ERROR
  */
-static ee_status_en _sendaddress (ee_t *ee, ee_idx_t add)
+static drv_status_en _sendaddress (ee_t *ee, address_t add)
 {
-   if (ee->size == EE_08) {
-      if (!i2c_tx (&ee->i2c, add))
-         return EE_ERROR;
+   if (ee->conf.size == EE_08) {
+      if (!ee->io.i2c_tx (ee->io.i2c, add))
+         return DRV_ERROR;
    } else {
       // MSB of the address first
-      if (!i2c_tx (&ee->i2c, (uint8_t)((add & 0xFF00)>>8)))
-         return EE_ERROR;
-      if (!i2c_tx (&ee->i2c, (uint8_t)(add & 0x00FF)))
-         return EE_ERROR;
+      if (!ee->io.i2c_tx (ee->io.i2c, (byte_t)((add & 0xFF00)>>8)))
+         return DRV_ERROR;
+      if (!ee->io.i2c_tx (ee->io.i2c, (byte_t)(add & 0x00FF)))
+         return DRV_ERROR;
    }
-   return EE_OK;
+   return DRV_READY;
 }
 
 /*!
@@ -93,28 +99,28 @@ static ee_status_en _sendaddress (ee_t *ee, ee_idx_t add)
  * \return
  *    The number of written bytes
  */
-static int _writepage (ee_t *ee, ee_idx_t add, uint8_t *buf, size_t n)
+static int _writepage (ee_t *ee, address_t add, byte_t *buf, bytecount_t n)
 {
    // Page start and page offset and num to write
-   uint8_t     pg_offset = add % ee->pagesize;
-   uint8_t     i, nl = ee->pagesize - pg_offset; // num up saturation
+   uint8_t     pg_offset = add % ee->conf.page_size;
+   uint8_t     i, nl = ee->conf.page_size - pg_offset; // num up saturation
 
    if (nl > n)  nl = n;   // Cut out the unnecessary bytes
 
    // Control byte (write)
-   if (_sendcontrol (ee, EE_WRITE, 1) == EE_ERROR)
+   if (_sendcontrol (ee, EE_WRITE, 1) == DRV_ERROR)
       return -1;
 
-   if (_sendaddress (ee, add) == EE_ERROR)
+   if (_sendaddress (ee, add) == DRV_ERROR)
       return -1;
 
    // Try to write the data
    for (i=0 ; i<nl ; ++i, ++buf)
-      if (!i2c_tx (&ee->i2c, *buf))
+      if (!ee->io.i2c_tx (ee->io.i2c, *buf))
          break;
 
    // Stop and return the number of written bytes.
-   i2c_stop (&ee->i2c);
+   ee->io.i2c_ioctl (ee->io.i2c, CTRL_STOP, (void*)0);
    return i;
 }
 
@@ -130,29 +136,40 @@ static int _writepage (ee_t *ee, ee_idx_t add, uint8_t *buf, size_t n)
 /*
  * Link and Glue functions
  */
+inline void ee_link_i2c (ee_t *ee, void* i2c) {
+   ee->io.i2c = i2c;
+}
+inline void ee_link_i2c_rx (ee_t *ee, ee_i2c_rx_ft fun) {
+   ee->io.i2c_rx = fun;
+}
+inline void ee_link_i2c_tx (ee_t *ee, ee_i2c_tx_ft fun) {
+   ee->io.i2c_tx = fun;
+}
+inline void ee_link_i2c_ioctl (ee_t *ee, ee_i2c_ioctl_ft fun) {
+   ee->io.i2c_ioctl = fun;
+}
 
 /*
  * Set functions
  */
-inline void ee_set_hwaddress (ee_t *ee, int add) {
-   ee->hw_addr = add;
+inline void ee_set_hwaddress (ee_t *ee, address_t add) {
+   ee->conf.hw_addr = add;
 }
 
-inline void ee_set_size (ee_t *ee, int s) {
-   ee->size = s;
+inline void ee_set_size (ee_t *ee, ee_size_en s) {
+   ee->conf.size = s;
 }
 
-inline void ee_set_pagesize (ee_t *ee, int ps) {
-   ee->pagesize = ps;
+inline void ee_set_page_size (ee_t *ee, uint32_t ps) {
+   ee->conf.page_size = ps;
 }
 
-inline void ee_set_speed (ee_t *ee, int freq) {
-   ee->freq = freq;
-   i2c_set_speed (&ee->i2c, freq);
+inline void ee_set_sector_size (ee_t *ee, uint32_t ss) {
+   ee->conf.sector_size = ss;
 }
 
 inline void ee_set_timeout (ee_t *ee, uint32_t to) {
-   ee->timeout = to;
+   ee->conf.timeout = to;
 }
 
 
@@ -164,11 +181,6 @@ inline void ee_set_timeout (ee_t *ee, uint32_t to) {
  */
 void ee_deinit (ee_t *ee)
 {
-   drv_status_en st;
-   i2c_ioctl (&ee->i2c, CTRL_GET_STATUS, (ioctl_buf_t*)&st);
-   if (st == DRV_READY)
-      // When all its OK and we had i2c, cleanup the bus also.
-      i2c_ioctl (&ee->i2c, CTRL_DEINIT, (ioctl_buf_t*)0);
    memset ((void*)ee, 0, sizeof (ee_t));
    /*!<
     * This leaves the status = DRV_NOINIT
@@ -184,24 +196,25 @@ void ee_deinit (ee_t *ee)
  *    \arg DRV_READY
  *    \arg DRV_ERROR
  */
-ee_status_en ee_init (ee_t *ee)
+drv_status_en ee_init (ee_t *ee)
 {
-   drv_status_en st;
+   #define _bad_link(_link)   (!ee->io._link) ? 1:0
 
-   // Dispatch status
-   i2c_ioctl (&ee->i2c, CTRL_GET_STATUS, (ioctl_buf_t*)&st);
-   switch (st)
-   {
-      case DRV_NOINIT:
-         i2c_ioctl (&ee->i2c, CTRL_INIT, (ioctl_buf_t*)&st);
-         if ( st != DRV_READY)
-            return ee->status = DRV_ERROR;
-         return ee->status = DRV_READY;
-      case DRV_READY:
-         return ee->status = DRV_READY;
-      default:
-         return DRV_ERROR;
-   }
+   if (_bad_link (i2c))       return ee->status = DRV_ERROR;
+   if (_bad_link (i2c_rx))    return ee->status = DRV_ERROR;
+   if (_bad_link (i2c_tx))    return ee->status = DRV_ERROR;
+   if (_bad_link (i2c_ioctl)) return ee->status = DRV_ERROR;
+
+   if (ee->status == DRV_BUSY || ee->status == DRV_NODEV)
+      return ee->status = DRV_ERROR;
+
+   ee->status = DRV_BUSY;
+
+   if (!ee->conf.page_size)   ee->conf.page_size = EE_PAGE_SZ_DEF;
+   if (!ee->conf.sector_size) ee->conf.sector_size = EE_SECTOR_SIZE_DEF;
+
+   return ee->status = DRV_READY;
+   #undef _bad_link
 }
 
 /*!
@@ -213,20 +226,20 @@ ee_status_en ee_init (ee_t *ee)
  *    \arg DRV_READY
  *    \arg DRV_ERROR
  */
-drv_status_en ee_read (ee_t *ee, uint8_t *byte)
+drv_status_en ee_read_cursor (ee_t *ee, byte_t *byte)
 {
    // ACK polling
-   if (_sendcontrol (ee, EE_WRITE, 1) == EE_ERROR)
-      return ee->status = DRV_ERROR;
+   if (_sendcontrol (ee, EE_WRITE, 1) == DRV_ERROR)
+      return DRV_ERROR;
 
    // Send Control byte (read).
-   if (_sendcontrol (ee, EE_READ, 0) == EE_ERROR)
-      return ee->status = DRV_ERROR;
+   if (_sendcontrol (ee, EE_READ, 0) == DRV_ERROR)
+      return DRV_ERROR;
 
    // Read with NACK
-   *byte = i2c_rx(&ee->i2c, 0);
+   *byte = ee->io.i2c_rx (ee->io.i2c, 0);
 
-   i2c_stop (&ee->i2c);
+   ee->io.i2c_ioctl (ee->io.i2c, CTRL_STOP, (void*)0);
    return DRV_READY;
 }
 
@@ -242,62 +255,23 @@ drv_status_en ee_read (ee_t *ee, uint8_t *byte)
  *    \arg DRV_READY
  *    \arg DRV_ERROR
  */
-drv_status_en ee_readbyte (ee_t *ee, ee_idx_t add, uint8_t *byte)
+drv_status_en ee_read_byte (ee_t *ee, address_t add, byte_t *byte)
 {
    // Send Control byte (write) with ACK polling
-   if (_sendcontrol (ee, EE_WRITE, 1) == EE_ERROR)
-      return ee->status = DRV_ERROR;
+   if (_sendcontrol (ee, EE_WRITE, 1) == DRV_ERROR)
+      return DRV_ERROR;
 
-   if (_sendaddress (ee, add) == EE_ERROR)
-      return ee->status = DRV_ERROR;
+   if (_sendaddress (ee, add) == DRV_ERROR)
+      return DRV_ERROR;
 
    // Send Control byte (read).
-   if (_sendcontrol (ee, EE_READ, 0) == EE_ERROR)
-      return ee->status = DRV_ERROR;
+   if (_sendcontrol (ee, EE_READ, 0) == DRV_ERROR)
+      return DRV_ERROR;
 
    // Read with NACK
-   *byte = i2c_rx(&ee->i2c, 0);
+   *byte = ee->io.i2c_rx (ee->io.i2c, 0);
 
-   i2c_stop (&ee->i2c);
-   return DRV_READY;
-}
-
-/*!
- * \brief
- *    Reads a block of data from the EEPROM.
- *
- * \param  ee  : Pointer indicate the ee data stuct to use
- * \param  add : EEPROM's internal address to start reading from.
- * \param  buf : Pointer to the buffer that receives the data read from the EEPROM.
- * \param  n   : The number of bytes to be read from the EEPROM.
- *
- * \return The driver status after write.
- *    \arg DRV_READY
- *    \arg DRV_ERROR
- */
-drv_status_en ee_readbuffer (ee_t *ee, ee_idx_t add, uint8_t *buf, size_t n)
-{
-   uint8_t  ack;
-
-   // ACK polling
-   if (_sendcontrol (ee, EE_WRITE, 1) == EE_ERROR)
-      return ee->status = DRV_ERROR;
-
-   if (_sendaddress (ee, add) == EE_ERROR)
-      return ee->status = DRV_ERROR;
-
-   // Send Control byte (read).
-   if (_sendcontrol (ee, EE_READ, 0) == EE_ERROR)
-      return ee->status = DRV_ERROR;;
-
-   // Seq read bytes with ACK except last one
-   do {
-      ack = (n>1) ? 1:0;
-      *buf++ = i2c_rx(&ee->i2c, ack);
-      --n;
-   }while (n);
-
-   i2c_stop (&ee->i2c);
+   ee->io.i2c_ioctl (ee->io.i2c, CTRL_STOP, (void*)0);
    return DRV_READY;
 }
 
@@ -313,21 +287,60 @@ drv_status_en ee_readbuffer (ee_t *ee, ee_idx_t add, uint8_t *buf, size_t n)
  *    \arg DRV_READY
  *    \arg DRV_ERROR
  */
-drv_status_en ee_writebyte (ee_t *ee, ee_idx_t add, uint8_t byte)
+drv_status_en ee_write_byte (ee_t *ee, address_t add, byte_t byte)
 {
    // ACK polling
-   if (_sendcontrol (ee, EE_WRITE, 1) == EE_ERROR)
-      return ee->status = DRV_ERROR;
+   if (_sendcontrol (ee, EE_WRITE, 1) == DRV_ERROR)
+      return DRV_ERROR;
 
-   if (_sendaddress (ee, add) == EE_ERROR)
-      return ee->status = DRV_ERROR;
+   if (_sendaddress (ee, add) == DRV_ERROR)
+      return DRV_ERROR;
 
-   if (!i2c_tx (&ee->i2c, byte))
-      return ee->status = DRV_ERROR;
+   if (!ee->io.i2c_tx (ee->io.i2c, byte))
+      return DRV_ERROR;
 
-   i2c_stop (&ee->i2c);
+   ee->io.i2c_ioctl (ee->io.i2c, CTRL_STOP, (void*)0);
    return DRV_READY;
 
+}
+
+/*!
+ * \brief
+ *    Reads a block of data from the EEPROM.
+ *
+ * \param  ee  : Pointer indicate the ee data stuct to use
+ * \param  add : EEPROM's internal address to start reading from.
+ * \param  buf : Pointer to the buffer that receives the data read from the EEPROM.
+ * \param  n   : The number of bytes to be read from the EEPROM.
+ *
+ * \return The driver status after write.
+ *    \arg DRV_READY
+ *    \arg DRV_ERROR
+ */
+drv_status_en ee_read (ee_t *ee, address_t add, byte_t *buf, bytecount_t n)
+{
+   uint8_t  ack;
+
+   // ACK polling
+   if (_sendcontrol (ee, EE_WRITE, 1) == DRV_ERROR)
+      return DRV_ERROR;
+
+   if (_sendaddress (ee, add) == DRV_ERROR)
+      return DRV_ERROR;
+
+   // Send Control byte (read).
+   if (_sendcontrol (ee, EE_READ, 0) == DRV_ERROR)
+      return DRV_ERROR;
+
+   // Seq read bytes with ACK except last one
+   do {
+      ack = (n>1) ? 1:0;
+      *buf++ = ee->io.i2c_rx (ee->io.i2c, ack);
+      --n;
+   }while (n);
+
+   ee->io.i2c_ioctl (ee->io.i2c, CTRL_STOP, (void*)0);
+   return DRV_READY;
 }
 
 /*!
@@ -343,21 +356,21 @@ drv_status_en ee_writebyte (ee_t *ee, ee_idx_t add, uint8_t byte)
  *    \arg DRV_READY
  *    \arg DRV_ERROR
  */
-drv_status_en ee_writebuffer (ee_t *ee, ee_idx_t add, uint8_t *buf, size_t n)
+drv_status_en ee_write (ee_t *ee, address_t add, byte_t *buf, bytecount_t n)
 {
    uint32_t wb=0;    // The written bytes
    int      ret;
 
    // ACK polling
-   if (_sendcontrol (ee, EE_WRITE, 1) == EE_ERROR)
+   if (_sendcontrol (ee, EE_WRITE, 1) == DRV_ERROR)
       return ee->status = DRV_ERROR;
 
-   if (_sendaddress (ee, add) == EE_ERROR)
+   if (_sendaddress (ee, add) == DRV_ERROR)
       return ee->status = DRV_ERROR;
 
    do {
       ret = _writepage (ee, add+wb, &buf[wb], n-wb);
-      if (ret == -1)    return ee->status = DRV_ERROR;
+      if (ret == -1)    return DRV_ERROR;
       else              wb += ret;
       /*!
        * \note
@@ -367,6 +380,15 @@ drv_status_en ee_writebuffer (ee_t *ee, ee_idx_t add, uint8_t *buf, size_t n)
    } while (wb < n);
 
    return DRV_READY;
+}
+
+
+drv_status_en  ee_read_sector (ee_t *ee, int sector, byte_t *buf, int count) {
+   return DRV_ERROR;
+}
+
+drv_status_en ee_write_sector (ee_t *ee, int sector, byte_t *buf, int count) {
+   return DRV_ERROR;
 }
 
 /*!
@@ -379,9 +401,10 @@ drv_status_en ee_writebuffer (ee_t *ee, ee_idx_t add, uint8_t *buf, size_t n)
  *    \arg CTRL_DEINIT
  *    \arg CTRL_INIT
  *    \arg CTRL_GET_SIZE
- *    \arg CTRL_ERASE_PAGE
- *    \arg CTRL_ERASE_ALL
- *    \arg CTRL_FORMAT
+ *    \arg CTRL_GET_SECTOR_SIZE
+ *    \arg CTRL_ERASE_PAGE    **
+ *    \arg CTRL_ERASE_ALL     **
+ *    \arg CTRL_FORMAT        **
  * \param  buf    pointer to buffer for ioctl
  * \return The status of the operation
  *    \arg DRV_READY
@@ -406,7 +429,11 @@ drv_status_en ee_ioctl (ee_t *ee, ioctl_cmd_t cmd, ioctl_buf_t buf)
          return DRV_READY;
       case CTRL_GET_SIZE:        /*!< EEPROM size */
          if (buf)
-            *(drv_status_en*)buf = ee->size;
+            *(drv_status_en*)buf = ee->conf.size;
+         return DRV_READY;
+      case CTRL_GET_SECTOR_SIZE: /*!< EEPROM sector size */
+         if (buf)
+            *(drv_status_en*)buf = ee->conf.sector_size;
          return DRV_READY;
       default:                   /*!< Unsupported command, error */
          return DRV_ERROR;
