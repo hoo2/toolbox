@@ -29,6 +29,7 @@ extern "C" {
 #endif
 
 #include <tbx_ioctl.h>
+#include <algo/queue.h>
 #include <stdint.h>
 #include <time.h>
 
@@ -88,12 +89,6 @@ typedef volatile struct
 
 extern btn_t BTN;
 
-typedef volatile struct
-{
-   keys_t   ib [INPUT_BUFFER_SIZE];
-   int8_t   front, rear;     //queue pointers
-}btn_input_buffer_t;
-
 typedef enum
 {
    BTN_IDLE=0, BTN_PRE, BTN_LONG
@@ -138,6 +133,9 @@ void btn_set_repetitive (uint8_t rep);
  */
 void btn_flush (void);        /*!< for compatibility */
 void btn_service (void);
+
+void btn_deinit (void);
+drv_status_en btn_init (void);
 
 keys_t btn_getkey (uint8_t wait);
 drv_status_en btn_ioctl (ioctl_cmd_t cmd, ioctl_buf_t buf);

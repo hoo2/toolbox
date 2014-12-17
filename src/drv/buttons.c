@@ -25,63 +25,10 @@
 #include <drv/buttons.h>
 
 btn_t  BTN;
-static btn_input_buffer_t     inbuf;
+keys_t _ib [INPUT_BUFFER_SIZE];
+queue_t btn_q;
 
-static keys_t _ib_put (keys_t k);
-static keys_t _ib_get (void);
-static int    _ib_capacity (void);
 static keys_t _get_buttons (void);
-
-/*!
-  * \brief  This function puts a key to buffer.
-  * \param  Key to be written
-  * \retval BTN_NULL on error
-*/
-static keys_t _ib_put (keys_t k)
-{
-   int8_t   c = _ib_capacity();
-
-   if ( c >= INPUT_BUFFER_SIZE ) //full queue
-      return BTN_NULL;
-   inbuf.ib[inbuf.rear] = (keys_t)k;
-   //rotate pointer
-   if ( ++inbuf.rear >= INPUT_BUFFER_SIZE )
-      inbuf.rear = 0;
-   return k;
-}
-/*!
-  * \brief  This function gets a key from buffer.
-  * \param  none
-  * \retval Character from buffer, or BTN_NULL on empty buffer
-*/
-static keys_t _ib_get (void)
-{
-   int8_t   c = _ib_capacity();
-   keys_t k;
-
-   if ( c <= 0 )    //Empty queue
-      return (keys_t)BTN_NULL;
-   k = inbuf.ib[inbuf.front];
-   //rotate pointers
-   if ( ++inbuf.front >= INPUT_BUFFER_SIZE )
-      inbuf.front = 0;
-   return k;
-}
-
-/*!
-  * \brief  Calculates the Input buffer capacity
-  * \param  none
-  * \retval keys from buffer, or BT_NULL on empty buffer
-*/
-static int _ib_capacity (void)
-{
-   if (inbuf.front == inbuf.rear)
-      return 0;
-   else if (inbuf.front > inbuf.rear)
-      return ( INPUT_BUFFER_SIZE - (inbuf.front - inbuf.rear) );
-   else
-      return ( inbuf.rear - inbuf.front );
-}
 
 /*!
   * \brief
@@ -148,13 +95,14 @@ inline void btn_set_repetitive (uint8_t rep) { BTN.repetitive = rep; }
  */
 
 /*!
-  * \brief  Flush input buffer
-  *
-  * \param  none
-  * \retval none
+  * \brief
+  *   Flush input buffer
   */
 inline void btn_flush (void) {
-   inbuf.front = inbuf.rear = 0;
+   keys_t null;
+   do
+      queue_get (&btn_q, (void*)&null);
+   while (!queue_is_empty (&btn_q));
 }
 
 /*!
@@ -176,6 +124,8 @@ void btn_service (void)
                   pr_key=0,
                   max_key=0,
                   bounce_bf[2] = {0,0};   // 2 state de-bounce
+
+   keys_t key_long;
 
    clock_t now = clock ();
 
@@ -216,14 +166,15 @@ void btn_service (void)
          if (now - mark >= BTN.holdtime) {
             // Put Long keys
             state = BTN_LONG;
-            _ib_put (key | BTN_LONG_PRE_MASK);
+            key_long = key | BTN_LONG_PRE_MASK;
+            queue_put (&btn_q, (void*)&key_long);
          }
          if (!key) {
             /*
              * Key released
              * \note Here we put the max_key NOT key
              */
-            _ib_put (max_key);
+            queue_put (&btn_q, &max_key);
             max_key = 0;
             rep_flag = 0;
             state = BTN_IDLE;
@@ -234,7 +185,8 @@ void btn_service (void)
             rep_flag = 1;
          if (!key) {
             // Long key released
-            _ib_put (key | BTN_LONG_REL_MASK);
+            key_long = key | BTN_LONG_REL_MASK;
+            queue_put (&btn_q, (void*)&key_long);
             max_key = 0;
             rep_flag = 0;
             state = BTN_IDLE;
@@ -247,10 +199,31 @@ void btn_service (void)
 
    // Repetitive capability
    if (rep_flag && BTN.repetitive && (now - rep_mark >= BTN.reptime)) {
-      _ib_put (key);
+      queue_put (&btn_q, &key);
       rep_mark = now;
    }
    pr_key = key;
+}
+
+/*!
+  * \brief
+  *    De-Initialize button interface
+  */
+void btn_deinit (void)
+{
+   memset ((void*)&btn_q, 0, sizeof (queue_t));
+}
+
+/*!
+  * \brief
+  *    Initialize button interface
+  */
+drv_status_en btn_init (void)
+{
+   queue_link_buffer (&btn_q, (void*)_ib);
+   queue_set_items (&btn_q, INPUT_BUFFER_SIZE);
+   queue_set_item_size (&btn_q, sizeof (keys_t));
+   return DRV_READY;
 }
 
 /*!
@@ -263,10 +236,13 @@ void btn_service (void)
   */
 keys_t btn_getkey (uint8_t wait)
 {
+   keys_t ret;
+
    // wait for user's action
-   while (wait && !_ib_capacity())
+   while (wait && queue_is_empty (&btn_q))
       ;
-   return _ib_get ();
+   queue_get (&btn_q, (void*)&ret);
+   return ret;
 }
 
 /*!
@@ -274,6 +250,8 @@ keys_t btn_getkey (uint8_t wait)
  *    buttons ioctl function
  *
  * \param  cmd   specifies the command to FLASH
+ *    \arg CTRL_DEINIT
+ *    \arg CTRL_INIT
  *    \arg CTRL_GET_STATUS
  *    \arg CTRL_FLUSH
  * \param  buf   pointer to buffer for ioctl
@@ -285,6 +263,13 @@ drv_status_en btn_ioctl (ioctl_cmd_t cmd, ioctl_buf_t buf)
 {
    switch (cmd)
    {
+      case CTRL_DEINIT:          /*!< De-init */
+        btn_deinit();
+      case CTRL_INIT:            /*!< Init */
+         if (buf)
+            *(drv_status_en*)buf = btn_init();
+         else
+            btn_init();
       case CTRL_GET_STATUS:            /*!< Probe function */
          if (buf)
             *(drv_status_en*)buf = BTN.status;
