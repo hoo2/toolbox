@@ -30,11 +30,14 @@ extern "C" {
 
 #include <toolbox_defs.h>
 #include <tbx_ioctl.h>
+#include <tbx_iotypes.h>
 
 // Automatic control systems
 #include <acs/pid.h>
 #include <acs/tne.h>
-   
+
+#include <algo/queue.h>
+
 // Cryptography
 #include <crypt/md5.h>
 #include <crypt/sha1.h>
