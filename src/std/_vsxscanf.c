@@ -26,7 +26,7 @@
 static int         _isspace (char c);
 static int          _isterm (char c);
 static int _stream_getfirst (_getc_in_t _in, const char *src, char **psrc);
-static int     _stream_copy (_getc_in_t _in, const char *src, char **psrc, char *dst);
+static int     _number_copy (_getc_in_t _in, const char *src, char **psrc, char *dst);
 
 static int   _read_char (_getc_in_t _in, const char *src, char **psrc, char *ch);
 static int _read_string (_getc_in_t _in, const char *src, char **psrc, char *dst);
@@ -81,6 +81,28 @@ static int _isterm (char c)
 
 /*!
  * \brief
+ *    Return true (1) if the given character \a c is part of a number
+ *
+ * \param   c  The character to check
+ * \return     The status of operation
+ *    \arg  0  Non number character
+ *    \arg  1  Number character
+ */
+static int _isnumber (char c)
+{
+   if ((c >= '0' && c <= '9') ||
+      c == '.' ||
+      c == 'e' || c == 'E' ||
+      c == 'x' || c == 'X' ||
+      c == '-' || c == '+'
+      )
+      return 1;
+   else
+      return 0;
+}
+
+/*!
+ * \brief
  *    Writes and return the first non-whitespace character from the stream to "fake"
  *    buffer's head and update the pointers.
  *
@@ -104,22 +126,22 @@ static int _stream_getfirst (_getc_in_t _in, const char *src, char **psrc)
 
 /*!
  * \brief
- *    Copy the non-whitespace characters from the stream to \a dst until
+ *    Copy the number characters from the stream to \a dst until
  *    a whitespace or termination character appears
  *
  * \param   _in   Callback function to use for input streaming
  * \param   src   Destination string (if any).
  * \param   dst   The pointer to return the first non-whitespace character
  *
- * \return        The number of non-whitespace character from the stream
+ * \return        The number of number character from the stream
  */
-static int _stream_copy (_getc_in_t _in, const char *src, char **psrc, char *dst)
+static int _number_copy (_getc_in_t _in, const char *src, char **psrc, char *dst)
 {
    int ch, n=0;
    // Search for the first whitespace character
    ch = _in (src, (char**)&src, _GETC_HEAD);
    ++n;
-   while ( ! (_isspace (ch) || _isterm (ch)) ) {
+   while ( _isnumber (ch) ) {
       *dst++ = ch;
       ch = _in (src, (char**)&src, _GETC_NEXT);
       ++n;
@@ -128,7 +150,6 @@ static int _stream_copy (_getc_in_t _in, const char *src, char **psrc, char *dst
    *psrc = (char *)src;    // Update caller source pointer
    return n-1;
 }
-
 
 /*
  * Tailoring functions
@@ -203,8 +224,18 @@ static int _read_char (_getc_in_t _in, const char *src, char **psrc, char *ch)
  */
 static int _read_string (_getc_in_t _in, const char *src, char **psrc, char *dst)
 {
-   // Just forward call to _stream_copy()
-   return _stream_copy (_in, src, psrc, dst);
+   int ch, n=0;
+   // Search for the first whitespace character
+   ch = _in (src, (char**)&src, _GETC_HEAD);
+   ++n;
+   while ( ! (_isspace (ch) || _isterm (ch)) ) {
+      *dst++ = ch;
+      ch = _in (src, (char**)&src, _GETC_NEXT);
+      ++n;
+   }
+   *dst = 0;               // Destination string termination
+   *psrc = (char *)src;    // Update caller source pointer
+   return n-1;
 }
 
 /*!
@@ -228,7 +259,7 @@ static int _read_uint (_getc_in_t _in, const char *src, char **psrc, unsigned in
 
    // Init pointers
    num_pos = 1;
-   str_pos = _stream_copy (_in, src, psrc, num_str);
+   str_pos = _number_copy (_in, src, psrc, num_str);
    if (str_pos == 0)
       return 0;
    else
@@ -279,7 +310,7 @@ static int _read_int (_getc_in_t _in, const char *src, char **psrc, int *dst)
 
    // Init pointers
    num_pos = 1;
-   str_pos = _stream_copy (_in, src, psrc, num_str);
+   str_pos = _number_copy (_in, src, psrc, num_str);
    if (str_pos == 0)
       return 0;
    else
@@ -333,7 +364,7 @@ static int _read_hex (_getc_in_t _in, const char *src, char **psrc, unsigned int
 
    // Init pointers
    num_pos = 1;
-   str_pos = _stream_copy (_in, src, psrc, num_str);
+   str_pos = _number_copy (_in, src, psrc, num_str);
    if (str_pos == 0)
       return 0;
    else
@@ -419,7 +450,7 @@ static int _read_ffloat (_getc_in_t _in, const char *src, char **psrc, float *ds
    float frac_pos = 0.1;                  // Fractional pos/multiplier
 
    // Get string
-   n = _stream_copy (_in, src, psrc, num_str);
+   n = _number_copy (_in, src, psrc, num_str);
    if (n == 0) return 0;
    else        --n;
 
