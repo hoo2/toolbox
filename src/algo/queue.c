@@ -60,7 +60,7 @@ void queue_set_items (queue_t *queue, int items) {
 int queue_is_full (queue_t *queue)
 {
    if (queue->head == 0)
-      return (queue->tail == queue->items) ? 1 : 0;
+      return (queue->tail == queue->items-1) ? 1 : 0;
    else
       return (queue->head == queue->tail+1) ? 1 : 0;
 }
@@ -99,7 +99,7 @@ int queue_put (queue_t *queue, void *b)
 {
    if (queue_is_full (queue) == 1)  //full queue
       return 0;
-   memcpy ((void*)&queue->buf[queue->tail], b, queue->item_size);
+   memcpy ((void*)&queue->buf[queue->tail*queue->item_size], b, queue->item_size);
    //rotate pointer
    if ( ++queue->tail >= queue->items )
       queue->tail = 0;
@@ -118,7 +118,7 @@ int queue_get (queue_t *queue, void *b)
 {
    if ( queue_is_empty (queue) )    //Empty queue
       return 0;
-   memcpy (b, (const void*)&queue->buf[queue->head], queue->item_size);
+   memcpy (b, (const void*)&queue->buf[queue->head*queue->item_size], queue->item_size);
    //rotate pointers
    if ( ++queue->head >= queue->items )
       queue->head = 0;
