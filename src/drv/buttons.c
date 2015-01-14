@@ -236,7 +236,7 @@ drv_status_en btn_init (void)
   */
 keys_t btn_getkey (uint8_t wait)
 {
-   keys_t ret;
+   keys_t ret=BTN_NULL;
 
    // wait for user's action
    while (wait && queue_is_empty (&btn_q))
