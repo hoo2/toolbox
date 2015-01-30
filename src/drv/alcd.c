@@ -320,7 +320,7 @@ drv_status_en alcd_init (alcd_t *alcd)
    _lcd_assert (alcd->io.db7);
    _lcd_assert (alcd->io.rs);
    _lcd_assert (alcd->io.en);
-   _lcd_assert (alcd->io.bl);
+   //_lcd_assert (alcd->io.bl);
 
    /*
     * We are here, so all its OK. We can (re)initialize alcd.
@@ -372,7 +372,8 @@ drv_status_en alcd_init (alcd_t *alcd)
  * \return none
  */
 void alcd_backlight (alcd_t *alcd, uint8_t on) {
-   (on) ? alcd->io.bl (1) : alcd->io.bl (0);
+   if (alcd->io.bl)
+      alcd->io.bl ((on)?1:0);
 }
 
 /*!
@@ -388,10 +389,10 @@ void alcd_enable (alcd_t *alcd, uint8_t on)
 {
    if (on) {
       _command (alcd, LCD_DISP_ON);
-      alcd->io.bl (1);
+      alcd_backlight (alcd, 1);
    } else {
       _command (alcd, LCD_DISP_OFF);
-      alcd->io.bl (0);
+      alcd_backlight (alcd, 0);
    }
 }
 
