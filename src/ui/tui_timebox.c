@@ -69,11 +69,17 @@ static void _mk_frame (tui_t *tui, time_t t, uint8_t frm)
    // Print value
    s = sgmtime(&t);
    i = sprintf ((char*)&tui->frame_buffer.fb[_LINE(1)], "= ");
-   if (frm & UI_TIME_DD)   i += sprintf ((char*)&tui->frame_buffer.fb[_LINE(1)+i], "%dd+ ",   s->tm_yday);
-   if (frm & UI_TIME_HH)   i += sprintf ((char*)&tui->frame_buffer.fb[_LINE(1)+i], "%02d",    s->tm_hour);
-   if (frm & UI_TIME_MM)   i += sprintf ((char*)&tui->frame_buffer.fb[_LINE(1)+i], ":%02d",   s->tm_min);
-   if (frm & UI_TIME_SS)   i += sprintf ((char*)&tui->frame_buffer.fb[_LINE(1)+i], ":%02d\"", s->tm_sec);
-   else                    i += sprintf ((char*)&tui->frame_buffer.fb[_LINE(1)+i], "\'");
+   if (frm & UI_TIME_DD)   i += sprintf ((char*)&tui->frame_buffer.fb[_LINE(1)+i], "%dd ",   s->tm_yday);
+   if (frm & UI_TIME_HH) {
+      i += sprintf ((char*)&tui->frame_buffer.fb[_LINE(1)+i], "%02d",  s->tm_hour);
+      if (frm & UI_TIME_MM) tui->frame_buffer.fb[_LINE(1)+i++] = ':';
+   }
+   if (frm & UI_TIME_MM) {
+      i += sprintf ((char*)&tui->frame_buffer.fb[_LINE(1)+i], "%02d",  s->tm_min);
+      if (frm & UI_TIME_SS) tui->frame_buffer.fb[_LINE(1)+i++] = ':';
+      else                  tui->frame_buffer.fb[_LINE(1)+i++] = '\'';
+   }
+   if (frm & UI_TIME_SS)   i += sprintf ((char*)&tui->frame_buffer.fb[_LINE(1)+i], "%02d\"", s->tm_sec);
    // discard null termination inside frame buffer
    tui->frame_buffer.fb[_LINE(1)+i] = ' ';
    #undef _LINE
