@@ -131,8 +131,9 @@ typedef volatile struct {
    see_io_t       io;         /*!< driver links */
    see_conf_t     conf;       /*!< Configuration and settings */
    see_iface_t    iface;      /*!< Interface */
-   see_idx_t      last;       /*!< Holds the last write flash address */
-   drv_status_en status;      /*!< see driver status, NOT the device status */
+   see_idx_t      last_cur;   /*!< Holds the last write flash address of current page */
+   see_idx_t      last_pr;    /*!< Holds the last write flash address of previous page */
+   drv_status_en  status;     /*!< see driver status, NOT the device status */
 }see_t;
 
 /*

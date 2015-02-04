@@ -58,7 +58,7 @@ static see_page_en _valid_page (see_t *see)
 
 /*!
  * \brief
- *    Try to find last written item address in flash
+ *    Try to find last written address item in flash
  *
  * \param  see    The active see struct.
  * \param  page   Which page to seek
@@ -67,42 +67,73 @@ static see_page_en _valid_page (see_t *see)
 static see_idx_t _find_last (see_t *see, see_idx_t page)
 {
    byte_t      bf[SEE_FIND_LAST_BUFFER_SIZE];
-   see_idx_t   fp, acc;
+   see_idx_t   fp;
    uint32_t    i, pairs, bts;
    uint32_t    bfp, bfp_next;
+   see_idx_t   *last;
+   uint8_t     seek = 0;
+   static see_idx_t
+               page_cur = (see_idx_t)-1,
+               page_pr  = (see_idx_t)-1;
 
-   if ( see->last != (see_idx_t)-1)
-      return see->last;
+   // Job filter
+   if (page_cur == (see_idx_t)-1) {
+      // First time
+      page_cur = page;
+      seek = 1;
+      last = (see_idx_t*)&see->last_cur;
+   }
+   else if (page == page_cur) {
+      // Repeat during current read/write
+      seek = 0;
+      last = (see_idx_t*)&see->last_cur;
+   }
+   else {
+      // Not current
+      if (page == page_pr) {
+         // Repeat for "from page" during page swap
+         seek = 0;
+         last = (see_idx_t*)&see->last_pr;
+      }
+      else {
+         // New current page during page swap (seek new page)
+         page_pr = page_cur;
+         page_cur = page;
+         seek = 1;
+         see->last_pr = see->last_cur;
+         last = (see_idx_t*)&see->last_cur;
+      }
+   }
+   if (!seek)
+      return *last;
    else {
       // Calculate counters
       pairs = SEE_FIND_LAST_BUFFER_SIZE / (see->iface.word_size + sizeof (see_idx_t));
       bts = pairs * (see->iface.word_size + sizeof (see_idx_t));
       fp = sizeof (see_page_status_en)+page;
-      acc = page;
 
       // Loop entire flash page
-      for ( ; fp < page+see->conf.page_size - bts ; ) {
+      for ( ; fp < page+see->conf.page_size - bts ; fp += (bfp - see->iface.word_size)) {
          // Load buffer
          if ( see->io.fl_read (see->io.flash, fp, (void*)bf, bts) != DRV_READY)
-            return see->last = 0;
+            return *last = 0;
          // Seek into buffer
          bfp=0;
          bfp_next = see->iface.word_size;
          // One action outside
          if ( *(see_idx_t*)(bf+bfp_next) == (see_idx_t)-1 )
-            return see->last = (see_idx_t)acc;
+            return *last = (see_idx_t)(fp-sizeof (see_idx_t));
          bfp = bfp_next;
          bfp_next += see->iface.word_size + sizeof (see_idx_t);
          // Loop the rest
          for (i=1 ; i<pairs ; ++i) {
             if ( *(see_idx_t*)(bf+bfp_next) == (see_idx_t)-1 )
-               return see->last = (see_idx_t)(acc+bfp);
+               return *last = (see_idx_t)(fp+bfp);
             bfp = bfp_next;
             bfp_next += see->iface.word_size + sizeof (see_idx_t);
          }
-         acc = bfp;
       }
-      return see->last = 0;
+      return *last = 0;
    }
 }
 
@@ -175,8 +206,7 @@ static see_status_en _page_swap (see_t *see)
          break;
    }
    // Catch exit status
-   switch (ee_st)
-   {
+   switch (ee_st) {
       case EE_EEFULL:
       case EE_PAGEFULL:
       case EE_FLASHERROR:  return ee_st;
@@ -328,7 +358,7 @@ static see_status_en _try_write (see_t *see, see_idx_t page, see_idx_t idx, byte
    fp += see->iface.word_size;
    if ( see->io.fl_write (see->io.flash, fp, (void*)&idx, sizeof(see_idx_t)) != DRV_READY )
       ee_st = EE_FLASHERROR;
-   see->last = fp;
+   see->last_cur = fp;  // We only write in current page
    return ee_st;
 }
 
@@ -396,7 +426,6 @@ static see_status_en _write_word (see_t *see, see_idx_t idx, byte_t *word)
    }
    else
       return ee_st;
-
 }
 
 
@@ -582,7 +611,8 @@ drv_status_en see_init (see_t *see)
    if (!see->io.fl_write)  return see->status = DRV_ERROR;
 
    see->iface.size = (see->conf.page_size / (see->iface.word_size + sizeof(see_idx_t))) * see->iface.word_size;
-   see->last = (see_idx_t)-1;
+   see->last_cur = see->last_pr = (see_idx_t)-1;
+
    /*!
     * \note
     *    Initiate a _read_last search routine in the first call.
@@ -612,16 +642,14 @@ drv_status_en see_init (see_t *see)
     * Power failure during PageSwap just before marking ACTIVE the new page.
     * We just mark as active the new page.
     */
-   else if (pg0_st == EE_PAGE_RECEIVEDATA && pg1_st == EE_PAGE_EMPTY)
-   {
+   else if (pg0_st == EE_PAGE_RECEIVEDATA && pg1_st == EE_PAGE_EMPTY) {
       drv_st = DRV_READY;     //Try that or prove otherwise
       page_st = EE_PAGE_ACTIVE;
       if ( see->io.fl_write (see->io.flash, see->conf.page0_add, (void*)&page_st, sizeof(page_st)) != DRV_READY)
          drv_st = DRV_ERROR;
       return (see->status = drv_st);
    }
-   else if (pg0_st == EE_PAGE_EMPTY && pg1_st == EE_PAGE_RECEIVEDATA)
-   {
+   else if (pg0_st == EE_PAGE_EMPTY && pg1_st == EE_PAGE_RECEIVEDATA) {
       drv_st = DRV_READY;     //Try that or prove otherwise
       page_st = EE_PAGE_ACTIVE;
       if ( see->io.fl_write (see->io.flash, see->conf.page1_add, &page_st, sizeof(page_st)) != DRV_READY)
@@ -673,34 +701,28 @@ drv_status_en see_read (see_t *see, see_idx_t idx, byte_t *buf, bytecount_t size
    // Calculate counters
    ofs_idx = idx % see->iface.word_size;     // Index offset, if any
    fl_idx = idx - ofs_idx;                   // Actual written flash index
-   words = size / see->iface.word_size;      // How many words
-   rem = size % see->iface.word_size;        // How many remaining bytes
 
    // If we have unaligned starting data
    if (ofs_idx) {
+      memset ((void *)bf, 0, SEE_MAX_WORD_SIZE);
       if ( _read_word (see, fl_idx, bf) == EE_FLASHERROR ) {
          see->status = DRV_READY;
          return DRV_ERROR;
       }
+      // Update counters
       n = see->iface.word_size - ofs_idx;
-      if (n <= rem) {   // Consume reminder bytes
-         rem -= n;
-      }
-      else {
-         if (words>0) { // Consume reminder bytes and words
-            --words;
-            rem = n - rem;
-         }
-         else {         // All the data was that
-            n = rem;
-            rem = 0;
-         }
-      }
+      if (size>=n)   size -= n;
+      else           n = size;
       // Copy and update pointers
-      memcpy ((void *)buf, (const void *)bf, n);
+      memcpy ((void *)buf, (const void *)(bf+ofs_idx), n);
       buf += n;
       fl_idx += see->iface.word_size;
    }
+
+   // Calculate the rest of counters
+   words = size / see->iface.word_size;      // How many words
+   rem = size % see->iface.word_size;        // How many remaining bytes
+
    // Read aligned data
    for (i=0 ; i<words ; ++i) {
       if ( _read_word (see, fl_idx, buf) == EE_FLASHERROR ) {
@@ -713,6 +735,7 @@ drv_status_en see_read (see_t *see, see_idx_t idx, byte_t *buf, bytecount_t size
    // Read remaining unaligned data
    if (rem) {
       // Take last data
+      memset ((void *)bf, 0, SEE_MAX_WORD_SIZE);
       if ( _read_word (see, fl_idx, bf) == EE_FLASHERROR ) {
          see->status = DRV_READY;
          return DRV_ERROR;
@@ -786,6 +809,7 @@ drv_status_en see_write (see_t *see, see_idx_t idx, byte_t *buf, bytecount_t siz
    }
    // Write remaining unaligned data
    if (rem) {
+      memset ((void *)bf, 0, SEE_MAX_WORD_SIZE);
       memcpy ((void *)bf, (const void *)buf, rem);
       // Write last data
       if ( _write_word (see, idx, bf) == EE_FLASHERROR ) {
