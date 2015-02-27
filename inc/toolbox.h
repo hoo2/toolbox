@@ -30,7 +30,7 @@ extern "C" {
 
 #include <toolbox_defs.h>
 #include <tbx_ioctl.h>
-#include <tbx_iotypes.h>
+#include <tbx_types.h>
 
 // Automatic control systems
 #include <acs/pid.h>

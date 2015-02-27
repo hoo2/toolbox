@@ -26,7 +26,7 @@
 #define __sim_ee_h__
 
 #include <tbx_ioctl.h>
-#include <tbx_iotypes.h>
+#include <tbx_types.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>

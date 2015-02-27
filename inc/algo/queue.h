@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 
-#include <tbx_iotypes.h>
+#include <tbx_types.h>
 #include <string.h>
 
 typedef struct {

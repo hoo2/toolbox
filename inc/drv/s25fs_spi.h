@@ -29,7 +29,7 @@ extern "C" {
 #endif
 
 #include <tbx_ioctl.h>
-#include <tbx_iotypes.h>
+#include <tbx_types.h>
 #include <stddef.h>
 #include <drv/spi_bb.h>
 #include <sys/jiffies.h>

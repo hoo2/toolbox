@@ -65,6 +65,13 @@ typedef     void (*drv_dout_ft)  (uint8_t);
 typedef     void (*drv_out_i_ft) (int);
 typedef     void (*drv_out_f_ft) (float);
 
+/*!
+ * Complex types
+ */
+typedef _Complex double    complex_d_t;
+typedef _Complex int       complex_i_t;
+
+
 #ifdef __cplusplus
 }
 #endif

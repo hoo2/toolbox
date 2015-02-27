@@ -29,7 +29,7 @@ extern "C" {
 #endif
 
 #include <tbx_ioctl.h>
-#include <tbx_iotypes.h>
+#include <tbx_types.h>
 #include <drv/i2c_bb.h>
 /*
  * =================== User Defines =====================
