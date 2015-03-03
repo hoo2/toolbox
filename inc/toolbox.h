@@ -67,6 +67,10 @@ extern "C" {
 // DSP
 #include <dsp/leaky_int.h>
 #include <dsp/moving_av.h>
+#include <dsp/vectors.h>
+#include <dsp/conv.h>
+#include <dsp/corr.h>
+#include <dsp/dft.h>
 
 // std library adds and replacements
 #include <std/sprintf.h>
