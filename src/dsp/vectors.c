@@ -57,7 +57,6 @@ void vcadd_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) {
 }
 #undef _vadd_body
 
-
 /*!
  * \brief
  *    Calculates the substruction of a and b
@@ -87,6 +86,85 @@ void vcsub_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) {
    _vsub_body();
 }
 #undef _vsub_body
+
+
+/*!
+ * \brief
+ *    Calculates the element-wise multiplication of a and b
+ *
+ *   y[n] = a[n] .* b[n]
+ *
+ * \param      y  Pointer to output vector
+ * \param      a  Pointer to target vector a
+ * \param      b  Pointer to target vector b
+ * \param length  Size of vectors
+ *
+ * \return none
+ */
+#define  _vemul_body() {                                       \
+   /* Calculate vadd */                                        \
+   for (--length ; length>=0 ; --length) {                     \
+      y[length] = a[length] * b[length];                       \
+   }                                                           \
+}
+void vemul_i (int *y, int *a, int *b, int length) { _vemul_body(); }
+void vemul_f (float *y, float *a, float *b, int length) {_vemul_body(); }
+void vemul_d (double *y, double *a, double *b, int length) { _vemul_body(); }
+void vcemul_i (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) {
+   _vemul_body();
+}
+void vcemul_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) {
+   _vemul_body();
+}
+#undef _vemul_body
+
+
+/*!
+ * \brief
+ *    Calculates the element-wise right division  a / b
+ *
+ *   y[n] = a[n] ./ b[n]
+ *
+ * \param      y  Pointer to output vector
+ * \param      a  Pointer to target vector a
+ * \param      b  Pointer to target vector b
+ * \param length  Size of vectors
+ *
+ * \return The status of operation
+ *    \arg  0  Success
+ *    \arg  1  Fail, divide by zero
+ */
+#define  _vediv_body() {                                       \
+   /* Calculate vadd */                                        \
+   for (--length ; length>=0 ; --length) {                     \
+      if (b[length]!= 0)                                       \
+         y[length] = a[length] / b[length];                    \
+      else                                                     \
+         return 1;                                             \
+   }                                                           \
+   return 0;                                                   \
+}
+#define  _vcediv_body() {                                      \
+   /* Calculate vadd */                                        \
+   for (--length ; length>=0 ; --length) {                     \
+      if (b[length]!= 0+0j)                                    \
+         y[length] = a[length] / b[length];                    \
+      else                                                     \
+         return 1;                                             \
+   }                                                           \
+   return 0;                                                   \
+}
+int vediv_i (int *y, int *a, int *b, int length) { _vediv_body(); }
+int vediv_f (float *y, float *a, float *b, int length) {_vediv_body(); }
+int vediv_d (double *y, double *a, double *b, int length) { _vediv_body(); }
+int vcediv_i (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) {
+   _vcediv_body();
+}
+int vcediv_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) {
+   _vcediv_body();
+}
+#undef _vediv_body
+#undef _vcediv_body
 
 
 /*!
@@ -164,3 +242,58 @@ double vcnorm_d (complex_d_t *x, int length) { double res; _vcnorm_body(); }
 #undef _vnorm_body
 #undef _vcnorm_body
 
+
+/*!
+ * \brief
+ *    Calculates the Cartesian coordinates from polar vector
+ *
+ * \param   c  Pointer to Cartesian vector {x,y}
+ * \param   p  Pointer to polar vector {r,th}
+ * \return  none
+ */
+void vcart (double *c, double *p) {
+   c[0] = p[0] * cos (p[1]);
+   c[1] = p[0] * sin (p[1]);
+}
+
+/*!
+ * \brief
+ *    Calculates the a complex number in Cartesian
+ *    coordinates from polar vector
+ *
+ * \param   c  Pointer to complex
+ * \param   p  Pointer to polar vector {r,th}
+ * \return  none
+ */
+void vccart (complex_d_t *c, double *p) {
+   *c = p[0] * cos (p[1]) + 1j*(p[0] * sin (p[1]));
+}
+
+/*!
+ * \brief
+ *    Calculates the polar coordinates from Cartesian vector
+ *
+ * \param   p  Pointer to polar vector {r,th}
+ * \param   c  Pointer to Cartesian vector {x,y}
+ * \return  none
+ */
+void vpolar (double *p, double *c) {
+   p[0] = sqrt (c[0]*c[0] + c[1]*c[1]);
+   p[1] = atan2 (c[1], c[0]);
+}
+
+/*!
+ * \brief
+ *    Calculates the polar coordinates from complex number
+ *
+ * \param   p  Pointer to polar vector {r,th}
+ * \param   c  complex number
+ * \return  none
+ */
+void vcpolar (double *p, complex_d_t c)
+{
+   double x=creal (c) , y=cimag (c);
+
+   p[0] = sqrt (x*x + y*y);
+   p[1] = atan2 (y, x);
+}

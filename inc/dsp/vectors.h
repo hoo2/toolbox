@@ -50,6 +50,18 @@ void vsub_d (double *y, double *a, double *b, int length);
 void vcsub_i (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length);
 void vcsub_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length);
 
+void vemul_i (int *y, int *a, int *b, int length);
+void vemul_f (float *y, float *a, float *b, int length);
+void vemul_d (double *y, double *a, double *b, int length);
+void vcemul_i (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length);
+void vcemul_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length);
+
+int vediv_i (int *y, int *a, int *b, int length);
+int vediv_f (float *y, float *a, float *b, int length);
+int vediv_d (double *y, double *a, double *b, int length);
+int vcediv_i (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length);
+int vcediv_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length);
+
 int vdot_i (int *a, int *b, int length);
 float vdot_f (float *a, float *b, int length);
 double vdot_d (double *a, double *b, int length);
@@ -61,7 +73,6 @@ double vnorm_f (float *x, int length);
 double vnorm_d (double *x, int length);
 double vcnorm_i (complex_i_t *x, int length);
 double vcnorm_d (complex_d_t *x, int length);
-
 
 #if __STDC_VERSION__ >= 201112L
 
@@ -94,6 +105,7 @@ double vcnorm_d (complex_d_t *x, int length);
             default: vadd_i)(y, a, b, length)
 #endif   //#ifndef vadd
 
+
 #ifndef vsub
 /*!
  * A pseudo type-polymorphism mechanism using _Generic macro
@@ -122,6 +134,69 @@ double vcnorm_d (complex_d_t *x, int length);
    _Complex double*: vcsub_d,             \
             default: vsub_i)(y, a, b, length)
 #endif   //#ifndef vsub
+
+
+#ifndef vemul
+/*!
+ * A pseudo type-polymorphism mechanism using _Generic macro
+ * to simulate:
+ *
+ * template<typename T> void vemul (T *y, T *a, T *b, int length);
+ *
+ * \note We still have to implement all the functions
+ * \brief
+ *    Calculates the element-wise multiplication of a and b
+ *
+ *   y[n] = a[n] .* b[n]
+ *
+ * \param      y  Pointer to output vector
+ * \param      a  Pointer to target vector a
+ * \param      b  Pointer to target vector b
+ * \param length  Size of vectors
+ *
+ * \return none
+ */
+#define vemul(y, a, b, length) _Generic((y), \
+               int*: vemul_i,                \
+             float*: vemul_f,                \
+            double*: vemul_d,                \
+      _Complex int*: vcemul_i,               \
+   _Complex double*: vcemul_d,               \
+            default: vemul_i)(y, a, b, length)
+#endif   //#ifndef vemul
+
+
+#ifndef vediv
+/*!
+ * A pseudo type-polymorphism mechanism using _Generic macro
+ * to simulate:
+ *
+ * template<typename T> int vediv (T *y, T *a, T *b, int length);
+ *
+ * \note We still have to implement all the functions
+ * \brief
+ *    Calculates the element-wise right division  a / b
+ *
+ *   y[n] = a[n] ./ b[n]
+ *
+ * \param      y  Pointer to output vector
+ * \param      a  Pointer to target vector a
+ * \param      b  Pointer to target vector b
+ * \param length  Size of vectors
+ *
+ * \return The status of operation
+ *    \arg  0  Success
+ *    \arg  1  Fail, divide by zero
+ */
+#define vediv(y, a, b, length) _Generic((y), \
+               int*: vediv_i,                \
+             float*: vediv_f,                \
+            double*: vediv_d,                \
+      _Complex int*: vcediv_i,               \
+   _Complex double*: vcediv_d,               \
+            default: vediv_i)(y, a, b, length)
+#endif   //#ifndef vediv
+
 
 #ifndef vdot
 /*!
@@ -153,6 +228,7 @@ double vcnorm_d (complex_d_t *x, int length);
    _Complex double*: vcdot_d,             \
             default: vdot_i)(a, b, length)
 #endif   // #ifndef vdot
+
 
 #ifndef vnorm
 /*!
@@ -187,14 +263,10 @@ double vcnorm_d (complex_d_t *x, int length);
 #endif   // #if __STDC_VERSION__ >= 201112L
 
 
-
-
-
-
-
-
-
-
+void vcart (double *c, double *p);
+void vccart (complex_d_t *c, double *p);
+void vpolar (double *p, double *c);
+void vcpolar (double *p, complex_d_t c);
 
 #ifdef __cplusplus
 }
