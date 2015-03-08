@@ -1,7 +1,7 @@
 /*!
  * \file ee_i2c_pol.h
  * \brief
- *    A target independent EEPROM (24xx series) driver using i2c_pol
+ *    A target independent EEPROM (24xx series) driver using i2c
  *
  * This file is part of toolbox
  *

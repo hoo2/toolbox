@@ -1,7 +1,7 @@
 /*!
  * \file ee_i2c.c
  * \brief
- *    A target independent EEPROM (24xx series) driver
+ *    A target independent EEPROM (24xx series) driver using i2c
  *
  * This file is part of toolbox
  *

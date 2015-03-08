@@ -1,7 +1,7 @@
 /*
  * \file sd_spi.h
  * \brief
- *    MMC/SDSC/SDHC (in SPI mode) control module for STM32
+ *     MMC/SDSC/SDHC control module in SPI mode.
  *
  * This file is part of toolbox
  *

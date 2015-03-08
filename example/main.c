@@ -1,6 +1,6 @@
 #include <toolbox.h>
 #include <string.h>
-#include <RN_DPEC.h>
+#include <RN_DPEC_v0.3.h>
 #include <stm32f10x_systick.h>
 
 void acs_test (void)
@@ -85,7 +85,8 @@ void drv_test (void)
 {
    float r1 = 1532, r2 = 167;
    temp_t t;
-   ee_t ee;
+   ee_t     ee;
+   i2c_bb_t i2c;
    char str[] = "These aren\'t the droids you\'re looking for!";
 
    t = sen_pt100 (r1);
@@ -98,20 +99,25 @@ void drv_test (void)
    t = sen_ntc3997k (r1);
    t = sen_jtype (0.0125, 14);
 
-   ee_deinit(&ee); // Clear data
-   i2c_link_scl(&ee.i2c, EE_SCL);
-   i2c_link_sda(&ee.i2c, EE_SDA);
-   i2c_link_sdadir(&ee.i2c, EE_SDA_Dir);
+   // Connect and initialise eeprom
+   i2c_link_sda (&i2c, EE_SDA);
+   i2c_link_scl (&i2c, EE_SCL);
+   i2c_link_sdadir (&i2c, EE_SDA_Dir);
+   i2c_set_speed(&i2c, 50000);
+   i2c_init (&i2c);
 
+   ee_link_i2c (&ee, (void*)&i2c);
+   ee_link_i2c_rx (&ee, (ee_i2c_rx_ft)i2c_rx);
+   ee_link_i2c_tx (&ee, (ee_i2c_tx_ft)i2c_tx);
+   ee_link_i2c_ioctl (&ee, (ee_i2c_ioctl_ft)i2c_ioctl);
    ee_set_hwaddress (&ee, 0xA0);      // 0xA0 + 000x
    ee_set_size (&ee, EE_128);
-   ee_set_pagesize(&ee, 64);
-   ee_set_speed(&ee, 50000);
+   ee_set_page_size(&ee, 64);
    ee_set_timeout(&ee, 0x100);    // ~= 25 msec
+   ee_init (&ee);
 
-   ee_init(&ee);
-   ee_writebuffer(&ee, 0x100, (uint8_t *)str, strlen(str));
-   ee_readbuffer(&ee, 0x100, (uint8_t *)str, strlen(str));
+   ee_write(&ee, 0x100, (byte_t *)str, strlen(str));
+   ee_read(&ee, 0x100, (byte_t *)str, strlen(str));
 
 }
 
