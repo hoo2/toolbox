@@ -66,6 +66,22 @@ typedef     void (*drv_out_i_ft) (int);
 typedef     void (*drv_out_f_ft) (float);
 
 /*!
+ * This is a toolbox wide generic driver status type.
+ * \note
+ *    DRV_NOINIT = 0, so after memset to zero called by XXXX_deinit() the
+ *    module/device will automatically set to NOINIT state.
+ */
+typedef enum
+{
+   DRV_NODEV=-1,     /*!< No device/module */
+   DRV_NOINIT=0,     /*!< Module/Device exist but no initialized */
+   DRV_READY,        /*!< Module/Device initialized succesfully */
+   DRV_BUSY,         /*!< Module/Device busy */
+   //DRV_COMPLETE,     /*!< Module/device operation complete status */
+   DRV_ERROR         /*!< Module/Device error */
+}drv_status_en;
+
+/*!
  * Complex types
  */
 typedef _Complex double    complex_d_t;

@@ -102,22 +102,6 @@ extern "C" {
 typedef uint8_t   ioctl_cmd_t;   /*!< Generic ioctl command type */
 typedef void*     ioctl_buf_t;   /*!< Generic ioctl buffer data type */
 
-/*!
- * This is a toolbox wide generic driver status type.
- * \note
- *    DRV_NOINIT = 0, so after memset to zero called by XXXX_deinit() the
- *    module/device will automatically set to NOINIT state.
- */
-typedef enum
-{
-   DRV_NODEV=-1,     /*!< No device/module */
-   DRV_NOINIT=0,     /*!< Module/Device exist but no initialized */
-   DRV_READY,        /*!< Module/Device initialized succesfully */
-   DRV_BUSY,         /*!< Module/Device busy */
-   //DRV_COMPLETE,     /*!< Module/device operation complete status */
-   DRV_ERROR         /*!< Module/Device error */
-}drv_status_en;
-
 
 #ifdef __cplusplus
 }
