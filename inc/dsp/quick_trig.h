@@ -23,7 +23,7 @@
  *
  */
 #ifndef __quick_trig_h__
-#define _quick_trig_h__
+#define __quick_trig_h__
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,6 +40,14 @@ extern "C" {
 #ifndef M_1_PI
 #define M_1_PI    0.31830988618379067154
 #endif
+
+#ifndef M_2PI
+#define M_2PI     6.28318530717958647692
+#endif
+
+#define QTR_A    -0.40528473456935108577
+#define QTR_B     1.27323954473516268615
+#define QTR_P     0.225
 
 
 double qsin (double th);

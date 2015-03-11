@@ -46,14 +46,11 @@ static double _abs (double x) {
  */
 double qsin (double th)
 {
-   double A = -4 * M_1_PI * M_1_PI;
-   double B = 4 * M_1_PI;
-   double P = 0.225;
    double r;
 
-   if (th>M_PI)   th -= 2*M_PI;  // angle shift
-   r = A*th*_abs(th) + B*th;     // r = Ath^2 + Bth + C
-   r = r + P*(r*_abs(r) - r);    // Q = 1-P => r = Qr + Pr^2
+   if (th>M_PI)   th -= M_2PI;         // angle shift
+   r = QTR_A*th*_abs(th) + QTR_B*th;   // r = Ath^2 + Bth + C
+   r = r + QTR_P*(r*_abs(r) - r);      // Q = 1-P => r = Qr + Pr^2
    return r;
 }
 
@@ -68,15 +65,12 @@ double qsin (double th)
  */
 double qcos (double th)
 {
-   double A = -4 * M_1_PI * M_1_PI;
-   double B = 4 * M_1_PI;
-   double P = 0.225;
    double r;
 
    th += M_PI_2;
-   if (th>M_PI)   th -= 2*M_PI;  // angle shift
-   r = A*th*_abs(th) + B*th;     // r = Ath^2 + Bth + C
-   r = r + P*(r*_abs(r) - r);    // Q = 1-P => r = Qr + Pr^2
+   if (th>M_PI)   th -= M_2PI;         // angle shift
+   r = QTR_A*th*_abs(th) + QTR_B*th;   // r = Ath^2 + Bth + C
+   r = r + QTR_P*(r*_abs(r) - r);      // Q = 1-P => r = Qr + Pr^2
    return r;
 }
 
