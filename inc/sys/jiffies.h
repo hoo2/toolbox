@@ -30,7 +30,7 @@
 
 #include <stdint.h>
 #include <string.h>
-#include <tbx_ioctl.h>
+#include <tbx_types.h>
 
 typedef int32_t   jiffy_t;    /*!< Jiffy type 4 byte integer */
 
