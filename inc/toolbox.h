@@ -58,6 +58,8 @@ extern "C" {
 #include <drv/jtype.h>
 #include <drv/brh_fcx.h>
 
+#include <drv/tle5009.h>
+
 #include <drv/ee_i2c.h>
 #include <drv/sim_ee.h>
 #include <drv/sd_spi.h>
