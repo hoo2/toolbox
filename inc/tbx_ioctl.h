@@ -86,17 +86,20 @@ extern "C" {
 #define  CTRL_SET_STATUS         0x50
 #define  CTRL_SET_TYPE           0x51
 #define  CTRL_SET_SPEED          0x52
-#define  CTRL_SET_FREQ           0x53
-#define  CTRL_SET_CLOCK          0x54
-#define  CTRL_SET_VALUE          0x55
-#define  CTRL_SET_DIR            0x56
+#define  CTRL_SET_BAUDRATE       0x53
+#define  CTRL_SET_FREQ           0x54
+#define  CTRL_SET_CLOCK          0x55
+#define  CTRL_SET_VALUE          0x56
+#define  CTRL_SET_DIR            0x57
 
 /*
  * Comunication commands
  */
 #define CTRL_START               0x80  /*!< Generic start command */
 #define CTRL_STOP                0x81  /*!< Generic stop command */
-
+#define CTRL_SEND_DATA           0x82
+#define CTRL_SEND_CMD            0x83
+#define CTRL_SEND_ALARM          0x84
 
 
 typedef uint8_t   ioctl_cmd_t;   /*!< Generic ioctl command type */
