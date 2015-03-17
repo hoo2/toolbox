@@ -161,6 +161,7 @@ drv_status_en gps_send (gps_t *gps, char* msg)
    for (i=0 ; i<20 && cmd[i]; ++i) {
       gps->io.tx (gps->io.usart, cmd[i]);
    }
+   return DRV_READY;
 }
 
 drv_status_en gps_ioctl (gps_t *gps, ioctl_cmd_t cmd, ioctl_buf_t buf)
