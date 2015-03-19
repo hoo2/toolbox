@@ -60,7 +60,7 @@ extern "C" {
 
 #include <drv/tle5009.h>
 
-#include <drv/gps_rs.h>
+#include <drv/nmea.h>
 
 #include <drv/ee_i2c.h>
 #include <drv/sim_ee.h>

@@ -129,7 +129,7 @@ drv_status_en gps_location (gps_t *gps, gps_location_t *l)
    }while (gps->buf[i-1] != '\n' && i<120);
    //p=0;
    //gps->io.ioctl ((void*)gps->io.usart, (ioctl_cmd_t)CTRL_POWER, (ioctl_buf_t)&p);
-   return   DRV_READY;
+   return DRV_READY;
 }
 
 /*!
