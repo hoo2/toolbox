@@ -25,8 +25,12 @@
 
 static int         _isspace (char c);
 static int          _isterm (char c);
+static int   _is_int_number (char c);
+static int   _is_hex_number (char c);
+static int  _is_real_number (char c);
+
 static int _stream_getfirst (_getc_in_t _in, const char *src, char **psrc);
-static int     _number_copy (_getc_in_t _in, const char *src, char **psrc, char *dst);
+static int     _number_copy (_getc_in_t _in, _number_copy_type_en t, const char *src, char **psrc, char *dst);
 
 static int   _read_char (_getc_in_t _in, const char *src, char **psrc, char *ch);
 static int _read_string (_getc_in_t _in, const char *src, char **psrc, char *dst);
@@ -88,12 +92,49 @@ static int _isterm (char c)
  *    \arg  0  Non number character
  *    \arg  1  Number character
  */
-static int _isnumber (char c)
+static int _is_int_number (char c)
+{
+   if ((c >= '0' && c <= '9') ||
+      c == '-' || c == '+'
+      )
+      return 1;
+   else
+      return 0;
+}
+
+/*!
+ * \brief
+ *    Return true (1) if the given character \a c is part of a number
+ *
+ * \param   c  The character to check
+ * \return     The status of operation
+ *    \arg  0  Non number character
+ *    \arg  1  Number character
+ */
+static int _is_hex_number (char c)
+{
+   if ((c >= '0' && c <= '9') ||
+      c == '-' || c == '+'
+      )
+      return 1;
+   else
+      return 0;
+}
+
+/*!
+ * \brief
+ *    Return true (1) if the given character \a c is part of a number
+ *
+ * \param   c  The character to check
+ * \return     The status of operation
+ *    \arg  0  Non number character
+ *    \arg  1  Number character
+ */
+static int _is_real_number (char c)
 {
    if ((c >= '0' && c <= '9') ||
       c == '.' ||
       c == 'e' || c == 'E' ||
-      c == 'x' || c == 'X' ||
       c == '-' || c == '+'
       )
       return 1;
@@ -135,9 +176,19 @@ static int _stream_getfirst (_getc_in_t _in, const char *src, char **psrc)
  *
  * \return        The number of number character from the stream
  */
-static int _number_copy (_getc_in_t _in, const char *src, char **psrc, char *dst)
+static int _number_copy (_getc_in_t _in, _number_copy_type_en t, const char *src, char **psrc, char *dst)
 {
    int ch, n=0;
+   int (*_isnumber) (char);
+
+   // Number type dispatch
+   switch (t) {
+      default:
+      case _INT:     _isnumber = _is_int_number;   break;
+      case _HEX:     _isnumber = _is_hex_number;   break;
+      case _FLOAT:   _isnumber = _is_real_number;  break;
+   }
+
    // Search for the first whitespace character
    ch = _in (src, (char**)&src, _GETC_HEAD);
    ++n;
@@ -259,7 +310,7 @@ static int _read_uint (_getc_in_t _in, const char *src, char **psrc, unsigned in
 
    // Init pointers
    num_pos = 1;
-   str_pos = _number_copy (_in, src, psrc, num_str);
+   str_pos = _number_copy (_in, _INT, src, psrc, num_str);
    if (str_pos == 0)
       return 0;
    else
@@ -310,7 +361,7 @@ static int _read_int (_getc_in_t _in, const char *src, char **psrc, int *dst)
 
    // Init pointers
    num_pos = 1;
-   str_pos = _number_copy (_in, src, psrc, num_str);
+   str_pos = _number_copy (_in, _INT, src, psrc, num_str);
    if (str_pos == 0)
       return 0;
    else
@@ -364,7 +415,7 @@ static int _read_hex (_getc_in_t _in, const char *src, char **psrc, unsigned int
 
    // Init pointers
    num_pos = 1;
-   str_pos = _number_copy (_in, src, psrc, num_str);
+   str_pos = _number_copy (_in, _HEX, src, psrc, num_str);
    if (str_pos == 0)
       return 0;
    else
@@ -450,7 +501,7 @@ static int _read_ffloat (_getc_in_t _in, const char *src, char **psrc, float *ds
    float frac_pos = 0.1;                  // Fractional pos/multiplier
 
    // Get string
-   n = _number_copy (_in, src, psrc, num_str);
+   n = _number_copy (_in, _FLOAT, src, psrc, num_str);
    if (n == 0) return 0;
    else        --n;
 

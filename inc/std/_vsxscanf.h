@@ -42,6 +42,15 @@ typedef enum
 }_io_getc_read_en;
 
 /*!
+ * _number_copy number type
+ */
+typedef enum {
+   _INT=0,           /*!< The number to copy from strwam is integer */
+   _HEX,             /*!< The number to copy from stream is hex */
+   _FLOAT            /*!< The number to copy from stream is real */
+}_number_copy_type_en;
+
+/*!
  * callback function pointer to use in:
  *
  *  1) user's __getchar ()
