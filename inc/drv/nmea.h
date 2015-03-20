@@ -37,6 +37,7 @@ extern "C" {
 /*
  * ============ User options ===========
  */
+#define NMEA_WAIT_MAX_TRIES         (20)
 
 /*
  * ============ parser's data types =============
@@ -49,32 +50,34 @@ extern "C" {
  * Parser's Recognised types
  */
 typedef enum {
-   _disc=0,    /*!< discard field */
-   _dolar,     /*!< '$' character */
-   _aster,     /*!< '*' character */
-   _crc,       /*!< Checksum of message */
-   _sen_t,     /*!< Sentence type, ex GGA, VTG etc */
+   _null=0,
+   _fix_t,     /*!< Fix position type */
+   _valid_t,   /*!< Validy type */
+   _sats,      /*!< satellites in view */
    _utc,       /*!< UTC time */
+   _date,      /*!< Date in ddmmyy format */
    _day,       /*!< Day */
    _month,     /*!< Month */
    _year,      /*!< Year */
    _zone_h,    /*!< Local hour offset from UTC*/
    _zone_m,    /*!< Local minute offset from UTC */
-   _date,      /*!< Date in ddmmyy format */
    _lat,       /*!< Latitude in iso llll.ll = 100 x latitude */
    _lat_s,     /*!< Latitude sign N or S */
    _long,      /*!< Longitude in iso yyyyy.yy = 100 x longitude */
    _long_s,    /*!< Longitude sign E or W */
    _elev,      /*!< Elevation */
-   _speed,     /*!< speed over ground in knots or km/h */
+   _speed_knt, /*!< speed over ground in knots */
+   _speed_kmh, /*!< speed over ground in km/h */
    _sp_unts,   /*!< speed units knots of km/h */
-   _course,    /*<! Course true or magnetic */
-   _course_t,  /*!< The course type [T, M] true or magnetic indicator */
+   _course_t,  /*<! True Course */
+   _course_m,  /*!< Magnetic Course */
+   _crs_type,
    _mag_var,   /*<! magnetic variation in degrees */
    _mag_var_s, /*<! magnetic variation sign E or W */
-   _sats,      /*!< satellites in view */
-   _fix_t,     /*!< Fix position type */
-   _valid_t    /*!< Validy type */
+   _msgid,     /*!< '$' character */
+   _disc,      /*!< discard field */
+   _crc,       /*!< Checksum of message */
+
 }parse_obj_en;
 
 typedef struct {
@@ -89,15 +92,6 @@ typedef struct {
 typedef float  latitude_t;
 typedef float  longitude_t;
 
-/*
- * ISO 6709 Standard coordinate implementation
- */
-typedef struct {
-   latitude_t  latitude;
-   latitude_t  longitude;
-   float       elevation;
-}coordinates_t;
-
 typedef struct {
    int   hour;
    int   min;
@@ -111,15 +105,20 @@ typedef struct {
 }utc_date_t;
 
 typedef enum {
-   NMEA_NULL=-1,
-   NMEA_GGA=0, /*!< Global Positioning System Fix Data */
+   NMEA_NULL=0,
+   NMEA_GGA,   /*!< Global Positioning System Fix Data */
    NMEA_GLL,   /*!< Geographic position, latitude / longitude */
    NMEA_GSA,   /*!< GPS DOP and active satellites  */
    NMEA_GSV,   /*!< GPS Satellites in view */
    NMEA_RMC,   /*!< Recommended minimum specific GPS/Transit data */
    NMEA_VTG,   /*!< Track made good and ground speed */
    NMEA_ZDA    /*!< Date & Time */
-}NMEA_sentence_en;
+}nmea_msgid_en;
+
+typedef struct {
+   nmea_msgid_en  id_type;
+   char           *id_str;
+}nmea_msgig_t;
 
 typedef enum { NMEA_S=-1, NMEA_N=1 }nmea_lat_sign_en;
 typedef enum { NMEA_W=-1, NMEA_E=1 }nmea_long_sign_en;
@@ -130,8 +129,36 @@ typedef enum { NMEA_VALID=0, NMEA_NOT_VALID }nmea_valid_en;
 
 typedef struct {
    nmea_fix_en    fix;
+   nmea_valid_en  valid;
+   int            sats;
+
    utc_time_t     time;
-   coordinates_t  mark;
+   utc_date_t     date;
+   int            day;
+   int            month;
+   int            year;
+   int            zone_h;
+   int            zone_m;
+
+   latitude_t     latitude;
+   latitude_t     longitude;
+   float          elevation;
+
+   float          course_t;
+   float          course_m;
+   float          speed_knt;
+   float          speed_kmh;
+   float          mag_var;
+}nmea_common_t;
+
+
+
+typedef struct {
+   nmea_fix_en    fix;
+   utc_time_t     time;
+   latitude_t     latitude;
+   latitude_t     longitude;
+   float          elevation;
    int            sats;
 }nmea_gga_t;
 
@@ -156,16 +183,16 @@ typedef struct {
    utc_date_t     date;
    latitude_t     latitude;
    longitude_t    longitude;
-   float          speed;
-   float          course;
+   float          speed_knt;
+   float          course_t;
    float          mag_var;
 }nmea_rmc_t;
 
 typedef struct {
-   float    course_t;
-   float    course_m;
-   float    speed_knt;
-   float    speed_kmh;
+   float          course_t;
+   float          course_m;
+   float          speed_knt;
+   float          speed_kmh;
 }nmea_vtg_t;
 
 typedef struct {
@@ -216,13 +243,13 @@ void nmea_set_buffer_size (nmea_t *nmea, int s);
 void nmea_deinit (nmea_t *nmea);
 drv_status_en nmea_init (nmea_t *nmea);
 
-drv_status_en nmea_read_gga (nmea_t *nmea, nmea_gga_t *gga);
-drv_status_en nmea_read_gll (nmea_t *nmea, nmea_gll_t *gll);
-drv_status_en nmea_read_gsa (nmea_t *nmea, nmea_gsa_t *gsa);
-drv_status_en nmea_read_gsv (nmea_t *nmea, nmea_gsv_t *gsv);
-drv_status_en nmea_read_rmc (nmea_t *nmea, nmea_rmc_t *rmc);
-drv_status_en nmea_read_vtg (nmea_t *nmea, nmea_vtg_t *vtg);
-drv_status_en nmea_read_zda (nmea_t *nmea, nmea_zda_t *zda);
+drv_status_en nmea_read_gga (nmea_t *nmea, nmea_gga_t *gga, int tries);
+drv_status_en nmea_read_gll (nmea_t *nmea, nmea_gll_t *gll, int tries);
+drv_status_en nmea_read_gsa (nmea_t *nmea, nmea_gsa_t *gsa, int tries);
+drv_status_en nmea_read_gsv (nmea_t *nmea, nmea_gsv_t *gsv, int tries);
+drv_status_en nmea_read_rmc (nmea_t *nmea, nmea_rmc_t *rmc, int tries);
+drv_status_en nmea_read_vtg (nmea_t *nmea, nmea_vtg_t *vtg, int tries);
+drv_status_en nmea_read_zda (nmea_t *nmea, nmea_zda_t *zda, int tries);
 
 
 

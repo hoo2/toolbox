@@ -36,31 +36,38 @@
  * $GPVTG - Track made good and ground speed
  * $GPZDA - Date & Time
  */
-static const char * _txt_sen_types[] = {
-   "GGA",
-   "GLL",
-   "GSA"
-   "GSV"
-   "RMC",
-   "VTG",
-   "ZDA",
-   ""
+static const nmea_msgig_t  nmea_msgid[] = {
+   {NMEA_GGA, "GGA"},
+   {NMEA_GLL, "GLL"},
+   {NMEA_GSA, "GSA"},
+   {NMEA_GSV, "GSV"},
+   {NMEA_RMC, "RMC"},
+   {NMEA_VTG, "VTG"},
+   {NMEA_ZDA, "ZDA"},
+   {NMEA_NULL,0}
 };
 
+
 static const parse_obj_en _GGA[] = {
-    _utc, _lat, _lat_s, _long, _long_s, _fix_t, _sats, _disc, _elev, _disc, _disc, _disc
+    _msgid, _utc, _lat, _lat_s, _long, _long_s, _fix_t, _sats, _disc, _elev, _null
 };
 static const parse_obj_en _GLL[] = {
-   _lat, _lat_s, _long, _long_s, _aster, _crc
+   _msgid, _lat, _lat_s, _long, _long_s, _utc, _valid_t, _disc, _null
+};
+static const parse_obj_en _GSA[] = {
+   _msgid, _null
+};
+static const parse_obj_en _GSV[] = {
+   _msgid, _disc, _disc, _sats, _null
 };
 static const parse_obj_en _RMC[] = {
-   _utc, _valid_t, _lat, _lat_s, _long, _long_s, _speed, _course, _date, _mag_var, _mag_var_s
+   _msgid, _utc, _valid_t, _lat, _lat_s, _long, _long_s, _speed_knt, _course_t, _date, _mag_var, _mag_var_s, _null
 };
 static const parse_obj_en _VTG[] = {
-   _course, _course_t, _course, _course_t, _speed, _sp_unts, _speed, _sp_unts
+   _msgid, _course_t, _disc, _course_m, _disc, _speed_knt, _disc, _speed_kmh, _null
 };
 static const parse_obj_en _ZDA[] = {
-   _utc, _day, _month, _year, _zone_h, _zone_m
+   _msgid, _utc, _day, _month, _year, _zone_h, _zone_m, _null
 };
 
 /*
@@ -69,21 +76,18 @@ static const parse_obj_en _ZDA[] = {
 // tools
 static int _checksum (char* str);
 static int _match (char *sen, char *word, int n);
-
-// Middle level
-static int _get_sen (nmea_t *nmea);
-static int _get_token (char *str, char *token);
-static int _checksum_chk (char *str);
+static nmea_msgid_en _msgid_type (char *str);
+static char * _msgid_str (nmea_msgid_en id);
 
 // Extract tools
-static int _read_sen_type (char *str, NMEA_sentence_en *s);
+static int _read_sen_type (char *str, nmea_msgid_en *id);
 static int _read_utc (char *str, utc_time_t *t);
 static int _read_day (char *str, int *day);
 static int _read_month (char *str, int *month);
 static int _read_year (char *str, int *year);
 static int _read_zone_h (char *str, int *zone_h);
 static int _read_zone_m (char *str, int *zone_m);
-static int _read_data (char *str, utc_date_t *date);
+static int _read_date (char *str, utc_date_t *date);
 static int _read_lat (char *str, float *lat);
 static int _read_lat_s (char *str, nmea_lat_sign_en *lat_s);
 static int _read_long (char *str, float *lon);
@@ -95,10 +99,16 @@ static int _read_course (char *str, float *course);
 static int _read_course_type (char *str, nmea_course_en *course_type);
 static int _read_mag_var (char *str, float *mag_var);
 static int _read_mag_var_s (char *str, nmea_long_sign_en *mag_var_s);
-static int _read_sats (char *str, float *sats);
+static int _read_sats (char *str, int *sats);
 static int _read_fix (char *str, nmea_fix_en *fix);
 static int _read_valid (char *str, nmea_valid_en *valid);
 
+// Middle level
+static int _get_sen (nmea_t *nmea);
+static int _get_token (char *str, char *token);
+static int _checksum_chk (char *str);
+static int _read_until (nmea_t *nmea, nmea_msgid_en id, int tries);
+static int _tokenise (nmea_t *nmea, const parse_obj_en *format, nmea_common_t *obj);
 /*
  * ============== tools ==============
  */
@@ -119,66 +129,58 @@ static int _match (char *sen, char *word, int n)
    return 0;
 }
 
-
-/*
- * ============== Middle level ==============
- */
-static int _get_sen (nmea_t *nmea)
+static nmea_msgid_en _msgid_type (char *str)
 {
-   int i=0, st=0;
-   char ch;
-
-   do {
-      ch = nmea->io.in ();
-      if (ch == '$') { st = 1; i=0; }
-      if (st)        nmea->buf[i++] = ch;
-   }while (ch != '\n' && ch != 0 && i<nmea->buf_size);
-   nmea->buf[i] = 0;
-   return i;
+   for (int i=0 ; nmea_msgid[i].id_type ; ++i)
+      if ( !strcmp (str, nmea_msgid[i].id_str) )
+         return nmea_msgid[i].id_type;
+   return NMEA_NULL;
 }
 
-static int _get_token (char *str, char *token)
+static char * _msgid_str (nmea_msgid_en id)
 {
-   char *s = str;
-   while (1) {
-      if (NMEA_IS_DELIMITER (*s)) {
-         ++s;
-         *token = 0;
-         return s - str - 1;
-      }
-      else
-         *token++ = *s++;
-   }
-   return 0;
+   for (int i=0 ; nmea_msgid[i].id_type ; ++i)
+      if ( id == nmea_msgid[i].id_type )
+         return nmea_msgid[i].id_str;
+   return NULL;
 }
-
-static int _checksum_chk (char *str)
-{
-   //char s[120];
-   int cs;
-
-   //sscanf (str, "$%s*%2X", s, &cs);
-   return 1;//(cs == _checksum (s)) ? 1:0;
-}
-
 
 
 /*
  * ============== Extract tools ==============
  */
-static int _read_sen_type (char *str, NMEA_sentence_en *s)
-{
-   int i;
-
-   if (_match (str, (char *)_txt_sen_types[*s], 3)) {
-      *s = i;
-      return 1;
+static int _read_sen_type (char *str, nmea_msgid_en *id) {
+   for (int i=0 ; nmea_msgid[i].id_type; ++i) {
+      if ( _match (str, nmea_msgid[i].id_str, 3) ) {
+         *id = nmea_msgid[i].id_type;
+         return 1;
+      }
    }
-   else
-      return 0;
+   *id = NMEA_NULL;
+   return 0;
 }
 static int _read_utc (char *str, utc_time_t *t) {
-   return (sscanf (str, "%2d%2d%2f", &t->hour, &t->min, &t->sec)  == 3) ? 1:0;
+   int utc_d, utc_f;
+
+   if (sscanf (str, "%d.%d", &utc_d, &utc_f)  != 2)
+      return 0;
+
+   t->hour = utc_d / 10000;
+   utc_d -= t->hour * 10000;
+   t->min = utc_d / 100;
+   t->sec = utc_d - t->min*100;
+   t->sec += (float)utc_f / 1000;
+   return 1;
+}
+static int _read_date (char *str, utc_date_t *date) {
+   int d;
+   if (sscanf (str, "%d", &d) != 1)
+      return 0;
+   date->day = d/10000;
+   d -= date->day * 10000;
+   date->month = d / 100;
+   date->year = d - date->month*100 + 2000;
+   return 1;
 }
 static int _read_day (char *str, int *day) {
    return (sscanf (str, "%d", day) == 1) ? 1:0;
@@ -195,13 +197,14 @@ static int _read_zone_h (char *str, int *zone_h) {
 static int _read_zone_m (char *str, int *zone_m) {
    return (sscanf (str, "%d", zone_m) == 1) ? 1:0;
 }
-static int _read_data (char *str, utc_date_t *date) {
-   return (sscanf (str, "$%2d%2d%2d", &date->day, &date->month, &date->year) == 3) ? 1:0;
-}
+
 static int _read_lat (char *str, float *lat) {
-   if (sscanf (str, "%f", lat) != 1)
+   float l;
+   if (sscanf (str, "%f", &l) != 1)
       return 0;
-   *lat /= 100;
+   *lat = l/100;
+   l -= *lat*100;
+   *lat += l/60;
    return 1;
 }
 static int _read_lat_s (char *str, nmea_lat_sign_en *lat_s) {
@@ -214,9 +217,12 @@ static int _read_lat_s (char *str, nmea_lat_sign_en *lat_s) {
    return 1;
 }
 static int _read_long (char *str, float *lon) {
-   if (sscanf (str, "%f", lon) != 1)
+   float l;
+   if (sscanf (str, "%f", &l) != 1)
       return 0;
-   *lon /= 100;
+   *lon = l/100;
+   l -= *lon*100;
+   *lon += l/60;
    return 1;
 }
 static int _read_long_s (char *str, nmea_long_sign_en *lon_s) {
@@ -267,14 +273,14 @@ static int _read_mag_var_s (char *str, nmea_long_sign_en *mag_var_s) {
       *mag_var_s = NMEA_W;
    return 1;
 }
-static int _read_sats (char *str, float *sats) {
-   return (sscanf (str, "%f", sats) == 1) ? 1:0;
+static int _read_sats (char *str, int *sats) {
+   return (sscanf (str, "%d", sats) == 1) ? 1:0;
 }
 static int _read_fix (char *str, nmea_fix_en *fix) {
-   int f;
-   if (sscanf (str, "%d", &f) != 1)
+   int d;
+   if (sscanf (str, "%d", &d) != 1)
       return 0;
-   switch (f) {
+   switch (d) {
       default:
       case 0: *fix = NMEA_NOT_FIX;  return 1;
       case 1: *fix = NMEA_FIX;      return 1;
@@ -289,6 +295,114 @@ static int _read_valid (char *str, nmea_valid_en *valid) {
    if (v == 'V' || v == 'v')
       *valid = NMEA_NOT_VALID;
    return 1;
+}
+
+/*
+ * ============== Middle level ==============
+ */
+static int _get_sen (nmea_t *nmea)
+{
+   int i=0, st=0;
+   char ch;
+
+   do {
+      ch = nmea->io.in ();
+      if (ch == '$') { st = 1; i=0; }
+      if (st)        nmea->buf[i++] = ch;
+   }while (ch != '\n' && ch != 0 && i<nmea->buf_size);
+   nmea->buf[i] = 0;
+   return i;
+}
+
+static int _get_token (char *str, char *token)
+{
+   char *s = str;
+   while (1) {
+      if (NMEA_IS_DELIMITER (*s)) {
+         ++s;
+         *token = 0;
+         return s - str;   // eat next delimiter
+      }
+      else
+         *token++ = *s++;
+   }
+   return 0;
+}
+
+static int _checksum_chk (char *str)
+{
+   char *s, *d;   // Star and dollar pointers
+   int sc, cc;    // string and calculated checksum
+
+   d = strchr (str, '$');  // find where is '$'
+   s = strchr (d, '*');    // find where is '*'
+
+   sscanf (s, "*%2X\r\n", &sc);
+   for (cc=0,++d ; d<s ; ++d)
+      cc ^= *d;
+
+   return (cc == sc) ? 1:0;
+}
+
+static int _read_until (nmea_t *nmea, nmea_msgid_en id, int tries)
+{
+   nmea_msgid_en s;
+   uint8_t nto = (tries==0) ? 1:0;  // no time out check
+
+   // Read sentences until we find id
+   do {
+      _get_sen (nmea);
+      if ( !_checksum_chk ((char *)nmea->buf) )
+         return 0;
+      _read_sen_type ((char *)nmea->buf, &s);
+   } while (s != id && (nto || --tries));
+   return 1;
+}
+
+static int _tokenise (nmea_t *nmea, const parse_obj_en *format, nmea_common_t *obj)
+{
+   char token[NMEA_TOKEN_SIZE];
+   int cur, tk, sign=1;
+
+   for (cur=0, tk=0 ; format[tk] != _null ; ++tk) {
+      cur += _get_token ((char*)nmea->buf+cur, token);
+      switch (format[tk]) {
+         case _fix_t:      _read_fix (token, &obj->fix);          break;
+         case _valid_t:    _read_valid (token, &obj->valid);      break;
+         case _sats:       _read_sats (token, &obj->sats);        break;
+         case _utc:        _read_utc (token, &obj->time);         break;
+         case _date:       _read_date (token, &obj->date);        break;
+         case _day:        _read_day (token, &obj->day);          break;
+         case _month:      _read_month (token, &obj->month);      break;
+         case _year:       _read_year (token, &obj->year);        break;
+         case _zone_h:     _read_zone_h (token, &obj->zone_h);    break;
+         case _zone_m:     _read_zone_m (token, &obj->zone_m);    break;
+         case _lat:        _read_lat (token, &obj->latitude);     break;
+         case _lat_s:      _read_lat_s (token, (nmea_lat_sign_en*)&sign);
+                           obj->latitude *= sign;
+                           break;
+         case _long:       _read_long (token, &obj->longitude);   break;
+         case _long_s:     _read_long_s (token, (nmea_long_sign_en*)&sign);
+                           obj->longitude *= sign;
+                           break;
+         case _elev:       _read_elev (token, &obj->elevation);   break;
+         case _speed_knt:  _read_speed (token, &obj->speed_knt);  break;
+         case _speed_kmh:  _read_speed (token, &obj->speed_kmh);  break;
+         case _sp_unts:    break;
+         case _course_t:   _read_course (token, &obj->course_t);  break;
+         case _course_m:   _read_course (token, &obj->course_m);  break;
+         case _crs_type:   break;
+         case _mag_var:    _read_mag_var (token, &obj->mag_var);  break;
+         case _mag_var_s:  _read_mag_var_s (token, (nmea_long_sign_en*)&sign);
+                           obj->mag_var *= sign;
+                           break;
+
+         case _msgid:      break;
+         case _disc:       break;
+         default:          break;
+      }
+   }
+   return tk;
 }
 
 
@@ -356,31 +470,135 @@ drv_status_en nmea_init (nmea_t *nmea)
    #undef _bad_link
 }
 
-drv_status_en nmea_read_gga (nmea_t *nmea, nmea_gga_t *gga)
+drv_status_en nmea_read_gga (nmea_t *nmea, nmea_gga_t *gga, int tries)
 {
-   NMEA_sentence_en s;
-   char token[NMEA_TOKEN_SIZE];
-   int cur=0;
+   nmea_common_t obj;
 
    // Read sentences until we find GGA
-   do {
-      _get_sen (nmea);
-      if ( !_checksum_chk ((char *)nmea->buf) )
-         return DRV_ERROR;
-      _read_sen_type ((char *)nmea->buf, &s);
-   } while (s != NMEA_GGA);
+   if (_read_until (nmea, NMEA_GGA, tries) == 0)
+      return DRV_ERROR;
 
    // tokenise
-   do {
-      cur += _get_token (nmea->buf+cur, token);
-   }while (*token);
+   _tokenise (nmea, _GGA, &obj);
+
+   if (obj.fix != NMEA_NOT_FIX) {
+      gga->fix = obj.fix;
+      gga->sats = obj.sats;
+      gga->time = obj.time;
+      gga->latitude = obj.latitude;
+      gga->longitude = obj.longitude;
+      gga->elevation = obj.elevation;
+   }
+   return DRV_READY;
+}
+
+drv_status_en nmea_read_gll (nmea_t *nmea, nmea_gll_t *gll, int tries)
+{
+   nmea_common_t obj;
+
+   // Read sentences until we find GLL
+   if (_read_until (nmea, NMEA_GLL, tries) == 0)
+      return DRV_ERROR;
+
+   // tokenise
+   _tokenise (nmea, _GLL, &obj);
+
+   if (obj.fix != NMEA_NOT_FIX) {
+      gll->valid = obj.valid;
+      gll->time = obj.time;
+      gll->latitude = obj.latitude;
+      gll->longitude = obj.longitude;
+   }
+   return DRV_READY;
+}
+drv_status_en nmea_read_gsa (nmea_t *nmea, nmea_gsa_t *gsa, int tries)
+{
+   nmea_common_t obj;
+
+   // Read sentences until we find GSA
+   if (_read_until (nmea, NMEA_GSA, tries) == 0)
+      return DRV_ERROR;
+
+   // tokenise
+   _tokenise (nmea, _GSA, &obj);
+
+   gsa->crap = 0;
+   return DRV_READY;
+}
+drv_status_en nmea_read_gsv (nmea_t *nmea, nmea_gsv_t *gsv, int tries)
+{
+   nmea_common_t obj;
+
+   // Read sentences until we find GSV
+   if (_read_until (nmea, NMEA_GSV, tries) == 0)
+      return DRV_ERROR;
+
+   // tokenise
+   _tokenise (nmea, _GSV, &obj);
+
+   gsv->sats = obj.sats;
+   return DRV_READY;
+}
+drv_status_en nmea_read_rmc (nmea_t *nmea, nmea_rmc_t *rmc, int tries)
+{
+   nmea_common_t obj;
+
+   // Read sentences until we find RMC
+   if (_read_until (nmea, NMEA_RMC, tries) == 0)
+      return DRV_ERROR;
+
+   // tokenise
+   _tokenise (nmea, _RMC, &obj);
+
+   if (obj.fix != NMEA_NOT_FIX) {
+      rmc->valid = obj.valid;
+      rmc->date = obj.date;
+      rmc->time = obj.time;
+      rmc->latitude = obj.latitude;
+      rmc->longitude = obj.longitude;
+      rmc->speed_knt = obj.speed_knt;
+      rmc->course_t = obj.course_t;
+      rmc->mag_var = obj.mag_var;
+   }
+   return DRV_READY;
+}
+
+drv_status_en nmea_read_vtg (nmea_t *nmea, nmea_vtg_t *vtg, int tries)
+{
+   nmea_common_t obj;
+
+   // Read sentences until we find RMC
+   if (_read_until (nmea, NMEA_VTG, tries) == 0)
+      return DRV_ERROR;
+
+   // tokenise
+   _tokenise (nmea, _VTG, &obj);
+
+   vtg->course_m = obj.course_m;
+   vtg->course_t = obj.course_t;
+   vtg->speed_knt = obj.speed_knt;
+   vtg->speed_kmh = obj.speed_kmh;
 
    return DRV_READY;
 }
 
-drv_status_en nmea_read_gll (nmea_t *nmea, nmea_gll_t *gll);
-drv_status_en nmea_read_gsa (nmea_t *nmea, nmea_gsa_t *gsa);
-drv_status_en nmea_read_gsv (nmea_t *nmea, nmea_gsv_t *gsv);
-drv_status_en nmea_read_rmc (nmea_t *nmea, nmea_rmc_t *rmc);
-drv_status_en nmea_read_vtg (nmea_t *nmea, nmea_vtg_t *vtg);
-drv_status_en nmea_read_zda (nmea_t *nmea, nmea_zda_t *zda);
+drv_status_en nmea_read_zda (nmea_t *nmea, nmea_zda_t *zda, int tries)
+{
+   nmea_common_t obj;
+
+   // Read sentences until we find RMC
+   if (_read_until (nmea, NMEA_ZDA, tries) == 0)
+      return DRV_ERROR;
+
+   // tokenise
+   _tokenise (nmea, _ZDA, &obj);
+
+   zda->time = obj.time;
+   zda->day = obj.day;
+   zda->month = obj.month;
+   zda->year = obj.year;
+   zda->zone_h = obj.zone_h;
+   zda->zone_m = obj.zone_m;
+   return DRV_READY;
+}
+
