@@ -92,8 +92,8 @@ int _io_read (char* frm, _io_frm_obj_t* obj, _io_frm_obj_type_en *obj_type)
    #define _skip_char(_c)     do { pc=*_c; ++_c; ++count; }while (0)
 
    int count;                 // The read character
-   _io_types_en   ct;         // Temporary type holder
-   _io_flags_en   cf;         // Temporary flag holder
+   _io_types_en   ct=NO_TYPE; // Temporary type holder
+   _io_flags_en   cf=NO_FLAG; // Temporary flag holder
    char           pc;         // Previous character
    uint8_t        parse = 1;  // done parsing flag
    _parser_st_t   state;

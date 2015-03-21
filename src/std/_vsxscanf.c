@@ -497,7 +497,7 @@ static int _read_ffloat (_getc_in_t _in, const char *src, char **psrc, float *ds
    int n;                                 // The read characters
    int f;                                 // fractional index counters
    int n_dec;                             // Decimal part
-   float n_frac;                          // Fractional part
+   float n_frac=0;                        // Fractional part
    float frac_pos = 0.1;                  // Fractional pos/multiplier
 
    // Get string
