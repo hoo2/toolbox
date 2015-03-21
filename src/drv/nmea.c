@@ -74,6 +74,8 @@ static const parse_obj_en _ZDA[] = {
  * ============ Static API ============
  */
 // tools
+static float _nmea2dec (float c);
+static float _dec2nmea (float c);
 static int _checksum (char* str);
 static int _match (char *sen, char *word, int n);
 static nmea_msgid_en _msgid_type (char *str);
@@ -112,6 +114,19 @@ static int _tokenise (nmea_t *nmea, const parse_obj_en *format, nmea_common_t *o
 /*
  * ============== tools ==============
  */
+static float _nmea2dec (float c)
+{
+   int d;
+
+   d = (int)c/100;
+   c -= d*100;
+   return d + (c/60);
+}
+static float _dec2nmea (float c)
+{
+   int d = (int)c;
+   return d*100 + ((c-d) * 60);
+}
 static int _checksum (char* str) {
    int c = 0;
 
@@ -202,9 +217,7 @@ static int _read_lat (char *str, float *lat) {
    float l;
    if (sscanf (str, "%f", &l) != 1)
       return 0;
-   *lat = l/100;
-   l -= *lat*100;
-   *lat += l/60;
+   *lat = _nmea2dec (l);
    return 1;
 }
 static int _read_lat_s (char *str, nmea_lat_sign_en *lat_s) {
@@ -220,9 +233,7 @@ static int _read_long (char *str, float *lon) {
    float l;
    if (sscanf (str, "%f", &l) != 1)
       return 0;
-   *lon = l/100;
-   l -= *lon*100;
-   *lon += l/60;
+   *lon = _nmea2dec (l);
    return 1;
 }
 static int _read_long_s (char *str, nmea_long_sign_en *lon_s) {
