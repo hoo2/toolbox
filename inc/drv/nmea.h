@@ -251,7 +251,7 @@ drv_status_en nmea_read_rmc (nmea_t *nmea, nmea_rmc_t *rmc, int tries);
 drv_status_en nmea_read_vtg (nmea_t *nmea, nmea_vtg_t *vtg, int tries);
 drv_status_en nmea_read_zda (nmea_t *nmea, nmea_zda_t *zda, int tries);
 
-
+drv_status_en nmea_write( nmea_t *nmea, char *msg);
 
 
 

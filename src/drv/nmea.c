@@ -74,9 +74,9 @@ static const parse_obj_en _ZDA[] = {
  * ============ Static API ============
  */
 // tools
+static int _checksum (char* str);
 static float _nmea2dec (float c);
 static float _dec2nmea (float c);
-static int _checksum (char* str);
 static int _match (char *sen, char *word, int n);
 static nmea_msgid_en _msgid_type (char *str);
 static char * _msgid_str (nmea_msgid_en id);
@@ -114,6 +114,14 @@ static int _tokenise (nmea_t *nmea, const parse_obj_en *format, nmea_common_t *o
 /*
  * ============== tools ==============
  */
+
+static int _checksum (char* str) {
+   int c = 0;
+
+   while (*str)
+      c ^= *str++;
+   return c;
+}
 static float _nmea2dec (float c)
 {
    int d;
@@ -127,13 +135,7 @@ static float _dec2nmea (float c)
    int d = (int)c;
    return d*100 + ((c-d) * 60);
 }
-static int _checksum (char* str) {
-   int c = 0;
 
-   while (*str)
-      c ^= *str++;
-   return c;
-}
 static int _match (char *sen, char *word, int n)
 {
    while (*sen) {
@@ -416,7 +418,11 @@ static int _tokenise (nmea_t *nmea, const parse_obj_en *format, nmea_common_t *o
    return tk;
 }
 
-
+void _stream (nmea_t *nmea, char *str)
+{
+   while (*str)
+      nmea->io.out (*str++);
+}
 
 /*
  * ============ Public GPS API ============
@@ -613,3 +619,19 @@ drv_status_en nmea_read_zda (nmea_t *nmea, nmea_zda_t *zda, int tries)
    return DRV_READY;
 }
 
+
+
+drv_status_en nmea_write (nmea_t *nmea, char *msg)
+{
+   char cs[6];
+
+   // Create checksum
+   sprintf (cs, "*%02X\r\n", _checksum (msg));
+
+   // send message
+   nmea->io.out ('$');
+   _stream (nmea, msg);
+   _stream (nmea, cs);
+
+   return DRV_READY;
+}
