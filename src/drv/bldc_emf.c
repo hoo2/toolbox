@@ -24,7 +24,27 @@
 
 #include <drv/bldc_emf.h>
 
-inline void _set_output_off (bldc_t *bldc)
+int _wait (jiffy_t *j)
+{
+   static jiffy_t m1=0, m2;
+   jiffy_t m;
+
+   if (!m1) m1 = jf_get_jiffy ();
+
+   if (*j>0) {
+      m2 = jf_get_jiffy ();
+      m = m2-m1;
+      *j -= (m>0) ? m : jf_get_jiffies() + m;
+      m1 = m2;
+      return 1;   // wait
+   }
+   else {
+      m1 = 0;
+      return 0;   // do not wait any more
+   }
+}
+
+void _set_output_off (bldc_t *bldc)
 {
    bldc->io.uh (0);
    bldc->io.ul (0);
@@ -34,7 +54,7 @@ inline void _set_output_off (bldc_t *bldc)
    bldc->io.wl (0);
 }
 
-inline void _set_output (bldc_t *bldc, bldc_state_en state, float speed)
+void _set_output (bldc_t *bldc, bldc_br_state_en state, float speed)
 {
    switch (state) {
       default:
@@ -65,7 +85,7 @@ inline void _set_output (bldc_t *bldc, bldc_state_en state, float speed)
    }
 }
 
-inline float _i_suppressor (bldc_t *bldc, float dc, float i)
+float _i_suppressor (bldc_t *bldc, float dc, float i)
 {
    float i_th = bldc->set.I_br - bldc->set.I_th_diff;
 
@@ -119,78 +139,73 @@ void bldc_link_pid (bldc_t *bldc, pid_c_t *pid) {
 /*
  * Set functions
  */
-drv_status_en bldc_set_poles (bldc_t *bldc, int poles) {
-   if ( poles<BLDC_STATES )
-      return DRV_ERROR;
+void bldc_set_poles (bldc_t *bldc, int poles) {
    bldc->set.poles = poles;
-   return bldc->status = DRV_READY;
 }
 
-drv_status_en bldc_set_rpm (bldc_t *bldc, bldc_rpm_t rpm) {
-   if ( rpm < BLDC_MIN_RPM || rpm > BLDC_MAX_RPM(bldc->set.poles))
-      return DRV_ERROR;
+void bldc_set_rpm (bldc_t *bldc, bldc_rpm_t rpm) {
    bldc->set.Freq_r = rpm / 60;
-   return bldc->status = DRV_READY;
 }
 
-drv_status_en bldc_set_i_br (bldc_t *bldc, float i_br) {
-   if (i_br < 0)
-      return DRV_ERROR;
+void bldc_set_i_br (bldc_t *bldc, float i_br) {
    bldc->set.I_br = i_br;
-
-   return bldc->status = DRV_READY;
 }
 
-drv_status_en bldc_set_dir (bldc_t *bldc, bldc_dir_en dir) {
-   if (! (dir==BLDC_FWD || dir == BLDC_REV) )
-      return DRV_ERROR;
+void bldc_set_i_th_diff (bldc_t *bldc, float i) {
+   bldc->set.I_th_diff = i;
+}
+
+void bldc_set_dir (bldc_t *bldc, bldc_dir_en dir) {
    bldc->set.dir = dir;
-   return bldc->status = DRV_READY;
+}
+
+void bldc_set_startup_speed (bldc_t *bldc, float sp) {
+   bldc->set.startup_speed = sp;
+}
+
+void bldc_set_startup_time (bldc_t *bldc, clock_t t) {
+   bldc->set.startup_time = t;
 }
 
 /*
  * User Functions
  */
 
-void bldc_startup (bldc_t *bldc)
+void bldc_startup (bldc_t *bldc, float sp)
 {
-   float dc = BLDC_STARTING_DC;
+   jiffy_t startup_timing [30] = {
+      500000, 450000, 400000, 300000, 200000, 100000,
+       90000,  80000,  70000,  60000,  55000,  52000,
+       51000,  50000,  49500,  49000,  48500,  48000,
+       47500,  47000,  46500,  46000,  45000,  45000,
+       45000,  45000,  45000,  45000,  45000,  45000
+   };
+   bldc_br_state_en state;
    int i;
-
-   // Clear all outputs
-   _set_output_off (bldc);
-   jf_delay_ms (1000);
-
-   // charge low site capacitors
-   bldc->io.ul (100);   bldc->io.vl (100);   bldc->io.wl (100);
-   jf_delay_ms (500);
-   bldc->io.ul (0);     bldc->io.vl (0);     bldc->io.wl (0);
-
-
-   // find rotor
-   for (i=0 ; i<BLDC_STARTING_TIME*2 ; ++i) {
-      _set_output (bldc, BLDC_ST5, _i_suppressor (bldc, dc, bldc->io.I_br()));
-      jf_delay_us (500);
-   }
-   _set_output_off (bldc);
-}
-
-void bldc_roll (bldc_t *bldc)
-{
-   int i, dl = BLDC_RPM2USEC (600, bldc->set.poles);
 
    // charge low site capacitors
    bldc->io.ul (100);   bldc->io.vl (100);   bldc->io.wl (100);
    jf_delay_ms (100);
    bldc->io.ul (0);     bldc->io.vl (0);     bldc->io.wl (0);
 
-   for (i=0 ; i<bldc->set.poles ; ++i) {
-      _set_output (bldc, i%6, 2);
-      jf_delay_us (dl);
-   }
+   i=0;
+   state = BLDC_ST0;
+   do {
+      if ( !_wait (&startup_timing[i]) ) {
+         ++i;
+         ++state;
+         if (state >BLDC_ST5)
+            state = BLDC_ST0;
+      }
+      _set_output (bldc, state, sp);
+   } while (i<30);
+
 }
 
-void bldc_stop (bldc_t *bldc);
+void bldc_stop (bldc_t *bldc) {
+   _set_output_off (bldc);
+}
+
 
 drv_status_en bldc_init (bldc_t *bldc)
 {
@@ -198,11 +213,7 @@ drv_status_en bldc_init (bldc_t *bldc)
 
    drv_status_en st = jf_probe ();
 
-   if (st == DRV_NODEV || st == DRV_NOINIT) {
-      if ( jf_init (BLDC_JF_FREQ, BLDC_JF_ARVALUE) )
-         return bldc->status = DRV_ERROR;
-   }
-   else  // if  (st == DRV_NODEV || st == DRV_NOINIT)
+   if (st == DRV_NODEV || st == DRV_NOINIT)
       return bldc->status = DRV_ERROR;
 
    _bldc_assert (bldc->io.uh);

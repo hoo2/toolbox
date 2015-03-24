@@ -29,16 +29,16 @@ extern "C" {
 #endif
 
 #include <tbx_ioctl.h>
-#include <tbx_iotypes.h>
+#include <tbx_types.h>
 #include <acs/pid.h>
 #include <sys/jiffies.h>
-
+#include <time.h>
 
 /*
  * ==================  USER defines   =======================
  */
 #define BLDC_JF_FREQ                      (1000000)   //1MHz - time base 1usec
-#define BLDC_JF_ARVALUE                   (0x8FFF)
+#define BLDC_JF_ARVALUE                   (0x7FFF)
 #define BLDC_MIN_STEP_PER_COMMUTE         (500)
 /*!<
  * Indicates the minimum check points per zc period
@@ -59,10 +59,7 @@ extern "C" {
  * MIN_STEP = BLDC_DT_PER_COMMUTE
  */
 
-#define BLDC_RPM2USEC(_rpm, _poles)    ( (60 * 1000000) / ((_rpm)*(_poles)) )
-
-#define BLDC_STARTING_DC               (10)  // 10% dc
-#define BLDC_STARTING_TIME             (500) // msec
+#define BLDC_RPM2JF(_rpm, _poles)    ( (60 * BLDC_JF_FREQ) / ((_rpm)*(_poles)) )
 
 typedef int bldc_rpm_t;
 
@@ -77,6 +74,12 @@ typedef enum {
    BLDC_ST3,         /*!< UH(PWM), VL(ON), W(ZC) */
    BLDC_ST4,         /*!< WL(PWM), UH(ON), V(ZC) */
    BLDC_ST5          /*!< VH(PWM), WL(ON), U(ZC) */
+}bldc_br_state_en;
+
+typedef enum {
+   BLDC_STARTUP = 0,
+   BLDC_RUN,
+   BLDC_BREAK
 }bldc_state_en;
 
 /*!
@@ -120,6 +123,8 @@ typedef struct {
    float          I_th_diff;
    bldc_dir_en    dir;        /*!< Desired direction of rotation */
    int            poles;      /*!< Number of Motor poles */
+   float          startup_speed;
+   clock_t        startup_time;
 }bldc_set_t;
 
 /*!
@@ -134,12 +139,13 @@ typedef struct {
  * 3 phase BLDC motor type
  */
 typedef volatile struct {
-   bldc_link_t       io;      /*!< link to application low level driver */
-   bldc_in_data_t    in;      /*!< Input data */
-   bldc_set_t        set;     /*!< Settings */
-   bldc_event_t      event;   /*!< Events */
-   bldc_state_en     state;   /*!< Current output driving state */
-   drv_status_en     status;  /*!< Driver's status */
+   bldc_link_t       io;         /*!< link to application low level driver */
+   bldc_in_data_t    in;         /*!< Input data */
+   bldc_set_t        set;        /*!< Settings */
+   bldc_event_t      event;      /*!< Events */
+   bldc_br_state_en  br_state;   /*!< Current output driving state */
+   bldc_state_en     state;
+   drv_status_en     status;     /*!< Driver's status */
 }bldc_t;
 
 
@@ -165,15 +171,18 @@ void bldc_link_pid (bldc_t *bldc, pid_c_t *pid);
 /*
  * Set functions
  */
-drv_status_en bldc_set_poles (bldc_t *bldc, int poles);
-drv_status_en bldc_set_rpm (bldc_t *bldc, bldc_rpm_t rpm);
-drv_status_en bldc_set_i_br (bldc_t *bldc, float i_br);
-drv_status_en bldc_set_dir (bldc_t *bldc, bldc_dir_en dir);
+void bldc_set_poles (bldc_t *bldc, int poles);
+void bldc_set_rpm (bldc_t *bldc, bldc_rpm_t rpm);
+void bldc_set_i_br (bldc_t *bldc, float i_br);
+void bldc_set_i_th_diff (bldc_t *bldc, float i);
+void bldc_set_dir (bldc_t *bldc, bldc_dir_en dir);
+void bldc_set_startup_speed (bldc_t *bldc, float sp);
+void bldc_set_startup_time (bldc_t *bldc, clock_t t);
 
 /*
  * User Functions
  */
-void bldc_startup (bldc_t *bldc);
+void bldc_startup (bldc_t *bldc, float sp);
 void bldc_roll (bldc_t *bldc);
 void bldc_stop (bldc_t *bldc);
 
