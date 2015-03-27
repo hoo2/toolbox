@@ -88,8 +88,9 @@ jiffy_t jf_get_jiffy (void);
 jiffy_t jf_per_msec (void);
 jiffy_t jf_per_usec (void);
 
-void jf_delay_us (int32_t usec);
-void jf_delay_ms (int32_t msec);
+void jf_delay_us (uint32_t usec);
+void jf_delay_ms (uint32_t msec);
+int jf_check_usec (uint32_t usec);
 
 /*!
  * \note

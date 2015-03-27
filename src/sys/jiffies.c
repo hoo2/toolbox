@@ -184,26 +184,20 @@ jiffy_t jf_per_usec (void)
  * \param
  *    usec     Time in usec for delay
  */
-void jf_delay_us (int32_t usec)
+void jf_delay_us (uint32_t usec)
 {
-   jiffy_t m2, m1 = *_jf.value;
+   jiffy_t m, m2, m1 = *_jf.value;
 
    usec *= _jf.jpus;
-   if (*_jf.value - m1 > usec) // Very small delays will return here.
+   if (*_jf.value - m1 > usec) // Very small delays may return here.
       return;
 
-   // Delay loop: Eat the time difference from usec value.
+   // Eat the time difference from usec value.
    while (usec>0) {
       m2 = *_jf.value;
-      if (m2 > m1) {
-         usec -= (m2 - m1);
-         m1 = m2;
-      }
-      else if (m2 < m1) {
-         // Overflow
-         usec -= _jf.jiffies - m1 + m2;
-         m1 = m2;
-      }
+      m = m2 - m1;
+      usec -= (m>0) ? m : _jf.jiffies + m;
+      m1 = m2;
    }
 }
 
@@ -216,27 +210,50 @@ void jf_delay_us (int32_t usec)
  * \param
  *    msec     Time in msec for delay
  */
-void jf_delay_ms (int32_t msec)
+void jf_delay_ms (uint32_t msec)
 {
-   jiffy_t m2, m1 = *_jf.value;
-   jiffy_t jpms = jf_per_msec ();
+   jiffy_t m, m2, m1 = *_jf.value;
 
-   if (jpms > _jf.jiffies)
-      // Sorry no delay for that big time values.
-      return;
+   msec *= jf_per_msec ();
 
-   msec *= jpms;
-   // Delay loop: Eat the time difference from msec value.
+   // Eat the time difference from msec value.
    while (msec>0) {
       m2 = *_jf.value;
-      if (m2 > m1) {
-         msec -= (m2 - m1);
-         m1 = m2;
-      }
-      else if (m2 < m1) {
-         // Overflow
-         msec -= _jf.jiffies - m1 + m2;
-         m1 = m2;
-      }
+      m = m2 - m1;
+      msec -= (m>0) ? m : _jf.jiffies + m;
+      m1 = m2;
+   }
+}
+
+/*!
+ * \brief
+ *    A code based polling version delay implementation, using jiffies for timing.
+ *    This is NOT accurate but it ensures that the time passed is always
+ *    more than the requested value.
+ *    The delay values are multiplications of 1 usec.
+ * \param
+ *    usec     Time in usec for delay
+ */
+int jf_check_usec (uint32_t usec)
+{
+   static jiffy_t m1=-1, cnt;
+   jiffy_t m, m2;
+
+   if (m1 == -1) {
+      m1 = *_jf.value;
+      cnt = _jf.jpus * usec;
+   }
+
+   // Eat the time difference from usec value.
+   if (cnt>0) {
+      m2 = *_jf.value;
+      m = m2-m1;
+      cnt -= (m>0) ? m : _jf.jiffies + m;
+      m1 = m2;
+      return 1;   // wait
+   }
+   else {
+      m1 = -1;
+      return 0;   // do not wait any more
    }
 }
