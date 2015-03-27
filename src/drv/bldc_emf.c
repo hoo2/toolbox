@@ -24,26 +24,6 @@
 
 #include <drv/bldc_emf.h>
 
-int _wait (jiffy_t *j)
-{
-   static jiffy_t m1=0, m2;
-   jiffy_t m;
-
-   if (!m1) m1 = jf_get_jiffy ();
-
-   if (*j>0) {
-      m2 = jf_get_jiffy ();
-      m = m2-m1;
-      *j -= (m>0) ? m : jf_get_jiffies() + m;
-      m1 = m2;
-      return 1;   // wait
-   }
-   else {
-      m1 = 0;
-      return 0;   // do not wait any more
-   }
-}
-
 void _set_output_off (bldc_t *bldc)
 {
    bldc->io.uh (0);
@@ -173,7 +153,7 @@ void bldc_set_startup_time (bldc_t *bldc, clock_t t) {
 
 void bldc_startup (bldc_t *bldc, float sp)
 {
-   jiffy_t startup_timing [30] = {
+   uint32_t startup_timing [30] = {
       500000, 450000, 400000, 300000, 200000, 100000,
        90000,  80000,  70000,  60000,  55000,  52000,
        51000,  50000,  49500,  49000,  48500,  48000,
@@ -191,7 +171,7 @@ void bldc_startup (bldc_t *bldc, float sp)
    i=0;
    state = BLDC_ST0;
    do {
-      if ( !_wait (&startup_timing[i]) ) {
+      if ( !jf_check_usec (startup_timing[i]) ) {
          ++i;
          ++state;
          if (state >BLDC_ST5)
