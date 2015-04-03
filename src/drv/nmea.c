@@ -1,5 +1,6 @@
 /*
  * \file nmea.c
+ * \ingroup Drivers
  * \brief
  *    A target independent NMEA 0183 parser
  *
@@ -23,12 +24,12 @@
  */
 #include <drv/nmea.h>
 
-/*
- * ============ Static data types ============
+/*!
+ * \name Static data types
  */
-
+//!@{
 /*
- * ========== NMEA Sentences ==========
+ * NMEA Sentences
  *
  * $GPGGA - Global Positioning System Fix Data
  * $GPGLL - Geographic position, latitude / longitude
@@ -46,42 +47,67 @@ static const nmea_msgig_t  nmea_msgid[] = {
    {NMEA_ZDA, "ZDA"},
    {NMEA_NULL,0}
 };
-
-
+/*!
+ * GGA message grammar
+ */
 static const parse_obj_en _GGA[] = {
     _msgid, _utc, _lat, _lat_s, _long, _long_s, _fix_t, _sats, _disc, _elev, _null
 };
+/*!
+ * GLL message grammar
+ */
 static const parse_obj_en _GLL[] = {
    _msgid, _lat, _lat_s, _long, _long_s, _utc, _valid_t, _disc, _null
 };
+/*!
+ * GSA message grammar
+ */
 static const parse_obj_en _GSA[] = {
    _msgid, _null
 };
+/*!
+ * GSV message grammar
+ */
 static const parse_obj_en _GSV[] = {
    _msgid, _disc, _disc, _sats, _null
 };
+/*!
+ * RMC message grammar
+ */
 static const parse_obj_en _RMC[] = {
    _msgid, _utc, _valid_t, _lat, _lat_s, _long, _long_s, _speed_knt, _course_t, _date, _mag_var, _mag_var_s, _null
 };
+/*!
+ * VTG message grammar
+ */
 static const parse_obj_en _VTG[] = {
    _msgid, _course_t, _disc, _course_m, _disc, _speed_knt, _disc, _speed_kmh, _null
 };
+/*!
+ * ZDA message grammar
+ */
 static const parse_obj_en _ZDA[] = {
    _msgid, _utc, _day, _month, _year, _zone_h, _zone_m, _null
 };
+//!@}
+
 
 /*
  * ============ Static API ============
  */
-// tools
+
+//! \name Tools
+//!@{
 static int _checksum (char* str);
 static float _nmea2dec (float c);
 static float _dec2nmea (float c);
 static int _match (char *sen, char *word, int n);
 static nmea_msgid_en _msgid_type (char *str);
 static char * _msgid_str (nmea_msgid_en id);
+//!@}
 
-// Extract tools
+//! \name Extract tools
+//!@{
 static int _read_sen_type (char *str, nmea_msgid_en *id);
 static int _read_utc (char *str, utc_time_t *t);
 static int _read_day (char *str, int *day);
@@ -104,17 +130,29 @@ static int _read_mag_var_s (char *str, nmea_long_sign_en *mag_var_s);
 static int _read_sats (char *str, int *sats);
 static int _read_fix (char *str, nmea_fix_en *fix);
 static int _read_valid (char *str, nmea_valid_en *valid);
+//!@}
 
-// Middle level
+//! \name Middle level
+//!@{
 static int _get_sen (nmea_t *nmea);
 static int _get_token (char *str, char *token);
 static int _checksum_chk (char *str);
 static int _read_until (nmea_t *nmea, nmea_msgid_en id, int tries);
 static int _tokenise (nmea_t *nmea, const parse_obj_en *format, nmea_common_t *obj);
-/*
- * ============== tools ==============
- */
+//!@}
 
+
+
+/*
+ * ============== Tools ==============
+ */
+//! \name Tools
+//!@{
+
+/*!
+ * \brief
+ *    Return the checksum of the string
+ */
 static int _checksum (char* str) {
    int c = 0;
 
@@ -122,6 +160,11 @@ static int _checksum (char* str) {
       c ^= *str++;
    return c;
 }
+
+/*!
+ * \brief
+ *    Converts decimal angle to NMEA's format angle
+ */
 static float _nmea2dec (float c)
 {
    int d;
@@ -130,12 +173,28 @@ static float _nmea2dec (float c)
    c -= d*100;
    return d + (c/60);
 }
+
+/*!
+ * \brief
+ *    Converts NMEA's format angle to decimal angle
+ */
 static float _dec2nmea (float c)
 {
    int d = (int)c;
    return d*100 + ((c-d) * 60);
 }
 
+/*!
+ * \brief
+ *    Search if there is a string pointed by \a word
+ *    into string pointed by \a sen
+ * \param   sen   Pointer to string to search into
+ * \param   word  Pointer to string to search
+ * \param   n     Size of word string
+ * \return        The result
+ *    \arg  0     Not found
+ *    \arg  1     Found
+ */
 static int _match (char *sen, char *word, int n)
 {
    while (*sen) {
@@ -146,6 +205,10 @@ static int _match (char *sen, char *word, int n)
    return 0;
 }
 
+/*!
+ * \brief
+ *    Converts Message id string into message id type
+ */
 static nmea_msgid_en _msgid_type (char *str)
 {
    for (int i=0 ; nmea_msgid[i].id_type ; ++i)
@@ -154,6 +217,10 @@ static nmea_msgid_en _msgid_type (char *str)
    return NMEA_NULL;
 }
 
+/*!
+ * \brief
+ *    Converts Message id type into message id string
+ */
 static char * _msgid_str (nmea_msgid_en id)
 {
    for (int i=0 ; nmea_msgid[i].id_type ; ++i)
@@ -161,10 +228,23 @@ static char * _msgid_str (nmea_msgid_en id)
          return nmea_msgid[i].id_str;
    return NULL;
 }
-
+//!@}
 
 /*
  * ============== Extract tools ==============
+ */
+//! \name Extract tools
+//!@{
+
+/*!
+ * \brief
+ *    Read sentence type
+ * Try to find id string \a str into sentence
+ * \param   str   Pointer to token
+ * \param   id    Pointer to id to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
  */
 static int _read_sen_type (char *str, nmea_msgid_en *id) {
    for (int i=0 ; nmea_msgid[i].id_type; ++i) {
@@ -176,6 +256,17 @@ static int _read_sen_type (char *str, nmea_msgid_en *id) {
    *id = NMEA_NULL;
    return 0;
 }
+
+/*!
+ * \brief
+ *    Read utc time
+ * Try to extract utc time from token \a str
+ * \param   str   Pointer to token
+ * \param   t     Pointer to utc_time_t type to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
+ */
 static int _read_utc (char *str, utc_time_t *t) {
    int utc_d, utc_f;
 
@@ -189,6 +280,17 @@ static int _read_utc (char *str, utc_time_t *t) {
    t->sec += (float)utc_f / 1000;
    return 1;
 }
+
+/*!
+ * \brief
+ *    Read utc date
+ * Try to extract utc date from token \a str
+ * \param   str   Pointer to token
+ * \param   date  Pointer to utc_date_t type to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
+ */
 static int _read_date (char *str, utc_date_t *date) {
    int d;
    if (sscanf (str, "%d", &d) != 1)
@@ -199,22 +301,88 @@ static int _read_date (char *str, utc_date_t *date) {
    date->year = d - date->month*100 + 2000;
    return 1;
 }
+
+/*!
+ * \brief
+ *    Read day of month
+ * Try to extract day from token \a str
+ * \param   str   Pointer to token
+ * \param   day   Pointer to day variable to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
+ */
 static int _read_day (char *str, int *day) {
    return (sscanf (str, "%d", day) == 1) ? 1:0;
 }
+
+/*!
+ * \brief
+ *    Read month
+ * Try to extract month from token \a str
+ * \param   str   Pointer to token
+ * \param   month Pointer to month variable to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
+ */
 static int _read_month (char *str, int *month) {
    return (sscanf (str, "%d", month) == 1) ? 1:0;
 }
+
+/*!
+ * \brief
+ *    Read year
+ * Try to extract year from token \a str
+ * \param   str   Pointer to token
+ * \param   year  Pointer to year variable to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
+ */
 static int _read_year (char *str, int *year) {
    return (sscanf (str, "%d", year) == 1) ? 1:0;
 }
+
+/*!
+ * \brief
+ *    Read local hour time zone offset
+ * Try to extract hour time zone from token \a str
+ * \param   str   Pointer to token
+ * \param   zone_h Pointer to time zone variable to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
+ */
 static int _read_zone_h (char *str, int *zone_h) {
    return (sscanf (str, "%d", zone_h) == 1) ? 1:0;
 }
+
+/*!
+ * \brief
+ *    Read local minute time zone offset
+ * Try to extract minute time zone from token \a str
+ * \param   str   Pointer to token
+ * \param   zone_m Pointer to time zone variable to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
+ */
 static int _read_zone_m (char *str, int *zone_m) {
    return (sscanf (str, "%d", zone_m) == 1) ? 1:0;
 }
 
+/*!
+ * \brief
+ *    Read latitude
+ * Try to extract latitude from token \a str and convert it to
+ * decimal format
+ * \param   str   Pointer to token
+ * \param   lat   Pointer to latitude variable to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
+ */
 static int _read_lat (char *str, float *lat) {
    float l;
    if (sscanf (str, "%f", &l) != 1)
@@ -222,6 +390,17 @@ static int _read_lat (char *str, float *lat) {
    *lat = _nmea2dec (l);
    return 1;
 }
+
+/*!
+ * \brief
+ *    Read latitude's orientation (South or north)
+ * Try to extract latitude sign from token \a str
+ * \param   str   Pointer to token
+ * \param   lat_s Pointer to latitude sign variable to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
+ */
 static int _read_lat_s (char *str, nmea_lat_sign_en *lat_s) {
    char sign;
    *lat_s = NMEA_N;
@@ -231,6 +410,18 @@ static int _read_lat_s (char *str, nmea_lat_sign_en *lat_s) {
       *lat_s = NMEA_S;
    return 1;
 }
+
+/*!
+ * \brief
+ *    Read longitude
+ * Try to extract longitude from token \a str and convert it to
+ * decimal format
+ * \param   str   Pointer to token
+ * \param   lon   Pointer to longitude variable to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
+ */
 static int _read_long (char *str, float *lon) {
    float l;
    if (sscanf (str, "%f", &l) != 1)
@@ -238,6 +429,17 @@ static int _read_long (char *str, float *lon) {
    *lon = _nmea2dec (l);
    return 1;
 }
+
+/*!
+ * \brief
+ *    Read longitude orientation (South or north)
+ * Try to extract longitude sign from token \a str
+ * \param   str   Pointer to token
+ * \param   lon_s Pointer to longirude sign variable to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
+ */
 static int _read_long_s (char *str, nmea_long_sign_en *lon_s) {
    char sign;
    *lon_s = NMEA_E;
@@ -247,12 +449,45 @@ static int _read_long_s (char *str, nmea_long_sign_en *lon_s) {
       *lon_s = NMEA_W;
    return 1;
 }
+
+/*!
+ * \brief
+ *    Read elevation
+ * Try to extract elevation from token \a str
+ * \param   str   Pointer to token
+ * \param   elev  Pointer to elevation variable to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
+ */
 static int _read_elev (char *str, float *elev) {
    return (sscanf (str, "%f", elev) == 1) ? 1:0;
 }
+
+/*!
+ * \brief
+ *    Read speed
+ * Try to extract speed from token \a str
+ * \param   str   Pointer to token
+ * \param   speed Pointer to speed variable to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
+ */
 static int _read_speed (char *str, float *speed) {
    return (sscanf (str, "%f", speed) == 1) ? 1:0;
 }
+
+/*!
+ * \brief
+ *    Read speed units
+ * Try to extract speed units from token \a str
+ * \param   str   Pointer to token
+ * \param   sp_unts Pointer to speed units variable to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
+ */
 static int _read_sp_unts (char *str, nmea_speed_units_en *sp_unts) {
    char unt;
    *sp_unts = NMEA_KNOTS;
@@ -262,9 +497,31 @@ static int _read_sp_unts (char *str, nmea_speed_units_en *sp_unts) {
       *sp_unts = NMEA_KMH;
    return 1;
 }
+
+/*!
+ * \brief
+ *    Read course
+ * Try to extract course from token \a str
+ * \param   str   Pointer to token
+ * \param   course Pointer to course variable to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
+ */
 static int _read_course (char *str, float *course) {
    return (sscanf (str, "%f", course) == 1) ? 1:0;
 }
+
+/*!
+ * \brief
+ *    Read course type
+ * Try to extract course type from token \a str
+ * \param   str   Pointer to token
+ * \param   course_type  Pointer to course type variable to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
+ */
 static int _read_course_type (char *str, nmea_course_en *course_type) {
    char tpe;
    *course_type = NMEA_COURSE_MAG;
@@ -274,9 +531,31 @@ static int _read_course_type (char *str, nmea_course_en *course_type) {
       *course_type = NMEA_COURSE_TRUE;
    return 1;
 }
+
+/*!
+ * \brief
+ *    Read Magnetic variation
+ * Try to extract magnetic variation from token \a str
+ * \param   str   Pointer to token
+ * \param   mag_var Pointer to magnetic variation variable to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
+ */
 static int _read_mag_var (char *str, float *mag_var) {
    return (sscanf (str, "%f", mag_var) == 1) ? 1:0;
 }
+
+/*!
+ * \brief
+ *    Read Magnetic variation orientation
+ * Try to extract magnetic variation sign from token \a str
+ * \param   str   Pointer to token
+ * \param   mag_var_s Pointer to magnetic variation variable sign to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
+ */
 static int _read_mag_var_s (char *str, nmea_long_sign_en *mag_var_s) {
    char tpe;
    *mag_var_s = NMEA_E;
@@ -286,9 +565,31 @@ static int _read_mag_var_s (char *str, nmea_long_sign_en *mag_var_s) {
       *mag_var_s = NMEA_W;
    return 1;
 }
+
+/*!
+ * \brief
+ *    Read satellites
+ * Try to extract satellites from token \a str
+ * \param   str   Pointer to token
+ * \param   sats  Pointer to satellites variable to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
+ */
 static int _read_sats (char *str, int *sats) {
    return (sscanf (str, "%d", sats) == 1) ? 1:0;
 }
+
+/*!
+ * \brief
+ *    Read fix
+ * Try to extract fix from token \a str
+ * \param   str   Pointer to token
+ * \param   fix   Pointer to fix variable to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
+ */
 static int _read_fix (char *str, nmea_fix_en *fix) {
    int d;
    if (sscanf (str, "%d", &d) != 1)
@@ -300,6 +601,17 @@ static int _read_fix (char *str, nmea_fix_en *fix) {
       case 2: *fix = NMEA_DFIX;     return 1;
    }
 }
+
+/*!
+ * \brief
+ *    Read valid
+ * Try to extract valid from token \a str
+ * \param   str   Pointer to token
+ * \param   valid Pointer to valid variable to return
+ * \return        The status of the operation
+ *    \arg  0     Not recognised id = NULL
+ *    \arg  1     Recognised
+ */
 static int _read_valid (char *str, nmea_valid_en *valid) {
    char v;
    *valid = NMEA_VALID;
@@ -309,9 +621,20 @@ static int _read_valid (char *str, nmea_valid_en *valid) {
       *valid = NMEA_NOT_VALID;
    return 1;
 }
+//!@}
+
 
 /*
  * ============== Middle level ==============
+ */
+//! \name Middle level
+//!@{
+
+/*!
+ * \brief
+ *    Read a sentence from input stream into nmea's buffer
+ * \param   nmea  Pointer to linked data to use
+ * \return        The size of string in buffer
  */
 static int _get_sen (nmea_t *nmea)
 {
@@ -327,6 +650,13 @@ static int _get_sen (nmea_t *nmea)
    return i;
 }
 
+/*!
+ * \brief
+ *    Get the next token from string
+ * \param   str   Pointer to string to search into
+ * \param   token Pointer to token to return
+ * \return        The size of token
+ */
 static int _get_token (char *str, char *token)
 {
    char *s = str;
@@ -342,6 +672,14 @@ static int _get_token (char *str, char *token)
    return 0;
 }
 
+/*!
+ * \brief
+ *    Check the checksum of a sentence
+ * \param   str   Pointer to hole sentence (from '$' to "\r\n")
+ * \return        The result
+ *    \arg  0     Checksum don't match
+ *    \arg  1     Checksum match
+ */
 static int _checksum_chk (char *str)
 {
    char *s, *d;   // Star and dollar pointers
@@ -357,10 +695,22 @@ static int _checksum_chk (char *str)
    return (cc == sc) ? 1:0;
 }
 
+/*!
+ * \brief
+ *    Read from input stream until a checksum valid sentence
+ *    with id \a id appears.
+ * \param   nmea  Pointer to linked nmea data to use
+ * \param   id    The desired message id sentence
+ * \param   tries The maximum number of sentence to read from input
+ *                before give up
+ * \return        The status of the operation
+ *    \arg  0     Fail
+ *    \arg  1     Success
+ */
 static int _read_until (nmea_t *nmea, nmea_msgid_en id, int tries)
 {
    nmea_msgid_en s;
-   uint8_t nto = (tries==0) ? 1:0;  // no time out check
+   uint8_t to = (tries==0) ? 0:1;  // time out check
 
    // Read sentences until we find id
    do {
@@ -368,10 +718,18 @@ static int _read_until (nmea_t *nmea, nmea_msgid_en id, int tries)
       if ( !_checksum_chk ((char *)nmea->buf) )
          return 0;
       _read_sen_type ((char *)nmea->buf, &s);
-   } while (s != id && (nto || --tries));
-   return 1;
+   } while (s != id && (!to || --tries));
+   return (to && !tries) ? 0 : 1;
 }
 
+/*!
+ * \brief
+ *    Extract nmea data from sentence into buffer using grammar in \a format
+ * \param   nmea  Pointer to linked data to use
+ * \param   format Pointer to grammar array to use
+ * \param   obj   Pointer to data object to return
+ * \return        Number or read tokens
+ */
 static int _tokenise (nmea_t *nmea, const parse_obj_en *format, nmea_common_t *obj)
 {
    char token[NMEA_TOKEN_SIZE];
@@ -418,45 +776,79 @@ static int _tokenise (nmea_t *nmea, const parse_obj_en *format, nmea_common_t *o
    return tk;
 }
 
+/*!
+ * \brief
+ *    Stream out a string
+ * \param   nmea  Pointer to linked data to use
+ * \param   str   Pointer to string to stream
+ */
 void _stream (nmea_t *nmea, char *str)
 {
    while (*str)
       nmea->io.out (*str++);
 }
+//!@{
+
 
 /*
- * ============ Public GPS API ============
+ * =============== Public NMEA API =================
  */
 
 /*
- * Link and Glue functions
+ * ========= Link and Glue functions ==============
+ */
+/*
+ * \name Link and Glue functions
+ */
+//!@{
+/*!
+ * Link buffer to nmea data
  */
 void nmea_link_buffer (nmea_t *nmea, byte_t *b) {
    nmea->buf = b;
 }
+/*!
+ * Link input function to nmea data
+ */
 void nmea_link_in (nmea_t *nmea, nmea_in_ft in) {
    nmea->io.in = in;
 }
+/*!
+ * Link output function to nmea data
+ */
 void nmea_link_out (nmea_t *nmea, nmea_out_ft out) {
    nmea->io.out = out;
 }
+//!@}
 
 /*
- * Set functions
+ * ============== Set functions ================
+ */
+/*
+ * \name Set functions
+ */
+//!@{
+/*!
+ * Set buffer size
  */
 void nmea_set_buffer_size (nmea_t *nmea, int s) {
    nmea->buf_size = s;
 }
+//!@}
 
 /*
- * User Functions
+ * ============= User Functions ==============
  */
 
+/*
+ * \name User Functions
+ */
+//!@{
 /*!
  * \brief
  *    De-Initializes nmea parser used by the driver.
  *
- * \param  nmea   Pointer indicate the nmea data stuct to use
+ * \param  nmea   Pointer to linked nmea data stuct to use
  */
 void nmea_deinit (nmea_t *nmea)
 {
@@ -470,7 +862,7 @@ void nmea_deinit (nmea_t *nmea)
  * \brief
  *    Initializes nmea.
  *
- * \param  nmea   Pointer indicate the nmea data stuct to use
+ * \param  nmea   Pointer to linked nmea data stuct to use
  * \return        The status of the operation
  */
 drv_status_en nmea_init (nmea_t *nmea)
@@ -487,6 +879,17 @@ drv_status_en nmea_init (nmea_t *nmea)
    #undef _bad_link
 }
 
+/*!
+ * \brief
+ *    Read and extract GGA data from input stream
+ * \param   nmea  Pointer to linked nmea data struct to use
+ * \param   gga   Pointer to gga data for the results
+ *                The gga variable is written only when we have position fix
+ * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
+ * \return        The status of the operation
+ *    \arg  DRV_ERROR   No valid GGA sentence in stream
+ *    \arg  DRV_READY   Success
+ */
 drv_status_en nmea_read_gga (nmea_t *nmea, nmea_gga_t *gga, int tries)
 {
    nmea_common_t obj;
@@ -509,6 +912,17 @@ drv_status_en nmea_read_gga (nmea_t *nmea, nmea_gga_t *gga, int tries)
    return DRV_READY;
 }
 
+/*!
+ * \brief
+ *    Read and extract GLL data from input stream
+ * \param   nmea  Pointer to linked nmea data struct to use
+ * \param   gll   Pointer to gll data for the results
+ *                The gll variable is written only when we have position fix
+ * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
+ * \return        The status of the operation
+ *    \arg  DRV_ERROR   No valid GLL sentence in stream
+ *    \arg  DRV_READY   Success
+ */
 drv_status_en nmea_read_gll (nmea_t *nmea, nmea_gll_t *gll, int tries)
 {
    nmea_common_t obj;
@@ -528,6 +942,18 @@ drv_status_en nmea_read_gll (nmea_t *nmea, nmea_gll_t *gll, int tries)
    }
    return DRV_READY;
 }
+
+/*!
+ * \brief
+ *    Read and extract GSA data from input stream
+ * \param   nmea  Pointer to linked nmea data struct to use
+ * \param   gsa   Pointer to gsa data for the results
+ * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
+ * \return        The status of the operation
+ *    \arg  DRV_ERROR   No valid GSA sentence in stream
+ *    \arg  DRV_READY   Success
+ * \note    Not implemented yet
+ */
 drv_status_en nmea_read_gsa (nmea_t *nmea, nmea_gsa_t *gsa, int tries)
 {
    nmea_common_t obj;
@@ -542,6 +968,18 @@ drv_status_en nmea_read_gsa (nmea_t *nmea, nmea_gsa_t *gsa, int tries)
    gsa->crap = 0;
    return DRV_READY;
 }
+
+/*!
+ * \brief
+ *    Read and extract GSV data from input stream
+ * \param   nmea  Pointer to linked nmea data struct to use
+ * \param   gsv   Pointer to gsv data for the results
+ * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
+ * \return        The status of the operation
+ *    \arg  DRV_ERROR   No valid GSV sentence in stream
+ *    \arg  DRV_READY   Success
+ * \note    Not implemented yet
+ */
 drv_status_en nmea_read_gsv (nmea_t *nmea, nmea_gsv_t *gsv, int tries)
 {
    nmea_common_t obj;
@@ -556,6 +994,18 @@ drv_status_en nmea_read_gsv (nmea_t *nmea, nmea_gsv_t *gsv, int tries)
    gsv->sats = obj.sats;
    return DRV_READY;
 }
+
+/*!
+ * \brief
+ *    Read and extract RMC data from input stream
+ * \param   nmea  Pointer to linked nmea data struct to use
+ * \param   rmc   Pointer to rmc data for the results
+ *                The rmc variable is written only when we have position fix
+ * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
+ * \return        The status of the operation
+ *    \arg  DRV_ERROR   No valid RMC sentence in stream
+ *    \arg  DRV_READY   Success
+ */
 drv_status_en nmea_read_rmc (nmea_t *nmea, nmea_rmc_t *rmc, int tries)
 {
    nmea_common_t obj;
@@ -580,6 +1030,16 @@ drv_status_en nmea_read_rmc (nmea_t *nmea, nmea_rmc_t *rmc, int tries)
    return DRV_READY;
 }
 
+/*!
+ * \brief
+ *    Read and extract VTG data from input stream
+ * \param   nmea  Pointer to linked nmea data struct to use
+ * \param   vtg   Pointer to vtg data for the results
+ * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
+ * \return        The status of the operation
+ *    \arg  DRV_ERROR   No valid VTG sentence in stream
+ *    \arg  DRV_READY   Success
+ */
 drv_status_en nmea_read_vtg (nmea_t *nmea, nmea_vtg_t *vtg, int tries)
 {
    nmea_common_t obj;
@@ -599,6 +1059,16 @@ drv_status_en nmea_read_vtg (nmea_t *nmea, nmea_vtg_t *vtg, int tries)
    return DRV_READY;
 }
 
+/*!
+ * \brief
+ *    Read and extract ZDA data from input stream
+ * \param   nmea  Pointer to linked nmea data struct to use
+ * \param   zda   Pointer to zda data for the results
+ * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
+ * \return        The status of the operation
+ *    \arg  DRV_ERROR   No valid ZDA sentence in stream
+ *    \arg  DRV_READY   Success
+ */
 drv_status_en nmea_read_zda (nmea_t *nmea, nmea_zda_t *zda, int tries)
 {
    nmea_common_t obj;
@@ -619,8 +1089,15 @@ drv_status_en nmea_read_zda (nmea_t *nmea, nmea_zda_t *zda, int tries)
    return DRV_READY;
 }
 
-
-
+/*!
+ * \brief
+ *    Write a message to output stream. The message is wrapped
+ *    with '$' and "*<checksum>\r\n"
+ * \param   nmea  Pointer to linked nmea data struct to use
+ * \param   msg   Pointer to message to send
+ * \return        The status of the operation
+ *    \arg  DRV_READY  Success
+ */
 drv_status_en nmea_write (nmea_t *nmea, char *msg)
 {
    char cs[6];
@@ -635,3 +1112,4 @@ drv_status_en nmea_write (nmea_t *nmea, char *msg)
 
    return DRV_READY;
 }
+//!@}
