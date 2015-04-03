@@ -184,7 +184,7 @@ jiffy_t jf_per_usec (void)
  * \param
  *    usec     Time in usec for delay
  */
-void jf_delay_us (uint32_t usec)
+void jf_delay_us (int32_t usec)
 {
    jiffy_t m, m2, m1 = *_jf.value;
 
@@ -210,7 +210,7 @@ void jf_delay_us (uint32_t usec)
  * \param
  *    msec     Time in msec for delay
  */
-void jf_delay_ms (uint32_t msec)
+void jf_delay_ms (int32_t msec)
 {
    jiffy_t m, m2, m1 = *_jf.value;
 
@@ -234,7 +234,7 @@ void jf_delay_ms (uint32_t msec)
  * \param
  *    usec     Time in usec for delay
  */
-int jf_check_usec (uint32_t usec)
+int jf_check_usec (int32_t usec)
 {
    static jiffy_t m1=-1, cnt;
    jiffy_t m, m2;

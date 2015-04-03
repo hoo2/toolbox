@@ -32,13 +32,20 @@ extern "C" {
 #include <tbx_ioctl.h>
 #include <tbx_types.h>
 
-// Automatic control systems
+/*!
+ * \defgroup Control
+ */
 #include <acs/pid.h>
 #include <acs/tne.h>
 
+/*!
+ * \defgroup Algorithm
+ */
 #include <algo/queue.h>
 
-// Cryptography
+/*!
+ * \defgroup Cryptography
+ */
 #include <crypt/md5.h>
 #include <crypt/sha1.h>
 #include <crypt/sha2.h>
@@ -46,7 +53,9 @@ extern "C" {
 #include <crypt/aes.h>
 #include <crypt/des.h>
 
-// Drivers
+/*!
+ * \defgroup Drivers
+ */
 #include <drv/alcd.h>
 #include <drv/buttons.h>
 #include <drv/i2c_bb.h>
@@ -68,7 +77,9 @@ extern "C" {
 
 #include <drv/s25fs_spi.h>
 
-// DSP
+/*!
+ * \defgroup DSP
+ */
 #include <dsp/leaky_int.h>
 #include <dsp/moving_av.h>
 #include <dsp/vectors.h>
@@ -76,12 +87,16 @@ extern "C" {
 #include <dsp/corr.h>
 #include <dsp/dft.h>
 
-// std library adds and replacements
+/*!
+ * \defgroup std
+ */
 #include <std/sprintf.h>
 #include <std/printf.h>
 #include <std/stime.h>
 
-// System
+/*!
+ * \defgroup System
+ */
 //#include <sys/diskio.h>
 //#include <sys/fatfs.h>
 //#include <sys/ffconf.h>
@@ -89,7 +104,9 @@ extern "C" {
 #include <sys/jiffies.h>
 //#include <sys/semaphore.h>
 
-// User interface
+/*!
+ * \defgroup UserInterface
+ */
 #include <ui/tui.h>
 #include <ui/tuid.h>
 
