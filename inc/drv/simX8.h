@@ -32,6 +32,7 @@ extern "C" {
 #include <tbx_types.h>
 #include <tbx_ioctl.h>
 #include <drv/nmea.h>
+#include <string.h>
 #include <stdarg.h>
 
 /*
@@ -44,12 +45,15 @@ extern "C" {
 #define  PMTK_CMD_FULL_COLD_START      (0x103)
 #define  PMTK_CMD_STANDBY_MODE         (0x104)
 #define  PMTK_API_SET_NMEA_OUTPUT      (0x105)
-#define  PMTK_SET_NMEA_BAUDRATE        (0x106)
-#define  PMTK_NMEA_OUTPUT_GLL          (0x107)
+#define  PMTK_DT_SBAS_ENABLED          (0x106)
+#define  PMTK_SET_NMEA_BAUDRATE        (0x107)
+#define  PMTK_NMEA_OUTPUT_GLL          (0x108)
 #define  PMTK_DT_UTC                   (0x110)
 #define  PMTK_DT_POS                   (0x111)
 
-#define  NMEA_OUTPUT_DEFAULT_MASK      (0x7A) // "PMTK314,0,1,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0"
+#define  NMEA_OUTPUT_INIT_MASK_STR     "PMTK314,"
+#define  NMEA_OUTPUT_DEFAULT           "PMTK314,-1"
+
 #define  SIMX8_NUMBER_OF_SENTENCES     (19)
 /*
  * ======= Data types ============
@@ -62,8 +66,9 @@ typedef enum {
    SIMX8_GSA,
    SIMX8_GSV,
    SIMX8_ZDA = 17,
+   SIMX8_RES = 18,
+   SIMX8_DEF = 19
 }nmea_output_en;
-
 
 typedef struct {
    nmea_t         *nmea;
@@ -93,7 +98,7 @@ void simX8_set (simX8_t *sim, int disc);
  */
 //!@{
 void simX8_deinit (simX8_t *sim);
-drv_status_en simX8_init (simX8_t *sim, int disc);
+drv_status_en simX8_init (simX8_t *sim);
 
 drv_status_en simX8_read_gga (simX8_t *sim, nmea_gga_t *gga, int tries);
 drv_status_en simX8_read_gll (simX8_t *sim, nmea_gll_t *gll, int tries);
@@ -103,7 +108,7 @@ drv_status_en simX8_read_rmc (simX8_t *sim, nmea_rmc_t *rmc, int tries);
 drv_status_en simX8_read_vtg (simX8_t *sim, nmea_vtg_t *vtg, int tries);
 drv_status_en simX8_read_zda (simX8_t *sim, nmea_zda_t *zda, int tries);
 
-drv_status_en sim_X8_ctrl (simX8_t *sim, ioctl_cmd_t cmd, ioctl_buf_t buf);
+drv_status_en simX8_ctl (simX8_t *sim, ioctl_cmd_t cmd, ...);
 
 //!@}
 
