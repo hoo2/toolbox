@@ -102,7 +102,7 @@ extern "C" {
 #define CTRL_SEND_ALARM          0x84
 
 
-typedef uint8_t   ioctl_cmd_t;   /*!< Generic ioctl command type */
+typedef uint32_t  ioctl_cmd_t;   /*!< Generic ioctl command type */
 typedef void*     ioctl_buf_t;   /*!< Generic ioctl buffer data type */
 
 
