@@ -143,7 +143,8 @@ drv_status_en simX8_init (simX8_t *sim)
  * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid GGA sentence in stream
- *    \arg  DRV_READY   Success
+ *    \arg  DRV_BUSY    No GPS fix
+ *    \arg  DRV_READY   Success, GPS fix
  */
 inline drv_status_en simX8_read_gga (simX8_t *sim, nmea_gga_t *gga, int tries) {
    return nmea_read_gga (sim->nmea, gga, tries);
@@ -158,7 +159,8 @@ inline drv_status_en simX8_read_gga (simX8_t *sim, nmea_gga_t *gga, int tries) {
  * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid GLL sentence in stream
- *    \arg  DRV_READY   Success
+ *    \arg  DRV_BUSY    No GPS fix
+ *    \arg  DRV_READY   Success, GPS fix
  */
 inline drv_status_en simX8_read_gll (simX8_t *sim, nmea_gll_t *gll, int tries) {
    return nmea_read_gll (sim->nmea, gll, tries);
@@ -172,7 +174,8 @@ inline drv_status_en simX8_read_gll (simX8_t *sim, nmea_gll_t *gll, int tries) {
  * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid GSA sentence in stream
- *    \arg  DRV_READY   Success
+ *    \arg  DRV_BUSY    No GPS fix
+ *    \arg  DRV_READY   Success, GPS fix
  * \note    Not implemented yet
  */
 inline drv_status_en simX8_read_gsa (simX8_t *sim, nmea_gsa_t *gsa, int tries) {
@@ -187,7 +190,8 @@ inline drv_status_en simX8_read_gsa (simX8_t *sim, nmea_gsa_t *gsa, int tries) {
  * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid GSV sentence in stream
- *    \arg  DRV_READY   Success
+ *    \arg  DRV_BUSY    No GPS fix
+ *    \arg  DRV_READY   Success, GPS fix
  * \note    Not implemented yet
  */
 inline drv_status_en simX8_read_gsv (simX8_t *sim, nmea_gsv_t *gsv, int tries) {
@@ -203,7 +207,8 @@ inline drv_status_en simX8_read_gsv (simX8_t *sim, nmea_gsv_t *gsv, int tries) {
  * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid RMC sentence in stream
- *    \arg  DRV_READY   Success
+ *    \arg  DRV_BUSY    No GPS fix
+ *    \arg  DRV_READY   Success, GPS fix
  */
 inline drv_status_en simX8_read_rmc (simX8_t *sim, nmea_rmc_t *rmc, int tries) {
    return nmea_read_rmc (sim->nmea, rmc, tries);
@@ -217,7 +222,8 @@ inline drv_status_en simX8_read_rmc (simX8_t *sim, nmea_rmc_t *rmc, int tries) {
  * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid VTG sentence in stream
- *    \arg  DRV_READY   Success
+ *    \arg  DRV_BUSY    No GPS fix
+ *    \arg  DRV_READY   Success, GPS fix
  */
 inline drv_status_en simX8_read_vtg (simX8_t *sim, nmea_vtg_t *vtg, int tries) {
    return nmea_read_vtg (sim->nmea, vtg, tries);
@@ -231,7 +237,8 @@ inline drv_status_en simX8_read_vtg (simX8_t *sim, nmea_vtg_t *vtg, int tries) {
  * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid ZDA sentence in stream
- *    \arg  DRV_READY   Success
+ *    \arg  DRV_BUSY    No GPS fix
+ *    \arg  DRV_READY   Success, GPS fix
  */
 inline drv_status_en simX8_read_zda (simX8_t *sim, nmea_zda_t *zda, int tries) {
    return nmea_read_zda (sim->nmea, zda, tries);

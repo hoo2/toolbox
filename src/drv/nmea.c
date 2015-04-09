@@ -888,19 +888,19 @@ drv_status_en nmea_init (nmea_t *nmea)
  * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid GGA sentence in stream
- *    \arg  DRV_READY   Success
+ *    \arg  DRV_BUSY    No GPS fix
+ *    \arg  DRV_READY   Success, GPS fix
  */
 drv_status_en nmea_read_gga (nmea_t *nmea, nmea_gga_t *gga, int tries)
 {
    nmea_common_t obj;
 
-   // Read sentences until we find GGA
-   if (_read_until (nmea, NMEA_GGA, tries) == 0)
+   obj.fix = NMEA_NOT_FIX;                         // mark data
+   if (_read_until (nmea, NMEA_GGA, tries) == 0)   // Read sentences until we find GGA
       return DRV_ERROR;
+   _tokenise (nmea, _GGA, &obj);                   // tokenise
 
-   // tokenise
-   _tokenise (nmea, _GGA, &obj);
-
+   // Check to return
    if (obj.fix != NMEA_NOT_FIX) {
       gga->fix = obj.fix;
       gga->sats = obj.sats;
@@ -908,8 +908,10 @@ drv_status_en nmea_read_gga (nmea_t *nmea, nmea_gga_t *gga, int tries)
       gga->latitude = obj.latitude;
       gga->longitude = obj.longitude;
       gga->elevation = obj.elevation;
+      return DRV_READY;
    }
-   return DRV_READY;
+   else
+      return DRV_BUSY;
 }
 
 /*!
@@ -921,26 +923,28 @@ drv_status_en nmea_read_gga (nmea_t *nmea, nmea_gga_t *gga, int tries)
  * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid GLL sentence in stream
- *    \arg  DRV_READY   Success
+ *    \arg  DRV_BUSY    No GPS fix
+ *    \arg  DRV_READY   Success, GPS fix
  */
 drv_status_en nmea_read_gll (nmea_t *nmea, nmea_gll_t *gll, int tries)
 {
    nmea_common_t obj;
 
-   // Read sentences until we find GLL
-   if (_read_until (nmea, NMEA_GLL, tries) == 0)
+   obj.valid = NMEA_NOT_VALID;                     // mark data
+   if (_read_until (nmea, NMEA_GLL, tries) == 0)   // Read sentences until we find GLL
       return DRV_ERROR;
+   _tokenise (nmea, _GLL, &obj);                   // tokenise
 
-   // tokenise
-   _tokenise (nmea, _GLL, &obj);
-
-   if (obj.fix != NMEA_NOT_FIX) {
+   // Check to return
+   if (obj.valid != NMEA_NOT_VALID) {
       gll->valid = obj.valid;
       gll->time = obj.time;
       gll->latitude = obj.latitude;
       gll->longitude = obj.longitude;
+      return DRV_READY;
    }
-   return DRV_READY;
+   else
+      return DRV_BUSY;
 }
 
 /*!
@@ -951,7 +955,8 @@ drv_status_en nmea_read_gll (nmea_t *nmea, nmea_gll_t *gll, int tries)
  * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid GSA sentence in stream
- *    \arg  DRV_READY   Success
+ *    \arg  DRV_BUSY    No GPS fix
+ *    \arg  DRV_READY   Success, GPS fix
  * \note    Not implemented yet
  */
 drv_status_en nmea_read_gsa (nmea_t *nmea, nmea_gsa_t *gsa, int tries)
@@ -961,9 +966,7 @@ drv_status_en nmea_read_gsa (nmea_t *nmea, nmea_gsa_t *gsa, int tries)
    // Read sentences until we find GSA
    if (_read_until (nmea, NMEA_GSA, tries) == 0)
       return DRV_ERROR;
-
-   // tokenise
-   _tokenise (nmea, _GSA, &obj);
+   _tokenise (nmea, _GSA, &obj);       // tokenise
 
    gsa->crap = 0;
    return DRV_READY;
@@ -977,22 +980,26 @@ drv_status_en nmea_read_gsa (nmea_t *nmea, nmea_gsa_t *gsa, int tries)
  * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid GSV sentence in stream
- *    \arg  DRV_READY   Success
+ *    \arg  DRV_BUSY    No GPS fix
+ *    \arg  DRV_READY   Success, GPS fix
  * \note    Not implemented yet
  */
 drv_status_en nmea_read_gsv (nmea_t *nmea, nmea_gsv_t *gsv, int tries)
 {
    nmea_common_t obj;
 
-   // Read sentences until we find GSV
-   if (_read_until (nmea, NMEA_GSV, tries) == 0)
+   obj.sats = 0;                                   // mark data
+   if (_read_until (nmea, NMEA_GSV, tries) == 0)   // Read sentences until we find GSV
       return DRV_ERROR;
+   _tokenise (nmea, _GSV, &obj);                   // tokenise
 
-   // tokenise
-   _tokenise (nmea, _GSV, &obj);
-
-   gsv->sats = obj.sats;
-   return DRV_READY;
+   // Check to return
+   if (obj.sats != 0) {
+      gsv->sats = obj.sats;
+      return DRV_READY;
+   }
+   else
+      return DRV_BUSY;
 }
 
 /*!
@@ -1004,20 +1011,20 @@ drv_status_en nmea_read_gsv (nmea_t *nmea, nmea_gsv_t *gsv, int tries)
  * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid RMC sentence in stream
- *    \arg  DRV_READY   Success
+ *    \arg  DRV_BUSY    No GPS fix
+ *    \arg  DRV_READY   Success, GPS fix
  */
 drv_status_en nmea_read_rmc (nmea_t *nmea, nmea_rmc_t *rmc, int tries)
 {
    nmea_common_t obj;
 
-   // Read sentences until we find RMC
-   if (_read_until (nmea, NMEA_RMC, tries) == 0)
+   obj.valid = NMEA_NOT_VALID;                     // mark data
+   if (_read_until (nmea, NMEA_RMC, tries) == 0)   // Read sentences until we find RMC
       return DRV_ERROR;
+   _tokenise (nmea, _RMC, &obj);                   // tokenise
 
-   // tokenise
-   _tokenise (nmea, _RMC, &obj);
-
-   if (obj.fix != NMEA_NOT_FIX) {
+   // Check to return
+   if (obj.valid != NMEA_NOT_VALID) {
       rmc->valid = obj.valid;
       rmc->date = obj.date;
       rmc->time = obj.time;
@@ -1026,8 +1033,10 @@ drv_status_en nmea_read_rmc (nmea_t *nmea, nmea_rmc_t *rmc, int tries)
       rmc->speed_knt = obj.speed_knt;
       rmc->course_t = obj.course_t;
       rmc->mag_var = obj.mag_var;
+      return DRV_READY;
    }
-   return DRV_READY;
+   else
+      return DRV_BUSY;
 }
 
 /*!
@@ -1038,25 +1047,27 @@ drv_status_en nmea_read_rmc (nmea_t *nmea, nmea_rmc_t *rmc, int tries)
  * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid VTG sentence in stream
- *    \arg  DRV_READY   Success
+ *    \arg  DRV_BUSY    No GPS fix
+ *    \arg  DRV_READY   Success, GPS fix
  */
 drv_status_en nmea_read_vtg (nmea_t *nmea, nmea_vtg_t *vtg, int tries)
 {
    nmea_common_t obj;
 
-   // Read sentences until we find RMC
-   if (_read_until (nmea, NMEA_VTG, tries) == 0)
+   obj.speed_knt = -1;                             // mark data
+   if (_read_until (nmea, NMEA_VTG, tries) == 0)   // Read sentences until we find VTG
       return DRV_ERROR;
+   _tokenise (nmea, _VTG, &obj);                   // tokenise
 
-   // tokenise
-   _tokenise (nmea, _VTG, &obj);
-
-   vtg->course_m = obj.course_m;
-   vtg->course_t = obj.course_t;
-   vtg->speed_knt = obj.speed_knt;
-   vtg->speed_kmh = obj.speed_kmh;
-
-   return DRV_READY;
+   if (obj.speed_knt != -1) {
+      vtg->course_m = obj.course_m;
+      vtg->course_t = obj.course_t;
+      vtg->speed_knt = obj.speed_knt;
+      vtg->speed_kmh = obj.speed_kmh;
+      return DRV_READY;
+   }
+   else
+      return DRV_BUSY;
 }
 
 /*!
@@ -1067,26 +1078,29 @@ drv_status_en nmea_read_vtg (nmea_t *nmea, nmea_vtg_t *vtg, int tries)
  * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid ZDA sentence in stream
- *    \arg  DRV_READY   Success
+ *    \arg  DRV_BUSY    No GPS fix
+ *    \arg  DRV_READY   Success, GPS fix
  */
 drv_status_en nmea_read_zda (nmea_t *nmea, nmea_zda_t *zda, int tries)
 {
    nmea_common_t obj;
 
-   // Read sentences until we find RMC
-   if (_read_until (nmea, NMEA_ZDA, tries) == 0)
+   obj.year = 0;                                   // mark data
+   if (_read_until (nmea, NMEA_ZDA, tries) == 0)   // Read sentences until we find ZDA
       return DRV_ERROR;
+   _tokenise (nmea, _ZDA, &obj);                   // tokenise
 
-   // tokenise
-   _tokenise (nmea, _ZDA, &obj);
-
-   zda->time = obj.time;
-   zda->day = obj.day;
-   zda->month = obj.month;
-   zda->year = obj.year;
-   zda->zone_h = obj.zone_h;
-   zda->zone_m = obj.zone_m;
-   return DRV_READY;
+   if (obj.year != 0) {
+      zda->time = obj.time;
+      zda->day = obj.day;
+      zda->month = obj.month;
+      zda->year = obj.year;
+      zda->zone_h = obj.zone_h;
+      zda->zone_m = obj.zone_m;
+      return DRV_READY;
+   }
+   else
+      return DRV_BUSY;
 }
 
 /*!
