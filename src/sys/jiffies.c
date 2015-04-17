@@ -80,6 +80,7 @@ inline drv_status_en jf_probe (void) {
  */
 void jf_deinit (void)
 {
+   _jf.setfreq (0, 0);
    memset ((void*)&_jf, 0, sizeof (jf_t));
    _jf.status = DRV_NODEV;
 }
