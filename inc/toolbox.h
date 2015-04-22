@@ -42,6 +42,8 @@ extern "C" {
  * \defgroup Algorithm
  */
 #include <algo/queue.h>
+#include <algo/spa_grena.h>
+
 
 /*!
  * \defgroup Cryptography
