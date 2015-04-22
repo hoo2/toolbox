@@ -1085,12 +1085,12 @@ drv_status_en nmea_read_zda (nmea_t *nmea, nmea_zda_t *zda, int tries)
 {
    nmea_common_t obj;
 
-   obj.year = 0;                                   // mark data
+   obj.year = 1980;                                // mark data
    if (_read_until (nmea, NMEA_ZDA, tries) == 0)   // Read sentences until we find ZDA
       return DRV_ERROR;
    _tokenise (nmea, _ZDA, &obj);                   // tokenise
 
-   if (obj.year != 0) {
+   if (obj.year != 1980) {
       zda->time = obj.time;
       zda->day = obj.day;
       zda->month = obj.month;
