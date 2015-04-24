@@ -76,6 +76,7 @@ void spa_set_temperature (spa_t *spa, double T);
 /*
  * ============ User functions ===========
  */
+void spa_init (spa_t *spa);
 void spa_calculation (spa_t *spa, double *elev, double *azimuth);
 
 #ifdef __cpluaplua

@@ -47,7 +47,7 @@
 //#define SEE_16BIT_ADDRESSING
 
 /*!
- * Use this define to select 16bit addressing scheme (max 64KBytes)
+ * Use this define to select 32bit addressing scheme (max 4TBytes)
  */
 #define SEE_32BIT_ADDRESSING
 
