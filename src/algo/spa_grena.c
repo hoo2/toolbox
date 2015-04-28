@@ -31,12 +31,12 @@
 /*
  * ============ Static Functions ==========
  */
-inline static double _rad2deg(double rad) {
+inline static double _rad2deg (double rad) {
    return (180 * rad / M_PI);
 }
 
 // Convert degree angle to radians
-inline static double _deg2rad(double dec) {
+inline static double _deg2rad (double dec) {
    return (M_PI * dec / 180);
 }
 
@@ -142,8 +142,8 @@ void spa_init (spa_t *spa)
  *    Sun position algorithm based on Roberto Grena's paper
  *
  * \param   spa      Pointer to linked data struct
- * \param   elev     Pointer to elevation variable for the results
- * \param   azimuth  Pointer to azimuth variable for the results
+ * \param   elev     Pointer to elevation variable for the results in rad [-pi, pi]
+ * \param   azimuth  Pointer to azimuth variable for the results in rad [0, 2pi]
  */
 void spa_calculation (spa_t *spa, double *elev, double *azimuth)
 {
@@ -250,12 +250,14 @@ void spa_calculation (spa_t *spa, double *elev, double *azimuth)
       De = 0;
 
    // local coordinates of the sun
-   *elev = _rad2deg (e0 - De);
-   *azimuth = _rad2deg (atan2(sht, cht*sin_phy - sin_Dt*cos_phy)) + 180;
+   *elev = e0 - De;
+   s = M_PI + atan2(sht, cht*sin_phy - sin_Dt*cos_phy);
+   *azimuth = s;
    /*
     * xxx:
-    * Shift azimuth pointing North, by adding 180 deg to it.
     * The original equation returns azimuth [-pi, pi] with zero azimuth
     * towards south, and positive in the western hemisphere.
+    * Shift azimuth pointing North, by adding pi to it. It is also shifted
+    * in [0, 2pi].
     */
 }

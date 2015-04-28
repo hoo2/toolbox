@@ -87,7 +87,7 @@ drv_status_en  tle5009_calib (tle5009_t *tle5009, tle5009_calib_input_t *in)
  * \param   tle5009  Pointer to tle5009 to use
  * \param   cos_diff The X diff amplitude
  * \param   sin_diff The Y diff amplitude
- * \return           The angle in radians
+ * \return           The angle in radians [0, 2pi)
  */
 float tle5009_angle (tle5009_t *tle5009, float cos_diff, float sin_diff)
 {
@@ -99,8 +99,8 @@ float tle5009_angle (tle5009_t *tle5009, float cos_diff, float sin_diff)
 
    // Non-orthogonality correction
    _phi = -tle5009->calib.Phi_x + tle5009->calib.Phi_y;
-   y = (y - x * qsin (_phi))/qcos (_phi);
+   y = (y - x * sin (_phi))/cos (_phi);
 
-   return atan2 (y, x) - tle5009->calib.Phi_x;
+   return fabs (fmod (atan2 (y, x) - tle5009->calib.Phi_x, 2*M_PI));
 }
 
