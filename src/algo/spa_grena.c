@@ -32,12 +32,12 @@
  * ============ Static Functions ==========
  */
 inline static double _rad2deg (double rad) {
-   return (180 * rad / M_PI);
+   return fabs (fmod ((180 * rad / M_PI), 360.0));
 }
 
 // Convert degree angle to radians
 inline static double _deg2rad (double dec) {
-   return (M_PI * dec / 180);
+   return fabs (fmod ((M_PI * dec / 180), 2*M_PI));
 }
 
 /*
