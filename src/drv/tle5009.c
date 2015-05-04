@@ -23,6 +23,21 @@
  */
 #include <drv/tle5009.h>
 
+/*!
+ * \brief
+ *    Wrap angle in [0, 2pi) domain
+ */
+static float _wrap_0_2pi (float th)
+{
+   float _2pi = 2*M_PI;
+
+   while (th<0 || th>_2pi) {
+      if (th < 0)       th += _2pi;
+      if (th >= _2pi)   th -= _2pi;
+   }
+   return th;
+}
+
 /*
  * ============ Public TLE5009 API ============
  */
@@ -101,6 +116,6 @@ float tle5009_angle (tle5009_t *tle5009, float cos_diff, float sin_diff)
    _phi = -tle5009->calib.Phi_x + tle5009->calib.Phi_y;
    y = (y - x * sin (_phi))/cos (_phi);
 
-   return fabs (fmod (atan2 (y, x) - tle5009->calib.Phi_x, 2*M_PI));
+   return _wrap_0_2pi (atan2 (y, x) - tle5009->calib.Phi_x);
 }
 
