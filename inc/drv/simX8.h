@@ -100,13 +100,13 @@ void simX8_set (simX8_t *sim, int disc);
 void simX8_deinit (simX8_t *sim);
 drv_status_en simX8_init (simX8_t *sim);
 
-drv_status_en simX8_read_gga (simX8_t *sim, nmea_gga_t *gga, int tries);
-drv_status_en simX8_read_gll (simX8_t *sim, nmea_gll_t *gll, int tries);
-drv_status_en simX8_read_gsa (simX8_t *sim, nmea_gsa_t *gsa, int tries);
-drv_status_en simX8_read_gsv (simX8_t *sim, nmea_gsv_t *gsv, int tries);
-drv_status_en simX8_read_rmc (simX8_t *sim, nmea_rmc_t *rmc, int tries);
-drv_status_en simX8_read_vtg (simX8_t *sim, nmea_vtg_t *vtg, int tries);
-drv_status_en simX8_read_zda (simX8_t *sim, nmea_zda_t *zda, int tries);
+drv_status_en simX8_read_gga (simX8_t *sim, nmea_gga_t *gga);
+drv_status_en simX8_read_gll (simX8_t *sim, nmea_gll_t *gll);
+drv_status_en simX8_read_gsa (simX8_t *sim, nmea_gsa_t *gsa);
+drv_status_en simX8_read_gsv (simX8_t *sim, nmea_gsv_t *gsv);
+drv_status_en simX8_read_rmc (simX8_t *sim, nmea_rmc_t *rmcs);
+drv_status_en simX8_read_vtg (simX8_t *sim, nmea_vtg_t *vtg);
+drv_status_en simX8_read_zda (simX8_t *sim, nmea_zda_t *zda);
 
 drv_status_en simX8_ctl (simX8_t *sim, ioctl_cmd_t cmd, ...);
 

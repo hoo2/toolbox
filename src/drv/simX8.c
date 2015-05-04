@@ -140,14 +140,13 @@ drv_status_en simX8_init (simX8_t *sim)
  * \param   sim   Pointer to linked simX8_t data struct to use
  * \param   gga   Pointer to gga data for the results
  *                The gga variable is written only when we have position fix
- * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid GGA sentence in stream
  *    \arg  DRV_BUSY    No GPS fix
  *    \arg  DRV_READY   Success, GPS fix
  */
-inline drv_status_en simX8_read_gga (simX8_t *sim, nmea_gga_t *gga, int tries) {
-   return nmea_read_gga (sim->nmea, gga, tries);
+inline drv_status_en simX8_read_gga (simX8_t *sim, nmea_gga_t *gga) {
+   return nmea_read_gga (sim->nmea, gga);
 }
 
 /*!
@@ -156,14 +155,13 @@ inline drv_status_en simX8_read_gga (simX8_t *sim, nmea_gga_t *gga, int tries) {
  * \param   sim   Pointer to linked simX8_t data struct to use
  * \param   gll   Pointer to gll data for the results
  *                The gll variable is written only when we have position fix
- * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid GLL sentence in stream
  *    \arg  DRV_BUSY    No GPS fix
  *    \arg  DRV_READY   Success, GPS fix
  */
-inline drv_status_en simX8_read_gll (simX8_t *sim, nmea_gll_t *gll, int tries) {
-   return nmea_read_gll (sim->nmea, gll, tries);
+inline drv_status_en simX8_read_gll (simX8_t *sim, nmea_gll_t *gll) {
+   return nmea_read_gll (sim->nmea, gll);
 }
 
 /*!
@@ -171,15 +169,14 @@ inline drv_status_en simX8_read_gll (simX8_t *sim, nmea_gll_t *gll, int tries) {
  *    Read and extract GSA data from NMEA
  * \param   sim   Pointer to linked simX8_t data struct to use
  * \param   gsa   Pointer to gsa data for the results
- * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid GSA sentence in stream
  *    \arg  DRV_BUSY    No GPS fix
  *    \arg  DRV_READY   Success, GPS fix
  * \note    Not implemented yet
  */
-inline drv_status_en simX8_read_gsa (simX8_t *sim, nmea_gsa_t *gsa, int tries) {
-   return nmea_read_gsa (sim->nmea, gsa, tries);
+inline drv_status_en simX8_read_gsa (simX8_t *sim, nmea_gsa_t *gsa) {
+   return nmea_read_gsa (sim->nmea, gsa);
 }
 
 /*!
@@ -187,15 +184,14 @@ inline drv_status_en simX8_read_gsa (simX8_t *sim, nmea_gsa_t *gsa, int tries) {
  *    Read and extract GSV data from NMEA
  * \param   sim   Pointer to linked simX8_t data struct to use
  * \param   gsv   Pointer to gsv data for the results
- * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid GSV sentence in stream
  *    \arg  DRV_BUSY    No GPS fix
  *    \arg  DRV_READY   Success, GPS fix
  * \note    Not implemented yet
  */
-inline drv_status_en simX8_read_gsv (simX8_t *sim, nmea_gsv_t *gsv, int tries) {
-   return nmea_read_gsv (sim->nmea, gsv, tries);
+inline drv_status_en simX8_read_gsv (simX8_t *sim, nmea_gsv_t *gsv) {
+   return nmea_read_gsv (sim->nmea, gsv);
 }
 
 /*!
@@ -204,14 +200,13 @@ inline drv_status_en simX8_read_gsv (simX8_t *sim, nmea_gsv_t *gsv, int tries) {
  * \param   sim   Pointer to linked simX8_t data struct to use
  * \param   rmc   Pointer to rmc data for the results
  *                The rmc variable is written only when we have position fix
- * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid RMC sentence in stream
  *    \arg  DRV_BUSY    No GPS fix
  *    \arg  DRV_READY   Success, GPS fix
  */
-inline drv_status_en simX8_read_rmc (simX8_t *sim, nmea_rmc_t *rmc, int tries) {
-   return nmea_read_rmc (sim->nmea, rmc, tries);
+inline drv_status_en simX8_read_rmc (simX8_t *sim, nmea_rmc_t *rmc) {
+   return nmea_read_rmc (sim->nmea, rmc);
 }
 
 /*!
@@ -219,14 +214,13 @@ inline drv_status_en simX8_read_rmc (simX8_t *sim, nmea_rmc_t *rmc, int tries) {
  *    Read and extract VTG data from NMEA
  * \param   sim   Pointer to linked simX8_t data struct to use
  * \param   vtg   Pointer to vtg data for the results
- * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid VTG sentence in stream
  *    \arg  DRV_BUSY    No GPS fix
  *    \arg  DRV_READY   Success, GPS fix
  */
-inline drv_status_en simX8_read_vtg (simX8_t *sim, nmea_vtg_t *vtg, int tries) {
-   return nmea_read_vtg (sim->nmea, vtg, tries);
+inline drv_status_en simX8_read_vtg (simX8_t *sim, nmea_vtg_t *vtg) {
+   return nmea_read_vtg (sim->nmea, vtg);
 }
 
 /*!
@@ -234,14 +228,13 @@ inline drv_status_en simX8_read_vtg (simX8_t *sim, nmea_vtg_t *vtg, int tries) {
  *    Read and extract ZDA data from NMEA
  * \param   sim   Pointer to linked simX8_t data struct to use
  * \param   zda   Pointer to zda data for the results
- * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid ZDA sentence in stream
  *    \arg  DRV_BUSY    No GPS fix
  *    \arg  DRV_READY   Success, GPS fix
  */
-inline drv_status_en simX8_read_zda (simX8_t *sim, nmea_zda_t *zda, int tries) {
-   return nmea_read_zda (sim->nmea, zda, tries);
+inline drv_status_en simX8_read_zda (simX8_t *sim, nmea_zda_t *zda) {
+   return nmea_read_zda (sim->nmea, zda);
 }
 
 /*!
