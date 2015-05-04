@@ -24,10 +24,6 @@
  */
 #include <drv/nmea.h>
 
-/*!
- * \name Static data types
- */
-//!@{
 /*
  * NMEA Sentences
  *
@@ -89,7 +85,7 @@ static const parse_obj_en _VTG[] = {
 static const parse_obj_en _ZDA[] = {
    _msgid, _utc, _day, _month, _year, _zone_h, _zone_m, _null
 };
-//!@}
+
 
 
 /*
@@ -137,7 +133,7 @@ static int _read_valid (char *str, nmea_valid_en *valid);
 static int _get_sen (nmea_t *nmea);
 static int _get_token (char *str, char *token);
 static int _checksum_chk (char *str);
-static int _read_until (nmea_t *nmea, nmea_msgid_en id, int tries);
+static int _read_until (nmea_t *nmea, nmea_msgid_en id);
 static int _tokenise (nmea_t *nmea, const parse_obj_en *format, nmea_common_t *obj);
 //!@}
 
@@ -146,8 +142,6 @@ static int _tokenise (nmea_t *nmea, const parse_obj_en *format, nmea_common_t *o
 /*
  * ============== Tools ==============
  */
-//! \name Tools
-//!@{
 
 /*!
  * \brief
@@ -228,13 +222,11 @@ static char * _msgid_str (nmea_msgid_en id)
          return nmea_msgid[i].id_str;
    return NULL;
 }
-//!@}
+
 
 /*
  * ============== Extract tools ==============
  */
-//! \name Extract tools
-//!@{
 
 /*!
  * \brief
@@ -621,14 +613,12 @@ static int _read_valid (char *str, nmea_valid_en *valid) {
       *valid = NMEA_NOT_VALID;
    return 1;
 }
-//!@}
+
 
 
 /*
  * ============== Middle level ==============
  */
-//! \name Middle level
-//!@{
 
 /*!
  * \brief
@@ -701,25 +691,21 @@ static int _checksum_chk (char *str)
  *    with id \a id appears.
  * \param   nmea  Pointer to linked nmea data to use
  * \param   id    The desired message id sentence
- * \param   tries The maximum number of sentence to read from input
- *                before give up
  * \return        The status of the operation
  *    \arg  0     Fail
  *    \arg  1     Success
  */
-static int _read_until (nmea_t *nmea, nmea_msgid_en id, int tries)
+static int _read_until (nmea_t *nmea, nmea_msgid_en id)
 {
-   nmea_msgid_en s;
-   uint8_t to = (tries==0) ? 0:1;  // time out check
+   nmea_msgid_en s=NMEA_NULL;
 
-   // Read sentences until we find id
-   do {
-      _get_sen (nmea);
-      if ( !_checksum_chk ((char *)nmea->buf) )
-         return 0;
-      _read_sen_type ((char *)nmea->buf, &s);
-   } while (s != id && (!to || --tries));
-   return (to && !tries) ? 0 : 1;
+   _get_sen (nmea);
+   if ( !_checksum_chk ((char *)nmea->buf) )
+      return 0;
+   _read_sen_type ((char *)nmea->buf, &s);
+
+   if (s == id)   return 1;
+   else           return 0;
 }
 
 /*!
@@ -787,7 +773,7 @@ void _stream (nmea_t *nmea, char *str)
    while (*str)
       nmea->io.out (*str++);
 }
-//!@{
+
 
 
 /*
@@ -797,10 +783,7 @@ void _stream (nmea_t *nmea, char *str)
 /*
  * ========= Link and Glue functions ==============
  */
-/*
- * \name Link and Glue functions
- */
-//!@{
+
 /*!
  * Link buffer to nmea data
  */
@@ -819,31 +802,24 @@ void nmea_link_in (nmea_t *nmea, nmea_in_ft in) {
 void nmea_link_out (nmea_t *nmea, nmea_out_ft out) {
    nmea->io.out = out;
 }
-//!@}
+
 
 /*
  * ============== Set functions ================
  */
-/*
- * \name Set functions
- */
-//!@{
+
 /*!
  * Set buffer size
  */
 void nmea_set_buffer_size (nmea_t *nmea, int s) {
    nmea->buf_size = s;
 }
-//!@}
+
 
 /*
  * ============= User Functions ==============
  */
 
-/*
- * \name User Functions
- */
-//!@{
 /*!
  * \brief
  *    De-Initializes nmea parser used by the driver.
@@ -885,18 +861,17 @@ drv_status_en nmea_init (nmea_t *nmea)
  * \param   nmea  Pointer to linked nmea data struct to use
  * \param   gga   Pointer to gga data for the results
  *                The gga variable is written only when we have position fix
- * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid GGA sentence in stream
  *    \arg  DRV_BUSY    No GPS fix
  *    \arg  DRV_READY   Success, GPS fix
  */
-drv_status_en nmea_read_gga (nmea_t *nmea, nmea_gga_t *gga, int tries)
+drv_status_en nmea_read_gga (nmea_t *nmea, nmea_gga_t *gga)
 {
    nmea_common_t obj;
 
    obj.fix = NMEA_NOT_FIX;                         // mark data
-   if (_read_until (nmea, NMEA_GGA, tries) == 0)   // Read sentences until we find GGA
+   if (_read_until (nmea, NMEA_GGA) == 0)          // Read next sentences
       return DRV_ERROR;
    _tokenise (nmea, _GGA, &obj);                   // tokenise
 
@@ -920,18 +895,17 @@ drv_status_en nmea_read_gga (nmea_t *nmea, nmea_gga_t *gga, int tries)
  * \param   nmea  Pointer to linked nmea data struct to use
  * \param   gll   Pointer to gll data for the results
  *                The gll variable is written only when we have position fix
- * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid GLL sentence in stream
  *    \arg  DRV_BUSY    No GPS fix
  *    \arg  DRV_READY   Success, GPS fix
  */
-drv_status_en nmea_read_gll (nmea_t *nmea, nmea_gll_t *gll, int tries)
+drv_status_en nmea_read_gll (nmea_t *nmea, nmea_gll_t *gll)
 {
    nmea_common_t obj;
 
    obj.valid = NMEA_NOT_VALID;                     // mark data
-   if (_read_until (nmea, NMEA_GLL, tries) == 0)   // Read sentences until we find GLL
+   if (_read_until (nmea, NMEA_GLL) == 0)          // Read next sentences
       return DRV_ERROR;
    _tokenise (nmea, _GLL, &obj);                   // tokenise
 
@@ -952,21 +926,20 @@ drv_status_en nmea_read_gll (nmea_t *nmea, nmea_gll_t *gll, int tries)
  *    Read and extract GSA data from input stream
  * \param   nmea  Pointer to linked nmea data struct to use
  * \param   gsa   Pointer to gsa data for the results
- * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid GSA sentence in stream
  *    \arg  DRV_BUSY    No GPS fix
  *    \arg  DRV_READY   Success, GPS fix
  * \note    Not implemented yet
  */
-drv_status_en nmea_read_gsa (nmea_t *nmea, nmea_gsa_t *gsa, int tries)
+drv_status_en nmea_read_gsa (nmea_t *nmea, nmea_gsa_t *gsa)
 {
    nmea_common_t obj;
 
    // Read sentences until we find GSA
-   if (_read_until (nmea, NMEA_GSA, tries) == 0)
+   if (_read_until (nmea, NMEA_GSA) == 0)    // Read next sentences
       return DRV_ERROR;
-   _tokenise (nmea, _GSA, &obj);       // tokenise
+   _tokenise (nmea, _GSA, &obj);             // tokenise
 
    gsa->crap = 0;
    return DRV_READY;
@@ -977,19 +950,18 @@ drv_status_en nmea_read_gsa (nmea_t *nmea, nmea_gsa_t *gsa, int tries)
  *    Read and extract GSV data from input stream
  * \param   nmea  Pointer to linked nmea data struct to use
  * \param   gsv   Pointer to gsv data for the results
- * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid GSV sentence in stream
  *    \arg  DRV_BUSY    No GPS fix
  *    \arg  DRV_READY   Success, GPS fix
  * \note    Not implemented yet
  */
-drv_status_en nmea_read_gsv (nmea_t *nmea, nmea_gsv_t *gsv, int tries)
+drv_status_en nmea_read_gsv (nmea_t *nmea, nmea_gsv_t *gsv)
 {
    nmea_common_t obj;
 
    obj.sats = 0;                                   // mark data
-   if (_read_until (nmea, NMEA_GSV, tries) == 0)   // Read sentences until we find GSV
+   if (_read_until (nmea, NMEA_GSV) == 0)          // Read next sentences
       return DRV_ERROR;
    _tokenise (nmea, _GSV, &obj);                   // tokenise
 
@@ -1008,18 +980,17 @@ drv_status_en nmea_read_gsv (nmea_t *nmea, nmea_gsv_t *gsv, int tries)
  * \param   nmea  Pointer to linked nmea data struct to use
  * \param   rmc   Pointer to rmc data for the results
  *                The rmc variable is written only when we have position fix
- * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid RMC sentence in stream
  *    \arg  DRV_BUSY    No GPS fix
  *    \arg  DRV_READY   Success, GPS fix
  */
-drv_status_en nmea_read_rmc (nmea_t *nmea, nmea_rmc_t *rmc, int tries)
+drv_status_en nmea_read_rmc (nmea_t *nmea, nmea_rmc_t *rmc)
 {
    nmea_common_t obj;
 
    obj.valid = NMEA_NOT_VALID;                     // mark data
-   if (_read_until (nmea, NMEA_RMC, tries) == 0)   // Read sentences until we find RMC
+   if (_read_until (nmea, NMEA_RMC) == 0)          // Read next sentences
       return DRV_ERROR;
    _tokenise (nmea, _RMC, &obj);                   // tokenise
 
@@ -1044,18 +1015,17 @@ drv_status_en nmea_read_rmc (nmea_t *nmea, nmea_rmc_t *rmc, int tries)
  *    Read and extract VTG data from input stream
  * \param   nmea  Pointer to linked nmea data struct to use
  * \param   vtg   Pointer to vtg data for the results
- * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid VTG sentence in stream
  *    \arg  DRV_BUSY    No GPS fix
  *    \arg  DRV_READY   Success, GPS fix
  */
-drv_status_en nmea_read_vtg (nmea_t *nmea, nmea_vtg_t *vtg, int tries)
+drv_status_en nmea_read_vtg (nmea_t *nmea, nmea_vtg_t *vtg)
 {
    nmea_common_t obj;
 
    obj.speed_knt = -1;                             // mark data
-   if (_read_until (nmea, NMEA_VTG, tries) == 0)   // Read sentences until we find VTG
+   if (_read_until (nmea, NMEA_VTG) == 0)          // Read next sentences
       return DRV_ERROR;
    _tokenise (nmea, _VTG, &obj);                   // tokenise
 
@@ -1075,22 +1045,21 @@ drv_status_en nmea_read_vtg (nmea_t *nmea, nmea_vtg_t *vtg, int tries)
  *    Read and extract ZDA data from input stream
  * \param   nmea  Pointer to linked nmea data struct to use
  * \param   zda   Pointer to zda data for the results
- * \param   tries The maximum number of sentences to read before give up, 0 for unlimited
  * \return        The status of the operation
  *    \arg  DRV_ERROR   No valid ZDA sentence in stream
  *    \arg  DRV_BUSY    No GPS fix
  *    \arg  DRV_READY   Success, GPS fix
  */
-drv_status_en nmea_read_zda (nmea_t *nmea, nmea_zda_t *zda, int tries)
+drv_status_en nmea_read_zda (nmea_t *nmea, nmea_zda_t *zda)
 {
    nmea_common_t obj;
 
-   obj.year = 1980;                                // mark data
-   if (_read_until (nmea, NMEA_ZDA, tries) == 0)   // Read sentences until we find ZDA
+   obj.year = 0;                                   // mark data
+   if (_read_until (nmea, NMEA_ZDA) == 0)          // Read next sentences
       return DRV_ERROR;
    _tokenise (nmea, _ZDA, &obj);                   // tokenise
 
-   if (obj.year != 1980) {
+   if (obj.year != 0) {
       zda->time = obj.time;
       zda->day = obj.day;
       zda->month = obj.month;
@@ -1126,4 +1095,3 @@ drv_status_en nmea_write (nmea_t *nmea, char *msg)
 
    return DRV_READY;
 }
-//!@}

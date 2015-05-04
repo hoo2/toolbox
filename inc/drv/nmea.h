@@ -304,13 +304,13 @@ void nmea_set_buffer_size (nmea_t *nmea, int s);
 void nmea_deinit (nmea_t *nmea);
 drv_status_en nmea_init (nmea_t *nmea);
 
-drv_status_en nmea_read_gga (nmea_t *nmea, nmea_gga_t *gga, int tries);
-drv_status_en nmea_read_gll (nmea_t *nmea, nmea_gll_t *gll, int tries);
-drv_status_en nmea_read_gsa (nmea_t *nmea, nmea_gsa_t *gsa, int tries);
-drv_status_en nmea_read_gsv (nmea_t *nmea, nmea_gsv_t *gsv, int tries);
-drv_status_en nmea_read_rmc (nmea_t *nmea, nmea_rmc_t *rmc, int tries);
-drv_status_en nmea_read_vtg (nmea_t *nmea, nmea_vtg_t *vtg, int tries);
-drv_status_en nmea_read_zda (nmea_t *nmea, nmea_zda_t *zda, int tries);
+drv_status_en nmea_read_gga (nmea_t *nmea, nmea_gga_t *gga);
+drv_status_en nmea_read_gll (nmea_t *nmea, nmea_gll_t *gll);
+drv_status_en nmea_read_gsa (nmea_t *nmea, nmea_gsa_t *gsa);
+drv_status_en nmea_read_gsv (nmea_t *nmea, nmea_gsv_t *gsv);
+drv_status_en nmea_read_rmc (nmea_t *nmea, nmea_rmc_t *rmc);
+drv_status_en nmea_read_vtg (nmea_t *nmea, nmea_vtg_t *vtg);
+drv_status_en nmea_read_zda (nmea_t *nmea, nmea_zda_t *zdas);
 
 drv_status_en nmea_write( nmea_t *nmea, char *msg);
 //!@}
