@@ -234,7 +234,18 @@ inline drv_status_en simX8_read_vtg (simX8_t *sim, nmea_vtg_t *vtg) {
  *    \arg  DRV_READY   Success, GPS fix
  */
 inline drv_status_en simX8_read_zda (simX8_t *sim, nmea_zda_t *zda) {
-   return nmea_read_zda (sim->nmea, zda);
+   switch (nmea_read_zda (sim->nmea, zda)) {
+      default:
+      case DRV_ERROR:   return DRV_ERROR;
+      case DRV_BUSY:    return DRV_BUSY;
+      case DRV_READY:
+         if (zda->year > SIMX8_ZDA_YEAR)
+            return DRV_READY;
+         else {
+            memset ((void*)zda, 0, sizeof (nmea_zda_t));
+            return DRV_BUSY;
+         }
+   }
 }
 
 /*!

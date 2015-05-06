@@ -55,6 +55,10 @@ extern "C" {
 #define  NMEA_OUTPUT_DEFAULT           "PMTK314,-1"
 
 #define  SIMX8_NUMBER_OF_SENTENCES     (19)
+
+#define  SIMX8_ZDA_YEAR                (2014)
+//!< This is the least year number for invalid ZDA messages \sa simX8_read_zda()
+
 /*
  * ======= Data types ============
  */
