@@ -603,7 +603,7 @@ drv_status_en sd_init (int drv)
       // Enter Idle state
       if (_send_command (drv, SD_CMD8, 0x1AA) == 1) {
          // SDHC
-         for (n-0 ; n<4 ; ++n)   // Get trailing return value of R7 response
+         for (n=0 ; n<4 ; ++n)   // Get trailing return value of R7 response
             ocr[n] = _spi_rx (drv);
          if (ocr[2] == 0x01 && ocr[3] == 0xAA) {
             /*
