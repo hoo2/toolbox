@@ -36,16 +36,16 @@ extern "C" {
 
 typedef volatile struct
 {
-   float       out;
-   float       lambda;
+   double      out;
+   double      lambda;
 }leaky_int_t;
 
 
 /* =================== Exported Functions ===================== */
 
 void leaky_int_deinit (leaky_int_t* li);
-void leaky_int_init (leaky_int_t* li, float l);
-float leaky_int (leaky_int_t* li, float value);
+void leaky_int_init (leaky_int_t* li, double l);
+double leaky_int (leaky_int_t* li, double value);
 
 #ifdef __cplusplus
 }
