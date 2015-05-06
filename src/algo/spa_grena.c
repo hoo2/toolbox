@@ -251,13 +251,12 @@ void spa_calculation (spa_t *spa, double *elev, double *azimuth)
 
    // local coordinates of the sun
    *elev = e0 - De;
-   s = M_PI + atan2(sht, cht*sin_phy - sin_Dt*cos_phy);
-   *azimuth = s;
+   *azimuth = M_PI + atan2 (sht, cht*sin_phy - sin_Dt*cos_phy);
    /*
     * xxx:
     * The original equation returns azimuth [-pi, pi] with zero azimuth
     * towards south, and positive in the western hemisphere.
     * Shift azimuth pointing North, by adding pi to it. It is also shifted
-    * in [0, 2pi].
+    * in [0, 2pi).
     */
 }
