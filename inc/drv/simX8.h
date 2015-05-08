@@ -56,7 +56,8 @@ extern "C" {
 
 #define  SIMX8_NUMBER_OF_SENTENCES     (19)
 
-#define  SIMX8_ZDA_YEAR                (2014)
+#define  SIMX8_ZDA_EPOCH               (1430438400)      // 2015-05-01 00:00:00
+
 //!< This is the least year number for invalid ZDA messages \sa simX8_read_zda()
 
 /*

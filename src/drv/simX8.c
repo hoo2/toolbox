@@ -234,12 +234,26 @@ inline drv_status_en simX8_read_vtg (simX8_t *sim, nmea_vtg_t *vtg) {
  *    \arg  DRV_READY   Success, GPS fix
  */
 inline drv_status_en simX8_read_zda (simX8_t *sim, nmea_zda_t *zda) {
+   struct tm _tm;
+
    switch (nmea_read_zda (sim->nmea, zda)) {
       default:
       case DRV_ERROR:   return DRV_ERROR;
       case DRV_BUSY:    return DRV_BUSY;
       case DRV_READY:
-         if (zda->year > SIMX8_ZDA_YEAR)
+         /*
+          * SIM28 outputs crap date before fix, so we have to be sure
+          * about the correct one. For that we compare it against a predefine
+          * epoch. \sa SIMX8_ZDA_EPOCH
+          */
+         _tm.tm_year = zda->year - 1900;
+         _tm.tm_mon = zda->month - 1;
+         _tm.tm_mday = zda->day;
+         _tm.tm_hour = zda->time.hour;
+         _tm.tm_min = zda->time.min;
+         _tm.tm_sec = zda->time.sec;
+
+         if (mktime (&_tm) > SIMX8_ZDA_EPOCH)
             return DRV_READY;
          else {
             memset ((void*)zda, 0, sizeof (nmea_zda_t));
