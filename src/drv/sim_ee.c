@@ -175,7 +175,7 @@ static see_status_en _page_swap (see_t *see)
    see_page_status_en status;
    byte_t        data;
    see_idx_t     idx;
-   see_status_en ee_st;
+   see_status_en ee_st = EE_SUCCESS;
  
    // From - To dispatcher
    if ( _valid_page (see) == EE_PAGE0 ) {
@@ -602,7 +602,7 @@ void see_deinit (see_t *see)
 drv_status_en see_init (see_t *see)
 {
    drv_status_en        drv_st;
-   see_status_en        ee_st;
+   see_status_en        ee_st = EE_SUCCESS;
    see_page_status_en   pg0_st, pg1_st;
    see_page_status_en   page_st;
 
