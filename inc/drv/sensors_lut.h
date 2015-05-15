@@ -36,11 +36,13 @@
 
 /* ================        General         ======================*/
 #define  TEMP_ERROR    (-274.0)        // Bellow Absolute zero
+#define  PRESS_ERROR   (-100.0)        // Bellow "insane" number
 
 // Local type Definition
 typedef float  res_t;
 typedef float  temp_t;
 typedef float  lux_t;
+typedef float  press_t;
 typedef float  lut_t;
 
 /*
