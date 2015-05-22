@@ -45,7 +45,7 @@ extern "C" {
 #define  _J_       "\xD8"      // Ksi
 #define  _O_       "O"
 #define  _P_       "\xD9"      // Pi
-//#define  _R_       "P"
+#define  _R_       "P"
 #define  _S_       "\xDA"      // Sigma
 #define  _T_       "T"
 //#define  _Y_       "Y"
