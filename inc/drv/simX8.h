@@ -54,7 +54,7 @@ extern "C" {
 #define  NMEA_OUTPUT_INIT_MASK_STR     "PMTK314,"
 #define  NMEA_OUTPUT_DEFAULT           "PMTK314,-1"
 
-#define  SIMX8_NUMBER_OF_SENTENCES     (19)
+#define  SIMX8_NUMBER_OF_SENTENCES     (18)
 
 #define  SIMX8_ZDA_EPOCH               (1430438400)      // 2015-05-01 00:00:00
 
