@@ -52,7 +52,7 @@ extern "C" {
 #define  UI_IT_EN                (UI_MENU_MASK_SIZE-1)                           /*!< EN Mask item. Last position is always enabled */
 #define  UI_IT_DIS               (0)                                             /*!< DIS Mask item. First position is always disabled */
 #define  UI_MM_EN                {UI_IT_EN, UI_IT_EN, UI_IT_EN, UI_IT_DIS}       /*!< Always enable item */
-#define  UI_MM_DIS               {UI_IT_DIS, UI_IT_DIS, UI_IT_DIS, UI_IT_EN)}    /*!< Always disable item */
+#define  UI_MM_DIS               {UI_IT_DIS, UI_IT_DIS, UI_IT_DIS, UI_IT_EN}     /*!< Always disable item */
 
 #ifdef   __cplusplus
 }
