@@ -87,7 +87,7 @@ extern "C" {
 #include <dsp/moving_av.h>
 #include <dsp/vectors.h>
 #include <dsp/conv.h>
-#include <dsp/corr.h>
+#include <dsp/xcorr.h>
 #include <dsp/dft.h>
 
 /*!

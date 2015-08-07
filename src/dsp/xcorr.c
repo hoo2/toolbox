@@ -1,5 +1,5 @@
 /*
- * \file corr.c
+ * \file xcorr.c
  * \brief
  *    A target independent cross-correlation functionality
  *
@@ -21,7 +21,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#include <dsp/corr.h>
+#include <dsp/xcorr.h>
 
 
 #define  _rcorr_body()                                         \

@@ -1,5 +1,5 @@
 /*
- * \file corr.h
+ * \file xcorr.h
  * \brief
  *    A target independent cross-correlation functionality
  *
@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef __corr_h__
-#define __corr_h__
+#ifndef __xcorr_h__
+#define __xcorr_h__
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,11 +77,11 @@ void cxcorr_d (_Complex double *y, _Complex double *t, int st, _Complex double *
                                      _Complex int*: cxcorr_i,  \
                                   _Complex double*: cxcorr_d,  \
                                            default: xcorr_i)(y, t, st, x, sx)
-#endif   // #ifndef conv
+#endif   // #ifndef xcorr
 #endif   // #if __STDC_VERSION__ >= 201112L
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // #ifndef __conv_h__
+#endif // #ifndef __xcorr_h__
