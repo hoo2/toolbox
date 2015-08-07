@@ -89,6 +89,7 @@ extern "C" {
 #include <dsp/conv.h>
 #include <dsp/xcorr.h>
 #include <dsp/dft.h>
+#include <dsp/fft.h>
 
 /*!
  * \defgroup std
