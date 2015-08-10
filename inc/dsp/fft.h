@@ -41,12 +41,12 @@ extern "C" {
 #define M_INVLN2 1.4426950408889633870E0
 #endif
 
-void rfft_f (float *x, float *X, uint32_t n, uint32_t fwd);
-void rfft_d (double *x, double *X, uint32_t n, uint32_t fwd);
-
-void cfft_r (double *x, double *X, uint32_t n, uint32_t fwd);
+void rfft_pcd (double *x, double *X, uint32_t n, uint32_t fwd);
+void cfft_pcd (double *x, double *X, uint32_t n, uint32_t fwd);
 void cfft_c (_Complex double *x, _Complex double *X, uint32_t n, uint32_t fwd);
 
+
+void four1(double* data, unsigned long nn);
 #ifdef __cplusplus
 }
 #endif
