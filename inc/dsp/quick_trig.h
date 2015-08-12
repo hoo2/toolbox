@@ -29,31 +29,12 @@
 extern "C" {
 #endif
 
-#ifndef M_PI
-#define M_PI      3.14159265358979323846
-#endif
+#include <dsp/dsp.h>
 
-#ifndef M_PI_2
-#define M_PI_2    1.57079632679489661923
-#endif
-
-#ifndef M_1_PI
-#define M_1_PI    0.31830988618379067154
-#endif
-
-#ifndef M_2PI
-#define M_2PI     6.28318530717958647692
-#endif
-
-#define QTR_A    -0.40528473456935108577
-#define QTR_B     1.27323954473516268615
-#define QTR_P     0.225
-
-
-double qsin (double th);
-double qcos (double th);
-double qtan (double th);
-double qcot (double th);
+double qsin (double th) __optimize__ ;
+double qcos (double th) __optimize__ ;
+double qtan (double th) __optimize__ ;
+double qcot (double th) __optimize__ ;
 
 #ifdef __cplusplus
 }

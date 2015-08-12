@@ -29,8 +29,8 @@
 extern "C" {
 #endif
 
-#include <inttypes.h>
-#include <stdlib.h>
+#include <dsp/dsp.h>
+
 
 /* =================== Data types ===================== */
 // Data type for Buffer filtering
@@ -46,7 +46,7 @@ typedef volatile struct
 
 void moving_av_deinit (moving_av_t* filter);
 int moving_av_init (moving_av_t* filter, uint8_t points);    // Init the Moving average points
-float moving_av (moving_av_t* filter, float value);   // return the filtered value
+float moving_av (moving_av_t* filter, float value) __optimize__ ;   // return the filtered value
 
 #ifdef __cplusplus
 }

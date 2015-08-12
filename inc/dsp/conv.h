@@ -29,17 +29,16 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
-#include <tbx_types.h>
+#include <dsp/dsp.h>
 
 /*
  * ================== Public API ====================
  */
-void conv_i (int *y, int *h, int sh, int *x, int sx);
-void conv_f (float *y, float *h, int sh, float *x, int sx);
-void conv_d (double *y, double *h, int sh, double *x, int sx);
-void cconv_i (complex_i_t *y, complex_i_t *h, int sh, complex_i_t *x, int sx);
-void cconv_d (complex_d_t *y, complex_d_t *h, int sh, complex_d_t *x, int sx);
+void conv_i (int *y, int *h, int sh, int *x, int sx) __optimize__ ;
+void conv_f (float *y, float *h, int sh, float *x, int sx) __optimize__ ;
+void conv_d (double *y, double *h, int sh, double *x, int sx) __optimize__ ;
+void cconv_i (complex_i_t *y, complex_i_t *h, int sh, complex_i_t *x, int sx) __optimize__ ;
+void cconv_d (complex_d_t *y, complex_d_t *h, int sh, complex_d_t *x, int sx) __optimize__ ;
 
 
 #if __STDC_VERSION__ >= 201112L

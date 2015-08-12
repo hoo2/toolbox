@@ -23,6 +23,13 @@
  *
  */
 #include <dsp/quick_trig.h>
+
+#define QTR_A    -0.40528473456935108577
+#define QTR_B     1.27323954473516268615
+#define QTR_P     0.225
+
+static double _abs (double x) __optimize__ ;
+
 static double _abs (double x) {
    return (x<0) ? -x : x;
 }
@@ -48,7 +55,7 @@ double qsin (double th)
 {
    double r;
 
-   if (th>M_PI)   th -= M_2PI;         // angle shift
+   if (th>M_PI)   th -= 2*M_PI;        // angle shift
    r = QTR_A*th*_abs(th) + QTR_B*th;   // r = Ath^2 + Bth + C
    r = r + QTR_P*(r*_abs(r) - r);      // Q = 1-P => r = Qr + Pr^2
    return r;
@@ -68,7 +75,7 @@ double qcos (double th)
    double r;
 
    th += M_PI_2;
-   if (th>M_PI)   th -= M_2PI;         // angle shift
+   if (th>M_PI)   th -= 2*M_PI;        // angle shift
    r = QTR_A*th*_abs(th) + QTR_B*th;   // r = Ath^2 + Bth + C
    r = r + QTR_P*(r*_abs(r) - r);      // Q = 1-P => r = Qr + Pr^2
    return r;

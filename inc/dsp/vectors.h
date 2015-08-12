@@ -29,50 +29,47 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
-#include <complex.h>
-#include <tbx_types.h>
-#include <math.h>
+#include <dsp/dsp.h>
 
 /*
  * ================== Public API ====================
  */
 
-void vadd_i (int *y, int *a, int *b, int length);
-void vadd_f (float *y, float *a, float *b, int length);
-void vadd_d (double *y, double *a, double *b, int length);
-void vcadd_i (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length);
-void vcadd_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length);
+void vadd_i (int *y, int *a, int *b, int length) __optimize__ ;
+void vadd_f (float *y, float *a, float *b, int length) __optimize__ ;
+void vadd_d (double *y, double *a, double *b, int length) __optimize__ ;
+void vcadd_i (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __optimize__ ;
+void vcadd_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
 
-void vsub_i (int *y, int *a, int *b, int length);
-void vsub_f (float *y, float *a, float *b, int length);
-void vsub_d (double *y, double *a, double *b, int length);
-void vcsub_i (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length);
-void vcsub_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length);
+void vsub_i (int *y, int *a, int *b, int length) __optimize__ ;
+void vsub_f (float *y, float *a, float *b, int length) __optimize__ ;
+void vsub_d (double *y, double *a, double *b, int length) __optimize__ ;
+void vcsub_i (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __optimize__ ;
+void vcsub_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
 
-void vemul_i (int *y, int *a, int *b, int length);
-void vemul_f (float *y, float *a, float *b, int length);
-void vemul_d (double *y, double *a, double *b, int length);
-void vcemul_i (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length);
-void vcemul_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length);
+void vemul_i (int *y, int *a, int *b, int length) __optimize__ ;
+void vemul_f (float *y, float *a, float *b, int length) __optimize__ ;
+void vemul_d (double *y, double *a, double *b, int length) __optimize__ ;
+void vcemul_i (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __optimize__ ;
+void vcemul_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
 
-int vediv_i (int *y, int *a, int *b, int length);
-int vediv_f (float *y, float *a, float *b, int length);
-int vediv_d (double *y, double *a, double *b, int length);
-int vcediv_i (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length);
-int vcediv_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length);
+int vediv_i (int *y, int *a, int *b, int length) __optimize__ ;
+int vediv_f (float *y, float *a, float *b, int length) __optimize__ ;
+int vediv_d (double *y, double *a, double *b, int length) __optimize__ ;
+int vcediv_i (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __optimize__ ;
+int vcediv_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
 
-int vdot_i (int *a, int *b, int length);
-float vdot_f (float *a, float *b, int length);
-double vdot_d (double *a, double *b, int length);
-complex_i_t vcdot_i (complex_i_t *a, complex_i_t *b, int length);
-complex_d_t vcdot_d (complex_d_t *a, complex_d_t *b, int length);
+int vdot_i (int *a, int *b, int length) __optimize__ ;
+float vdot_f (float *a, float *b, int length) __optimize__ ;
+double vdot_d (double *a, double *b, int length) __optimize__ ;
+complex_i_t vcdot_i (complex_i_t *a, complex_i_t *b, int length) __optimize__ ;
+complex_d_t vcdot_d (complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
 
-double vnorm_i (int *x, int length);
-double vnorm_f (float *x, int length);
-double vnorm_d (double *x, int length);
-double vcnorm_i (complex_i_t *x, int length);
-double vcnorm_d (complex_d_t *x, int length);
+double vnorm_i (int *x, int length) __optimize__ ;
+double vnorm_f (float *x, int length) __optimize__ ;
+double vnorm_d (double *x, int length) __optimize__ ;
+double vcnorm_i (complex_i_t *x, int length) __optimize__ ;
+double vcnorm_d (complex_d_t *x, int length) __optimize__ ;
 
 #if __STDC_VERSION__ >= 201112L
 
@@ -263,10 +260,10 @@ double vcnorm_d (complex_d_t *x, int length);
 #endif   // #if __STDC_VERSION__ >= 201112L
 
 
-void vcart (double *c, double *p);
-void vccart (complex_d_t *c, double *p);
-void vpolar (double *p, double *c);
-void vcpolar (double *p, complex_d_t c);
+void vcart (double *c, double *p) __optimize__ ;
+void vccart (complex_d_t *c, double *p) __optimize__ ;
+void vpolar (double *p, double *c) __optimize__ ;
+void vcpolar (double *p, complex_d_t c) __optimize__ ;
 
 #ifdef __cplusplus
 }

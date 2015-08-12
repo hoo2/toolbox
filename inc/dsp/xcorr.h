@@ -29,17 +29,16 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
-#include <complex.h>
+#include <dsp/dsp.h>
 
 /*
  * ================== Public API ====================
  */
-void xcorr_i (int *y, int *t, int st, int *x, int sx);
-void xcorr_f (float *y, float *t, int st, float *x, int sx);
-void xcorr_d (double *y, double *t, int st, double *x, int sx);
-void cxcorr_i (_Complex int *y, _Complex int *t, int st, _Complex int *x, int sx);
-void cxcorr_d (_Complex double *y, _Complex double *t, int st, _Complex double *x, int sx);
+void xcorr_i (int *y, int *t, int st, int *x, int sx) __optimize__ ;
+void xcorr_f (float *y, float *t, int st, float *x, int sx) __optimize__ ;
+void xcorr_d (double *y, double *t, int st, double *x, int sx) __optimize__ ;
+void cxcorr_i (_Complex int *y, _Complex int *t, int st, _Complex int *x, int sx) __optimize__ ;
+void cxcorr_d (_Complex double *y, _Complex double *t, int st, _Complex double *x, int sx) __optimize__ ;
 
 
 #if __STDC_VERSION__ >= 201112L

@@ -29,8 +29,8 @@
 extern "C" {
 #endif
 
-#include <inttypes.h>
-#include <math.h>
+#include <dsp/dsp.h>
+
 
 /* =================== Data types ===================== */
 
@@ -45,7 +45,7 @@ typedef volatile struct
 
 void leaky_int_deinit (leaky_int_t* li);
 void leaky_int_init (leaky_int_t* li, double l);
-double leaky_int (leaky_int_t* li, double value);
+double leaky_int (leaky_int_t* li, double value) __optimize__ ;
 
 #ifdef __cplusplus
 }
