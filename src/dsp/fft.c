@@ -26,22 +26,16 @@
 /*
  * Static functions
  */
-static uint32_t _log2 (int32_t n);
-static uint32_t _pow2 (uint32_t e);
-//static void _bit_reverse_f (float * x, unsigned long n);
-static void _bit_reverse_d (double *x, double *r, uint32_t n);
-static void _bit_reverse_c (_Complex double *x, _Complex double *r, uint32_t n);
-
-void _fft_loop_pcd (double *X, uint32_t n, uint32_t l);
+static uint32_t _log2 (int32_t n) __optimize__ ;
+static uint32_t _pow2 (uint32_t e) __optimize__ ;
+static void _bit_reverse_c (complex_d_t *x, complex_d_t *r, uint32_t n) __optimize__;
+static void _bit_reverse_cf (complex_f_t *x, complex_f_t *r, uint32_t n) __optimize__ ;
 
 /*
  * Static toolbox
  */
 
-#define _real(_z, _i)   ((_z)[2*(_i)])
-#define _imag(_z, _i)    ((_z)[2*(_i)+1])
-
-/*
+/*!
  * \brief
  *    Calculate the Log2N
  * \note    N has to be power of 2
@@ -56,6 +50,10 @@ static uint32_t _log2 (int32_t n) {
    return r-1;
 }
 
+/*!
+ * \brief
+ *    Calculate the 2^e power for integer e
+ */
 static uint32_t _pow2 (uint32_t e) {
    uint32_t r = 1;
 
@@ -68,230 +66,445 @@ static uint32_t _pow2 (uint32_t e) {
    }
 }
 
-static void _bit_reverse_d (double *x, double *r, uint32_t n)
-{
-   double tmp;
-   long i, j, k, n_2;
 
-   n_2 = n>>1;
-   for (i=1, j=n_2 ; i<n-1 ; ++i) {
-      if (i<=j) {
-         /* complex exchange */
-         tmp = x[i];
-         r[i] = x[j] ;
-         r[j] = tmp ;
-      }
-      for (k=n_2 ; k<=j ; k>>=1)
-         j = j-k;
-      j = j+k;
-   }
-   // Add the extra common nodes
-   r[0] = x[0];
-   r[n-1] = x[n-1];
+/*!
+ * \brief
+ *    The main body of bit reversal algorithm
+ */
+#define _bit_reverse_body()                     \
+{                                               \
+   uint32_t i, j, k, n_2;                       \
+   n_2 = n>>1;                                  \
+   for (i=1, j=n_2 ; i<n-1 ; ++i) {             \
+      if (i<=j) {                               \
+         /* complex exchange */                 \
+         tmp = x[i]; r[i] = x[j]; r[j] = tmp;   \
+      }                                         \
+      for (k=n_2 ; k<=j ; k>>=1)                \
+         j = j-k;                               \
+      j = j+k;                                  \
+   }                                            \
+   /* Add the extra common nodes */             \
+   r[0] = x[0]; r[n-1] = x[n-1];                \
 }
 
-static void _bit_reverse_pcd (double *x, double *r, uint32_t n)
-{
-   double tr, ti;
-   uint32_t i, j, k, n_2;
-
-   n_2 = n>>1;
-   for (i=1, j=n_2 ; i<n-1 ; ++i) {
-      if (i<=j) {
-         /* complex exchange */
-         tr = _real (x,i);
-         ti = _imag (x,i);
-         _real (r,i) = _real (x,j);
-         _imag (r,i) = _imag (x,j);
-         _real (r,j) = tr ;
-         _imag (r,j) = ti;
-      }
-      for (k=n_2 ; k<=j ; k>>=1)
-         j = j-k;
-      j = j+k;
-   }
-   // Add the extra common nodes
-   _real (r,0) = _real (x,0);
-   _imag (r,0) = _imag (x,0);
-   _real (r,n-1) = _real (x,n-1);
-   _imag (r,n-1) = _imag (x,n-1);
+/*!
+ * \brief
+ *    Bit reversal shorting algorithm using double precision
+ *    complex numbers.
+ *    This algorithm use an altered in place technique with two different
+ *    pointers for input and output. Hence the user can use it both
+ *    for in-place or not in-place situations.
+ *
+ * \param   x     Pointer to input signal
+ * \param   r     Pointer to output signal
+ * \param   n     Number of points
+ */
+static void _bit_reverse_c (complex_d_t *x, complex_d_t *r, uint32_t n) {
+   complex_d_t tmp;
+   _bit_reverse_body();
 }
 
-static void _bit_reverse_c (_Complex double *x, _Complex double *r, uint32_t n)
-{
-   _Complex double tmp;
-   long i, j, k, n_2;
-
-   n_2 = n>>1;
-   for (i=1, j=n_2 ; i<n-1 ; ++i) {
-      if (i<=j) {
-         /* complex exchange */
-         tmp = x[i];
-         r[i] = x[j] ;
-         r[j] = tmp ;
-      }
-      for (k=n_2 ; k<=j ; k>>=1)
-         j = j-k;
-      j = j+k;
-   }
-   // Add the extra common nodes
-   r[0] = x[0];
-   r[n-1] = x[n-1];
+/*!
+ * \brief
+ *    Bit reversal shorting algorithm using single precision
+ *    complex numbers.
+ *    This algorithm use an altered in place technique with two different
+ *    pointers for input and output. Hence the user can use it both
+ *    for in-place or not in-place situations.
+ *
+ * \param   x     Pointer to input signal
+ * \param   r     Pointer to output signal
+ * \param   n     Number of points
+ */
+static void _bit_reverse_cf (complex_f_t *x, complex_f_t *r, uint32_t n) {
+   complex_f_t tmp;
+   _bit_reverse_body();
 }
 
 
-void _fft_loop_pcd (double *X, uint32_t n, uint32_t l)
+/*!
+ * \brief
+ *    The main body of fft frequency domain synthesis algorithm
+ */
+#define  _fft_loop_cmplx(_x, _n, _l)      \
+{                                         \
+   w = 1.0 + I*0.0;                       \
+   le = _pow2 (_l);                       \
+   le_2 = le>>1;                          \
+   th = M_PI/le_2;                        \
+   s = cos (th) - I*sin (th);             \
+   /* Loop each sub-DFT  */               \
+   for (j=0 ; j<le_2 ; ++j) {             \
+      /* Loop each Butterfly */           \
+      for (i=j ; i<_n-1 ; i+=le) {        \
+         k = i+le_2;                      \
+         t = _x[k]*w;                     \
+         _x[k] = _x[i]-t;                 \
+         _x[i] += t;                      \
+      }                                   \
+      w *= s;                             \
+   }                                      \
+}
+
+/*!
+ * \brief
+ *    Calculate the double precision complex FFT using an in-place decimation
+ *    in time algorithm.
+ *    This algorithm use an altered in place technique with two different
+ *    pointers for time and frequency. Hence the user can use it both
+ *    for in-place or not in-place situations.
+ *    - Not in-place.   Use pointers to different arrays for time and frequency
+ *    - In-place        Use the same pointer for time and frequency
+ *
+ * \param   x     Pointer to size n time domain complex array
+ * \param   X     Pointer to size n frequency domain complex array
+ * \param   n     Number of points
+ * \return        None
+ */
+void fft_c (complex_d_t *x, complex_d_t *X, uint32_t n)
+{
+   uint32_t i, j, l, m;    // Loop counters
+   uint32_t k, le, le_2;
+   complex_d_t w, s, t;
+   double th;
+
+   // Bit reversal
+   _bit_reverse_c (x, X, n);
+
+   // Loop for each stage
+   m = _log2(n);
+   for (l=1 ; l<=m ; ++l)
+      _fft_loop_cmplx (X, n, l);
+}
+
+/*!
+ * \brief
+ *    Calculate the single precision complex FFT using an in-place decimation
+ *    in time algorithm.
+ *    This algorithm use an altered in place technique with two different
+ *    pointers for time and frequency. Hence the user can use it both
+ *    for in-place or not in-place situations.
+ *    - Not in-place.   Use pointers to different arrays for time and frequency
+ *    - In-place        Use the same pointer for time and frequency
+ *
+ * \param   x     Pointer to size n time domain complex array
+ * \param   X     Pointer to size n frequency domain complex array
+ * \param   n     Number of points
+ * \return        None
+ */
+void fft_cf (complex_f_t *x, complex_f_t *X, uint32_t n)
+{
+   uint32_t i, j, l, m;    // Loop counters
+   uint32_t k, le, le_2;
+   complex_f_t w, s, t;
+   float th;
+
+   // Bit reversal
+   _bit_reverse_cf (x, X, n);
+
+   // Loop for each stage
+   m = _log2(n);
+   for (l=1 ; l<=m ; ++l)
+      _fft_loop_cmplx (X, n, l);
+}
+
+/*!
+ * \brief
+ *    Calculate the double precision FFT for real signal, using complex FFT
+ *
+ *    The algorithm use the even/odd decomposition. The signal, placed in the real part
+ *    of the time domain used as an complex stream. The even points as the real part and the
+ *    odd points as imaginary part. After calculating the complex DFT (via the FFT, of course),
+ *    the spectra are separated using the even/odd decomposition. When two or more signals
+ *    need to be passed through the FFT, this technique reduces the execution time by about 35%.
+ *    The improvement isn't a full factor of two because of the calculation time
+ *    required for the even/odd decomposition.
+ *
+ *    This algorithm use an altered in place technique with two different
+ *    pointers for time and frequency. Hence the user can use it both
+ *    for in-place or not in-place situations.
+ *    - Not in-place.   Use pointers to different arrays for time and frequency
+ *    - In-place        Use the same pointer for time and frequency
+ *                      In this case time domain array must have 2*n size.
+ *
+ * \param   x     Pointer to size n time domain array
+ * \param   X     Pointer to size n frequency domain complex array
+ * \param   n     Number of points
+ * \return        None
+ */
+void fft_r (double *x, complex_d_t *X, uint32_t n)
 {
    uint32_t i, j;    // Loop counters
    uint32_t k, le, le_2;
-   double tr, ti, wr, wi, sr, si, th;
-
-   wr = 1;
-   wi = 0;
-   le = _pow2 (l);
-   le_2 = le>>1;
-   th = M_PI/le_2;
-   sr = cos (th);
-   si = -sin (th);
-   // Loop each sub-DFT
-   for (j=1 ; j<=le_2 ; ++j) {
-      // Loop each Butterfly
-      for (i=j-1 ; i<n-1 ; i+=le) {
-         k = i+le_2;
-         tr = _real(X,k)*wr - _imag(X,k)*wi;
-         ti = _real(X,k)*wi + _imag(X,k)*wr;
-         _real(X,k) = _real(X,i) - tr;
-         _imag(X,k) = _imag(X,i) - ti;
-         _real(X,i) += tr;
-         _imag(X,i) += ti;
-      }
-      tr = wr;
-      wr = tr*sr - wi*si;
-      wi = tr*si + wi*sr;
-   }
-
-}
-
-void rfft_pcd (double *x, double *X, uint32_t n, uint32_t fwd)
-{
-   uint32_t i;    // Loop counters
    uint32_t n_2, n_4, _3n_4, im, ip2, ipm;
+   complex_d_t w, s, t;
+   double th;
 
    // Calculate helpers
    n_2 = n>>1;
    n_4 = n_2>>1;
    _3n_4 = 3*n_4;
 
-   // Separate even and odd points from x to X
-   for (i=0; i<n_2 ; ++i) {
-      _real(X,i) = _real(x,2*i);
-      _imag(X,i) = _real(x, 2*i+1);
-   }
-
-   // Do the FFT to X
-   cfft_pcd (X, X, n_2, 1);
+   /*
+    * Cast real signal as complex, so even points
+    * are real part and odd points are complex
+    * Do the FFT to n/2 array
+    */
+   fft_c ((complex_d_t*)x, X, n_2);
 
    // Even/odd frequency domain decomposition
    for (i=1 ; i<n_4 ; ++i) {
       im = n_2 - i;
       ip2 = n_2 + i;
       ipm = n_2 + im;
-      _real(X, ip2) = (_imag(X, i) + _imag(X, im)) / 2;
-      _real(X, ipm) = _real(X, ip2);
-      _imag(X, ip2) = -(_real(X, i) - _real(X, im)) / 2;
-      _imag(X, ipm) = -_imag(X, ip2);
-      _real(X, i)   = (_real(X, i) + _real(X, im)) / 2;
-      _real(X, im)  = _real(X, i);
-      _imag(X, i)   = (_imag(X, i) - _imag(X, im)) / 2;
-      _imag(X, im)  = -_imag(X, i);
+      real(X[ip2]) = (imag(X[i]) + imag(X[im])) / 2;
+      real(X[ipm]) = real(X[ip2]);
+      imag(X[ip2]) = -(real(X[i]) - real(X[im])) / 2;
+      imag(X[ipm]) = -imag(X[ip2]);
+      real(X[i])   = (real(X[i]) + real(X[im])) / 2;
+      real(X[im])  = real(X[i]);
+      imag(X[i])   = (imag(X[i]) - imag(X[im])) / 2;
+      imag(X[im])  = -imag(X[i]);
    }
-   _real(X, _3n_4) = _imag(X, n_4);
-   _real(X, n_2) = _imag(X, 0);
-   _imag(X, 0) = _imag(X, n_4) = _imag(X, n_2) = _imag(X, _3n_4) = 0;
+   real(X[_3n_4]) = imag(X[n_4]);
+   real(X[n_2]) = imag(X[0]);
+   imag(X[0]) = imag(X[n_4]) = imag(X[n_2]) = imag(X[_3n_4]) = 0;
 
    // Do the last stage of fft
-   _fft_loop_pcd (X, n, _log2(n));
-
-   // In inverse fft
+   _fft_loop_cmplx (X, n, _log2(n));
 }
 
-/*
+/*!
  * \brief
- *    If fwd is true, calculate the complex FFT using an in-place decimation
- *    in time algorithm.
- *    User can use the same or separate arrays to store input and output.
- *    The arrays must have size 2*n. The inputs and outputs are packed arrays
- *    of floating point numbers. In a packed array the real and imaginary parts
- *    of each complex number are placed in alternate neighboring elements.
- *    For ex:
- *       x[0] = Re(z[0])
- *       x[1] = Im(z[0])
- *       x[2] = Re(z[1])
- *       x[3] = Im(z[1])
- *    If fwd is false, calculate the inverse complex FFT
+ *    Calculate the single precision FFT for real signal, using complex FFT
  *
- * \param   x     Pointer to input complex packed array
- * \param   X     Pointer to output complex packed array
- * \param   n     Number of complex numbers, half the size of
- *                input and output arrays
- * \param   fwd   Select the forward or inverse FFT
- *    \arg  0     Inverse FFT
- *    \arg  1     Forward FFT
+ *    The algorithm use the even/odd decomposition. The signal, placed in the real part
+ *    of the time domain used as an complex stream. The even points as the real part and the
+ *    odd points as imaginary part. After calculating the complex DFT (via the FFT, of course),
+ *    the spectra are separated using the even/odd decomposition. When two or more signals
+ *    need to be passed through the FFT, this technique reduces the execution time by about 35%.
+ *    The improvement isn't a full factor of two because of the calculation time
+ *    required for the even/odd decomposition.
+ *
+ *    This algorithm use an altered in place technique with two different
+ *    pointers for time and frequency. Hence the user can use it both
+ *    for in-place or not in-place situations.
+ *    - Not in-place.   Use pointers to different arrays for time and frequency
+ *    - In-place        Use the same pointer for time and frequency.
+ *                      In this case time domain array must have 2*n size.
+ *
+ * \param   x     Pointer to size n time domain array
+ * \param   X     Pointer to size n frequency domain complex array
+ * \param   n     Number of points
  * \return        None
  */
-void cfft_pcf (float *x, float *X, uint32_t n, uint32_t fwd)
+void fft_rf (float *x, complex_f_t *X, uint32_t n)
 {
+   uint32_t i, j;    // Loop counters
+   uint32_t k, le, le_2;
+   uint32_t n_2, n_4, _3n_4, im, ip2, ipm;
+   complex_f_t w, s, t;
+   float th;
 
+   // Calculate helpers
+   n_2 = n>>1;
+   n_4 = n_2>>1;
+   _3n_4 = 3*n_4;
+
+   /*
+    * Cast real signal as complex, so even points
+    * are real part and odd points are complex
+    * Do the FFT to n/2 array
+    */
+   fft_cf ((complex_f_t*)x, X, n_2);
+
+   // Even/odd frequency domain decomposition
+   for (i=1 ; i<n_4 ; ++i) {
+      im = n_2 - i;
+      ip2 = n_2 + i;
+      ipm = n_2 + im;
+      realf(X[ip2]) = (imagf(X[i]) + imagf(X[im])) / 2;
+      realf(X[ipm]) = realf(X[ip2]);
+      imagf(X[ip2]) = -(realf(X[i]) - realf(X[im])) / 2;
+      imagf(X[ipm]) = -imagf(X[ip2]);
+      realf(X[i])   = (realf(X[i]) + realf(X[im])) / 2;
+      realf(X[im])  = realf(X[i]);
+      imagf(X[i])   = (imagf(X[i]) - imagf(X[im])) / 2;
+      imagf(X[im])  = -imagf(X[i]);
+   }
+   realf(X[_3n_4]) = imagf(X[n_4]);
+   realf(X[n_2]) = imagf(X[0]);
+   imagf(X[0]) = imagf(X[n_4]) = imagf(X[n_2]) = imagf(X[_3n_4]) = 0;
+
+   // Do the last stage of fft
+   _fft_loop_cmplx (X, n, _log2(n));
 }
 
-/*
+
+/*!
  * \brief
- *    If fwd is true, calculate the complex FFT using an in-place decimation
- *    in time algorithm.
- *    User can use the same or separate arrays to store input and output.
- *    The arrays must have size 2*n. The inputs and outputs are packed arrays
- *    of floating point numbers. In a packed array the real and imaginary parts
- *    of each complex number are placed in alternate neighboring elements.
- *    For ex:
- *       x[0] = Re(z[0])
- *       x[1] = Im(z[0])
- *       x[2] = Re(z[1])
- *       x[3] = Im(z[1])
- *    If fwd is false, calculate the inverse complex FFT
+ *    Calculate the double precision inverse complex FFT using an
+ *    in-place decimation in time algorithm.
+ *    This algorithm use an altered in place technique with two different
+ *    pointers for time and frequency. Hence the user can use it both
+ *    for in-place or not in-place situations.
+ *    - Not in-place.   Use pointers to different arrays for time and freq
+ *    - In-place        Use the same pointer for time and frequency
  *
- * \param   x     Pointer to input complex packed array
- * \param   X     Pointer to output complex packed array
- * \param   n     Number of complex numbers, half the size of
- *                input and output arrays
- * \param   fwd   Select the forward or inverse FFT
- *    \arg  0     Inverse FFT
- *    \arg  1     Forward FFT
+ * \param   X     Pointer to size n frequency domain complex array
+ * \param   x     Pointer to size n time domain complex array
+ * \param   n     Number of points
  * \return        None
  */
-void cfft_pcd (double *x, double *X, uint32_t n, uint32_t fwd)
+void ifft_c (complex_d_t *X, complex_d_t *x, uint32_t n)
 {
-   uint32_t i, l, m;
+   uint32_t i, j, l, m;    // Loop counters
+   uint32_t k, le, le_2;
+   complex_d_t w, s, t;
+   double th;
 
    // Bit reversal
-   _bit_reverse_pcd (x, X, n);
+   _bit_reverse_c (X, x, n);
 
-   // In inverse FFT perform a sign change to Im part
-   for (i=0 ; !fwd && i<n ; ++i)
-      _imag (X,i) = -_imag (X,i);
+   // perform a sign change to Im part first
+   for (i=0 ; i<n ; ++i)
+      imag(x[i]) = -imag(x[i]);
 
    // Loop for each stage
    m = _log2(n);
    for (l=1 ; l<=m ; ++l)
-      _fft_loop_pcd (X, n, l);
+      _fft_loop_cmplx (x, n, l);
 
-   // In inverse FFT perform a scale by n and a sign change to Im part
-   for (i=0 ; !fwd && i<n ; ++i) {
-      _real(X,i) = _real(X,i)/n;
-      _imag(X,i) = -_imag(X,i)/n;
-   }
+   // Take the conjugate and scale by n
+   for (i=0 ; i<n ; ++i)
+      x[i] = conj (x[i])/n;
 }
 
+/*
+ * \brief
+ *    Calculate the single precision inverse complex FFT using an
+ *    in-place decimation in time algorithm.
+ *    This algorithm use an altered in place technique with two different
+ *    pointers for time and frequency. Hence the user can use it both
+ *    for in-place or not in-place situations.
+ *    - Not in-place.   Use pointers to different arrays for time and freq
+ *    - In-place        Use the same pointer for time and frequency
+ *
+ * \param   X     Pointer to size n frequency domain complex array
+ * \param   x     Pointer to size n time domain complex array
+ * \param   n     Number of points
+ * \return        None
+ */
+void ifft_cf (complex_f_t *X, complex_f_t *x, uint32_t n)
+{
+   uint32_t i, j, l, m;    // Loop counters
+   uint32_t k, le, le_2;
+   complex_f_t w, s, t;
+   float th;
 
+   // Bit reversal
+   _bit_reverse_cf (X, x, n);
 
+   // perform a sign change to Im part first
+   for (i=0 ; i<n ; ++i)
+      imag(x[i]) = -imag(x[i]);
 
+   // Loop for each stage
+   m = _log2(n);
+   for (l=1 ; l<=m ; ++l)
+      _fft_loop_cmplx (x, n, l);
+
+   // Take the conjugate and scale by n
+   for (i=0 ; i<n ; ++i)
+      x[i] = conjf (x[i])/n;
+}
+
+/*!
+ * \brief
+ *    Calculate the double precision inverse FFT for real signal, using complex FFT
+ *
+ *    The algorithm use the even/odd decomposition. The signal, placed in the frequency domain
+ *    is used as an real stream by combining the real and imaginary parts. After calculating the
+ *    real inverse DFT (via the iFFT, of course), the spectra must combine again and scaled by n.
+ *    This technique reduces the execution time by about 35%.
+ *
+ *    This algorithm use an altered in place technique with two different
+ *    pointers for time and frequency. Hence the user can use it both
+ *    for in-place or not in-place situations.
+ *    - Not in-place.   Use pointers to different arrays for time and frequency
+ *    - In-place        Use the same pointer for time and frequency
+ *
+ * \warning
+ *    Due to inner calculations based on duality property of the DFT, the time domain
+ *    and frequency domain signals MUST have the same actual size in bytes. So the real
+ *    time domain pointers MUST point to arrays with size 2*n
+ *
+ * \param   X     Pointer to size n frequency domain complex array
+ * \param   x     Pointer to size 2*n time domain array
+ * \param   n     Number of points
+ * \return        None
+ */
+void ifft_r (complex_d_t *X, double *x, uint32_t n)
+{
+   uint32_t i, _2n;
+   complex_d_t *xx = (complex_d_t*)x;
+
+   // Add real and imaginary part
+   for (i=0 ; i<n ; ++i)
+      x[i] = real(X[i]) + imag(X[i]);
+
+   // Calculate the real FFT from x
+   fft_r (x, xx, n);
+
+   // place the signal to the first half of the array
+   for (i=0 ; i<n ; ++i)
+      x[i] = (real(xx[i]) + imag(xx[i])) / n;
+   for (i=n, _2n = 2*n; i<_2n ; ++i)
+      x[i] = 0;
+}
+
+/*!
+ * \brief
+ *    Calculate the single precision inverse FFT for real signal, using complex FFT
+ *
+ *    The algorithm use the even/odd decomposition. The signal, placed in the frequency domain
+ *    is used as an real stream by combining the real and imaginary parts. After calculating the
+ *    real inverse DFT (via the iFFT, of course), the spectra must combine again and scaled by n.
+ *    This technique reduces the execution time by about 35%.
+ *
+ *    This algorithm use an altered in place technique with two different
+ *    pointers for time and frequency. Hence the user can use it both
+ *    for in-place or not in-place situations.
+ *    - Not in-place.   Use pointers to different arrays for time and frequency
+ *    - In-place        Use the same pointer for time and frequency
+ *
+ * \warning
+ *    Due to inner calculations based on duality property of the DFT, the time domain
+ *    and frequency domain signals MUST have the same actual size in bytes. So the real
+ *    time domain pointers MUST point to arrays with size 2*n
+ *
+ * \param   X     Pointer to size n frequency domain complex array
+ * \param   x     Pointer to size 2*n time domain array
+ * \param   n     Number of points
+ * \return        None
+ */
+void ifft_rf (complex_f_t *X, float *x, uint32_t n)
+{
+   uint32_t i, _2n;
+   complex_f_t *xx = (complex_f_t*)x;
+
+   // Add real and imaginary part
+   for (i=0 ; i<n ; ++i)
+      x[i] = real(X[i]) + imag(X[i]);
+
+   // Calculate the real FFT from x
+   fft_rf (x, xx, n);
+
+   // place the signal to the first half of the array
+   for (i=0 ; i<n ; ++i)
+      x[i] = (realf(xx[i]) + imagf(xx[i])) / n;
+   for (i=n, _2n = 2*n; i<_2n ; ++i)
+      x[i] = 0;
+}
 

@@ -84,9 +84,16 @@ typedef enum
 /*!
  * Complex types
  */
-typedef _Complex double    complex_d_t;
-typedef _Complex int       complex_i_t;
+typedef double _Complex    complex_d_t;
+typedef float _Complex     complex_f_t;
+typedef int _Complex       complex_i_t;
 
+#define  real(_z)       (((double*)&(_z))[0])
+#define  imag(_z)       (((double*)&(_z))[1])
+#define  realf(_z)      (((float*)&(_z))[0])
+#define  imagf(_z)      (((float*)&(_z))[1])
+#define  reali(_z)      (((int*)&(_z))[0])
+#define  imagi(_z)      (((int*)&(_z))[1])
 
 #ifdef __cplusplus
 }
