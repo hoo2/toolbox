@@ -224,9 +224,9 @@ complex_d_t vdot_cd (complex_d_t *a, complex_d_t *b, int length) {complex_d_t re
 float vnorm_i (int *x, int length) { float res; _vnorm_body_r(); }
 float vnorm_f (float *x, int length) { float res; _vnorm_body_r(); }
 double vnorm_d (double *x, int length) { double res; _vnorm_body_r(); }
-float vnorm_ci (complex_i_t *x, int length) { complex_f_t res; _vnorm_body_c(); }
-float vnorm_cf (complex_f_t *x, int length) { complex_f_t res; _vnorm_body_c(); }
-double vnorm_cd (complex_d_t *x, int length) { complex_d_t res; _vnorm_body_c(); }
+complex_f_t vnorm_ci (complex_i_t *x, int length) { complex_f_t res; _vnorm_body_c(); }
+complex_f_t vnorm_cf (complex_f_t *x, int length) { complex_f_t res; _vnorm_body_c(); }
+complex_d_t vnorm_cd (complex_d_t *x, int length) { complex_d_t res; _vnorm_body_c(); }
 #undef _vnorm_body_r
 #undef _vnorm_body_c
 

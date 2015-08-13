@@ -236,9 +236,9 @@ complex_d_t vdot_cd (complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
 float vnorm_i (int *x, int length) __optimize__ ;
 float vnorm_f (float *x, int length) __optimize__ ;
 double vnorm_d (double *x, int length) __optimize__ ;
-float vnorm_ci (complex_i_t *x, int length) __optimize__ ;
-float vnorm_cf (complex_f_t *x, int length) __optimize__ ;
-double vnorm_cd (complex_d_t *x, int length) __optimize__ ;
+complex_f_t vnorm_ci (complex_i_t *x, int length) __optimize__ ;
+complex_f_t vnorm_cf (complex_f_t *x, int length) __optimize__ ;
+complex_d_t vnorm_cd (complex_d_t *x, int length) __optimize__ ;
 
 #if __STDC_VERSION__ >= 201112L
 #ifndef vnorm
@@ -293,7 +293,6 @@ void vcart_d (double *c, double *p) __optimize__ ;
  * \param   p  Pointer to polar vector {r,th}
  * \return  none
  */
- */
 #define vcart(c, p) _Generic((p),         \
                int*: vcart_i,             \
              float*: vcart_f,             \
@@ -326,7 +325,6 @@ void vpolar_cd (double *p, complex_d_t c) __optimize__ ;
  * \param   p  Pointer to polar vector {r,th}
  * \param   c  Pointer to Cartesian vector {x,y}, or complex number.
  * \return  none
- */
  */
 #define vpolar(p, c) _Generic((c),        \
                int*: vpolar_i,            \
