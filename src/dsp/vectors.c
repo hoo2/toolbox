@@ -49,12 +49,9 @@
 void vadd_i (int *y, int *a, int *b, int length) { _vadd_body(); }
 void vadd_f (float *y, float *a, float *b, int length) {_vadd_body(); }
 void vadd_d (double *y, double *a, double *b, int length) { _vadd_body(); }
-void vcadd_i (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) {
-   _vadd_body();
-}
-void vcadd_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) {
-   _vadd_body();
-}
+void vadd_ci (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) { _vadd_body(); }
+void vadd_cf (complex_f_t *y, complex_f_t *a, complex_f_t *b, int length) { _vadd_body(); }
+void vadd_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) { _vadd_body(); }
 #undef _vadd_body
 
 /*!
@@ -79,12 +76,9 @@ void vcadd_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) {
 void vsub_i (int *y, int *a, int *b, int length) { _vsub_body(); }
 void vsub_f (float *y, float *a, float *b, int length) { _vsub_body(); }
 void vsub_d (double *y, double *a, double *b, int length) { _vsub_body(); }
-void vcsub_i (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) {
-   _vsub_body();
-}
-void vcsub_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) {
-   _vsub_body();
-}
+void vsub_ci (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) { _vsub_body(); }
+void vsub_cf (complex_f_t *y, complex_f_t *a, complex_f_t *b, int length) { _vsub_body(); }
+void vsub_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) { _vsub_body(); }
 #undef _vsub_body
 
 
@@ -110,12 +104,9 @@ void vcsub_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) {
 void vemul_i (int *y, int *a, int *b, int length) { _vemul_body(); }
 void vemul_f (float *y, float *a, float *b, int length) {_vemul_body(); }
 void vemul_d (double *y, double *a, double *b, int length) { _vemul_body(); }
-void vcemul_i (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) {
-   _vemul_body();
-}
-void vcemul_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) {
-   _vemul_body();
-}
+void vemul_ci (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) { _vemul_body(); }
+void vemul_cf (complex_f_t *y, complex_f_t *a, complex_f_t *b, int length) { _vemul_body(); }
+void vemul_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) { _vemul_body(); }
 #undef _vemul_body
 
 
@@ -134,7 +125,7 @@ void vcemul_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) {
  *    \arg  0  Success
  *    \arg  1  Fail, divide by zero
  */
-#define  _vediv_body() {                                       \
+#define  _vediv_body_r() {                                     \
    /* Calculate vadd */                                        \
    for (--length ; length>=0 ; --length) {                     \
       if (b[length]!= 0)                                       \
@@ -144,27 +135,24 @@ void vcemul_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) {
    }                                                           \
    return 0;                                                   \
 }
-#define  _vcediv_body() {                                      \
+#define  _vediv_body_c() {                                     \
    /* Calculate vadd */                                        \
    for (--length ; length>=0 ; --length) {                     \
-      if (b[length]!= 0+0j)                                    \
+      if (b[length]!= 0+I*0)                                   \
          y[length] = a[length] / b[length];                    \
       else                                                     \
          return 1;                                             \
    }                                                           \
    return 0;                                                   \
 }
-int vediv_i (int *y, int *a, int *b, int length) { _vediv_body(); }
-int vediv_f (float *y, float *a, float *b, int length) {_vediv_body(); }
-int vediv_d (double *y, double *a, double *b, int length) { _vediv_body(); }
-int vcediv_i (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) {
-   _vcediv_body();
-}
-int vcediv_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) {
-   _vcediv_body();
-}
-#undef _vediv_body
-#undef _vcediv_body
+int vediv_i (int *y, int *a, int *b, int length) { _vediv_body_r(); }
+int vediv_f (float *y, float *a, float *b, int length) {_vediv_body_r(); }
+int vediv_d (double *y, double *a, double *b, int length) { _vediv_body_r(); }
+int vediv_ci (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) { _vediv_body_c(); }
+int vediv_cf (complex_f_t *y, complex_f_t *a, complex_f_t *b, int length) { _vediv_body_c(); }
+int vediv_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) { _vediv_body_c(); }
+#undef _vediv_body_r
+#undef _vediv_body_c
 
 
 /*!
@@ -181,7 +169,7 @@ int vcediv_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) {
  *
  * \return The dot product of a and b
  */
-#define  _vdot_body() {                                        \
+#define  _vdot_body_r() {                                      \
    /* Calculate vdot */                                        \
    for (res=0,--length ; length>=0 ; --length) {               \
       res += a[length] * b[length];                            \
@@ -189,26 +177,26 @@ int vcediv_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) {
    return res;                                                 \
 }
 
-#define  _vcdot_body() {                                       \
+#define  _vdot_body_c() {                                      \
    /* Calculate vcdot */                                       \
    for (res=0,--length ; length>=0 ; --length) {               \
       res += conj(a[length]) * b[length];                      \
    }                                                           \
    return res;                                                 \
 }
+int vdot_i (int *a, int *b, int length) { int res; _vdot_body_r(); }
+float vdot_f (float *a, float *b, int length) {float res;  _vdot_body_r(); }
+double vdot_d (double *a, double *b, int length) { double res; _vdot_body_r(); }
+complex_i_t vdot_ci (complex_i_t *a, complex_i_t *b, int length) {complex_i_t res; _vdot_body_c(); }
+complex_f_t vdot_cf (complex_f_t *a, complex_f_t *b, int length) {complex_f_t res; _vdot_body_c(); }
+complex_d_t vdot_cd (complex_d_t *a, complex_d_t *b, int length) {complex_d_t res; _vdot_body_c(); }
 
-int vdot_i (int *a, int *b, int length) { int res; _vdot_body(); }
-float vdot_f (float *a, float *b, int length) {float res;  _vdot_body(); }
-double vdot_d (double *a, double *b, int length) { double res; _vdot_body(); }
-complex_i_t vcdot_i (complex_i_t *a, complex_i_t *b, int length) {complex_i_t res; _vcdot_body(); }
-complex_d_t vcdot_d (complex_d_t *a, complex_d_t *b, int length) {complex_d_t res; _vcdot_body(); }
-
-#undef _vdot_body
-#undef _vcdot_body
+#undef _vdot_body_r
+#undef _vdot_body_c
 
 /*!
  * \brief
- *    Calculates the norm (length) of a vactor
+ *    Calculates the norm (length) of a vector
  *                      _______________
  *       ||    ||      / N-1
  *   r = ||x[n]||  =  /  Sum x[m]^2
@@ -219,81 +207,73 @@ complex_d_t vcdot_d (complex_d_t *a, complex_d_t *b, int length) {complex_d_t re
  *
  * \return The norm of vector
  */
-#define  _vnorm_body() {                                       \
+#define  _vnorm_body_r() {                                     \
    /* Calculate vnorm */                                       \
    for (res=0,--length ; length>=0 ; --length) {               \
       res += x[length] * x[length];                            \
    }                                                           \
    return sqrt (res);                                          \
 }
-#define  _vcnorm_body() {                                      \
+#define  _vnorm_body_c() {                                     \
    /* Calculate vnorm */                                       \
-   for (res=0,--length ; length>=0 ; --length) {               \
+   for (res=0+I*0,--length ; length>=0 ; --length) {           \
       res += conj(x[length]) * x[length];                      \
    }                                                           \
-   return sqrt (creal(res));                                   \
+   return csqrt (res);                                         \
 }
-double vnorm_i (int *x, int length) { double res; _vnorm_body(); }
-double vnorm_f (float *x, int length) { double res; _vnorm_body(); }
-double vnorm_d (double *x, int length) { double res; _vnorm_body(); }
-double vcnorm_i (complex_i_t *x, int length) { double res; _vcnorm_body(); }
-double vcnorm_d (complex_d_t *x, int length) { double res; _vcnorm_body(); }
-
-#undef _vnorm_body
-#undef _vcnorm_body
+float vnorm_i (int *x, int length) { float res; _vnorm_body_r(); }
+float vnorm_f (float *x, int length) { float res; _vnorm_body_r(); }
+double vnorm_d (double *x, int length) { double res; _vnorm_body_r(); }
+float vnorm_ci (complex_i_t *x, int length) { complex_f_t res; _vnorm_body_c(); }
+float vnorm_cf (complex_f_t *x, int length) { complex_f_t res; _vnorm_body_c(); }
+double vnorm_cd (complex_d_t *x, int length) { complex_d_t res; _vnorm_body_c(); }
+#undef _vnorm_body_r
+#undef _vnorm_body_c
 
 
 /*!
  * \brief
- *    Calculates the Cartesian coordinates from polar vector
+ *    Calculates the Cartesian coordinates from a polar vector
+ *    of size two.
  *
  * \param   c  Pointer to Cartesian vector {x,y}
  * \param   p  Pointer to polar vector {r,th}
  * \return  none
  */
-void vcart (double *c, double *p) {
-   c[0] = p[0] * cos (p[1]);
-   c[1] = p[0] * sin (p[1]);
+#define _vcart_body() {          \
+   c[0] = p[0] * cos (p[1]);     \
+   c[1] = p[0] * sin (p[1]);     \
 }
+void vcart_i (float *c, int *p) { _vcart_body(); }
+void vcart_f (float *c, float *p) { _vcart_body(); }
+void vcart_d (double *c, double *p) { _vcart_body(); }
+#undef _vcart_body
 
-/*!
- * \brief
- *    Calculates the a complex number in Cartesian
- *    coordinates from polar vector
- *
- * \param   c  Pointer to complex
- * \param   p  Pointer to polar vector {r,th}
- * \return  none
- */
-void vccart (complex_d_t *c, double *p) {
-   *c = p[0] * cos (p[1]) + 1j*(p[0] * sin (p[1]));
-}
 
 /*!
  * \brief
  *    Calculates the polar coordinates from Cartesian vector
+ *    of size two, or a complex number representing Cartesian
+ *    coordinates.
  *
  * \param   p  Pointer to polar vector {r,th}
- * \param   c  Pointer to Cartesian vector {x,y}
+ * \param   c  Pointer to Cartesian vector {x,y}, or complex number.
  * \return  none
  */
-void vpolar (double *p, double *c) {
-   p[0] = sqrt (c[0]*c[0] + c[1]*c[1]);
-   p[1] = atan2 (c[1], c[0]);
+#define _vpolar_body_r() {                \
+   p[0] = sqrt (c[0]*c[0] + c[1]*c[1]);   \
+   p[1] = atan2 (c[1], c[0]);             \
 }
-
-/*!
- * \brief
- *    Calculates the polar coordinates from complex number
- *
- * \param   p  Pointer to polar vector {r,th}
- * \param   c  complex number
- * \return  none
- */
-void vcpolar (double *p, complex_d_t c)
-{
-   double x=creal (c) , y=cimag (c);
-
-   p[0] = sqrt (x*x + y*y);
-   p[1] = atan2 (y, x);
+#define _vpolar_body_c() {                   \
+   p[0] = sqrt (cc[0]*cc[0] + cc[1]*cc[1]);  \
+   p[1] = atan2 (cc[1], cc[0]);              \
 }
+void vpolar_i (float *p, int *c) { _vpolar_body_r(); }
+void vpolar_f (float *p, float *c) { _vpolar_body_r(); }
+void vpolar_d (double *p, double *c) { _vpolar_body_r(); }
+void vpolar_ci (float *p, complex_i_t c) { int *cc = (int*)&c; _vpolar_body_c(); }
+void vpolar_cf (float *p, complex_f_t c) { float *cc = (float*)&c; _vpolar_body_c(); }
+void vpolar_cd (double *p, complex_d_t c){ double *cc = (double*)&c; _vpolar_body_c(); }
+#undef _vpolar_body_r
+#undef _vpolar_body_c
+

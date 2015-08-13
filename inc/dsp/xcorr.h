@@ -37,8 +37,9 @@ extern "C" {
 void xcorr_i (int *y, int *t, int st, int *x, int sx) __optimize__ ;
 void xcorr_f (float *y, float *t, int st, float *x, int sx) __optimize__ ;
 void xcorr_d (double *y, double *t, int st, double *x, int sx) __optimize__ ;
-void cxcorr_i (_Complex int *y, _Complex int *t, int st, _Complex int *x, int sx) __optimize__ ;
-void cxcorr_d (_Complex double *y, _Complex double *t, int st, _Complex double *x, int sx) __optimize__ ;
+void xcorr_ci (complex_i_t *y, complex_i_t *t, int st, complex_i_t *x, int sx) __optimize__ ;
+void xcorr_cf (complex_f_t *y, complex_f_t *t, int st, complex_f_t *x, int sx) __optimize__ ;
+void xcorr_cd (complex_d_t *y, complex_d_t *t, int st, complex_d_t *x, int sx) __optimize__ ;
 
 
 #if __STDC_VERSION__ >= 201112L
@@ -73,9 +74,10 @@ void cxcorr_d (_Complex double *y, _Complex double *t, int st, _Complex double *
 #define xcorr(y, t, st, x, sx) _Generic((y),  int*: xcorr_i,   \
                                             float*: xcorr_f,   \
                                            double*: xcorr_d,   \
-                                     _Complex int*: cxcorr_i,  \
-                                  _Complex double*: cxcorr_d,  \
-                                           default: xcorr_i)(y, t, st, x, sx)
+                                      complex_i_t*: xcorr_ci,  \
+                                      complex_f_t*: xcorr_cf,  \
+                                      complex_d_t*: xcorr_cd,  \
+                                           default: xcorr_d)(y, t, st, x, sx)
 #endif   // #ifndef xcorr
 #endif   // #if __STDC_VERSION__ >= 201112L
 

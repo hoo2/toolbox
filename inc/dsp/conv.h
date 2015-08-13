@@ -34,11 +34,12 @@ extern "C" {
 /*
  * ================== Public API ====================
  */
-void conv_i (int *y, int *h, int sh, int *x, int sx) __optimize__ ;
-void conv_f (float *y, float *h, int sh, float *x, int sx) __optimize__ ;
-void conv_d (double *y, double *h, int sh, double *x, int sx) __optimize__ ;
-void cconv_i (complex_i_t *y, complex_i_t *h, int sh, complex_i_t *x, int sx) __optimize__ ;
-void cconv_d (complex_d_t *y, complex_d_t *h, int sh, complex_d_t *x, int sx) __optimize__ ;
+void conv_i (int *y, int *h, uint32_t sh, int *x, uint32_t sx) __optimize__ ;
+void conv_f (float *y, float *h, uint32_t sh, float *x, uint32_t sx) __optimize__ ;
+void conv_d (double *y, double *h, uint32_t sh, double *x, uint32_t sx) __optimize__ ;
+void conv_ci (complex_i_t *y, complex_i_t *h, uint32_t sh, complex_i_t *x, uint32_t sx) __optimize__ ;
+void conv_cf (complex_f_t *y, complex_f_t *h, uint32_t sh, complex_f_t *x, uint32_t sx) __optimize__ ;
+void conv_cd (complex_d_t *y, complex_d_t *h, uint32_t sh, complex_d_t *x, uint32_t sx) __optimize__ ;
 
 
 #if __STDC_VERSION__ >= 201112L
@@ -48,7 +49,7 @@ void cconv_d (complex_d_t *y, complex_d_t *h, int sh, complex_d_t *x, int sx) __
  * A pseudo type-polymorphism mechanism using _Generic macro
  * to simulate:
  *
- * template<typename T> void conv (T *y, T *h, int sh, T *x, int sx);
+ * template<typename T> void conv (T *y, T *h, uint32_t sh, T *x, uint32_t sx);
  *
  * \brief
  *    Calculates the convolution of h and x
@@ -76,9 +77,10 @@ void cconv_d (complex_d_t *y, complex_d_t *h, int sh, complex_d_t *x, int sx) __
 #define conv(y, h, sh, x, sx) _Generic((y),  int*: conv_i,   \
                                            float*: conv_f,   \
                                           double*: conv_d,   \
-                                    _Complex int*: cconv_i,  \
-                                 _Complex double*: cconv_d,  \
-                                          default: conv_i)(y, h, sh, x, sx)
+                                     complex_i_t*: conv_ci,  \
+                                     complex_f_t*: conv_cf,  \
+                                     complex_d_t*: conv_cd,  \
+                                          default: conv_d)(y, h, sh, x, sx)
 #endif   // #ifndef conv
 #endif   // #if __STDC_VERSION__ >= 201112L
 

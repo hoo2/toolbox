@@ -38,41 +38,11 @@ extern "C" {
 void vadd_i (int *y, int *a, int *b, int length) __optimize__ ;
 void vadd_f (float *y, float *a, float *b, int length) __optimize__ ;
 void vadd_d (double *y, double *a, double *b, int length) __optimize__ ;
-void vcadd_i (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __optimize__ ;
-void vcadd_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
-
-void vsub_i (int *y, int *a, int *b, int length) __optimize__ ;
-void vsub_f (float *y, float *a, float *b, int length) __optimize__ ;
-void vsub_d (double *y, double *a, double *b, int length) __optimize__ ;
-void vcsub_i (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __optimize__ ;
-void vcsub_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
-
-void vemul_i (int *y, int *a, int *b, int length) __optimize__ ;
-void vemul_f (float *y, float *a, float *b, int length) __optimize__ ;
-void vemul_d (double *y, double *a, double *b, int length) __optimize__ ;
-void vcemul_i (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __optimize__ ;
-void vcemul_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
-
-int vediv_i (int *y, int *a, int *b, int length) __optimize__ ;
-int vediv_f (float *y, float *a, float *b, int length) __optimize__ ;
-int vediv_d (double *y, double *a, double *b, int length) __optimize__ ;
-int vcediv_i (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __optimize__ ;
-int vcediv_d (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
-
-int vdot_i (int *a, int *b, int length) __optimize__ ;
-float vdot_f (float *a, float *b, int length) __optimize__ ;
-double vdot_d (double *a, double *b, int length) __optimize__ ;
-complex_i_t vcdot_i (complex_i_t *a, complex_i_t *b, int length) __optimize__ ;
-complex_d_t vcdot_d (complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
-
-double vnorm_i (int *x, int length) __optimize__ ;
-double vnorm_f (float *x, int length) __optimize__ ;
-double vnorm_d (double *x, int length) __optimize__ ;
-double vcnorm_i (complex_i_t *x, int length) __optimize__ ;
-double vcnorm_d (complex_d_t *x, int length) __optimize__ ;
+void vadd_ci (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __optimize__ ;
+void vadd_cf (complex_f_t *y, complex_f_t *a, complex_f_t *b, int length) __optimize__ ;
+void vadd_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
 
 #if __STDC_VERSION__ >= 201112L
-
 #ifndef vadd
 /*!
  * A pseudo type-polymorphism mechanism using _Generic macro
@@ -80,7 +50,6 @@ double vcnorm_d (complex_d_t *x, int length) __optimize__ ;
  *
  * template<typename T> void vadd (T *y, T *a, T *b, int length);
  *
- * \note We still have to implement all the functions
  * \brief
  *    Calculates the addition of a and b
  *
@@ -97,12 +66,22 @@ double vcnorm_d (complex_d_t *x, int length) __optimize__ ;
                int*: vadd_i,              \
              float*: vadd_f,              \
             double*: vadd_d,              \
-      _Complex int*: vcadd_i,             \
-   _Complex double*: vcadd_d,             \
-            default: vadd_i)(y, a, b, length)
-#endif   //#ifndef vadd
+       complex_i_t*: vadd_ci,             \
+       complex_f_t*: vadd_cf,             \
+       complex_d_t*: vadd_cd,             \
+            default: vadd_d)(y, a, b, length)
+#endif   // #ifndef vadd
+#endif   // #if __STDC_VERSION__ >= 201112L
 
 
+void vsub_i (int *y, int *a, int *b, int length) __optimize__ ;
+void vsub_f (float *y, float *a, float *b, int length) __optimize__ ;
+void vsub_d (double *y, double *a, double *b, int length) __optimize__ ;
+void vsub_ci (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __optimize__ ;
+void vsub_cf (complex_f_t *y, complex_f_t *a, complex_f_t *b, int length) __optimize__ ;
+void vsub_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
+
+#if __STDC_VERSION__ >= 201112L
 #ifndef vsub
 /*!
  * A pseudo type-polymorphism mechanism using _Generic macro
@@ -110,7 +89,6 @@ double vcnorm_d (complex_d_t *x, int length) __optimize__ ;
  *
  * template<typename T> void vsub (T *y, T *a, T *b, int length);
  *
- * \note We still have to implement all the functions
  * \brief
  *    Calculates the substruction of a and b
  *
@@ -127,12 +105,22 @@ double vcnorm_d (complex_d_t *x, int length) __optimize__ ;
                int*: vsub_i,              \
              float*: vsub_f,              \
             double*: vsub_d,              \
-      _Complex int*: vcsub_i,             \
-   _Complex double*: vcsub_d,             \
-            default: vsub_i)(y, a, b, length)
-#endif   //#ifndef vsub
+       complex_i_t*: vsub_ci,             \
+       complex_f_t*: vsub_cf,             \
+       complex_d_t*: vsub_cd,             \
+            default: vsub_d)(y, a, b, length)
+#endif   // #ifndef vsub
+#endif   // #if __STDC_VERSION__ >= 201112L
 
 
+void vemul_i (int *y, int *a, int *b, int length) __optimize__ ;
+void vemul_f (float *y, float *a, float *b, int length) __optimize__ ;
+void vemul_d (double *y, double *a, double *b, int length) __optimize__ ;
+void vemul_ci (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __optimize__ ;
+void vemul_cf (complex_f_t *y, complex_f_t *a, complex_f_t *b, int length) __optimize__ ;
+void vemul_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
+
+#if __STDC_VERSION__ >= 201112L
 #ifndef vemul
 /*!
  * A pseudo type-polymorphism mechanism using _Generic macro
@@ -140,7 +128,6 @@ double vcnorm_d (complex_d_t *x, int length) __optimize__ ;
  *
  * template<typename T> void vemul (T *y, T *a, T *b, int length);
  *
- * \note We still have to implement all the functions
  * \brief
  *    Calculates the element-wise multiplication of a and b
  *
@@ -157,12 +144,22 @@ double vcnorm_d (complex_d_t *x, int length) __optimize__ ;
                int*: vemul_i,                \
              float*: vemul_f,                \
             double*: vemul_d,                \
-      _Complex int*: vcemul_i,               \
-   _Complex double*: vcemul_d,               \
-            default: vemul_i)(y, a, b, length)
-#endif   //#ifndef vemul
+       complex_i_t*: vemul_ci,               \
+       complex_f_t*: vemul_cf,               \
+       complex_d_t*: vemul_cd,               \
+            default: vemul_d)(y, a, b, length)
+#endif   // #ifndef vemul
+#endif   // #if __STDC_VERSION__ >= 201112L
 
 
+int vediv_i (int *y, int *a, int *b, int length) __optimize__ ;
+int vediv_f (float *y, float *a, float *b, int length) __optimize__ ;
+int vediv_d (double *y, double *a, double *b, int length) __optimize__ ;
+int vediv_ci (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __optimize__ ;
+int vediv_cf (complex_f_t *y, complex_f_t *a, complex_f_t *b, int length) __optimize__ ;
+int vediv_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
+
+#if __STDC_VERSION__ >= 201112L
 #ifndef vediv
 /*!
  * A pseudo type-polymorphism mechanism using _Generic macro
@@ -170,7 +167,6 @@ double vcnorm_d (complex_d_t *x, int length) __optimize__ ;
  *
  * template<typename T> int vediv (T *y, T *a, T *b, int length);
  *
- * \note We still have to implement all the functions
  * \brief
  *    Calculates the element-wise right division  a / b
  *
@@ -189,20 +185,28 @@ double vcnorm_d (complex_d_t *x, int length) __optimize__ ;
                int*: vediv_i,                \
              float*: vediv_f,                \
             double*: vediv_d,                \
-      _Complex int*: vcediv_i,               \
-   _Complex double*: vcediv_d,               \
-            default: vediv_i)(y, a, b, length)
-#endif   //#ifndef vediv
+       complex_i_t*: vediv_ci,               \
+       complex_f_t*: vediv_cf,               \
+       complex_d_t*: vediv_cd,               \
+            default: vediv_d)(y, a, b, length)
+#endif   // #ifndef vediv
+#endif   // #if __STDC_VERSION__ >= 201112L
 
 
+int vdot_i (int *a, int *b, int length) __optimize__ ;
+float vdot_f (float *a, float *b, int length) __optimize__ ;
+double vdot_d (double *a, double *b, int length) __optimize__ ;
+complex_i_t vdot_ci (complex_i_t *a, complex_i_t *b, int length) __optimize__ ;
+complex_f_t vdot_cf (complex_f_t *a, complex_f_t *b, int length) __optimize__ ;
+complex_d_t vdot_cd (complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
+
+#if __STDC_VERSION__ >= 201112L
 #ifndef vdot
 /*!
  * A pseudo type-polymorphism mechanism using _Generic macro
  * to simulate:
  *
  * template<typename T> T vdot (T *a, T *b, int length);
- *
- * \note We still have to implement all the functions
  *
  * \brief
  *    Calculates the norm product of a and b
@@ -221,20 +225,28 @@ double vcnorm_d (complex_d_t *x, int length) __optimize__ ;
                int*: vdot_i,              \
              float*: vdot_f,              \
             double*: vdot_d,              \
-      _Complex int*: vcdot_i,             \
-   _Complex double*: vcdot_d,             \
-            default: vdot_i)(a, b, length)
+       complex_i_t*: vdot_ci,             \
+       complex_f_t*: vdot_cf,             \
+       complex_d_t*: vdot_cd,             \
+            default: vdot_d)(a, b, length)
 #endif   // #ifndef vdot
+#endif   // #if __STDC_VERSION__ >= 201112L
 
 
+float vnorm_i (int *x, int length) __optimize__ ;
+float vnorm_f (float *x, int length) __optimize__ ;
+double vnorm_d (double *x, int length) __optimize__ ;
+float vnorm_ci (complex_i_t *x, int length) __optimize__ ;
+float vnorm_cf (complex_f_t *x, int length) __optimize__ ;
+double vnorm_cd (complex_d_t *x, int length) __optimize__ ;
+
+#if __STDC_VERSION__ >= 201112L
 #ifndef vnorm
 /*!
  * A pseudo type-polymorphism mechanism using _Generic macro
  * to simulate:
  *
- * template<typename T> T vnorm (T *x, int length);
- *
- * \note We still have to implement all the functions
+ * template<typename T, typename TT> TT vnorm (T *x, int length);
  *
  * \brief
  *    Calculates the norm (length) of a vactor
@@ -252,18 +264,80 @@ double vcnorm_d (complex_d_t *x, int length) __optimize__ ;
                int*: vnorm_i,             \
              float*: vnorm_f,             \
             double*: vnorm_d,             \
-      _Complex int*: vcnorm_i,            \
-   _Complex double*: vcnorm_d,            \
-            default: vnorm_i)(x, length)
+       complex_i_t*: vnorm_ci,            \
+       complex_f_t*: vnorm_cf,            \
+       complex_d_t*: vnorm_cd,            \
+            default: vnorm_d)(x, length)
 #endif   // #ifndef vnorm
 
 #endif   // #if __STDC_VERSION__ >= 201112L
 
 
-void vcart (double *c, double *p) __optimize__ ;
-void vccart (complex_d_t *c, double *p) __optimize__ ;
-void vpolar (double *p, double *c) __optimize__ ;
-void vcpolar (double *p, complex_d_t c) __optimize__ ;
+void vcart_i (float *c, int *p) __optimize__ ;
+void vcart_f (float *c, float *p) __optimize__ ;
+void vcart_d (double *c, double *p) __optimize__ ;
+
+#if __STDC_VERSION__ >= 201112L
+#ifndef vcart
+/*!
+ * A pseudo type-polymorphism mechanism using _Generic macro
+ * to simulate:
+ *
+ * template<typename T, typename TT> void vcart (T *c, TT *p);
+ *
+ * \brief
+ *    Calculates the Cartesian coordinates from a polar vector
+ *    of size two.
+ *
+ * \param   c  Pointer to Cartesian vector {x,y}
+ * \param   p  Pointer to polar vector {r,th}
+ * \return  none
+ */
+ */
+#define vcart(c, p) _Generic((p),         \
+               int*: vcart_i,             \
+             float*: vcart_f,             \
+            double*: vcart_d,             \
+            default: vcart_d)(c, p)
+#endif   // #ifndef vcart
+#endif   // #if __STDC_VERSION__ >= 201112L
+
+
+void vpolar_i (float *p, int *c) __optimize__ ;
+void vpolar_f (float *p, float *c) __optimize__ ;
+void vpolar_d (double *p, double *c) __optimize__ ;
+void vpolar_ci (float *p, complex_i_t c) __optimize__ ;
+void vpolar_cf (float *p, complex_f_t c) __optimize__ ;
+void vpolar_cd (double *p, complex_d_t c) __optimize__ ;
+
+#if __STDC_VERSION__ >= 201112L
+#ifndef vcart
+/*!
+ * A pseudo type-polymorphism mechanism using _Generic macro
+ * to simulate:
+ *
+ * template<typename T, typename TT> void vpolar (T *c, TT *p);
+ *
+ * \brief
+ *    Calculates the polar coordinates from Cartesian vector
+ *    of size two, or a complex number representing Cartesian
+ *    coordinates.
+ *
+ * \param   p  Pointer to polar vector {r,th}
+ * \param   c  Pointer to Cartesian vector {x,y}, or complex number.
+ * \return  none
+ */
+ */
+#define vpolar(p, c) _Generic((c),        \
+               int*: vpolar_i,            \
+             float*: vpolar_f,            \
+            double*: vpolar_d,            \
+        complex_i_t: vpolar_ci,           \
+        complex_f_t: vpolar_cf,           \
+        complex_d_t: vpolar_cd,           \
+            default: vpolar_d)(p, c)
+#endif   // #ifndef vcart
+#endif   // #if __STDC_VERSION__ >= 201112L
 
 #ifdef __cplusplus
 }
