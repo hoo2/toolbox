@@ -84,7 +84,7 @@ extern "C" {
  * \defgroup DSP
  */
 #include <dsp/leaky_int.h>
-#include <dsp/moving_av.h>
+#include <dsp/filter_mova.h>
 #include <dsp/vectors.h>
 #include <dsp/conv.h>
 #include <dsp/xcorr.h>
