@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<history>
+   <processor signature="arm-none-eabi-gcc 4.8.1 mingw32 -mcpu=cortex-m3 -mthumb -Wall -ffunction-sections -g -O0 -std=c11 -c -DSTM32L152RB -DSTM32L1XX_MD -DSTACK_WORD_SIZE=0x0200 -ID:\Work\Software\Libraries\Devices\STM32L1xx_StdPeriph_Driver\inc -ID:\Work\Software\workspace_CooCox\toolbox -ID:\Work\Software\Libraries -ID:\Work\Software\Libraries\CMSIS\Include -ID:\Work\Software\Libraries\CMSIS\Device\ST\STM32L1xx\Include -ID:\Work\Software\Libraries\toolbox\inc -ID:\Work\Software\Libraries\CMSIS">
+      <target file="core_cm3.o" lastModified="14f3a7a26b0">
+         <source file="..\..\..\..\..\CMSIS\Source\core_cm3.c" lastModified="14665f54a31"/>
+      </target>
+      <target file="system_stm32l1xx.o" lastModified="14f3a7a27aa">
+         <source file="..\..\..\..\..\CMSIS\Device\ST\STM32L1xx\system_stm32l1xx.c" lastModified="14c26c3029f"/>
+      </target>
+      <target file="startup_stm32l1xx_md.o" lastModified="14f3a7a26ee">
+         <source file="..\..\..\..\..\CMSIS\Device\ST\STM32L1xx\startup\gcc\startup_stm32l1xx_md.c" lastModified="14c27206973"/>
+      </target>
+   </processor>
+</history>

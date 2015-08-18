@@ -244,9 +244,9 @@ complex_d_t vnorm_cd (complex_d_t *x, int length) { complex_d_t res; _vnorm_body
    c[0] = p[0] * cos (p[1]);     \
    c[1] = p[0] * sin (p[1]);     \
 }
-void vcart_i (float *c, int *p) { _vcart_body(); }
-void vcart_f (float *c, float *p) { _vcart_body(); }
-void vcart_d (double *c, double *p) { _vcart_body(); }
+inline void vcart_i (float *c, int *p) { _vcart_body(); }
+inline void vcart_f (float *c, float *p) { _vcart_body(); }
+inline void vcart_d (double *c, double *p) { _vcart_body(); }
 #undef _vcart_body
 
 
@@ -261,19 +261,21 @@ void vcart_d (double *c, double *p) { _vcart_body(); }
  * \return  none
  */
 #define _vpolar_body_r() {                \
+   t = c[0];                              \
    p[0] = sqrt (c[0]*c[0] + c[1]*c[1]);   \
-   p[1] = atan2 (c[1], c[0]);             \
+   p[1] = atan2 (c[1], t);                \
 }
 #define _vpolar_body_c() {                   \
+   t = cc[0];                                \
    p[0] = sqrt (cc[0]*cc[0] + cc[1]*cc[1]);  \
-   p[1] = atan2 (cc[1], cc[0]);              \
+   p[1] = atan2 (cc[1], t);                  \
 }
-void vpolar_i (float *p, int *c) { _vpolar_body_r(); }
-void vpolar_f (float *p, float *c) { _vpolar_body_r(); }
-void vpolar_d (double *p, double *c) { _vpolar_body_r(); }
-void vpolar_ci (float *p, complex_i_t c) { int *cc = (int*)&c; _vpolar_body_c(); }
-void vpolar_cf (float *p, complex_f_t c) { float *cc = (float*)&c; _vpolar_body_c(); }
-void vpolar_cd (double *p, complex_d_t c){ double *cc = (double*)&c; _vpolar_body_c(); }
+inline void vpolar_i (float *p, int *c) { int t;  _vpolar_body_r(); }
+inline void vpolar_f (float *p, float *c) { float t; _vpolar_body_r(); }
+inline void vpolar_d (double *p, double *c) { double t; _vpolar_body_r(); }
+inline void vpolar_ci (float *p, complex_i_t c) { int t; int *cc = (int*)&c; _vpolar_body_c(); }
+inline void vpolar_cf (float *p, complex_f_t c) { float t; float *cc = (float*)&c; _vpolar_body_c(); }
+inline void vpolar_cd (double *p, complex_d_t c){ double t; double *cc = (double*)&c; _vpolar_body_c(); }
 #undef _vpolar_body_r
 #undef _vpolar_body_c
 

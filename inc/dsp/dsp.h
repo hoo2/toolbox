@@ -36,7 +36,7 @@ extern "C" {
 #include <math.h>
 
 
-#ifdef __GNUC__
+#ifdef __GNUC0__
 #define __optimize__    __attribute__ ((optimize("O3")))
 #else
 #define __optimize__
@@ -64,6 +64,10 @@ extern "C" {
 
 #ifndef M_PI
 #define M_PI      3.14159265358979323846
+#endif
+
+#ifndef M_2PI
+#define M_2PI     6.28318530717958647692
 #endif
 
 #ifndef M_PI_2

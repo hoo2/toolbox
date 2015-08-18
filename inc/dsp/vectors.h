@@ -310,7 +310,7 @@ void vpolar_cf (float *p, complex_f_t c) __optimize__ ;
 void vpolar_cd (double *p, complex_d_t c) __optimize__ ;
 
 #if __STDC_VERSION__ >= 201112L
-#ifndef vcart
+#ifndef vpolar
 /*!
  * A pseudo type-polymorphism mechanism using _Generic macro
  * to simulate:

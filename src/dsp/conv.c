@@ -23,6 +23,31 @@
  */
 #include <dsp/conv.h>
 
+
+/*
+ * void convolve(const double Signal[], size_t SignalLen,
+              const double Kernel[], size_t KernelLen,
+              double Result[])
+{
+  size_t n;
+
+  for (n = 0; n < SignalLen + KernelLen - 1; n++)
+  {
+    size_t kmin, kmax, k;
+
+    Result[n] = 0;
+
+    kmin = (n >= KernelLen - 1) ? n - (KernelLen - 1) : 0;
+    kmax = (n < SignalLen - 1) ? n : SignalLen - 1;
+
+    for (k = kmin; k <= kmax; k++)
+    {
+      Result[n] += Signal[k] * Kernel[n - k];
+    }
+  }
+}
+*/
+
 #define  _conv_body()                                          \
 {                                                              \
    int sy, n, m, m_lo,m_hi;                                    \

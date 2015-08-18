@@ -6,7 +6,7 @@
 *.o
 
 # add examples obj folder
-*/example/pkernel_demo/*
+*/example/*
 
 #add development directory
 develop/*

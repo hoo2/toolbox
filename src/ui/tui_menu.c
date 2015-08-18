@@ -223,7 +223,7 @@ void tui_menu_init (tui_t *tui)
  * \param   id    The search id
  * \return  the menu address, or NULL
  */
-menu_item_t* tui_menud_id2idx (menu_item_t *mn, menu_id_t id)
+menu_item_t* tui_menu_id2idx (menu_item_t *mn, menu_id_t id)
 {
    int i;
    menu_item_t *r;

@@ -26,10 +26,10 @@
 /*
  * ========= Static ============
  */
-static double _sinc (double fc, uint32_t i, uint32_t n) {
-   int32_t  fact = i-(n>>1);
-   if (fact == 0) return 2*M_PI*fc;
-   else           return sin (2*M_PI*fc*fact) / fact;
+static double _sinc (double fc, int32_t x) {
+   double _2pifc = M_2PI * fc;
+   if (x == 0)    return _2pifc;
+   else           return sin (_2pifc*x) / x;
 }
 static double _blackman (uint32_t i, uint32_t n) {
    double th = 2*M_PI*i/n;
@@ -39,10 +39,58 @@ static double _hamming (uint32_t i, uint32_t n) {
    return 0.54 - 0.46*cos (2*M_PI*i/n);
 }
 static double _barlett (uint32_t i, uint32_t n) {
-   1 - (2* fabs (i - (n>>1)) / n);
+   return 1 - (2* fabs (i - (n>>1)) / n);
 }
 static double _hanning (uint32_t i, uint32_t n) {
    return 0.5 - 0.5*cos (2*M_PI*i/n);
+}
+
+
+static void _1tran_loop (filter_wsinc_t *f, int sign) {
+   uint32_t i, n_2;
+   int32_t  n;
+   double fact;
+
+   n_2 = f->N>>1;
+   // Calculate kernel and normalise factor
+   for (fact=i=0 ; i<=n_2 ; ++i) {
+      n = i - n_2;
+      f->kernel[i] = sign*_sinc (f->fc1, n) * f->window (i, f->N);
+      f->kernel[f->N - i] = f->kernel[i];
+      fact += f->kernel[i] * 2;
+   }
+   fact -= f->kernel[n_2];
+   fact = 1./fact;
+   // Apply normalise factor
+   for (i=0 ; i<=f->N ; ++i)
+      f->kernel[i] *= fact;
+
+   // invert symmetry point if needed
+   f->kernel[n_2] += (sign==-1) ? 1:0;
+}
+
+static void _2tran_loop (filter_wsinc_t *f, int sign) {
+   uint32_t i, n_2;
+   int32_t  n;
+   double fact;
+
+   n_2 = f->N>>1;
+   // Calculate kernel and normalise factor
+   for (fact=i=0 ; i<=n_2 ; ++i) {
+      n = i - n_2;
+      f->kernel[i] = sign * (_sinc (f->fc1, n) * f->window (i, f->N) +
+                             _sinc (f->fc2, n) * f->window (i, f->N) );
+      f->kernel[f->N - i] = f->kernel[i];
+      fact += f->kernel[i] * 2;
+   }
+   fact -= f->kernel[n_2];
+   fact = 1./fact;
+   // Apply normalise factor
+   for (i=0 ; i<=f->N ; ++i)
+      f->kernel[i] *= fact;
+
+   // invert symmetry point if needed
+   f->kernel[n_2] += (sign==-1) ? 1:0;
 }
 
 /*
@@ -66,9 +114,9 @@ static double _hanning (uint32_t i, uint32_t n) {
  * \param   size  The size in size_t
  * \return        none
 */
-void filter_wsinc_set_item_size (filter_wsinc_t *f, uint32_t size) {
-   f->it_size = size;
-}
+//void filter_wsinc_set_item_size (filter_wsinc_t *f, uint32_t size) {
+//   f->it_size = size;
+//}
 
 /*!
  * \brief
@@ -161,6 +209,7 @@ void filter_wsinc_deinit (filter_wsinc_t* f) {
    memset ((void*)f, 0, sizeof (filter_wsinc_t));
 }
 
+
 /*!
  * \brief
  *    Windowed sinc filter initialisation.
@@ -172,19 +221,34 @@ void filter_wsinc_deinit (filter_wsinc_t* f) {
 uint32_t filter_wsinc_init (filter_wsinc_t* f)
 {
    uint32_t i;
-   double sum;
-
    // Check kernel points
    if (f->N == 0)
       return 0;
 
    // Try to allocate memory
-   if ( (f->kernel = (void*)calloc (f->N + 1, f->it_size)) != NULL ) {
-      for (sum=i=0 ; i<=f->N ; ++i) {
-         sum += f->kernel[i] = _sinc (f->fc1, i, f->N) * f->window (i, f->N);
+   for (i=1 ; i<UINT32_MAX ; i *= 2) {
+      if (i>=f->N+1)
+         break;
+   }
+   f->Nal = i;
+   if ( (f->kernel = (void*)calloc (2*f->Nal, sizeof (double))) != NULL ) {
+
+      // Despatch based on filter type
+      switch (f->ftype) {
+         default:
+         case FILTER_LOW_PASS:
+            _1tran_loop (f, 1);
+            break;
+         case FILTER_HIGH_PASS:
+            _1tran_loop (f, -1);
+            break;
+         case FILTER_BAND_REJECT:
+            _2tran_loop (f, 1);
+            break;
+         case FILTER_BAND_PASS:
+            _2tran_loop (f, -1);
+            break;
       }
-      for (i=0 ; i<=f->N ; ++i)
-         f->kernel[i] /= sum;
       return f->N;
    }
    else
@@ -192,6 +256,15 @@ uint32_t filter_wsinc_init (filter_wsinc_t* f)
 }
 
 
+void filter_wsinc (filter_wsinc_t *f, double *in, double *out, uint32_t n)
+{
+   if (!f->freq)
+      fft_r (f->kernel, (complex_d_t*)f->kernel, f->Nal);
 
+   fft_r (in, (complex_d_t*)out, n);
 
+   vemul_cd ((complex_d_t*)out, (complex_d_t*)out, (complex_d_t*)f->kernel, n);
+   ifft_r ((complex_d_t*)out, out, n);
+
+}
 

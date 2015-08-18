@@ -30,6 +30,8 @@ extern "C" {
 #endif
 
 #include <dsp/dsp.h>
+#include <dsp/fft.h>
+#include <dsp/vectors.h>
 #include <string.h>
 
 /*
@@ -67,9 +69,10 @@ typedef enum {
 
 typedef struct
 {
-   double     *kernel;    //!< Pointer to filter kernel
-   uint32_t it_size;    //!< Kernel's each item size
+   double   *kernel;    //!< Pointer to filter kernel
+   uint32_t freq;       //!< True if kernel is in frequency domain
    uint32_t N;          //!< The number of kernel samples
+   uint32_t Nal;
    filter_ftype_en ftype;  //!< The filter type
    window_pt   window;  //!< Pointer to window function
    double fc1, fc2;     //!< The transition frequencies
@@ -84,7 +87,7 @@ typedef struct
 /*
  * Set functions
  */
-void filter_wsinc_set_item_size (filter_wsinc_t *f, uint32_t size);
+//void filter_wsinc_set_item_size (filter_wsinc_t *f, uint32_t size);
 void filter_wsinc_set_ftype (filter_wsinc_t *f, filter_ftype_en t);
 void filter_wsinc_set_wtype (filter_wsinc_t *f, filter_wtype_en t);
 void filter_wsinc_set_fc (filter_wsinc_t *f, double fc1, double fc2);
@@ -102,6 +105,8 @@ float filter_wsinc_i (filter_wsinc_t* f, int in) __optimize__ ;
 complex_d_t filter_wsinc_cd (filter_wsinc_t* f, complex_d_t in) __optimize__ ;
 complex_f_t filter_wsinc_cf (filter_wsinc_t* f, complex_f_t in) __optimize__ ;
 complex_f_t filter_wsinc_ci (filter_wsinc_t* f, complex_i_t in) __optimize__ ;
+
+void filter_wsinc (filter_wsinc_t *f, double *in, double *out, uint32_t n);
 
 #if __STDC_VERSION__ >= 201112L
 #ifndef filter_mova
