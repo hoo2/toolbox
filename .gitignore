@@ -1,12 +1,18 @@
 # Basic binary
-*/obj/*
-*/bin/*
-*/exe/*
+obj/*
+bin/*
+exe/*
 *.a
 *.o
 
+#basic arm binary
+*.bin
+*.elf
+*.map
+*.hex
+
 # add examples obj folder
-*/example/*
+examples/*
 
 #add development directory
 develop/*
