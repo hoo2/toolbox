@@ -35,6 +35,11 @@ extern "C" {
 #include <string.h>
 
 /*
+ * User defines
+ */
+#define  WSINC_MIN_TAPS       (4)
+
+/*
  * General defines
  */
 /*!
@@ -43,7 +48,7 @@ extern "C" {
  * N = -------------
  *      Transition BW
  */
-#define  FILTER_WSINC_SAMPLES(_tr_bw)   ( 4./_tr_bw )
+#define  FILTER_WSINC_SAMPLES(_tb, _c)   ( 4./(_tb*_c) )
 
 
 /*
@@ -67,15 +72,22 @@ typedef enum {
 
 
 
-typedef struct
-{
-   double   *kernel;    //!< Pointer to filter kernel
-   uint32_t freq;       //!< True if kernel is in frequency domain
-   uint32_t N;          //!< The number of kernel samples
-   uint32_t Nal;
+typedef struct {
+   /*
+    * User option fields
+    */
    filter_ftype_en ftype;  //!< The filter type
-   window_pt   window;  //!< Pointer to window function
-   double fc1, fc2;     //!< The transition frequencies
+   uint32_t casc;          //!< Number of cascade filters to implement
+   double tb;              //!< transition bandwith
+   double fc1, fc2;        //!< The transition frequencies
+
+   /*
+    * Inner filter data
+    */
+   double      *k;   //!< Pointer to filter kernel
+   uint32_t    T;    //!< The number of taps after cascade the filters in time domain
+   uint32_t    N;    //!< The number of kernel points in frequncy complex domain
+   window_pt   W;    //!< Pointer to window function
 }filter_wsinc_t;
 
 
@@ -87,11 +99,11 @@ typedef struct
 /*
  * Set functions
  */
-//void filter_wsinc_set_item_size (filter_wsinc_t *f, uint32_t size);
 void filter_wsinc_set_ftype (filter_wsinc_t *f, filter_ftype_en t);
 void filter_wsinc_set_wtype (filter_wsinc_t *f, filter_wtype_en t);
 void filter_wsinc_set_fc (filter_wsinc_t *f, double fc1, double fc2);
-void filter_wsinc_set_trbw (filter_wsinc_t *f, double trbw);
+void filter_wsinc_set_tb (filter_wsinc_t *f, double tb);
+void filter_wsic_set_cascade (filter_wsinc_t *f, uint32_t c);
 
 /*
  * User Functions

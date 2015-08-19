@@ -47,50 +47,52 @@ static double _hanning (uint32_t i, uint32_t n) {
 
 
 static void _1tran_loop (filter_wsinc_t *f, int sign) {
-   uint32_t i, n_2;
+   uint32_t i, cT, n_2;
    int32_t  n;
    double fact;
 
-   n_2 = f->N>>1;
+   cT = f->T * f->casc;
+   n_2 = cT>>1;
    // Calculate kernel and normalise factor
    for (fact=i=0 ; i<=n_2 ; ++i) {
       n = i - n_2;
-      f->kernel[i] = sign*_sinc (f->fc1, n) * f->window (i, f->N);
-      f->kernel[f->N - i] = f->kernel[i];
-      fact += f->kernel[i] * 2;
+      f->k[i] = _sinc (f->fc1, n) * f->W (i, cT);
+      fact += f->k[i] * 2;
+      f->k[cT - i] = (f->k[i] *= sign);
    }
-   fact -= f->kernel[n_2];
-   fact = 1./fact;
+   fact -= f->k[n_2]*sign;
+   fact = 1/fact;
    // Apply normalise factor
-   for (i=0 ; i<=f->N ; ++i)
-      f->kernel[i] *= fact;
+   for (i=0 ; i<=cT ; ++i)
+      f->k[i] *= fact;
 
    // invert symmetry point if needed
-   f->kernel[n_2] += (sign==-1) ? 1:0;
+   f->k[n_2] += (sign==-1) ? 1:0;
 }
 
 static void _2tran_loop (filter_wsinc_t *f, int sign) {
-   uint32_t i, n_2;
+   uint32_t i, cT, n_2;
    int32_t  n;
    double fact;
 
-   n_2 = f->N>>1;
+   cT = f->T * f->casc;
+   n_2 = cT>>1;
    // Calculate kernel and normalise factor
    for (fact=i=0 ; i<=n_2 ; ++i) {
       n = i - n_2;
-      f->kernel[i] = sign * (_sinc (f->fc1, n) * f->window (i, f->N) +
-                             _sinc (f->fc2, n) * f->window (i, f->N) );
-      f->kernel[f->N - i] = f->kernel[i];
-      fact += f->kernel[i] * 2;
+      f->k[i] = ( _sinc (f->fc1, n) * f->W (i, cT) +
+                  _sinc (f->fc2, n) * f->W (i, cT) );
+      fact += f->k[i] * 2;
+      f->k[cT - i] = (f->k[i] *= sign);
    }
-   fact -= f->kernel[n_2];
-   fact = 1./fact;
+   fact -= f->k[n_2]*sign;
+   fact = 1/fact;
    // Apply normalise factor
-   for (i=0 ; i<=f->N ; ++i)
-      f->kernel[i] *= fact;
+   for (i=0 ; i<=cT ; ++i)
+      f->k[i] *= fact;
 
    // invert symmetry point if needed
-   f->kernel[n_2] += (sign==-1) ? 1:0;
+   f->k[n_2] += (sign==-1) ? 1:0;
 }
 
 /*
@@ -131,9 +133,17 @@ static void _2tran_loop (filter_wsinc_t *f, int sign) {
  * \return        none
 */
 void filter_wsinc_set_ftype (filter_wsinc_t *f, filter_ftype_en t) {
-   if (t<FILTER_LOW_PASS || t>FILTER_BAND_REJECT)
-      t = FILTER_LOW_PASS;
-   f->ftype = t;
+   switch (t) {
+      case FILTER_LOW_PASS:
+      case FILTER_HIGH_PASS:
+      case FILTER_BAND_PASS:
+      case FILTER_BAND_REJECT:
+         f->ftype = t;
+         break;
+      default:
+         f->ftype = FILTER_LOW_PASS;
+         break;
+   }
 }
 
 /*!
@@ -151,10 +161,10 @@ void filter_wsinc_set_ftype (filter_wsinc_t *f, filter_ftype_en t) {
 void filter_wsinc_set_wtype (filter_wsinc_t *f, filter_wtype_en w) {
    switch (w) {
       default:
-      case FILTER_WSINC_BLACKMAN:   f->window = _blackman;  break;
-      case FILTER_WSINC_HAMMING:    f->window = _hamming;   break;
-      case FILTER_WSINC_BARLETT:    f->window = _barlett;   break;
-      case FILTER_WSINC_HANNING:    f->window = _hanning;   break;
+      case FILTER_WSINC_BLACKMAN:   f->W = _blackman; break;
+      case FILTER_WSINC_HAMMING:    f->W = _hamming;  break;
+      case FILTER_WSINC_BARLETT:    f->W = _barlett;  break;
+      case FILTER_WSINC_HANNING:    f->W = _hanning;  break;
    }
 }
 
@@ -186,11 +196,22 @@ void filter_wsinc_set_fc (filter_wsinc_t *f, double fc1, double fc2) {
  * \param   trbw  Transition frequency 1
  * \return        None
 */
-void filter_wsinc_set_trbw (filter_wsinc_t *f, double trbw) {
-   f->N = (uint32_t)FILTER_WSINC_SAMPLES (trbw);
-   f->N -= (f->N%2) ? 1:0;
+void filter_wsinc_set_tb (filter_wsinc_t *f, double tb) {
+   f->tb = tb;
 }
 
+/*!
+ * \brief
+ *    Set the number of cascading filter to implement. This way
+ *    The kernel length and the gain is increased.
+ *
+ * \param   f     Which filter to use
+ * \param   c     How many filters to cascade
+ * \return        None
+*/
+void filter_wsic_set_cascade (filter_wsinc_t *f, uint32_t c) {
+   f->casc = c;
+}
 
 /*
  * User Functions
@@ -204,8 +225,8 @@ void filter_wsinc_set_trbw (filter_wsinc_t *f, double trbw) {
  * \return none
 */
 void filter_wsinc_deinit (filter_wsinc_t* f) {
-   if ( f->kernel )
-      free ((void*)f->kernel);
+   if ( f->k )
+      free ((void*)f->k);
    memset ((void*)f, 0, sizeof (filter_wsinc_t));
 }
 
@@ -220,19 +241,24 @@ void filter_wsinc_deinit (filter_wsinc_t* f) {
  */
 uint32_t filter_wsinc_init (filter_wsinc_t* f)
 {
-   uint32_t i;
-   // Check kernel points
-   if (f->N == 0)
-      return 0;
+   uint32_t i, cT;
 
-   // Try to allocate memory
-   for (i=1 ; i<UINT32_MAX ; i *= 2) {
-      if (i>=f->N+1)
+   // Calculate taps and cascade taps in time domain
+   f->T = (uint32_t)FILTER_WSINC_SAMPLES (f->tb, f->casc);
+   f->T -= (f->T%2) ? 1:0;
+   if (f->T < WSINC_MIN_TAPS)    f->T = WSINC_MIN_TAPS;
+
+   // Calculate kernel points in frequency domain
+   cT = (f->T * f->casc + 1)*2;
+   for (i=1 ; i<UINT32_MAX ; i<<=1) {
+      if (i>=cT) {
+         f->N = i;
          break;
+      }
    }
-   f->Nal = i;
-   if ( (f->kernel = (void*)calloc (2*f->Nal, sizeof (double))) != NULL ) {
 
+   // Try to allocate kernel in memory
+   if ( (f->k = (void*)calloc (2*f->N, sizeof (double))) != NULL ) {
       // Despatch based on filter type
       switch (f->ftype) {
          default:
@@ -249,6 +275,13 @@ uint32_t filter_wsinc_init (filter_wsinc_t* f)
             _2tran_loop (f, -1);
             break;
       }
+      // Go to Frequency domain
+      fft_r (f->k, (complex_d_t*)f->k, f->N);
+
+      // Cascade filters
+      for (i=0 ; i<f->casc ; ++i)
+         vemul_cd ((complex_d_t*)f->k, (complex_d_t*)f->k, (complex_d_t*)f->k, f->N);
+
       return f->N;
    }
    else
@@ -258,13 +291,9 @@ uint32_t filter_wsinc_init (filter_wsinc_t* f)
 
 void filter_wsinc (filter_wsinc_t *f, double *in, double *out, uint32_t n)
 {
-   if (!f->freq)
-      fft_r (f->kernel, (complex_d_t*)f->kernel, f->Nal);
-
    fft_r (in, (complex_d_t*)out, n);
 
-   vemul_cd ((complex_d_t*)out, (complex_d_t*)out, (complex_d_t*)f->kernel, n);
+   vemul_cd ((complex_d_t*)out, (complex_d_t*)out, (complex_d_t*)f->k, n);
    ifft_r ((complex_d_t*)out, out, n);
-
 }
 
