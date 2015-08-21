@@ -43,19 +43,17 @@ extern "C" {
 /*
  * General defines
  */
-/*!
- * Number of samples calculation
- *           4
- * N = -------------
- *      Transition BW
- */
-#define  FIR_WSINC_SAMPLES(_tb)   ( 4./_tb )
+#define  _WSINC_BLACKMAN_TAPS       (5.5)
+#define  _WSINC_HAMMING_TAPS        (3.3)
+#define  _WSINC_BARLETT_TAPS        (4.)
+#define  _WSINC_HANNING_TAPS        (3.1)
 
 
 /*
  * =================== Data types =====================
  */
 typedef double (*window_pt) (uint32_t, uint32_t);
+typedef uint32_t (*wsinc_taps_pt) (uint32_t, double);
 
 typedef enum {
    FIR_LOW_PASS = 0,    // Default choice
@@ -85,11 +83,12 @@ typedef struct {
    /*
     * Inner filter data
     */
-   double      *k;   //!< Pointer to filter kernel
-   double      *t;   //!< Pointer to temporary array
-   uint32_t    T;    //!< The number of taps after cascade the filters in time domain
-   uint32_t    N;    //!< The number of kernel points in frequncy complex domain
-   window_pt   W;    //!< Pointer to window function
+   double         *k;   //!< Pointer to filter kernel
+   double         *t;   //!< Pointer to temporary array
+   uint32_t       T;    //!< The number of taps after cascade the filters in time domain
+   uint32_t       N;    //!< The number of kernel points in frequncy complex domain
+   window_pt      W;    //!< Pointer to window function
+   wsinc_taps_pt  tp;   //!< Pointer to number of taps calculation function
 }fir_wsinc_t;
 
 

@@ -45,6 +45,20 @@ static double _hanning (uint32_t i, uint32_t n) {
    return 0.5 - 0.5*cos (2*M_PI*i/n);
 }
 
+static uint32_t _blackman_taps (uint32_t c, double tb) {
+   return (uint32_t)ceil( _WSINC_BLACKMAN_TAPS*c/tb);
+}
+static uint32_t _hamming_taps (uint32_t c, double tb) {
+   return (uint32_t)ceil( _WSINC_HAMMING_TAPS*c/tb);
+}
+static uint32_t _barlett_taps (uint32_t c, double tb) {
+   return (uint32_t)ceil( _WSINC_BARLETT_TAPS*c/tb);
+}
+static uint32_t _hanning_taps (uint32_t c, double tb) {
+   return (uint32_t)ceil( _WSINC_HANNING_TAPS*c/tb);
+}
+
+
 static uint32_t _first_pow2_ge (uint32_t x) {
    uint32_t r;
    for (r=1 ; r<UINT32_MAX ; r<<=1) {
@@ -53,6 +67,7 @@ static uint32_t _first_pow2_ge (uint32_t x) {
    }
    return 0;
 }
+
 
 static void _1tran_loop (fir_wsinc_t *f, int sign) {
    uint32_t i, sT, n_2;
@@ -66,7 +81,8 @@ static void _1tran_loop (fir_wsinc_t *f, int sign) {
     *  slightly worse rool-off.
     */
    sT = (f->T + f->casc - 1)/f->casc;
-   f->T = f->casc * sT - (f->casc - 1);
+   sT += (sT%2) ? 0:1;                    // Tap must be odd number
+   f->T = f->casc * sT - (f->casc - 1);   // The final emulated Tap number can be even
 
    // Calculate kernel and normalise factor
    n_2 = sT>>1;   // Take the half and make it even
@@ -185,10 +201,22 @@ void fir_wsinc_set_ftype (fir_wsinc_t *f, fir_ftype_en t) {
 void fir_wsinc_set_wtype (fir_wsinc_t *f, fir_wtype_en w) {
    switch (w) {
       default:
-      case FIR_WSINC_BLACKMAN:   f->W = _blackman; break;
-      case FIR_WSINC_HAMMING:    f->W = _hamming;  break;
-      case FIR_WSINC_BARLETT:    f->W = _barlett;  break;
-      case FIR_WSINC_HANNING:    f->W = _hanning;  break;
+      case FIR_WSINC_BLACKMAN:
+         f->W = _blackman;
+         f->tp = _blackman_taps;
+         break;
+      case FIR_WSINC_HAMMING:
+         f->W = _hamming;
+         f->tp = _hamming_taps;
+         break;
+      case FIR_WSINC_BARLETT:
+         f->W = _barlett;
+         f->tp = _barlett_taps;
+         break;
+      case FIR_WSINC_HANNING:
+         f->W = _hanning;
+         f->tp = _hanning_taps;
+         break;
    }
 }
 
@@ -265,11 +293,11 @@ void fir_wsinc_deinit (fir_wsinc_t* f) {
  */
 uint32_t fir_wsinc_init (fir_wsinc_t* f)
 {
-   uint32_t i;
+   uint32_t i, j, sT;
+   double t;
 
    // Calculate taps in time domain
-   f->T = (uint32_t)ceil( 4.*f->casc/f->tb);
-   f->T += (f->T%2) ? 0:1;
+   f->T = f->tp(f->casc, f->tb);
    if (f->T < FIR_WSINC_MIN_TAPS)    f->T = FIR_WSINC_MIN_TAPS;
 
    // Calculate kernel points in frequency domain
@@ -294,6 +322,17 @@ uint32_t fir_wsinc_init (fir_wsinc_t* f)
             _2tran_loop (f, -1);
             break;
       }
+      // Zero phace the filter
+      /*
+      sT = (f->T + f->casc - 1)/f->casc;
+      for (i=0 ; i<sT >> 1 ; ++i) {
+         t = f->k[0];
+         for (j=0 ; j<sT-1 ; ++j)
+            f->k[j] = f->k[j+1];
+         f->k[j] = t;
+      }
+      */
+
       // Go to Frequency domain
       fft_r (f->k, (complex_d_t*)f->k, f->N);
 
@@ -330,7 +369,6 @@ void fir_wsinc (fir_wsinc_t *f, double *in, double *out, uint32_t n)
       ifft_r ((complex_d_t*)f->t, f->t, f->N);                 // Transform back to time domain
       for (j=0 ; j<f->N && i+j<out_sz; ++j)                    // Output data
          out[j+i] += f->t[j];
-      j=2;
    }
 }
 
