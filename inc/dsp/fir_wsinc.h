@@ -1,5 +1,5 @@
 /*!
- * \file filter_wsinc.h
+ * \file fir_wsinc.h
  * \brief
  *    A Windowed sinc filter implementation.
  *
@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef __filter_wsinc_h__
-#define __filter_wsinc_h__
+#ifndef __fir_wsinc_h__
+#define __fir_wsinc_h__
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,13 +31,14 @@ extern "C" {
 
 #include <dsp/dsp.h>
 #include <dsp/fft.h>
+#include <dsp/conv.h>
 #include <dsp/vectors.h>
 #include <string.h>
 
 /*
  * User defines
  */
-#define  WSINC_MIN_TAPS       (4)
+#define  FIR_WSINC_MIN_TAPS       (5)
 
 /*
  * General defines
@@ -48,7 +49,7 @@ extern "C" {
  * N = -------------
  *      Transition BW
  */
-#define  FILTER_WSINC_SAMPLES(_tb, _c)   ( 4./(_tb*_c) )
+#define  FIR_WSINC_SAMPLES(_tb)   ( 4./_tb )
 
 
 /*
@@ -57,18 +58,18 @@ extern "C" {
 typedef double (*window_pt) (uint32_t, uint32_t);
 
 typedef enum {
-   FILTER_LOW_PASS = 0,    // Default choice
-   FILTER_HIGH_PASS,
-   FILTER_BAND_PASS,
-   FILTER_BAND_REJECT
-}filter_ftype_en;
+   FIR_LOW_PASS = 0,    // Default choice
+   FIR_HIGH_PASS,
+   FIR_BAND_PASS,
+   FIR_BAND_REJECT
+}fir_ftype_en;
 
 typedef enum {
-   FILTER_WSINC_BLACKMAN = 0,    // Default choice
-   FILTER_WSINC_HAMMING,
-   FILTER_WSINC_BARLETT,
-   FILTER_WSINC_HANNING
-}filter_wtype_en;
+   FIR_WSINC_BLACKMAN = 0,    // Default choice
+   FIR_WSINC_HAMMING,
+   FIR_WSINC_BARLETT,
+   FIR_WSINC_HANNING
+}fir_wtype_en;
 
 
 
@@ -76,7 +77,7 @@ typedef struct {
    /*
     * User option fields
     */
-   filter_ftype_en ftype;  //!< The filter type
+   fir_ftype_en ftype;     //!< The filter type
    uint32_t casc;          //!< Number of cascade filters to implement
    double tb;              //!< transition bandwith
    double fc1, fc2;        //!< The transition frequencies
@@ -85,10 +86,11 @@ typedef struct {
     * Inner filter data
     */
    double      *k;   //!< Pointer to filter kernel
+   double      *t;   //!< Pointer to temporary array
    uint32_t    T;    //!< The number of taps after cascade the filters in time domain
    uint32_t    N;    //!< The number of kernel points in frequncy complex domain
    window_pt   W;    //!< Pointer to window function
-}filter_wsinc_t;
+}fir_wsinc_t;
 
 
 /* =================== Public API ===================== */
@@ -99,29 +101,29 @@ typedef struct {
 /*
  * Set functions
  */
-void filter_wsinc_set_ftype (filter_wsinc_t *f, filter_ftype_en t);
-void filter_wsinc_set_wtype (filter_wsinc_t *f, filter_wtype_en t);
-void filter_wsinc_set_fc (filter_wsinc_t *f, double fc1, double fc2);
-void filter_wsinc_set_tb (filter_wsinc_t *f, double tb);
-void filter_wsic_set_cascade (filter_wsinc_t *f, uint32_t c);
+void fir_wsinc_set_ftype (fir_wsinc_t *f, fir_ftype_en t);
+void fir_wsinc_set_wtype (fir_wsinc_t *f, fir_wtype_en t);
+void fir_wsinc_set_fc (fir_wsinc_t *f, double fc1, double fc2);
+void fir_wsinc_set_tb (fir_wsinc_t *f, double tb);
+void fir_wsic_set_cascade (fir_wsinc_t *f, uint32_t c);
 
 /*
  * User Functions
  */
-void filter_wsinc_deinit (filter_wsinc_t* f);
-uint32_t filter_wsinc_init (filter_wsinc_t* f);
+void fir_wsinc_deinit (fir_wsinc_t* f);
+uint32_t fir_wsinc_init (fir_wsinc_t* f);
 
-double filter_wsinc_d (filter_wsinc_t* f, double in) __optimize__ ;
-float filter_wsinc_f (filter_wsinc_t* f, float in) __optimize__ ;
-float filter_wsinc_i (filter_wsinc_t* f, int in) __optimize__ ;
-complex_d_t filter_wsinc_cd (filter_wsinc_t* f, complex_d_t in) __optimize__ ;
-complex_f_t filter_wsinc_cf (filter_wsinc_t* f, complex_f_t in) __optimize__ ;
-complex_f_t filter_wsinc_ci (filter_wsinc_t* f, complex_i_t in) __optimize__ ;
+double fir_wsinc_d (fir_wsinc_t* f, double in) __optimize__ ;
+float fir_wsinc_f (fir_wsinc_t* f, float in) __optimize__ ;
+float fir_wsinc_i (fir_wsinc_t* f, int in) __optimize__ ;
+complex_d_t fir_wsinc_cd (fir_wsinc_t* f, complex_d_t in) __optimize__ ;
+complex_f_t fir_wsinc_cf (fir_wsinc_t* f, complex_f_t in) __optimize__ ;
+complex_f_t fir_wsinc_ci (fir_wsinc_t* f, complex_i_t in) __optimize__ ;
 
-void filter_wsinc (filter_wsinc_t *f, double *in, double *out, uint32_t n);
+void fir_wsinc (fir_wsinc_t *f, double *in, double *out, uint32_t n);
 
 #if __STDC_VERSION__ >= 201112L
-#ifndef filter_mova
+#ifndef fir_mova
 /*!
  * A pseudo type-polymorphism mechanism using _Generic macro
  * to simulate:
@@ -137,20 +139,20 @@ void filter_wsinc (filter_wsinc_t *f, double *in, double *out, uint32_t n);
  *
  * \return        Filtered value
  */
-#define filter_mova(f, in)    _Generic((in),    \
-           complex_d_t: filter_mova_cd,         \
-           complex_f_t: filter_mova_cf,         \
-           complex_i_t: filter_mova_ci,         \
-                double: filter_mova_d,          \
-                 float: filter_mova_f,          \
-                   int: filter_mova_i,          \
-                default: filter_mova_d)(f, in)
-#endif   // #ifndef filter_mova
+#define fir_mova(f, in)    _Generic((in),    \
+           complex_d_t: fir_mova_cd,         \
+           complex_f_t: fir_mova_cf,         \
+           complex_i_t: fir_mova_ci,         \
+                double: fir_mova_d,          \
+                 float: fir_mova_f,          \
+                   int: fir_mova_i,          \
+                default: fir_mova_d)(f, in)
+#endif   // #ifndef fir_mova
 #endif   // #if __STDC_VERSION__ >= 201112L
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif   // #ifndef __filter_wsinc_h__
+#endif   // #ifndef __fir_wsinc_h__
 

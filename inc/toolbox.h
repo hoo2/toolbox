@@ -85,7 +85,7 @@ extern "C" {
  */
 #include <dsp/leaky_int.h>
 #include <dsp/filter_mova.h>
-#include <dsp/filter_wsinc.h>
+#include <dsp/fir_wsinc.h>
 #include <dsp/vectors.h>
 #include <dsp/conv.h>
 #include <dsp/xcorr.h>

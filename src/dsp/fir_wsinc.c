@@ -1,5 +1,5 @@
 /*!
- * \file filter_wsinc.c
+ * \file fir_wsinc.c
  * \brief
  *    A Windowed sinc filter implementation.
  *
@@ -22,7 +22,7 @@
  *
  */
 
-#include <dsp/filter_wsinc.h>
+#include <dsp/fir_wsinc.h>
 /*
  * ========= Static ============
  */
@@ -45,50 +45,74 @@ static double _hanning (uint32_t i, uint32_t n) {
    return 0.5 - 0.5*cos (2*M_PI*i/n);
 }
 
+static uint32_t _first_pow2_ge (uint32_t x) {
+   uint32_t r;
+   for (r=1 ; r<UINT32_MAX ; r<<=1) {
+      if (r>x)
+         return r;
+   }
+   return 0;
+}
 
-static void _1tran_loop (filter_wsinc_t *f, int sign) {
-   uint32_t i, cT, n_2;
+static void _1tran_loop (fir_wsinc_t *f, int sign) {
+   uint32_t i, sT, n_2;
    int32_t  n;
    double fact;
 
-   cT = f->T * f->casc;
-   n_2 = cT>>1;
+   /*
+    *  Find how many taps each filter stage is needing.
+    *  This integer division will produce an error, that will effect
+    *  transition bandwidth. So we update Taps but we accept the
+    *  slightly worse rool-off.
+    */
+   sT = (f->T + f->casc - 1)/f->casc;
+   f->T = f->casc * sT - (f->casc - 1);
+
    // Calculate kernel and normalise factor
+   n_2 = sT>>1;   // Take the half and make it even
    for (fact=i=0 ; i<=n_2 ; ++i) {
       n = i - n_2;
-      f->k[i] = _sinc (f->fc1, n) * f->W (i, cT);
+      f->k[i] = _sinc (f->fc1, n) * f->W (i, sT-1);
       fact += f->k[i] * 2;
-      f->k[cT - i] = (f->k[i] *= sign);
+      f->k[sT - 1 - i] = (f->k[i] *= sign);
    }
    fact -= f->k[n_2]*sign;
    fact = 1/fact;
    // Apply normalise factor
-   for (i=0 ; i<=cT ; ++i)
+   for (i=0 ; i<=sT ; ++i)
       f->k[i] *= fact;
 
    // invert symmetry point if needed
    f->k[n_2] += (sign==-1) ? 1:0;
 }
 
-static void _2tran_loop (filter_wsinc_t *f, int sign) {
-   uint32_t i, cT, n_2;
+static void _2tran_loop (fir_wsinc_t *f, int sign) {
+   uint32_t i, sT, n_2;
    int32_t  n;
    double fact;
 
-   cT = f->T * f->casc;
-   n_2 = cT>>1;
+   /*
+    *  Find how many taps each filter stage is needing.
+    *  This integer division will produce an error, that will effect
+    *  transition bandwidth. So we update Taps but we accept the
+    *  slightly worse rool-off.
+    */
+   sT = (f->T + f->casc - 1)/f->casc;
+   f->T = f->casc * sT - (f->casc - 1);
+
    // Calculate kernel and normalise factor
+   n_2 = sT>>1;   // Take the half and make it even
    for (fact=i=0 ; i<=n_2 ; ++i) {
       n = i - n_2;
-      f->k[i] = ( _sinc (f->fc1, n) * f->W (i, cT) +
-                  _sinc (f->fc2, n) * f->W (i, cT) );
+      f->k[i] = ( _sinc (f->fc1, n) * f->W (i, sT-1) +
+                  _sinc (f->fc2, n) * f->W (i, sT-1) );
       fact += f->k[i] * 2;
-      f->k[cT - i] = (f->k[i] *= sign);
+      f->k[sT - 1 - i] = (f->k[i] *= sign);
    }
    fact -= f->k[n_2]*sign;
    fact = 1/fact;
    // Apply normalise factor
-   for (i=0 ; i<=cT ; ++i)
+   for (i=0 ; i<=sT ; ++i)
       f->k[i] *= fact;
 
    // invert symmetry point if needed
@@ -116,7 +140,7 @@ static void _2tran_loop (filter_wsinc_t *f, int sign) {
  * \param   size  The size in size_t
  * \return        none
 */
-//void filter_wsinc_set_item_size (filter_wsinc_t *f, uint32_t size) {
+//void filter_wsinc_set_item_size (fir_wsinc_t *f, uint32_t size) {
 //   f->it_size = size;
 //}
 
@@ -126,22 +150,22 @@ static void _2tran_loop (filter_wsinc_t *f, int sign) {
  *
  * \param   f     Which filter to use
  * \param   t     Filter type
- *    \arg  FILTER_LOW_PASS
- *    \arg  FILTER_HIGH_PASS
- *    \arg  FILTER_BAND_PASS
- *    \arg  FILTER_BAND_REJECT
+ *    \arg  FIR_LOW_PASS
+ *    \arg  FIR_HIGH_PASS
+ *    \arg  FIR_BAND_PASS
+ *    \arg  FIR_BAND_REJECT
  * \return        none
 */
-void filter_wsinc_set_ftype (filter_wsinc_t *f, filter_ftype_en t) {
+void fir_wsinc_set_ftype (fir_wsinc_t *f, fir_ftype_en t) {
    switch (t) {
-      case FILTER_LOW_PASS:
-      case FILTER_HIGH_PASS:
-      case FILTER_BAND_PASS:
-      case FILTER_BAND_REJECT:
+      case FIR_LOW_PASS:
+      case FIR_HIGH_PASS:
+      case FIR_BAND_PASS:
+      case FIR_BAND_REJECT:
          f->ftype = t;
          break;
       default:
-         f->ftype = FILTER_LOW_PASS;
+         f->ftype = FIR_LOW_PASS;
          break;
    }
 }
@@ -152,19 +176,19 @@ void filter_wsinc_set_ftype (filter_wsinc_t *f, filter_ftype_en t) {
  *
  * \param   f     Which filter to use
  * \param   w     Window type
- *    \arg  FILTER_WSINC_BLACKMAN
- *    \arg  FILTER_WSINC_HAMMING
- *    \arg  FILTER_WSINC_BARLETT
- *    \arg  FILTER_WSINC_HANNING
+ *    \arg  FIR_WSINC_BLACKMAN
+ *    \arg  FIR_WSINC_HAMMING
+ *    \arg  FIR_WSINC_BARLETT
+ *    \arg  FIR_WSINC_HANNING
  * \return        none
 */
-void filter_wsinc_set_wtype (filter_wsinc_t *f, filter_wtype_en w) {
+void fir_wsinc_set_wtype (fir_wsinc_t *f, fir_wtype_en w) {
    switch (w) {
       default:
-      case FILTER_WSINC_BLACKMAN:   f->W = _blackman; break;
-      case FILTER_WSINC_HAMMING:    f->W = _hamming;  break;
-      case FILTER_WSINC_BARLETT:    f->W = _barlett;  break;
-      case FILTER_WSINC_HANNING:    f->W = _hanning;  break;
+      case FIR_WSINC_BLACKMAN:   f->W = _blackman; break;
+      case FIR_WSINC_HAMMING:    f->W = _hamming;  break;
+      case FIR_WSINC_BARLETT:    f->W = _barlett;  break;
+      case FIR_WSINC_HANNING:    f->W = _hanning;  break;
    }
 }
 
@@ -180,7 +204,7 @@ void filter_wsinc_set_wtype (filter_wsinc_t *f, filter_wtype_en w) {
  * \param   fc2   Transition frequency 2
  * \return        none
 */
-void filter_wsinc_set_fc (filter_wsinc_t *f, double fc1, double fc2) {
+void fir_wsinc_set_fc (fir_wsinc_t *f, double fc1, double fc2) {
    f->fc1 = fc1;
    f->fc2 = fc2;
 }
@@ -196,7 +220,7 @@ void filter_wsinc_set_fc (filter_wsinc_t *f, double fc1, double fc2) {
  * \param   trbw  Transition frequency 1
  * \return        None
 */
-void filter_wsinc_set_tb (filter_wsinc_t *f, double tb) {
+void fir_wsinc_set_tb (fir_wsinc_t *f, double tb) {
    f->tb = tb;
 }
 
@@ -209,7 +233,7 @@ void filter_wsinc_set_tb (filter_wsinc_t *f, double tb) {
  * \param   c     How many filters to cascade
  * \return        None
 */
-void filter_wsic_set_cascade (filter_wsinc_t *f, uint32_t c) {
+void fir_wsic_set_cascade (fir_wsinc_t *f, uint32_t c) {
    f->casc = c;
 }
 
@@ -224,10 +248,10 @@ void filter_wsic_set_cascade (filter_wsinc_t *f, uint32_t c) {
  * \param  f      Which filter to free
  * \return none
 */
-void filter_wsinc_deinit (filter_wsinc_t* f) {
+void fir_wsinc_deinit (fir_wsinc_t* f) {
    if ( f->k )
       free ((void*)f->k);
-   memset ((void*)f, 0, sizeof (filter_wsinc_t));
+   memset ((void*)f, 0, sizeof (fir_wsinc_t));
 }
 
 
@@ -239,39 +263,34 @@ void filter_wsinc_deinit (filter_wsinc_t* f) {
  * \param  fc     The normalised cutoff frequency [0fs - 0.5fs]
  * \return        None
  */
-uint32_t filter_wsinc_init (filter_wsinc_t* f)
+uint32_t fir_wsinc_init (fir_wsinc_t* f)
 {
-   uint32_t i, cT;
+   uint32_t i;
 
-   // Calculate taps and cascade taps in time domain
-   f->T = (uint32_t)FILTER_WSINC_SAMPLES (f->tb, f->casc);
-   f->T -= (f->T%2) ? 1:0;
-   if (f->T < WSINC_MIN_TAPS)    f->T = WSINC_MIN_TAPS;
+   // Calculate taps in time domain
+   f->T = (uint32_t)ceil( 4.*f->casc/f->tb);
+   f->T += (f->T%2) ? 0:1;
+   if (f->T < FIR_WSINC_MIN_TAPS)    f->T = FIR_WSINC_MIN_TAPS;
 
    // Calculate kernel points in frequency domain
-   cT = (f->T * f->casc + 1)*2;
-   for (i=1 ; i<UINT32_MAX ; i<<=1) {
-      if (i>=cT) {
-         f->N = i;
-         break;
-      }
-   }
+   f->N = _first_pow2_ge (2*f->T);
 
    // Try to allocate kernel in memory
-   if ( (f->k = (void*)calloc (2*f->N, sizeof (double))) != NULL ) {
+   if ( (f->k = (void*)calloc (2*f->N, sizeof (double))) != NULL &&
+        (f->t = (void*)calloc (2*f->N, sizeof (double))) != NULL ) {
       // Despatch based on filter type
       switch (f->ftype) {
          default:
-         case FILTER_LOW_PASS:
+         case FIR_LOW_PASS:
             _1tran_loop (f, 1);
             break;
-         case FILTER_HIGH_PASS:
+         case FIR_HIGH_PASS:
             _1tran_loop (f, -1);
             break;
-         case FILTER_BAND_REJECT:
+         case FIR_BAND_REJECT:
             _2tran_loop (f, 1);
             break;
-         case FILTER_BAND_PASS:
+         case FIR_BAND_PASS:
             _2tran_loop (f, -1);
             break;
       }
@@ -279,7 +298,7 @@ uint32_t filter_wsinc_init (filter_wsinc_t* f)
       fft_r (f->k, (complex_d_t*)f->k, f->N);
 
       // Cascade filters
-      for (i=0 ; i<f->casc ; ++i)
+      for (i=1 ; i<f->casc ; ++i)
          vemul_cd ((complex_d_t*)f->k, (complex_d_t*)f->k, (complex_d_t*)f->k, f->N);
 
       return f->N;
@@ -289,11 +308,29 @@ uint32_t filter_wsinc_init (filter_wsinc_t* f)
 }
 
 
-void filter_wsinc (filter_wsinc_t *f, double *in, double *out, uint32_t n)
+void fir_wsinc (fir_wsinc_t *f, double *in, double *out, uint32_t n)
 {
-   fft_r (in, (complex_d_t*)out, n);
+   uint32_t i, j, seg, out_sz;
 
-   vemul_cd ((complex_d_t*)out, (complex_d_t*)out, (complex_d_t*)f->k, n);
-   ifft_r ((complex_d_t*)out, out, n);
+   // Calculate segment and clear output signal
+   seg = f->N - f->T + 1;
+   out_sz = _first_pow2_ge(n);
+   memset ((void*)out, 0, out_sz*sizeof (double));
+
+   // Loop the filter
+   for (i=0 ; i<n ; i+=seg) {
+      memset ((void*)f->t, 0, 2*f->N*sizeof (double));         // Clear temporary table
+      if (i+seg-1<=n)                                          // Copy input segment
+         memcpy ((void*)f->t, (void*)&in[i], seg * sizeof (double));
+      else  // last segment
+         memcpy ((void*)f->t, (void*)&in[i], (n-i) * sizeof (double));
+      fft_r (f->t, (complex_d_t*)f->t, f->N);                  // Transform input signal
+      vemul_cd ((complex_d_t*)f->t, (complex_d_t*)f->t, (complex_d_t*)f->k, f->N);
+                                                               // Frequency domain multiplication
+      ifft_r ((complex_d_t*)f->t, f->t, f->N);                 // Transform back to time domain
+      for (j=0 ; j<f->N && i+j<out_sz; ++j)                    // Output data
+         out[j+i] += f->t[j];
+      j=2;
+   }
 }
 

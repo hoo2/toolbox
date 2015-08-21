@@ -24,51 +24,19 @@
 #include <dsp/conv.h>
 
 
-/*
- * void convolve(const double Signal[], size_t SignalLen,
-              const double Kernel[], size_t KernelLen,
-              double Result[])
-{
-  size_t n;
-
-  for (n = 0; n < SignalLen + KernelLen - 1; n++)
-  {
-    size_t kmin, kmax, k;
-
-    Result[n] = 0;
-
-    kmin = (n >= KernelLen - 1) ? n - (KernelLen - 1) : 0;
-    kmax = (n < SignalLen - 1) ? n : SignalLen - 1;
-
-    for (k = kmin; k <= kmax; k++)
-    {
-      Result[n] += Signal[k] * Kernel[n - k];
-    }
-  }
+#define  _conv_body() {                               \
+   int n, k, sy, kmin, kmax;                          \
+                                                      \
+   sy = sx + sh - 1;                                  \
+   for (n=0; n<sy; ++n) {                             \
+      /* Find conv range */                           \
+      kmin = (n >= sh - 1) ? n - (sh - 1) : 0;        \
+      kmax = (n < sx - 1) ? n : sx - 1;               \
+      for (y[n]=0, k=kmin; k<=kmax; ++k)              \
+         y[n] += x[k] * h[n - k];   /* Do the sum */  \
+  }                                                   \
 }
-*/
 
-#define  _conv_body()                                          \
-{                                                              \
-   int sy, n, m, m_lo,m_hi;                                    \
-                                                               \
-   sy = sx + sh - 1;                                           \
-                                                               \
-   for (n=0 ; n<sy ; ++n, ++y) {                               \
-      *y = 0;     /* Empty Accumulator */                      \
-      /* Calculate boundaries */                               \
-      m_lo = (m=n-sh+1)>0 ? m : 0;  /* m start */              \
-      m_hi = n>sx-1 ? sx-1 : n;     /* m stop */               \
-      hp = h + n-m_lo;              /* hp start */             \
-      xp = x + m_lo;                /* xp start */             \
-      /* Do the convolution sum for the output point n */      \
-      for (m=m_hi-m_lo ; m>=0 ; --m) {                         \
-         *y += *xp * *hp;                                      \
-         ++xp;                                                 \
-         --hp;                                                 \
-      }                                                        \
-   }                                                           \
-}
 
 /*!
  * \brief
@@ -94,7 +62,6 @@
  * \return none
  */
 void conv_i (int *y, int *h, uint32_t sh, int *x, uint32_t sx) {
-   int *hp, *xp;   // Use pointers for speed
    _conv_body();
 }
 
@@ -122,7 +89,6 @@ void conv_i (int *y, int *h, uint32_t sh, int *x, uint32_t sx) {
  * \return none
  */
 void conv_f (float *y, float *h, uint32_t sh, float *x, uint32_t sx) {
-   float *hp, *xp;   // Use pointers for speed
    _conv_body();
 }
 
@@ -150,7 +116,6 @@ void conv_f (float *y, float *h, uint32_t sh, float *x, uint32_t sx) {
  * \return none
  */
 void conv_d (double *y, double *h, uint32_t sh, double *x, uint32_t sx) {
-   double *hp, *xp;   // Use pointers for speed
    _conv_body();
 }
 
@@ -178,7 +143,6 @@ void conv_d (double *y, double *h, uint32_t sh, double *x, uint32_t sx) {
  * \return none
  */
 void conv_ci (complex_i_t *y, complex_i_t *h, uint32_t sh, complex_i_t *x, uint32_t sx) {
-   complex_i_t *hp, *xp;   // Use pointers for speed
    _conv_body();
 }
 
@@ -206,7 +170,6 @@ void conv_ci (complex_i_t *y, complex_i_t *h, uint32_t sh, complex_i_t *x, uint3
  * \return none
  */
 void conv_cf (complex_f_t *y, complex_f_t *h, uint32_t sh, complex_f_t *x, uint32_t sx) {
-   complex_f_t *hp, *xp;   // Use pointers for speed
    _conv_body();
 }
 
@@ -234,7 +197,6 @@ void conv_cf (complex_f_t *y, complex_f_t *h, uint32_t sh, complex_f_t *x, uint3
  * \return none
  */
 void conv_cd (complex_d_t *y, complex_d_t *h, uint32_t sh, complex_d_t *x, uint32_t sx) {
-   complex_d_t *hp, *xp;   // Use pointers for speed
    _conv_body();
 }
 #undef _conv_body
