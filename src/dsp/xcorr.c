@@ -24,46 +24,34 @@
 #include <dsp/xcorr.h>
 
 
-#define  _corr_body_r() {                                      \
-   int sy, n, m, m_lo,m_hi;                                    \
-                                                               \
-   sy = sx + st - 1;                                           \
-                                                               \
-   for (n=0 ; n<sy ; ++n, ++y) {                               \
-      *y = 0;    /* Empty Accumulator */                       \
-      /* Calculate boundaries */                               \
-      m_lo = (m=n-st+1)>0 ? m:0;    /* x start */              \
-      m_hi = n>sx-1 ? sx-1 : n;     /* x stop */               \
-      tp = (st-n>0) ? t + st-n-1:t; /* tp start */             \
-      xp = x + m_lo;                /* xp start */             \
-      /* Do the correlation sum for the output point n */      \
-      for (m=m_hi-m_lo ; m>=0 ; --m) {                         \
-         *y += *xp * *tp;                                      \
-         ++xp;                                                 \
-         ++tp;                                                 \
-      }                                                        \
-   }                                                           \
+#define  _corr_body_r() {                             \
+   int n, k, sy, kmin, kmax;                          \
+                                                      \
+   sy = sx + sh - 1;                                  \
+   --sx; --sh; /* Convert to last point */            \
+   for (n=0; n<sy; ++n) {                             \
+      /* Find correlation range - zero padding */     \
+      kmax = (n - sh < 0)       ? n : sh;             \
+      kmin = ((k = n - sx) > 0) ? k : 0;              \
+      for (y[n]=0, k=kmin; k<=kmax; ++k)              \
+         /* Do the sum */                             \
+         y[n] += h[k] * x[sx-(n-k)];                  \
+  }                                                   \
 }
 
-#define  _corr_body_c() {                                      \
-   int sy, n, m, m_lo,m_hi;                                    \
-                                                               \
-   sy = sx + st - 1;                                           \
-                                                               \
-   for (n=0 ; n<sy ; ++n, ++y) {                               \
-      *y = 0;    /* Empty Accumulator */                       \
-      /* Calculate boundaries */                               \
-      m_lo = (m=n-st+1)>0 ? m : 0;  /* m start */              \
-      m_hi = n>sx-1 ? sx-1 : n;     /* m stop */               \
-      tp = (st-n>0) ? t + st-n-1:t; /* tp start */             \
-      xp = x + m_lo;                /* xp start */             \
-      /* Do the correlation sum for the output point n */      \
-      for (m=m_hi-m_lo ; m>=0 ; --m) {                         \
-         *y += *xp * conj(*tp);                                \
-         ++xp;                                                 \
-         ++tp;                                                 \
-      }                                                        \
-   }                                                           \
+#define  _corr_body_c() {                             \
+   int n, k, sy, kmin, kmax;                          \
+                                                      \
+   sy = sx + sh - 1;                                  \
+   --sx; --sh; /* Convert to last point */            \
+   for (n=0; n<sy; ++n) {                             \
+      /* Find correlation range - zero padding */     \
+      kmax = (n - sh < 0)       ? n : sh;             \
+      kmin = ((k = n - sx) > 0) ? k : 0;              \
+      for (y[n]=0, k=kmin; k<=kmax; ++k)              \
+         /* Do the sum */                             \
+         y[n] += conj(h[k]) * x[sx-(n-k)];            \
+  }                                                   \
 }
 
 /*!
@@ -86,7 +74,6 @@
  * \return none
  */
 void xcorr_i (int *y, int *t, int st, int *x, int sx) {
-   int *tp, *xp;   // Use pointers for speed
    _corr_body_r();
 }
 
@@ -110,7 +97,6 @@ void xcorr_i (int *y, int *t, int st, int *x, int sx) {
  * \return none
  */
 void xcorr_f (float *y, float *t, int st, float *x, int sx) {
-   float *tp, *xp;   // Use pointers for speed
    _corr_body_r();
 }
 
@@ -134,7 +120,6 @@ void xcorr_f (float *y, float *t, int st, float *x, int sx) {
  * \return none
  */
 void xcorr_d (double *y, double *t, int st, double *x, int sx) {
-   double *tp, *xp;   // Use pointers for speed
    _corr_body_r();
 }
 
@@ -158,7 +143,6 @@ void xcorr_d (double *y, double *t, int st, double *x, int sx) {
  * \return none
  */
 void xcorr_ci (complex_i_t *y, complex_i_t *t, int st, complex_i_t *x, int sx) {
-   complex_i_t *tp, *xp;   // Use pointers for speed
    _corr_body_c();
 }
 
@@ -182,7 +166,6 @@ void xcorr_ci (complex_i_t *y, complex_i_t *t, int st, complex_i_t *x, int sx) {
  * \return none
  */
 void xcorr_cf (complex_f_t *y, complex_f_t *t, int st, complex_f_t *x, int sx) {
-   complex_f_t *tp, *xp;   // Use pointers for speed
    _corr_body_c();
 }
 
@@ -206,7 +189,6 @@ void xcorr_cf (complex_f_t *y, complex_f_t *t, int st, complex_f_t *x, int sx) {
  * \return none
  */
 void xcorr_cd (complex_d_t *y, complex_d_t *t, int st, complex_d_t *x, int sx) {
-   complex_d_t *tp, *xp;   // Use pointers for speed
    _corr_body_c();
 }
 #undef _corr_body_r

@@ -28,14 +28,16 @@
    int n, k, sy, kmin, kmax;                          \
                                                       \
    sy = sx + sh - 1;                                  \
+   --sx; --sh; /* Convert to last point */            \
    for (n=0; n<sy; ++n) {                             \
-      /* Find conv range */                           \
-      kmin = (n >= sh - 1) ? n - (sh - 1) : 0;        \
-      kmax = (n < sx - 1) ? n : sx - 1;               \
+      /* Find convolution range - zero padding */     \
+      kmax = (n - sh < 0)       ? n : sh;             \
+      kmin = ((k = n - sx) > 0) ? k : 0;              \
       for (y[n]=0, k=kmin; k<=kmax; ++k)              \
-         y[n] += x[k] * h[n - k];   /* Do the sum */  \
+         y[n] += h[k] * x[n-k];  /* Do the sum */     \
   }                                                   \
 }
+
 
 
 /*!

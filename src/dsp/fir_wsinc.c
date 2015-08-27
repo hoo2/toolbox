@@ -322,16 +322,6 @@ uint32_t fir_wsinc_init (fir_wsinc_t* f)
             _2tran_loop (f, -1);
             break;
       }
-      // Zero phace the filter
-      /*
-      sT = (f->T + f->casc - 1)/f->casc;
-      for (i=0 ; i<sT >> 1 ; ++i) {
-         t = f->k[0];
-         for (j=0 ; j<sT-1 ; ++j)
-            f->k[j] = f->k[j+1];
-         f->k[j] = t;
-      }
-      */
 
       // Go to Frequency domain
       fft_r (f->k, (complex_d_t*)f->k, f->N);
