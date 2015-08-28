@@ -67,10 +67,10 @@ extern "C" {
 #define fft(x, X, n)       _Generic((x),  \
        complex_d_t*: fft_c,               \
        complex_f_t*: fft_cf,              \
-       complex_i_t*: fft_cf,              \
+       complex_i_t*: fft_ci,              \
             double*: fft_r,               \
              float*: fft_rf,              \
-               int*: fft_rf,              \
+               int*: fft_ri,              \
             default: fft_r)(x, X, n)
 #endif   // #ifndef fft
 #endif   // #if __STDC_VERSION__ >= 201112L
@@ -118,10 +118,8 @@ void fft_ri (int *x, complex_f_t *X, uint32_t n) __O3__ ;
 #define ifft(X, x, n)      _Generic((x),  \
        complex_d_t*: ifft_c,              \
        complex_f_t*: ifft_cf,             \
-       complex_i_t*: ifft_cf,             \
             double*: ifft_r,              \
              float*: ifft_rf,             \
-               int*: ifft_rf,             \
             default: ifft_r)(X, x, n)
 #endif   // #ifndef ifft
 #endif   // #if __STDC_VERSION__ >= 201112L
