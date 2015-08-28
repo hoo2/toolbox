@@ -70,12 +70,12 @@ void filter_mova_set_fc (filter_mova_t *f, double fc);
 void filter_mova_deinit (filter_mova_t* f);
 uint32_t filter_mova_init (filter_mova_t* f);
 
-double filter_mova_d (filter_mova_t* f, double in) __optimize__ ;
-float filter_mova_f (filter_mova_t* f, float in) __optimize__ ;
-float filter_mova_i (filter_mova_t* f, int in) __optimize__ ;
-complex_d_t filter_mova_cd (filter_mova_t* f, complex_d_t in) __optimize__ ;
-complex_f_t filter_mova_cf (filter_mova_t* f, complex_f_t in) __optimize__ ;
-complex_f_t filter_mova_ci (filter_mova_t* f, complex_i_t in) __optimize__ ;
+double filter_mova_d (filter_mova_t* f, double in) __O3__ ;
+float filter_mova_f (filter_mova_t* f, float in) __O3__ ;
+float filter_mova_i (filter_mova_t* f, int in) __O3__ ;
+complex_d_t filter_mova_cd (filter_mova_t* f, complex_d_t in) __O3__ ;
+complex_f_t filter_mova_cf (filter_mova_t* f, complex_f_t in) __O3__ ;
+complex_f_t filter_mova_ci (filter_mova_t* f, complex_i_t in) __O3__ ;
 
 #if __STDC_VERSION__ >= 201112L
 #ifndef filter_mova

@@ -35,12 +35,12 @@ extern "C" {
  * ================== Public API ====================
  */
 
-void vadd_i (int *y, int *a, int *b, int length) __optimize__ ;
-void vadd_f (float *y, float *a, float *b, int length) __optimize__ ;
-void vadd_d (double *y, double *a, double *b, int length) __optimize__ ;
-void vadd_ci (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __optimize__ ;
-void vadd_cf (complex_f_t *y, complex_f_t *a, complex_f_t *b, int length) __optimize__ ;
-void vadd_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
+void vadd_i (int *y, int *a, int *b, int length) __O3__ ;
+void vadd_f (float *y, float *a, float *b, int length) __O3__ ;
+void vadd_d (double *y, double *a, double *b, int length) __O3__ ;
+void vadd_ci (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __O3__ ;
+void vadd_cf (complex_f_t *y, complex_f_t *a, complex_f_t *b, int length) __O3__ ;
+void vadd_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __O3__ ;
 
 #if __STDC_VERSION__ >= 201112L
 #ifndef vadd
@@ -74,12 +74,12 @@ void vadd_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __opti
 #endif   // #if __STDC_VERSION__ >= 201112L
 
 
-void vsub_i (int *y, int *a, int *b, int length) __optimize__ ;
-void vsub_f (float *y, float *a, float *b, int length) __optimize__ ;
-void vsub_d (double *y, double *a, double *b, int length) __optimize__ ;
-void vsub_ci (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __optimize__ ;
-void vsub_cf (complex_f_t *y, complex_f_t *a, complex_f_t *b, int length) __optimize__ ;
-void vsub_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
+void vsub_i (int *y, int *a, int *b, int length) __O3__ ;
+void vsub_f (float *y, float *a, float *b, int length) __O3__ ;
+void vsub_d (double *y, double *a, double *b, int length) __O3__ ;
+void vsub_ci (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __O3__ ;
+void vsub_cf (complex_f_t *y, complex_f_t *a, complex_f_t *b, int length) __O3__ ;
+void vsub_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __O3__ ;
 
 #if __STDC_VERSION__ >= 201112L
 #ifndef vsub
@@ -113,12 +113,12 @@ void vsub_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __opti
 #endif   // #if __STDC_VERSION__ >= 201112L
 
 
-void vemul_i (int *y, int *a, int *b, int length) __optimize__ ;
-void vemul_f (float *y, float *a, float *b, int length) __optimize__ ;
-void vemul_d (double *y, double *a, double *b, int length) __optimize__ ;
-void vemul_ci (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __optimize__ ;
-void vemul_cf (complex_f_t *y, complex_f_t *a, complex_f_t *b, int length) __optimize__ ;
-void vemul_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
+void vemul_i (int *y, int *a, int *b, int length) __O3__ ;
+void vemul_f (float *y, float *a, float *b, int length) __O3__ ;
+void vemul_d (double *y, double *a, double *b, int length) __O3__ ;
+void vemul_ci (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __O3__ ;
+void vemul_cf (complex_f_t *y, complex_f_t *a, complex_f_t *b, int length) __O3__ ;
+void vemul_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __O3__ ;
 
 #if __STDC_VERSION__ >= 201112L
 #ifndef vemul
@@ -152,12 +152,12 @@ void vemul_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __opt
 #endif   // #if __STDC_VERSION__ >= 201112L
 
 
-int vediv_i (int *y, int *a, int *b, int length) __optimize__ ;
-int vediv_f (float *y, float *a, float *b, int length) __optimize__ ;
-int vediv_d (double *y, double *a, double *b, int length) __optimize__ ;
-int vediv_ci (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __optimize__ ;
-int vediv_cf (complex_f_t *y, complex_f_t *a, complex_f_t *b, int length) __optimize__ ;
-int vediv_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
+int vediv_i (int *y, int *a, int *b, int length) __O3__ ;
+int vediv_f (float *y, float *a, float *b, int length) __O3__ ;
+int vediv_d (double *y, double *a, double *b, int length) __O3__ ;
+int vediv_ci (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __O3__ ;
+int vediv_cf (complex_f_t *y, complex_f_t *a, complex_f_t *b, int length) __O3__ ;
+int vediv_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __O3__ ;
 
 #if __STDC_VERSION__ >= 201112L
 #ifndef vediv
@@ -193,12 +193,12 @@ int vediv_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __opti
 #endif   // #if __STDC_VERSION__ >= 201112L
 
 
-int vdot_i (int *a, int *b, int length) __optimize__ ;
-float vdot_f (float *a, float *b, int length) __optimize__ ;
-double vdot_d (double *a, double *b, int length) __optimize__ ;
-complex_i_t vdot_ci (complex_i_t *a, complex_i_t *b, int length) __optimize__ ;
-complex_f_t vdot_cf (complex_f_t *a, complex_f_t *b, int length) __optimize__ ;
-complex_d_t vdot_cd (complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
+int vdot_i (int *a, int *b, int length) __O3__ ;
+float vdot_f (float *a, float *b, int length) __O3__ ;
+double vdot_d (double *a, double *b, int length) __O3__ ;
+complex_i_t vdot_ci (complex_i_t *a, complex_i_t *b, int length) __O3__ ;
+complex_f_t vdot_cf (complex_f_t *a, complex_f_t *b, int length) __O3__ ;
+complex_d_t vdot_cd (complex_d_t *a, complex_d_t *b, int length) __O3__ ;
 
 #if __STDC_VERSION__ >= 201112L
 #ifndef vdot
@@ -233,12 +233,12 @@ complex_d_t vdot_cd (complex_d_t *a, complex_d_t *b, int length) __optimize__ ;
 #endif   // #if __STDC_VERSION__ >= 201112L
 
 
-float vnorm_i (int *x, int length) __optimize__ ;
-float vnorm_f (float *x, int length) __optimize__ ;
-double vnorm_d (double *x, int length) __optimize__ ;
-complex_f_t vnorm_ci (complex_i_t *x, int length) __optimize__ ;
-complex_f_t vnorm_cf (complex_f_t *x, int length) __optimize__ ;
-complex_d_t vnorm_cd (complex_d_t *x, int length) __optimize__ ;
+float vnorm_i (int *x, int length) __O3__ ;
+float vnorm_f (float *x, int length) __O3__ ;
+double vnorm_d (double *x, int length) __O3__ ;
+complex_f_t vnorm_ci (complex_i_t *x, int length) __O3__ ;
+complex_f_t vnorm_cf (complex_f_t *x, int length) __O3__ ;
+complex_d_t vnorm_cd (complex_d_t *x, int length) __O3__ ;
 
 #if __STDC_VERSION__ >= 201112L
 #ifndef vnorm
@@ -273,9 +273,9 @@ complex_d_t vnorm_cd (complex_d_t *x, int length) __optimize__ ;
 #endif   // #if __STDC_VERSION__ >= 201112L
 
 
-void vcart_i (float *c, int *p) __optimize__ ;
-void vcart_f (float *c, float *p) __optimize__ ;
-void vcart_d (double *c, double *p) __optimize__ ;
+void vcart_i (float *c, int *p) __O3__ ;
+void vcart_f (float *c, float *p) __O3__ ;
+void vcart_d (double *c, double *p) __O3__ ;
 
 #if __STDC_VERSION__ >= 201112L
 #ifndef vcart
@@ -302,12 +302,12 @@ void vcart_d (double *c, double *p) __optimize__ ;
 #endif   // #if __STDC_VERSION__ >= 201112L
 
 
-void vpolar_i (float *p, int *c) __optimize__ ;
-void vpolar_f (float *p, float *c) __optimize__ ;
-void vpolar_d (double *p, double *c) __optimize__ ;
-void vpolar_ci (float *p, complex_i_t c) __optimize__ ;
-void vpolar_cf (float *p, complex_f_t c) __optimize__ ;
-void vpolar_cd (double *p, complex_d_t c) __optimize__ ;
+void vpolar_i (float *p, int *c) __O3__ ;
+void vpolar_f (float *p, float *c) __O3__ ;
+void vpolar_d (double *p, double *c) __O3__ ;
+void vpolar_ci (float *p, complex_i_t c) __O3__ ;
+void vpolar_cf (float *p, complex_f_t c) __O3__ ;
+void vpolar_cd (double *p, complex_d_t c) __O3__ ;
 
 #if __STDC_VERSION__ >= 201112L
 #ifndef vpolar

@@ -44,6 +44,33 @@ extern "C" {
  */
 #define tbx_assert(x)  ((void)sizeof(x))
 
+
+
+/*!
+ * Optimisations
+ */
+
+#ifdef __GNUC0__
+#define __O0__    __attribute__ ((optimize("O0")))
+#else
+#define __O0__
+#endif
+
+#ifdef __GNUC0__
+#define __O3__    __attribute__ ((optimize("O3")))
+#else
+#define __O3__
+#endif
+
+#ifdef __GNUC0__
+#define __Os__    __attribute__ ((optimize("Os")))
+#else
+#define __Os__
+#endif
+
+
+
+
 #ifdef __cplusplus
 }
 #endif

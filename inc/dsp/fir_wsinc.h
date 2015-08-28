@@ -112,12 +112,12 @@ void fir_wsic_set_cascade (fir_wsinc_t *f, uint32_t c);
 void fir_wsinc_deinit (fir_wsinc_t* f);
 uint32_t fir_wsinc_init (fir_wsinc_t* f);
 
-double fir_wsinc_d (fir_wsinc_t* f, double in) __optimize__ ;
-float fir_wsinc_f (fir_wsinc_t* f, float in) __optimize__ ;
-float fir_wsinc_i (fir_wsinc_t* f, int in) __optimize__ ;
-complex_d_t fir_wsinc_cd (fir_wsinc_t* f, complex_d_t in) __optimize__ ;
-complex_f_t fir_wsinc_cf (fir_wsinc_t* f, complex_f_t in) __optimize__ ;
-complex_f_t fir_wsinc_ci (fir_wsinc_t* f, complex_i_t in) __optimize__ ;
+double fir_wsinc_d (fir_wsinc_t* f, double in) __O3__ ;
+float fir_wsinc_f (fir_wsinc_t* f, float in) __O3__ ;
+float fir_wsinc_i (fir_wsinc_t* f, int in) __O3__ ;
+complex_d_t fir_wsinc_cd (fir_wsinc_t* f, complex_d_t in) __O3__ ;
+complex_f_t fir_wsinc_cf (fir_wsinc_t* f, complex_f_t in) __O3__ ;
+complex_f_t fir_wsinc_ci (fir_wsinc_t* f, complex_i_t in) __O3__ ;
 
 void fir_wsinc (fir_wsinc_t *f, double *in, double *out, uint32_t n);
 

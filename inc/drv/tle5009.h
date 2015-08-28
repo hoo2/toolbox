@@ -29,8 +29,8 @@ extern "C" {
 #endif
 
 #include <tbx_types.h>
-#include <dsp/quick_trig.h>
 #include <dsp/vectors.h>
+#include <math/math.h>
 #include <complex.h>
 
 /*

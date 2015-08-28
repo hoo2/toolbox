@@ -34,12 +34,12 @@ extern "C" {
 /*
  * ================== Public API ====================
  */
-void conv_i (int *y, int *h, uint32_t sh, int *x, uint32_t sx) __optimize__ ;
-void conv_f (float *y, float *h, uint32_t sh, float *x, uint32_t sx) __optimize__ ;
-void conv_d (double *y, double *h, uint32_t sh, double *x, uint32_t sx) __optimize__ ;
-void conv_ci (complex_i_t *y, complex_i_t *h, uint32_t sh, complex_i_t *x, uint32_t sx) __optimize__ ;
-void conv_cf (complex_f_t *y, complex_f_t *h, uint32_t sh, complex_f_t *x, uint32_t sx) __optimize__ ;
-void conv_cd (complex_d_t *y, complex_d_t *h, uint32_t sh, complex_d_t *x, uint32_t sx) __optimize__ ;
+void conv_i (int *y, int *h, int32_t sh, int *x, int32_t sx) __O3__ ;
+void conv_f (float *y, float *h, int32_t sh, float *x, int32_t sx) __O3__ ;
+void conv_d (double *y, double *h, int32_t sh, double *x, int32_t sx) __O3__ ;
+void conv_ci (complex_i_t *y, complex_i_t *h, int32_t sh, complex_i_t *x, int32_t sx) __O3__ ;
+void conv_cf (complex_f_t *y, complex_f_t *h, int32_t sh, complex_f_t *x, int32_t sx) __O3__ ;
+void conv_cd (complex_d_t *y, complex_d_t *h, int32_t sh, complex_d_t *x, int32_t sx) __O3__ ;
 
 
 #if __STDC_VERSION__ >= 201112L

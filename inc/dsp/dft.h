@@ -29,6 +29,7 @@ extern "C" {
 #endif
 
 #include <dsp/dsp.h>
+#include <math/math.h>
 
 /*
  * ================== Public API ====================
@@ -64,10 +65,10 @@ extern "C" {
 #endif   // #ifndef dft
 #endif   // #if __STDC_VERSION__ >= 201112L
 
-void dft_c (complex_d_t *x, complex_d_t *X, uint32_t n) __optimize__ ;
-void dft_cf (complex_f_t *x, complex_f_t *X, uint32_t n) __optimize__ ;
-void dft_r (double *x, complex_d_t *X, uint32_t n) __optimize__ ;
-void dft_rf (float *x, complex_f_t *X, uint32_t n) __optimize__ ;
+void dft_c (complex_d_t *x, complex_d_t *X, uint32_t n) __O3__ ;
+void dft_cf (complex_f_t *x, complex_f_t *X, uint32_t n) __O3__ ;
+void dft_r (double *x, complex_d_t *X, uint32_t n) __O3__ ;
+void dft_rf (float *x, complex_f_t *X, uint32_t n) __O3__ ;
 
 
 // Inverse DFT
@@ -107,10 +108,10 @@ void dft_rf (float *x, complex_f_t *X, uint32_t n) __optimize__ ;
 #endif   // #ifndef idft
 #endif   // #if __STDC_VERSION__ >= 201112L
 
-void idft_c (complex_d_t *X, complex_d_t *x, uint32_t n) __optimize__ ;
-void idft_cf (complex_f_t *X, complex_f_t *x, uint32_t n) __optimize__ ;
-void idft_r (complex_d_t *X, double *x, uint32_t n) __optimize__ ;
-void idft_rf (complex_f_t *X, float *x, uint32_t n) __optimize__ ;
+void idft_c (complex_d_t *X, complex_d_t *x, uint32_t n) __O3__ ;
+void idft_cf (complex_f_t *X, complex_f_t *x, uint32_t n) __O3__ ;
+void idft_r (complex_d_t *X, double *x, uint32_t n) __O3__ ;
+void idft_rf (complex_f_t *X, float *x, uint32_t n) __O3__ ;
 
 #ifdef __cplusplus
 }

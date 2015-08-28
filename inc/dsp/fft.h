@@ -30,7 +30,7 @@ extern "C" {
 #endif
 
 #include <dsp/dsp.h>
-
+#include <math/math.h>
 /*
  * General Defines
  */
@@ -75,10 +75,12 @@ extern "C" {
 #endif   // #ifndef fft
 #endif   // #if __STDC_VERSION__ >= 201112L
 
-void fft_c (complex_d_t *x, complex_d_t *X, uint32_t n) __optimize__ ;
-void fft_cf (complex_f_t *x, complex_f_t *X, uint32_t n) __optimize__ ;
-void fft_r (double *x, complex_d_t *X, uint32_t n) __optimize__ ;
-void fft_rf (float *x, complex_f_t *X, uint32_t n) __optimize__ ;
+void fft_c (complex_d_t *x, complex_d_t *X, uint32_t n) __O3__ ;
+void fft_cf (complex_f_t *x, complex_f_t *X, uint32_t n) __O3__ ;
+void fft_ci (complex_i_t *x, complex_f_t *X, uint32_t n) __O3__ ;
+void fft_r (double *x, complex_d_t *X, uint32_t n) __O3__ ;
+void fft_rf (float *x, complex_f_t *X, uint32_t n) __O3__ ;
+void fft_ri (int *x, complex_f_t *X, uint32_t n) __O3__ ;
 
 
 // Inverse FFT
@@ -124,10 +126,10 @@ void fft_rf (float *x, complex_f_t *X, uint32_t n) __optimize__ ;
 #endif   // #ifndef ifft
 #endif   // #if __STDC_VERSION__ >= 201112L
 
-void ifft_c (complex_d_t *X, complex_d_t *x, uint32_t n) __optimize__ ;
-void ifft_cf (complex_f_t *X, complex_f_t *x, uint32_t n) __optimize__ ;
-void ifft_r (complex_d_t *X, double *x, uint32_t n) __optimize__ ;
-void ifft_rf (complex_f_t *X, float *x, uint32_t n) __optimize__ ;
+void ifft_c (complex_d_t *X, complex_d_t *x, uint32_t n) __O3__ ;
+void ifft_cf (complex_f_t *X, complex_f_t *x, uint32_t n) __O3__ ;
+void ifft_r (complex_d_t *X, double *x, uint32_t n) __O3__ ;
+void ifft_rf (complex_f_t *X, float *x, uint32_t n) __O3__ ;
 
 #ifdef __cplusplus
 }

@@ -93,6 +93,13 @@ extern "C" {
 #include <dsp/fft.h>
 
 /*!
+ * \defgroup math
+ */
+#include <math/math.h>
+#include <math/quick_trig.h>
+
+
+/*!
  * \defgroup std
  */
 #include <std/sprintf.h>

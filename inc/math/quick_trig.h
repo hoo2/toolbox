@@ -1,11 +1,12 @@
 /*
- * \file dsp.h
+ * \file quick_trig.h
  * \brief
- *    Common dsp header file
+ *    A target independent fast trigonometric functions, using
+ *    parabolic approximation.
  *
  * This file is part of toolbox
  *
- * Copyright (C) 2014 Houtouridis Christos (http://www.houtouridis.net)
+ * Copyright (C) 2015 Houtouridis Christos (http://www.houtouridis.net)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -21,23 +22,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef __dsp_h__
-#define __dsp_h__
+#ifndef __quick_trig_h__
+#define __quick_trig_h__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <complex.h>
-#include <tbx_types.h>
-#include <toolbox_defs.h>
-#include <math.h>
+#include <math/math.h>
+
+double qsin (double th) __O3__ ;
+double qcos (double th) __O3__ ;
+double qtan (double th) __O3__ ;
+double qcot (double th) __O3__ ;
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif   // #ifndef __dsp_h__
+#endif   // #ifndef __quick_trig_h__
+

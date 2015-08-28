@@ -1,8 +1,7 @@
 /*
- * \file quick_trig.h
+ * \file math.c
  * \brief
- *    A target independent fast trigonometric functions, using
- *    parabolic approximation.
+ *    Small and quick math functions, that are not general cases
  *
  * This file is part of toolbox
  *
@@ -22,23 +21,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#ifndef __quick_trig_h__
-#define __quick_trig_h__
+#include <math/math.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+/*!
+ * \brief
+ *    Calculate the Log2N
+ * \note    N has to be power of 2
+ */
+uint32_t _log2 (int32_t n) {
+   uint32_t r=1;
 
-#include <dsp/dsp.h>
-
-double qsin (double th) __optimize__ ;
-double qcos (double th) __optimize__ ;
-double qtan (double th) __optimize__ ;
-double qcot (double th) __optimize__ ;
-
-#ifdef __cplusplus
+   while (n>1) {
+      n >>= 1;
+      ++r;
+   }
+   return r-1;
 }
-#endif
 
-#endif   // #ifndef __quick_trig_h__
+/*!
+ * \brief
+ *    Calculate the 2^e power for integer e
+ */
+uint32_t _pow2 (uint32_t e) {
+   uint32_t r = 1;
 
+   if (e == 0)
+      return 1;
+   else {
+      for ( ; e>0 ; --e)
+         r <<= 1;
+      return r;
+   }
+}
