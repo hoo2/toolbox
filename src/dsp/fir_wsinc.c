@@ -293,8 +293,7 @@ void fir_wsinc_deinit (fir_wsinc_t* f) {
  */
 uint32_t fir_wsinc_init (fir_wsinc_t* f)
 {
-   uint32_t i, j, sT;
-   double t;
+   uint32_t i;
 
    // Calculate taps in time domain
    f->T = f->tp(f->casc, f->tb);
