@@ -27,30 +27,30 @@
 #define  _corr_body_r() {                             \
    int n, k, sy, kmin, kmax;                          \
                                                       \
-   sy = sx + sh - 1;                                  \
-   --sx; --sh; /* Convert to last point */            \
+   sy = sx + st - 1;                                  \
+   --sx; --st; /* Convert to last point */            \
    for (n=0; n<sy; ++n) {                             \
       /* Find correlation range - zero padding */     \
-      kmax = (n - sh < 0)       ? n : sh;             \
+      kmax = (n - st < 0)       ? n : st;             \
       kmin = ((k = n - sx) > 0) ? k : 0;              \
       for (y[n]=0, k=kmin; k<=kmax; ++k)              \
          /* Do the sum */                             \
-         y[n] += h[k] * x[sx-(n-k)];                  \
+         y[n] += t[k] * x[sx-(n-k)];                  \
   }                                                   \
 }
 
 #define  _corr_body_c() {                             \
    int n, k, sy, kmin, kmax;                          \
                                                       \
-   sy = sx + sh - 1;                                  \
-   --sx; --sh; /* Convert to last point */            \
+   sy = sx + st - 1;                                  \
+   --sx; --st; /* Convert to last point */            \
    for (n=0; n<sy; ++n) {                             \
       /* Find correlation range - zero padding */     \
-      kmax = (n - sh < 0)       ? n : sh;             \
+      kmax = (n - st < 0)       ? n : st;             \
       kmin = ((k = n - sx) > 0) ? k : 0;              \
       for (y[n]=0, k=kmin; k<=kmax; ++k)              \
          /* Do the sum */                             \
-         y[n] += conj(h[k]) * x[sx-(n-k)];            \
+         y[n] += t[k] * conj(x[sx-(n-k)]);            \
   }                                                   \
 }
 
