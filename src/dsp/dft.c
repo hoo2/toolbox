@@ -39,7 +39,7 @@ void dft_c (complex_d_t *x, complex_d_t *X, uint32_t n)
    double th, _2pi_n, _2pii_n;
    complex_d_t w;
 
-   _2pi_n = 2*M_PI/n;
+   _2pi_n = M_2PI/n;
    for (i=0 ; i<n ; ++i) {
       _2pii_n = _2pi_n * i;   // calculate omega
       X[i] = 0;               // empty acc
@@ -67,7 +67,7 @@ void dft_cf (complex_f_t *x, complex_f_t *X, uint32_t n)
    float th, _2pi_n, _2pii_n;
    complex_f_t w;
 
-   _2pi_n = 2*M_PI/n;
+   _2pi_n = M_2PI/n;
    for (i=0 ; i<n ; ++i) {
       _2pii_n = _2pi_n * i;   // calculate omega
       X[i] = 0;               // empty acc
@@ -95,7 +95,7 @@ void dft_r (double *x, complex_d_t *X, uint32_t n)
    double th, _2pi_n, _2pii_n;
    complex_d_t w;
 
-   _2pi_n = 2*M_PI/n;
+   _2pi_n = M_2PI/n;
    n_2 = n>>1;
    for (i=0 ; i<n ; ++i) {
       _2pii_n = _2pi_n * i;   // calculate omega
@@ -165,7 +165,7 @@ void idft_c (complex_d_t *X, complex_d_t *x, uint32_t n)
    double th, _2pi_n, _2pii_n, _1_n;
    complex_d_t w;
 
-   _2pi_n = 2*M_PI/n;
+   _2pi_n = M_2PI/n;
    _1_n = 1./n;
    for (i=0 ; i<n ; ++i) {
       _2pii_n = _2pi_n * i;   // calculate omega
@@ -240,7 +240,7 @@ void idft_r (complex_d_t *X, double *x, uint32_t n)
    double th, _2pi_n, _2pii_n, _1_n, _2_n;
    complex_d_t w;
 
-   _2pi_n = 2*M_PI/n;
+   _2pi_n = M_2PI/n;
    _1_n = 1./n;
    _2_n = 2./n;
    n_2 = n>>1;
@@ -274,7 +274,7 @@ void idft_rf (complex_f_t *X, float *x, uint32_t n)
    float th, _2pi_n, _2pii_n, _1_n, _2_n;
    complex_f_t w;
 
-   _2pi_n = 2*M_PI/n;
+   _2pi_n = M_2PI/n;
    _1_n = 1./n;
    _2_n = 2./n;
    n_2 = n>>1;
