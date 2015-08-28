@@ -73,7 +73,7 @@
  *
  * \return none
  */
-void xcorr_i (int *y, int *t, int st, int *x, int sx) {
+void xcorr_i (int *y, int *t, int32_t st, int *x, int32_t sx) {
    _corr_body_r();
 }
 
@@ -96,7 +96,7 @@ void xcorr_i (int *y, int *t, int st, int *x, int sx) {
  *
  * \return none
  */
-void xcorr_f (float *y, float *t, int st, float *x, int sx) {
+void xcorr_f (float *y, float *t, int32_t st, float *x, int32_t sx) {
    _corr_body_r();
 }
 
@@ -119,7 +119,7 @@ void xcorr_f (float *y, float *t, int st, float *x, int sx) {
  *
  * \return none
  */
-void xcorr_d (double *y, double *t, int st, double *x, int sx) {
+void xcorr_d (double *y, double *t, int32_t st, double *x, int32_t sx) {
    _corr_body_r();
 }
 
@@ -142,7 +142,7 @@ void xcorr_d (double *y, double *t, int st, double *x, int sx) {
  *
  * \return none
  */
-void xcorr_ci (complex_i_t *y, complex_i_t *t, int st, complex_i_t *x, int sx) {
+void xcorr_ci (complex_i_t *y, complex_i_t *t, int32_t st, complex_i_t *x, int32_t sx) {
    _corr_body_c();
 }
 
@@ -165,7 +165,7 @@ void xcorr_ci (complex_i_t *y, complex_i_t *t, int st, complex_i_t *x, int sx) {
  *
  * \return none
  */
-void xcorr_cf (complex_f_t *y, complex_f_t *t, int st, complex_f_t *x, int sx) {
+void xcorr_cf (complex_f_t *y, complex_f_t *t, int32_t st, complex_f_t *x, int32_t sx) {
    _corr_body_c();
 }
 
@@ -188,7 +188,7 @@ void xcorr_cf (complex_f_t *y, complex_f_t *t, int st, complex_f_t *x, int sx) {
  *
  * \return none
  */
-void xcorr_cd (complex_d_t *y, complex_d_t *t, int st, complex_d_t *x, int sx) {
+void xcorr_cd (complex_d_t *y, complex_d_t *t, int32_t st, complex_d_t *x, int32_t sx) {
    _corr_body_c();
 }
 #undef _corr_body_r
