@@ -94,7 +94,7 @@ void jf_deinit (void)
  *    \sa jf_connect_setfreq() and \sa jf_connect_value() first.
  * \return Zero on success, non zero on error
  */
-int jf_init (uint32_t jf_freq, uint32_t jiffies)
+int jf_init (uint32_t jf_freq, jiffy_t jiffies)
 {
    if (_jf.setfreq)
    {
@@ -141,16 +141,13 @@ inline jiffy_t jf_get_jiffy (void){
  */
 jiffy_t jf_per_msec (void)
 {
-   jiffy_t jf = _jf.freq / 1000;
+   jiffy_t jf = (jiffy_t)(_jf.freq / 1000);
    /*            1
     * 1000Hz = -----  , Its not a magic number
     *          1msec
     */
-   if (jf <= _jf.jiffies)
-      return jf;
-   else
-      // We can not count beyond timer's reload
-      return 0;
+   if (jf <= 1)      return 1;
+   else              return jf;
 }
 
 /*!
@@ -164,16 +161,13 @@ jiffy_t jf_per_msec (void)
  */
 jiffy_t jf_per_usec (void)
 {
-   jiffy_t jf = _jf.freq / 1000000;
+   jiffy_t jf = (jiffy_t)(_jf.freq / 1000000);
    /*            1
     * 1000000Hz = -----  , Its not a magic number
     *          1usec
     */
-   if (jf <= _jf.jiffies)
-      return jf;
-   else
-      // We can not count beyond timer's reload
-      return 0;
+   if (jf <= 1)      return 1;
+   else              return jf;
 }
 
 /*!
@@ -185,19 +179,19 @@ jiffy_t jf_per_usec (void)
  * \param
  *    usec     Time in usec for delay
  */
-void jf_delay_us (int32_t usec)
+void jf_delay_us (jtime_t usec)
 {
-   jiffy_t m, m2, m1 = *_jf.value;
+   jtime_t m, m2, m1 = (jtime_t)*_jf.value;
 
    usec *= _jf.jpus;
-   if (*_jf.value - m1 > usec) // Very small delays may return here.
+   if ((jtime_t)(*_jf.value) - m1 > usec) // Very small delays may return here.
       return;
 
    // Eat the time difference from usec value.
    while (usec>0) {
-      m2 = *_jf.value;
+      m2 = (jtime_t)(*_jf.value);
       m = m2 - m1;
-      usec -= (m>0) ? m : _jf.jiffies + m;
+      usec -= (m>=0) ? m : _jf.jiffies + m;
       m1 = m2;
    }
 }
@@ -211,17 +205,17 @@ void jf_delay_us (int32_t usec)
  * \param
  *    msec     Time in msec for delay
  */
-void jf_delay_ms (int32_t msec)
+void jf_delay_ms (jtime_t msec)
 {
-   jiffy_t m, m2, m1 = *_jf.value;
+   jtime_t m, m2, m1 = (jtime_t)*_jf.value;
 
    msec *= jf_per_msec ();
 
    // Eat the time difference from msec value.
    while (msec>0) {
-      m2 = *_jf.value;
+      m2 = (jtime_t)(*_jf.value);
       m = m2 - m1;
-      msec -= (m>0) ? m : _jf.jiffies + m;
+      msec -= (m>=0) ? m : _jf.jiffies + m;
       m1 = m2;
    }
 }
@@ -235,10 +229,10 @@ void jf_delay_ms (int32_t msec)
  * \param
  *    usec     Time in usec for delay
  */
-int jf_check_usec (int32_t usec)
+int jf_check_usec (jtime_t usec)
 {
-   static jiffy_t m1=-1, cnt;
-   jiffy_t m, m2;
+   static jtime_t m1=-1, cnt;
+   jtime_t m, m2;
 
    if (m1 == -1) {
       m1 = *_jf.value;
@@ -247,9 +241,9 @@ int jf_check_usec (int32_t usec)
 
    // Eat the time difference from usec value.
    if (cnt>0) {
-      m2 = *_jf.value;
+      m2 = (jtime_t)(*_jf.value);
       m = m2-m1;
-      cnt -= (m>0) ? m : _jf.jiffies + m;
+      cnt -= (m>=0) ? m : _jf.jiffies + m;
       m1 = m2;
       return 1;   // wait
    }

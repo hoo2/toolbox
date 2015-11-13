@@ -32,9 +32,9 @@
 #include <string.h>
 #include <tbx_types.h>
 
-typedef int32_t   jiffy_t;    /*!< Jiffy type 4 byte integer */
-
-typedef int (*jf_setfreq_pt) (uint32_t, uint32_t);   /*!< Pointer to setfreq function \sa setfreq */
+typedef uint16_t     jiffy_t;       //!< Jiffy type 2 byte unsigned integer
+typedef int32_t      jtime_t;        //!< Jiffy time type for delay functionalities usec/msec
+typedef int          (*jf_setfreq_pt) (uint32_t, uint32_t);   //!< Pointer to setfreq function \sa setfreq
 
 /*!
  * Jiffy inner structure,
@@ -56,7 +56,7 @@ typedef volatile struct
     */
    jiffy_t        *value;        /*!< Pointer to timers current value */
    uint32_t       freq;          /*!< timer's  frequency */
-   uint32_t       jiffies;       /*!< jiffies max value (timer's max value) */
+   jiffy_t        jiffies;       /*!< jiffies max value (timer's max value) */
    jiffy_t        jpus;          /*!< Variable for the delay function */
    drv_status_en  status;
 }jf_t;
@@ -81,16 +81,16 @@ void jf_link_value (jiffy_t* v);
  */
 drv_status_en jf_probe (void);
 void jf_deinit (void);
-int jf_init (uint32_t jf_freq, uint32_t jiffies);
+int jf_init (uint32_t jf_freq, jiffy_t jiffies);
 
 jiffy_t jf_get_jiffies (void);
 jiffy_t jf_get_jiffy (void);
 jiffy_t jf_per_msec (void);
 jiffy_t jf_per_usec (void);
 
-void jf_delay_us (int32_t usec);
-void jf_delay_ms (int32_t msec);
-int jf_check_usec (int32_t usec);
+void jf_delay_us (jtime_t usec);
+void jf_delay_ms (jtime_t msec);
+int jf_check_usec (jtime_t usec);
 
 /*!
  * \note

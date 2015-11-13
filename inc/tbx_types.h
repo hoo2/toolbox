@@ -86,15 +86,18 @@ typedef enum
  */
 typedef double _Complex    complex_d_t;
 typedef float _Complex     complex_f_t;
+#ifdef __GCC__
 typedef int _Complex       complex_i_t;
+#endif
 
 #define  real(_z)       (((double*)&(_z))[0])
 #define  imag(_z)       (((double*)&(_z))[1])
 #define  realf(_z)      (((float*)&(_z))[0])
 #define  imagf(_z)      (((float*)&(_z))[1])
+#ifdef __GCC__
 #define  reali(_z)      (((int*)&(_z))[0])
 #define  imagi(_z)      (((int*)&(_z))[1])
-
+#endif
 #ifdef __cplusplus
 }
 #endif
