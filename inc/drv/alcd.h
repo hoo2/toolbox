@@ -78,8 +78,8 @@ extern "C" {
  *  F = 1 -->5x10 dots     F = 0 -->5x8 dots
  *
  */
-#define LCD_LINES                   (2)
-#define LCD_ROWS                    (16)
+//#define LCD_LINES                   (4)
+//#define LCD_ROWS                    (16)
 
 #define LCD_CLRSCR                  (0x01)      /*!< Clear Srean Command Number */
 #define LCD_RETHOME                 (0x02)      /*!< Cursor home Un-Shift display DDRam as is */
@@ -135,12 +135,12 @@ typedef volatile struct
  */
 typedef volatile struct
 {
-   alcd_io_t      io;      /*!< Link to IO struct */
-   alcd_cursor_t  c;       /*!< Link to Cursor struct */
-   uint8_t        bus;     /*!< Bus length, 4 or 8 bit */
-   uint8_t        bl :1;   /*!< BackLight flag */
-   uint8_t        en :1;   /*!< Display Enable flag */
-   drv_status_en  status;  /*!< alcd driver status */
+   alcd_io_t      io;      //!< Link to IO struct
+   alcd_cursor_t  c;       //!< Link to Cursor struct
+   uint8_t        lines;   //!< The lines of attached lcd
+   uint8_t        columns; //!< The columns of attached lcd
+   //uint8_t        bus;     //!< Bus length, 4 or 8 bit
+   drv_status_en  status;  //!< alcd driver status
 }alcd_t;
 
 
@@ -159,25 +159,26 @@ void alcd_link_rs (alcd_t *alcd, alcd_pin_t pfun);
 void alcd_link_en (alcd_t *alcd, alcd_pin_t pfun);
 void alcd_link_bl (alcd_t *alcd, alcd_pin_t pfun);
 
-int alcd_putchar (alcd_t *alcd, int ch);
+int alcd_putchar (alcd_t *alcd, int ch) __Os__;
 
 /*
  * Set functions
  */
-// XXX: No options, no settings yet. 4bit, 2line, 2x16 only :(
+void alcd_set_lines (alcd_t *alcd, int lines);
+void alcd_set_columns (alcd_t *alcd, int columns);
 
 /*
  * User Functions
  */
-void alcd_deinit (alcd_t *alcd);                /*!< For compatibility */
-drv_status_en alcd_init (alcd_t *alcd);         /*!< For compatibility */
+void alcd_deinit (alcd_t *alcd) __Os__ ;                /*!< For compatibility */
+drv_status_en alcd_init (alcd_t *alcd) __Os__ ;         /*!< For compatibility */
 
-void alcd_backlight (alcd_t *alcd, uint8_t on); /*!< For compatibility */
-void alcd_enable (alcd_t *alcd, uint8_t on);    /*!< For compatibility */
-void alcd_cls (alcd_t *alcd);                   /*!< For compatibility */
-void alcd_shift (alcd_t *alcd, int pos);        /*!< For compatibility */
+void alcd_backlight (alcd_t *alcd, uint8_t on) __Os__ ; /*!< For compatibility */
+void alcd_enable (alcd_t *alcd, uint8_t on) __Os__ ;    /*!< For compatibility */
+void alcd_cls (alcd_t *alcd) __Os__ ;                   /*!< For compatibility */
+void alcd_shift (alcd_t *alcd, int pos) __Os__ ;        /*!< For compatibility */
 
-drv_status_en  alcd_ioctl (alcd_t *alcd, ioctl_cmd_t cmd, ioctl_buf_t buf);
+drv_status_en  alcd_ioctl (alcd_t *alcd, ioctl_cmd_t cmd, ioctl_data_t buf) __Os__ ;
 
 #ifdef __cplusplus
 }

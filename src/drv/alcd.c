@@ -24,47 +24,73 @@
 
 #include <drv/alcd.h>
 
-static void _inc_x (alcd_t *alcd);
-static void _inc_y (alcd_t *alcd);
-static void _dec_x (alcd_t *alcd);
-static void _set_bus (alcd_t *alcd, int8_t db);
-static void _write_data (alcd_t *alcd, int8_t data);
-static void _command (alcd_t *alcd, uint8_t c);
-static void _character (alcd_t *alcd, uint8_t c);
-static void _set_cursor (alcd_t *alcd, uint8_t x, uint8_t y);
+static  int _inc_x (alcd_t *alcd) __Os__ ;
+static  int _dec_x (alcd_t *alcd) __Os__ ;
+static void _inc_y (alcd_t *alcd) __Os__ ;
+static void _dec_y (alcd_t *alcd) __Os__ ;
+static void _set_bus (alcd_t *alcd, int8_t db) __Os__ ;
+static void _write_data (alcd_t *alcd, int8_t data) __Os__ ;
+static void _command (alcd_t *alcd, uint8_t c) __Os__ ;
+static void _character (alcd_t *alcd, uint8_t c) __Os__ ;
+static void _set_cursor (alcd_t *alcd, uint8_t x, uint8_t y) __Os__ ;
 
 
 /*!
  * \brief
  *    increase cursor's x position. Positions start from 1.
+ *    If the cursor loops returns 1, else returns 0.
  * \param  alcd   pointer to active alcd.
- * \return none
+ * \return        Change line status
  */
-static void _inc_x (alcd_t *alcd) {
-   if (++alcd->c.x > LCD_ROWS)
-      alcd->c.x = 1;
-}
+static int _inc_x (alcd_t *alcd) {
+   int ret=0;
 
-/*!
- * \brief
- *    increase cursor's y position. Positions start from 1.
- * \param  alcd    pointer to active alcd.
- * \return none
- */
-static void _inc_y (alcd_t *alcd) {
-   if (++alcd->c.y > LCD_LINES)
-      alcd->c.y = 1;
+   if (++alcd->c.x > alcd->columns) {
+      alcd->c.x = 1;
+      ret = 1;
+   }
+   return ret;
 }
 
 /*!
  * \brief
  *    Decrease cursor's x position. Positions start from 1.
+ *    If the cursor loops returns 1, else returns 0.
  * \param  alcd   pointer to active alcd.
  * \return none
  */
-static void _dec_x (alcd_t *alcd) {
-   if (--alcd->c.x < 1)
-      alcd->c.x = LCD_ROWS;
+static int _dec_x (alcd_t *alcd) {
+   int ret = 0;
+
+   if (--alcd->c.x < 1) {
+      alcd->c.x = alcd->columns;
+      ret = 1;
+   }
+   return ret;
+}
+
+/*!
+ * \brief
+ *    increase cursor's y position. Positions start from 1.
+ * \param  alcd   pointer to active alcd.
+ * \return none
+ */
+static void _inc_y (alcd_t *alcd) {
+   if (++alcd->c.y > alcd->lines) {
+      alcd->c.y = 1;
+   }
+}
+
+/*!
+ * \brief
+ *    Decrease cursor's y position. Positions start from 1.
+ * \param  alcd   pointer to active alcd.
+ * \return none
+ */
+static void _dec_y (alcd_t *alcd) {
+   if (--alcd->c.y < 1) {
+      alcd->c.y = alcd->lines;
+   }
 }
 
 /*!
@@ -127,7 +153,6 @@ static void _character (alcd_t *alcd, uint8_t c)
    alcd->io.rs(1);         // Enter character mode
    jf_delay_us (100);      // Wait
    _write_data (alcd, c);  // Send
-   _inc_x (alcd);          // Update cursors
 }
 
 /*!
@@ -143,11 +168,23 @@ static void _set_cursor (alcd_t *alcd, uint8_t x, uint8_t y)
    uint8_t cmd;
 
    alcd->c.x = x;             // Update alcd data
-   alcd->c.x = y;
+   alcd->c.y = y;
 
-   cmd = 0x80 | (x - 1);      // Calculate command
-   cmd |= (0x40 * (y - 1));
-   _command (alcd, cmd);      // Command out the alcd
+   // Calculate address
+   switch (y) {
+      default:
+      case 1: cmd = 0x0;   break;
+      case 2: cmd = 0x40;  break;
+      case 3: cmd = 0x0 + alcd->columns;  break;
+      case 4: cmd = 0x40 + alcd->columns; break;
+   }
+   cmd |= (x - 1);
+
+   // Calculate command
+   cmd |= LCD_DDRAMMask;
+
+   // Command out the alcd
+   _command (alcd, cmd);
 }
 
 
@@ -237,19 +274,14 @@ int alcd_putchar (alcd_t *alcd, int ch)
 {
    alcd->status = DRV_BUSY;
    // LCD Character dispatcher
-   switch (ch)
-   {
+   switch (ch) {
       case 0:
          // don't send null termination to device
          break;
-      case '\r':
-         alcd->c.x = 1;
-         _set_cursor (alcd, alcd->c.x, alcd->c.y);
-         break;
       case '\n':
          _inc_y (alcd);
-         alcd->c.x = 1;
-         _set_cursor (alcd, alcd->c.x, alcd->c.y);
+      case '\r':
+         _set_cursor (alcd, 1, alcd->c.y);
          break;
       case '\v':
          alcd->c.x = alcd->c.y = 1;
@@ -257,20 +289,23 @@ int alcd_putchar (alcd_t *alcd, int ch)
          jf_delay_us(2000);
          break;
       case '\f':
-         alcd->c.x = alcd->c.y = 1;
-         //_command (alcd, LCD_CLRSCR);
-         //jf_delay_us(5000);
-         _command (alcd, LCD_RETHOME);
-         //_set_cursor (alcd, alcd->c.x, alcd->c.y);
+         //alcd->c.x = alcd->c.y = 1;
+         _set_cursor (alcd, 1, 1);
+           //_command (alcd, LCD_CLRSCR);
+           //jf_delay_us(5000);
+         //_command (alcd, LCD_RETHOME);
+           //_set_cursor (alcd, alcd->c.x, alcd->c.y);
          jf_delay_us(2000);
          break;
       case '\b':
-         _dec_x (alcd);
+         if (_dec_x (alcd))   _dec_y (alcd);
+         _set_cursor (alcd, alcd->c.x, alcd->c.y);
          _character (alcd, ' ');
-         _dec_x (alcd);
+         _set_cursor (alcd, alcd->c.x, alcd->c.y);
          break;
       default:
          _character (alcd, ch);
+         if (_inc_x (alcd))   _set_cursor (alcd, alcd->c.x, alcd->c.y);
          break;
    }
 
@@ -281,6 +316,32 @@ int alcd_putchar (alcd_t *alcd, int ch)
    return ch;
 }
 
+
+/*
+ * Set functions
+ */
+
+/*!
+ * \brief
+ *    Set the number of lines for the attached lcd display
+ * \param  alcd   pointer to active alcd.
+ * \param  lines  The number of lines (usually 2 or 4)
+ * \return None.
+ */
+void alcd_set_lines (alcd_t *alcd, int lines) {
+   alcd->lines = lines;
+}
+
+/*!
+ * \brief
+ *    Set the number of columns for the attached lcd display
+ * \param  alcd   pointer to active alcd.
+ * \param  lines  The number of columns (usually 16 or 20)
+ * \return None.
+ */
+void alcd_set_columns (alcd_t *alcd, int columns) {
+   alcd->columns = columns;
+}
 
 /*
  * User Functions
@@ -331,7 +392,7 @@ drv_status_en alcd_init (alcd_t *alcd)
    alcd->io.rs (0);
    jf_delay_us(100000);
 
-   //Pre-Init phace 8bit at this point
+   //Pre-Init phase 8bit at this point
    _set_bus (alcd, 0x3);
       jf_delay_us(50000);
    _set_bus (alcd, 0x3);
@@ -356,7 +417,7 @@ drv_status_en alcd_init (alcd_t *alcd)
       jf_delay_us(10000);
    _command (alcd, LCD_DISP_ON);
       jf_delay_us(5000);
-   alcd_backlight (alcd, 1);
+   //alcd_backlight (alcd, 1);
    return alcd->status = DRV_READY;
 
    #undef _lcd_assert
@@ -389,10 +450,10 @@ void alcd_enable (alcd_t *alcd, uint8_t on)
 {
    if (on) {
       _command (alcd, LCD_DISP_ON);
-      alcd_backlight (alcd, 1);
+      //alcd_backlight (alcd, 1);
    } else {
       _command (alcd, LCD_DISP_OFF);
-      alcd_backlight (alcd, 0);
+      //alcd_backlight (alcd, 0);
    }
 }
 
@@ -412,7 +473,7 @@ void alcd_cls (alcd_t *alcd)
 
 /*!
  * \brief
- *    Shift alcd lefr or right for a \a pos characters.
+ *    Shift alcd left or right for a \a pos characters.
  * \param  alcd   pointer to active alcd.
  * \param  pos    The number of position to shift.
  *    A positive number shifts lcd data to left, so screen shows the data in the right.
@@ -446,39 +507,38 @@ void alcd_shift (alcd_t *alcd, int pos)
  *    \arg CTRL_BACKLIGHT
  *    \arg CTRL_CLEAR_ALL
  *    \arg CTRL_SHIFT
- * \param  buf   pointer to buffer for ioctl
+ * \param  data  data for ioctl
  * \return The status of the operation
  *    \arg DRV_READY
  *    \arg DRV_ERROR
  */
-drv_status_en  alcd_ioctl (alcd_t *alcd, ioctl_cmd_t cmd, ioctl_buf_t buf)
+drv_status_en  alcd_ioctl (alcd_t *alcd, ioctl_cmd_t cmd, ioctl_data_t data)
 {
-   switch (cmd)
-   {
+   switch (cmd) {
       case CTRL_GET_STATUS:            /*!< Probe function */
-         if (buf)
-            *(drv_status_en*)buf = alcd->status;
+         if (data)
+            data = (drv_status_en)alcd->status;
          return DRV_READY;
       case CTRL_DEINIT:                /*!< De-init */
          alcd_deinit (alcd);
          return DRV_READY;
       case CTRL_INIT:                  /*!< Init */
-         if (buf)
-            *(drv_status_en*)buf = alcd_init (alcd);
+         if (data)
+            data = (drv_status_en)alcd_init (alcd);
          else
             alcd_init (alcd);
          return DRV_READY;
       case CTRL_POWER:                 /*!< Enable/disable */
-         alcd_enable (alcd, *(uint8_t*)buf);
+         alcd_enable (alcd, (uint8_t)data);
          return alcd->status = DRV_READY;
       case CTRL_BACKLIGHT:             /*!< Backlight on/off */
-         alcd_backlight (alcd, *(uint8_t*)buf);
+         alcd_backlight (alcd, (uint8_t)data);
          return alcd->status = DRV_READY;
       case CTRL_CLEAR:                 /*!< BClear screen and return home */
          alcd_cls (alcd);
          return alcd->status = DRV_READY;
       case CTRL_SHIFT:                 /*!< Shift lcd data */
-         alcd_shift (alcd, *(int*)buf);
+         alcd_shift (alcd, (int)data);
          return alcd->status = DRV_READY;
       default:                         /*!< Unsupported command, error */
          return DRV_ERROR;

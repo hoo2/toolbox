@@ -79,6 +79,7 @@ extern "C" {
 #define CTRL_CLEAR               0x40
 #define CTRL_SHIFT               0x41
 #define CTRL_BACKLIGHT           0x42
+#define CTRL_CURSOR              0x43
 
 /*
  * Interface set commands
@@ -103,6 +104,7 @@ extern "C" {
 
 
 typedef uint32_t  ioctl_cmd_t;   /*!< Generic ioctl command type */
+typedef uint32_t  ioctl_data_t;  /*!< Generic ioctl data type */
 typedef void*     ioctl_buf_t;   /*!< Generic ioctl buffer data type */
 
 
