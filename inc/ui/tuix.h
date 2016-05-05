@@ -43,7 +43,6 @@ extern "C" {
 #define  UI_TEXTBOX_SIZE      (14)
 #define  UI_TIMEBOX_SIZE      (12)
 
-
 /*
  * ============== General Defines ==============
  */

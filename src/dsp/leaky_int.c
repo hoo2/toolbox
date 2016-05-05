@@ -30,7 +30,7 @@
  *
  * \param   li,   which filter to de-initialize
  */
-void leaky_int_deinit (leaky_int_t* li) {
+__Os__ void leaky_int_deinit (leaky_int_t* li) {
    li->lambda = li->out = 0;
 }
 
@@ -41,7 +41,7 @@ void leaky_int_deinit (leaky_int_t* li) {
  * \param   li,   which filter to initialize
  * \param   l,    the lambda factor of the filter
  */
-void leaky_int_init (leaky_int_t* li, double l) {
+__Os__ void leaky_int_init (leaky_int_t* li, double l) {
    li->out = 0;
    li->lambda = l;
 }
@@ -55,7 +55,7 @@ void leaky_int_init (leaky_int_t* li, double l) {
  *
  * \return           The filtered value.
  */
-double leaky_int (leaky_int_t* li, double value) {
+__O3__ double leaky_int (leaky_int_t* li, double value) {
    if (isnan (value))
       return (li->out = 0);
    return (li->out = li->out*li->lambda + (1-li->lambda)*value);

@@ -28,6 +28,7 @@
 #ifndef __semaphore_h__
 #define __semaphore_h__
 
+#include <toolbox_defs.h>
 #include <stdlib.h>
 
 /*!

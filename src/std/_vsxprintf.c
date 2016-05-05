@@ -25,19 +25,19 @@
 
 static inline void _shift_right (unsigned int *i);
 static inline void _shift_left (unsigned int *i);
-static int _floorlog10 (double d);
-static double _pw10(int e);
+static int _floorlog10 (double d) __O3__ ;
+static double _pw10(int e) __O3__ ;
 
-static int _inschar (_putc_out_t _out, char* dst, char c);
-static int _insnchar (_putc_out_t _out, char *dst, char c, int n);
-static int _insstring (_putc_out_t _out, char *dst, const char *src, int length);
-static int _insuint(_putc_out_t _out, char *dst, _io_frm_spec_t *fs, unsigned int value);
-static int _insint (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, char min, int value);
-static int _inshex (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, unsigned int value);
-static int _inscoredouble (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, double value);
-static int _insfdouble (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, double value);
-static int _insedouble (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, double value);
-static double _va_args_double (__VALIST ap);
+static int _inschar (_putc_out_t _out, char* dst, char c) __Os__ ;
+static int _insnchar (_putc_out_t _out, char *dst, char c, int n) __Os__ ;
+static int _insstring (_putc_out_t _out, char *dst, const char *src, int length) __Os__ ;
+static int _insuint(_putc_out_t _out, char *dst, _io_frm_spec_t *fs, unsigned int value) __Os__ ;
+static int _insint (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, char min, int value) __Os__ ;
+static int _inshex (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, unsigned int value) __Os__ ;
+static int _inscoredouble (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, double value) __Os__ ;
+static int _insfdouble (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, double value) __Os__ ;
+static int _insedouble (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, double value) __Os__ ;
+//static double _va_args_double (__VALIST ap);
 
 
 /*!
@@ -129,7 +129,7 @@ static double _pw10(int e)
 
 /*!
  * \brief
- *    inster a char to user defined output function
+ *    insert a char to user defined output function
  */
 inline int _putc_usr (char *dst, const char c)
 {
@@ -240,8 +240,7 @@ static int _insuint(_putc_out_t _out, char *dst, _io_frm_spec_t *fs, unsigned in
    unsigned int bf[_IO_MAX_INT_DIGITS];
 
    // Spread value
-   for (i=0, bf[0]=value ; i<_IO_MAX_INT_DIGITS-1 ; )
-   {
+   for (i=0, bf[0]=value ; i<_IO_MAX_INT_DIGITS-1 ; ) {
       bf[i+1] = bf[i]/10;
       if (!bf[++i])
          break;
@@ -291,8 +290,7 @@ static int _insint (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, char min, i
    void (*pshift) (unsigned int*);
 
    // Compute absolute value
-   if (value < 0)
-   {
+   if (value < 0) {
       negative=1;
       absv = -value;
    }
@@ -300,8 +298,7 @@ static int _insint (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, char min, i
       absv = value;
 
    // Spread absolute value
-   for (i=0, bf[0]=absv ; i<_IO_MAX_INT_DIGITS-1 ; )
-   {
+   for (i=0, bf[0]=absv ; i<_IO_MAX_INT_DIGITS-1 ; ) {
       bf[i+1] = bf[i]/10;
       if (!bf[++i])
          break;
@@ -316,11 +313,9 @@ static int _insint (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, char min, i
    else
       pshift = _shift_right;
 
-   for (scr=0x04 ; scr ; )
-   {
+   for (scr=0x04 ; scr ; ) {
       pshift (&scr);
-      switch (scr)
-      {
+      switch (scr) {
          case 0x01:
          case 0x08:
             // Write sign
@@ -377,8 +372,7 @@ static int _inshex (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, unsigned in
    unsigned int bf[_IO_MAX_INT_DIGITS];
 
    // Spread value
-   for (i=0, bf[0]=value ; i<_IO_MAX_INT_DIGITS-1 ; )
-   {
+   for (i=0, bf[0]=value ; i<_IO_MAX_INT_DIGITS-1 ; ) {
       bf[i+1] = bf[i]>>4;
       if (!bf[++i])
          break;
@@ -389,8 +383,7 @@ static int _inshex (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, unsigned in
       num += _inschar (_out, dst++, fs->flags.lead);
 
    // Write actual numbers
-   for ( ; i ; --i)
-   {
+   for ( ; i ; --i) {
       if ((bf[i-1] & 0xF) < 0xA)
          num += _inschar (_out, dst++, (bf[i-1] & 0xF) + '0');
       else if (fs->type == INT_X)
@@ -441,8 +434,8 @@ static int _inscoredouble (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, doub
    absv -= n_int;             // Cut the decimal part
    absv *= scrl;              // Scroll the fractional part frac positions to the left
    r_absv = round (absv);     // Round the scrolled frac part
-   if (r_absv >= scrl)
-   {  // The rounding result, give as an integer "reminder"
+   if (r_absv >= scrl) {
+      // The rounding result, give us an integer "reminder"
       ++n_int;
       r_absv = 0;
    }
@@ -542,14 +535,14 @@ static int _insedouble(_putc_out_t _out, char *dst, _io_frm_spec_t *fs, double v
          if (value <-1 && (exp == -1 || exp > _IO_MAX_FLOAT_EXP))
             return _insstring(_out, dst, "-BIG", 0);
          if (value >-1 && exp < _IO_MIN_FLOAT_EXP)
-            return _insstring(_out, dst, "LIM-0", 0);
+            return _insstring(_out, dst, "-0", 0);
       }
       else {
          exp = _floorlog10(value);
          if (value >1 && (exp == -1 || exp > _IO_MAX_FLOAT_EXP))
             return _insstring(_out, dst, "+BIG", 0);
          if (value <1 && exp < _IO_MIN_FLOAT_EXP)
-            return _insstring(_out, dst, "LIM+0", 0);
+            return _insstring(_out, dst, "+0", 0);
       }
 
       value = value / _pw10(exp);
@@ -596,7 +589,7 @@ static int _insedouble(_putc_out_t _out, char *dst, _io_frm_spec_t *fs, double v
  * 1) When va_arg(ap, double) comes in even argument number, it has 4bytes crap in front of it.
  * 2) When va_arg(ap, double) comes in odd argument number, it fails cause it skips 4bytes before reading.
  *
- */
+ * /
 static double _va_args_double(__VALIST ap) {
    double _double;
    uint32_t *l = (uint32_t *)&_double;
@@ -612,6 +605,7 @@ static double _va_args_double(__VALIST ap) {
    }
     return _double;
 }
+ */
 
 /*
  * ============================ Public Functions ============================
@@ -665,10 +659,12 @@ int vsxprintf(_putc_out_t _out, char *dst, char *frm, __VALIST ap)
                      obj.frm_specifier.type == FL_g ||
                      obj.frm_specifier.type == FL_G ||
                      obj.frm_specifier.type == FL_L)
-               dst += _insfdouble (_out, dst, &obj.frm_specifier, _va_args_double(ap)); // XXX
+               //dst += _insfdouble (_out, dst, &obj.frm_specifier, _va_args_double(ap)); // XXX
+               dst += _insfdouble (_out, dst, &obj.frm_specifier, va_arg(ap, double));
             else if (obj.frm_specifier.type == FL_e ||
                      obj.frm_specifier.type == FL_E)
-               dst += _insedouble (_out, dst, &obj.frm_specifier, _va_args_double(ap)); // XXX
+               //dst += _insedouble (_out, dst, &obj.frm_specifier, _va_args_double(ap)); // XXX
+               dst += _insedouble (_out, dst, &obj.frm_specifier, va_arg(ap, double)); // XXX
             else  // eat the wrong type to unsigned int
                dst += _insuint(_out, dst, &obj.frm_specifier, va_arg(ap, unsigned int));
             break;

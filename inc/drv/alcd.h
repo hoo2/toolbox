@@ -35,6 +35,7 @@ extern "C" {
 
 #include <sys/jiffies.h>
 #include <tbx_ioctl.h>
+#include <toolbox_defs.h>
 #include <stdint.h>
 #include <string.h>
 #include <ctype.h>

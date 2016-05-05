@@ -41,7 +41,7 @@ extern void _tuix_mk_caption (fb_t *fb, text_t cap);
  * \param  cap    Pointer to caption string
  * \return none
  */
-static void _mk_caption (tuid_t *tuid, text_t cap)
+__O3__ static void _mk_caption (tuid_t *tuid, text_t cap)
 {
    _tuix_mk_caption (&tuid->frame_buffer, cap);
 }
@@ -53,7 +53,7 @@ static void _mk_caption (tuid_t *tuid, text_t cap)
  * \param  str    The string to print
  * \return none
  */
-static void _mk_frame (tuid_t *tuid, char* str)
+__Os__ static void _mk_frame (tuid_t *tuid, char* str)
 {
    #define _LINE(_l)    (tuid->frame_buffer.c*(_l))
    int offset=0;
@@ -63,8 +63,10 @@ static void _mk_frame (tuid_t *tuid, char* str)
       return;
    // Print text
    offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)], ":%s<", str);
-   // discard null termination inside frame buffer
+   // discard null termination inside frame buffer's body
    tuid->frame_buffer.fb[_LINE(1)+offset] = ' ';
+   // Keep null termination at end of each line
+   tuid->frame_buffer.fb[_LINE(1)+tuid->frame_buffer.c-1] = 0;
    #undef _LINE
 }
 
@@ -80,7 +82,7 @@ static void _mk_frame (tuid_t *tuid, char* str)
  * \param   size  the size limit
  * \return        The copied numbers.
  */
-static int _strcpy (char* to, const char* from, int size)
+__O3__ static int _strcpy (char* to, const char* from, int size)
 {
    int i;
    for (i=0 ; from[i] && i<size && i<UI_TEXTBOX_SIZE; ++i)
@@ -118,7 +120,7 @@ static int _strcpy (char* to, const char* from, int size)
  * ENTER_L --    Return the string as is (don't need to reach the end).
  * ESC     --    Returns the string "as is"
  */
-ui_return_t tui_textboxd (tuid_t *tuid, int key, text_t cap, char* str, int size)
+__Os__ ui_return_t tui_textboxd (tuid_t *tuid, int key, text_t cap, char* str, int size)
 {
    static int ev=1;
    static int8_t i=0;

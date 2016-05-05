@@ -49,7 +49,7 @@ const char pr_flags[_IO_NUM_OF_FLAGS] = "+- #'0";
  * \param   The character to check.
  * \return  The type in an enum form.
  */
-static _io_types_en _istype (char c)
+__Os__ static _io_types_en _istype (char c)
 {
    int i;
    for (i=0 ; i<_IO_NUM_OF_TYPES ; ++i)
@@ -65,7 +65,7 @@ static _io_types_en _istype (char c)
  * \param   The character to check.
  * \return  The flag in an enum form.
  */
-static _io_flags_en _isflag (char c)
+__Os__ static _io_flags_en _isflag (char c)
 {
    int i;
    for (i=0 ; i<_IO_NUM_OF_FLAGS ; ++i)

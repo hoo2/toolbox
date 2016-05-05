@@ -45,7 +45,7 @@ extern void _tuix_mk_caption (fb_t *fb, text_t cap);
  * \param ln The language to use
  * \return none
  */
-static void _mk_caption (tuid_t *tuid, combobox_item_t *items, Lang_en ln)
+__O3__ static void _mk_caption (tuid_t *tuid, combobox_item_t *items, Lang_en ln)
 {
    _tuix_mk_caption (&tuid->frame_buffer, items[0].text[ln]);
 }
@@ -60,12 +60,11 @@ static void _mk_caption (tuid_t *tuid, combobox_item_t *items, Lang_en ln)
  * \param ln The language to use
  * \return none
  */
-static void _mk_frame (tuid_t *tuid, combobox_item_t *items, int frame, int item, Lang_en ln)
+__O3__ static void _mk_frame (tuid_t *tuid, combobox_item_t *items, int frame, int item, Lang_en ln)
 {
    // CLear frame
    if (_tuix_clear_frame (&tuid->frame_buffer))
       return;
-   // Print each line
    // Print each line
    _cmb_frame_lines (&tuid->frame_buffer, items, frame, item, ln);
 }
@@ -107,7 +106,7 @@ static void _mk_frame (tuid_t *tuid, combobox_item_t *items, int frame, int item
  * LEFT     --    Exit with the previous selected item
  * ESC      --       "        "        "
  */
-ui_return_t tui_comboboxd (tuid_t *tuid, int key, combobox_item_t *items, int *id, Lang_en ln)
+__Os__ ui_return_t tui_comboboxd (tuid_t *tuid, int live, int key, combobox_item_t *items, int *id, Lang_en ln)
 {
    static uint8_t ev=1;
    static int cur;
@@ -130,6 +129,9 @@ ui_return_t tui_comboboxd (tuid_t *tuid, int key, combobox_item_t *items, int *i
       cur = vi = vfrm = frm = i;
       ev = 0;
    }
+
+   if (live)
+      *id = items[i].id;
 
    // UI loop - Navigating
    if (key == tuid->keys.UP)     { _cmb_prev_item (items, &i); --vi; }

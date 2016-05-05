@@ -50,7 +50,7 @@ extern void _tuix_mk_caption (fb_t *fb, text_t cap);
  * \param  mn     Pointer to the menu instant to push.
  * \return none
  */
-static void _push_menu (menud_stack_t* st, ui_menud_t* mn)
+__Os__ static void _push_menu (menud_stack_t* st, ui_menud_t* mn)
 {
    if (st->sp >= UI_CALLMENU_SIZE)
       return;
@@ -67,7 +67,7 @@ static void _push_menu (menud_stack_t* st, ui_menud_t* mn)
  * \param  mn     Pointer to the menu instant.
  * \return none
  */
-static void _pop_menu (menud_stack_t* st, ui_menud_t* mn)
+__Os__ static void _pop_menu (menud_stack_t* st, ui_menud_t* mn)
 {
    if (st->sp > 0) {
       --st->sp;
@@ -85,7 +85,7 @@ static void _pop_menu (menud_stack_t* st, ui_menud_t* mn)
  * \param  mn     Pointer to the poped menu instant.
  * \return none
  */
-static void _esc_menu (menud_stack_t* st, ui_menud_t* mn)
+__O3__ static void _esc_menu (menud_stack_t* st, ui_menud_t* mn)
 {
    memset ((void*)st, 0, sizeof (menud_stack_t));
    memset ((void*)mn, 0, sizeof (ui_menud_t));
@@ -99,7 +99,7 @@ static void _esc_menu (menud_stack_t* st, ui_menud_t* mn)
  *    \arg  1     The stack is empty.
  *    \arg  0     The stack is NOT empty.
  */
-static int _menu_stack_empty (tuid_t *tuid)
+__O3__ static int _menu_stack_empty (tuid_t *tuid)
 {
    return (tuid->hist.sp) ? 0:1;
 }
@@ -114,7 +114,7 @@ static int _menu_stack_empty (tuid_t *tuid)
  *    \arg  1     The menu is active (enabled).
  *    \arg  0     The menu is not active (disabled).
  */
-static int _menu_item_active (tuid_t *tuid, int it)
+__Os__ static int _menu_item_active (tuid_t *tuid, int it)
 {
    uint8_t i;
    uint8_t  p[4]; // 8bit positions
@@ -141,7 +141,7 @@ static int _menu_item_active (tuid_t *tuid, int it)
  *    \arg  1     The it updated successfully
  *    \arg  0     The it doesn't updated successfully (no items left).
  */
-static int _next_item (tuid_t *tuid, int *it)
+__Os__ static int _next_item (tuid_t *tuid, int *it)
 {
    int st = *it;
    do {
@@ -162,7 +162,7 @@ static int _next_item (tuid_t *tuid, int *it)
  *    \arg  1     The it updated successfully
  *    \arg  0     The it doesn't updated successfully (no items left).
  */
-static int _prev_item (tuid_t *tuid, int *it)
+__Os__ static int _prev_item (tuid_t *tuid, int *it)
 {
    int st = *it;
    do {
@@ -184,7 +184,7 @@ static int _prev_item (tuid_t *tuid, int *it)
  * \param  ln     The language to use
  * \return none
  */
-static void _mk_caption (tuid_t *tuid, Lang_en ln)
+__O3__ static void _mk_caption (tuid_t *tuid, Lang_en ln)
 {
    _tuix_mk_caption (&tuid->frame_buffer, tuid->menu_data.menu[0].text[ln]);
 }
@@ -196,7 +196,7 @@ static void _mk_caption (tuid_t *tuid, Lang_en ln)
  * \param  ln     The language to use
  * \return none
  */
-static void _mk_frame (tuid_t *tuid, Lang_en ln)
+__Os__ static void _mk_frame (tuid_t *tuid, Lang_en ln)
 {
    #define _LINE(_l)    (tuid->frame_buffer.c*(_l))
    int line, offset;
@@ -218,8 +218,10 @@ static void _mk_frame (tuid_t *tuid, Lang_en ln)
       else
          offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(line)], "%s", (char*)tuid->menu_data.menu[frame].text[ln]);
 
-      // discard null termination inside frame buffer
+      // discard null termination inside frame buffer body
       tuid->frame_buffer.fb[_LINE(line)+offset] = ' ';
+      // Keep null termination at end of each line
+      tuid->frame_buffer.fb[_LINE(line)+tuid->frame_buffer.c-1] = 0;
 
       // Escape if no items left
       if ( !_next_item (tuid, &frame) )
@@ -241,7 +243,7 @@ static void _mk_frame (tuid_t *tuid, Lang_en ln)
  * \param  pos    The bit position inside the manu_mask to set.
  * \return none
  */
-void tui_menud_set_mask (tuid_t *tuid, uint8_t pos)
+__O3__ void tui_menud_set_mask (tuid_t *tuid, uint8_t pos)
 {
    uint8_t  p, _p;
 
@@ -257,7 +259,7 @@ void tui_menud_set_mask (tuid_t *tuid, uint8_t pos)
  * \param  pos    The bit position inside the manu_mask to clear.
  * \return none
  */
-void tui_menud_clear_mask (tuid_t *tuid, uint8_t pos)
+__O3__ void tui_menud_clear_mask (tuid_t *tuid, uint8_t pos)
 {
    uint8_t  p, _p;
 
@@ -272,7 +274,7 @@ void tui_menud_clear_mask (tuid_t *tuid, uint8_t pos)
  * \param  tuid   Pointer to the active tuid_t struct
  * \return none
  */
-void tui_menud_init (tuid_t *tuid)
+__Os__ void tui_menud_init (tuid_t *tuid)
 {
    int i;
 
@@ -301,7 +303,7 @@ inline menud_item_t* tui_menud_this (tuid_t *tuid) {
  * \param   id    The search id
  * \return  the menu address, or NULL
  */
-menud_item_t* tui_menud_id2idx (menud_item_t *mn, menu_id_t id)
+__O3__ menud_item_t* tui_menud_id2idx (menud_item_t *mn, menu_id_t id)
 {
    int i;
    menud_item_t *r;
@@ -392,7 +394,7 @@ inline menu_id_t tui_menud_idx2id (menud_item_t *mn) {
  * ESC      --    Exit the entire menu
  *
  */
-ui_return_t tui_menud (tuid_t *tuid, int key, menud_item_t *mn, Lang_en ln)
+__Os__ ui_return_t tui_menud (tuid_t *tuid, int key, menud_item_t *mn, Lang_en ln)
 {
    static uint8_t ev=1, task=EXIT_RETURN;
 

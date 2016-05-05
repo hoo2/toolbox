@@ -40,7 +40,7 @@ extern void _tuix_mk_caption (fb_t *fb, text_t cap);
  * \param  cap    Pointer to caption string
  * \return none
  */
-static void _mk_caption (tuid_t *tuid, text_t cap)
+__O3__ static void _mk_caption (tuid_t *tuid, text_t cap)
 {
    _tuix_mk_caption (&tuid->frame_buffer, cap);
 }
@@ -57,7 +57,7 @@ static void _mk_caption (tuid_t *tuid, text_t cap)
  *    \arg UI_TIME_DD
  * \return none
  */
-static void _mk_frame (tuid_t *tuid, time_t t, uint8_t frm)
+__Os__ static void _mk_frame (tuid_t *tuid, time_t t, uint8_t frm)
 {
    #define _LINE(_l)    (tuid->frame_buffer.c*(_l))
    int i=0;
@@ -80,8 +80,10 @@ static void _mk_frame (tuid_t *tuid, time_t t, uint8_t frm)
       else                  tuid->frame_buffer.fb[_LINE(1)+i++] = '\'';
    }
    if (frm & UI_TIME_SS)   i += sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)+i], "%02d\"", s->tm_sec);
-   // discard null termination inside frame buffer
+   // discard null termination inside frame buffer's body
    tuid->frame_buffer.fb[_LINE(1)+i] = ' ';
+   // Keep null termination at end of each line
+   tuid->frame_buffer.fb[_LINE(1)+tuid->frame_buffer.c-1] = 0;
    #undef _LINE
 }
 /*!
@@ -118,7 +120,7 @@ static void _mk_frame (tuid_t *tuid, time_t t, uint8_t frm)
  * LEFT     --    Exit with the previous time value
  * ESC      --       "        "        "
  */
-ui_return_t tui_timeboxd (tuid_t *tuid, int key, text_t cap, uint8_t frm, time_t up, time_t down, time_t step, time_t *value)
+__Os__ ui_return_t tui_timeboxd (tuid_t *tuid, int live, int key, text_t cap, uint8_t frm, time_t up, time_t down, time_t step, time_t *value)
 {
    static time_t cur, t;
    static int ev=1, speedy=0;
@@ -130,6 +132,9 @@ ui_return_t tui_timeboxd (tuid_t *tuid, int key, text_t cap, uint8_t frm, time_t
       speedy = 0;
       _mk_caption (tuid, cap);
    }
+
+   if (live)
+      *value = t;
 
    //Navigating
    if (key == tuid->keys.UP)           t += step + step*(speedy++/10);

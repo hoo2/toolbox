@@ -93,7 +93,7 @@ inline int isleap (int year) {
  *       - and is still in use by some communities
  *    #define TIME_CALENDAR   JULIAN_CALENDAR
  */
-time_t smktime (struct tm *_t)
+__Os__ time_t smktime (struct tm *_t)
 {
    unsigned int mon = _t->tm_mon,
                 year = _t->tm_year;
@@ -127,7 +127,7 @@ time_t smktime (struct tm *_t)
  * \return         A pointer to a tm structure with its members filled with the values that
  *                 correspond to the UTC time representation of timer.
  */
-struct tm *sgmtime  (const time_t *_timer)
+__Os__ struct tm *sgmtime  (const time_t *_timer)
 {
    #define _SPD   (86400)
    time_t i, k;

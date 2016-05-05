@@ -36,7 +36,7 @@
  * \note
  *    This function MUST NOT called within the pkernel's Interrupts
 */
-static sem_t* sopen(int v)
+__Os__ static sem_t* sopen(int v)
 {
    sem_t* s;
 
@@ -79,7 +79,7 @@ inline sem_t* mut_open (int v)
  * \param s Semaphore to close.
  * \return Positive on success, 0 if the semaphore is locked.
 */
-int sem_close (sem_t *s)
+__Os__ int sem_close (sem_t *s)
 {
    if (s->val>=0)
    {
@@ -98,7 +98,7 @@ int sem_close (sem_t *s)
  *
  * \note Thread safe, not reentrant.
  */
-int semaphore (sem_t *s)
+__Os__ int semaphore (sem_t *s)
 {
    if (s->val>0)
    {
@@ -117,7 +117,7 @@ int semaphore (sem_t *s)
  * \return None
  * \note Thread safe, not reentrant.
  */
-void wait (sem_t *s)
+__O3__ void wait (sem_t *s)
 {
    while (s->val<=0)
       ;
@@ -157,7 +157,7 @@ inline void lock (sem_t *m) {
 /*!
  * Unlock (by setting high) the semaphore.
 */
-void unlock (sem_t *m)
+__O3__ void unlock (sem_t *m)
 {
    if (++m->val > 1) // Binary semaphore
       m->val=1;

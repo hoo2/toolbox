@@ -50,19 +50,19 @@ extern "C" {
  * Optimisations
  */
 
-#ifdef __GNUC0__
+#ifdef __GNUC__
 #define __O0__    __attribute__ ((optimize("O0")))
 #else
 #define __O0__
 #endif
 
-#ifdef __GNUC0__
+#ifdef __GNUC__
 #define __O3__    __attribute__ ((optimize("O3")))
 #else
 #define __O3__
 #endif
 
-#ifdef __GNUC0__
+#ifdef __GNUC__
 #define __Os__    __attribute__ ((optimize("Os")))
 #else
 #define __Os__

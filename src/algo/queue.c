@@ -37,10 +37,10 @@ void queue_link_buffer (queue_t *queue, void* buf) {
 /*
  * Set functions
  */
-void queue_set_item_size (queue_t *queue, int size) {
+inline void queue_set_item_size (queue_t *queue, int size) {
    queue->item_size = size;
 }
-void queue_set_items (queue_t *queue, int items) {
+inline void queue_set_items (queue_t *queue, int items) {
    queue->items = items;
 }
 
@@ -57,7 +57,7 @@ void queue_set_items (queue_t *queue, int items) {
  *    \arg  0     Not full
  *    \arg  1     Full
  */
-int queue_is_full (queue_t *queue)
+__O3__ int queue_is_full (queue_t *queue)
 {
    if (queue->head == 0)
       return (queue->tail == queue->items-1) ? 1 : 0;
@@ -73,7 +73,7 @@ int queue_is_full (queue_t *queue)
  *    \arg  0     Not empty
  *    \arg  1     Empty
  */
-int queue_is_empty (queue_t *queue) {
+__O3__ int queue_is_empty (queue_t *queue) {
    return (queue->head == queue->tail) ? 1 : 0;
 }
 
@@ -82,7 +82,7 @@ int queue_is_empty (queue_t *queue) {
  *    Initialize the queue
  * \param   queue    Which queue to init
  */
-void queue_init (queue_t *queue)
+__Os__ void queue_init (queue_t *queue)
 {
    queue->head = queue->tail = 0;
 }
@@ -95,7 +95,7 @@ void queue_init (queue_t *queue)
   *   \arg  0  Full queue
   *   \arg  1  Done
  */
-int queue_put (queue_t *queue, void *b)
+__Os__ int queue_put (queue_t *queue, void *b)
 {
    if (queue_is_full (queue) == 1)  //full queue
       return 0;
@@ -114,7 +114,7 @@ int queue_put (queue_t *queue, void *b)
   *   \arg  0  Empty queue
   *   \arg  1  Done
  */
-int queue_get (queue_t *queue, void *b)
+__Os__ int queue_get (queue_t *queue, void *b)
 {
    if ( queue_is_empty (queue) )    //Empty queue
       return 0;
@@ -129,6 +129,6 @@ int queue_get (queue_t *queue, void *b)
   * \brief
   *   This function returns the head address.
   */
-void* queue_head (queue_t *queue){
+inline void* queue_head (queue_t *queue){
    return (void*)&queue->buf[queue->head];
 }

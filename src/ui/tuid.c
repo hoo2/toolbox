@@ -38,28 +38,28 @@ inline void tuid_link_framebuffer (tuid_t *tuid, uint8_t *fb) {
 inline void tuid_set_fb_lines (tuid_t *tuid, int l) {
    tuid->frame_buffer.l = l;
 }
-void tuid_set_fb_columns (tuid_t *tuid, int c) {
+inline void tuid_set_fb_columns (tuid_t *tuid, int c) {
    tuid->frame_buffer.c = c;
 }
 
-void    tuid_set_key_up (tuid_t *tuid, int k) {
+inline void    tuid_set_key_up (tuid_t *tuid, int k) {
    tuid->keys.UP = k;
 }
-void  tuid_set_key_down (tuid_t *tuid, int k) {
+inline void  tuid_set_key_down (tuid_t *tuid, int k) {
    tuid->keys.DOWN = k;
 }
-void  tuid_set_key_left (tuid_t *tuid, int k) {
+inline void  tuid_set_key_left (tuid_t *tuid, int k) {
    tuid->keys.LEFT = k;
 }
-void tuid_set_key_right (tuid_t *tuid, int k) {
+inline void tuid_set_key_right (tuid_t *tuid, int k) {
    tuid->keys.RIGHT = k;
 }
-void tuid_set_key_enter (tuid_t *tuid, int k) {
+inline void tuid_set_key_enter (tuid_t *tuid, int k) {
    tuid->keys.ENTER = k;
 }
-void tuid_set_key_enter_l (tuid_t *tuid, int k) {
+inline void tuid_set_key_enter_l (tuid_t *tuid, int k) {
    tuid->keys.ENTER_L = k;
 }
-void   tuid_set_key_esc (tuid_t *tuid, int k)  {
+inline void   tuid_set_key_esc (tuid_t *tuid, int k)  {
    tuid->keys.ESC = k;
 }

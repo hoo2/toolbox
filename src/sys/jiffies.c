@@ -94,7 +94,7 @@ void jf_deinit (void)
  *    \sa jf_connect_setfreq() and \sa jf_connect_value() first.
  * \return Zero on success, non zero on error
  */
-int jf_init (uint32_t jf_freq, jiffy_t jiffies)
+__Os__ int jf_init (uint32_t jf_freq, jiffy_t jiffies)
 {
    if (_jf.setfreq)
    {
@@ -139,7 +139,7 @@ inline jiffy_t jf_get_jiffy (void){
  * \note
  *    The result tend to differ as the jiffies and freq values decreasing
  */
-jiffy_t jf_per_msec (void)
+__Os__ jiffy_t jf_per_msec (void)
 {
    jiffy_t jf = (jiffy_t)(_jf.freq / 1000);
    /*            1
@@ -159,7 +159,7 @@ jiffy_t jf_per_msec (void)
  * \note
  *    The result tend to differ as the jiffies and freq values decreasing
  */
-jiffy_t jf_per_usec (void)
+__Os__ jiffy_t jf_per_usec (void)
 {
    jiffy_t jf = (jiffy_t)(_jf.freq / 1000000);
    /*            1
@@ -179,7 +179,7 @@ jiffy_t jf_per_usec (void)
  * \param
  *    usec     Time in usec for delay
  */
-void jf_delay_us (jtime_t usec)
+__Os__ void jf_delay_us (jtime_t usec)
 {
    jtime_t m, m2, m1 = (jtime_t)*_jf.value;
 
@@ -205,7 +205,7 @@ void jf_delay_us (jtime_t usec)
  * \param
  *    msec     Time in msec for delay
  */
-void jf_delay_ms (jtime_t msec)
+__Os__ void jf_delay_ms (jtime_t msec)
 {
    jtime_t m, m2, m1 = (jtime_t)*_jf.value;
 
@@ -229,7 +229,7 @@ void jf_delay_ms (jtime_t msec)
  * \param
  *    usec     Time in usec for delay
  */
-int jf_check_usec (jtime_t usec)
+__Os__ int jf_check_usec (jtime_t usec)
 {
    static jtime_t m1=-1, cnt;
    jtime_t m, m2;

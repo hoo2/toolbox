@@ -28,6 +28,7 @@
 extern "C" {
 #endif
 
+#include <toolbox_defs.h>
 
 /*
  * ========================== Helper Defines ============================

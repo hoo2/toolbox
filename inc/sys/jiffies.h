@@ -31,6 +31,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <tbx_types.h>
+#include <toolbox_defs.h>
 
 typedef uint16_t     jiffy_t;       //!< Jiffy type 2 byte unsigned integer
 typedef int32_t      jtime_t;        //!< Jiffy time type for delay functionalities usec/msec

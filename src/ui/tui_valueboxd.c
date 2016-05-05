@@ -40,7 +40,7 @@ extern void _tuix_mk_caption (fb_t *fb, text_t cap);
  * \param  cap    Pointer to caption string
  * \return none
  */
-static void _mk_caption (tuid_t *tuid, text_t cap)
+__O3__ static void _mk_caption (tuid_t *tuid, text_t cap)
 {
    _tuix_mk_caption (&tuid->frame_buffer, cap);
 }
@@ -54,7 +54,7 @@ static void _mk_caption (tuid_t *tuid, text_t cap)
  * \param  units  The units string to append.
  * \return none
  */
-static void _mk_frame (tuid_t *tuid, float v, int dec, text_t units)
+__Os__ static void _mk_frame (tuid_t *tuid, float v, int dec, text_t units)
 {
    #define _LINE(_l)    (tuid->frame_buffer.c*(_l))
    int offset=0;
@@ -88,7 +88,8 @@ static void _mk_frame (tuid_t *tuid, float v, int dec, text_t units)
    }
    // discard null termination inside frame buffer
    tuid->frame_buffer.fb[_LINE(1)+offset] = ' ';
-
+   // Keep null termination at end of each line
+   tuid->frame_buffer.fb[_LINE(1)+tuid->frame_buffer.c-1] = 0;
    #undef _LINE
 }
 
@@ -123,7 +124,7 @@ static void _mk_frame (tuid_t *tuid, float v, int dec, text_t units)
  * LEFT     --    Exit with the previous value
  * ESC      --       "        "        "
  */
-ui_return_t tui_valueboxd (tuid_t *tuid, int key, text_t cap, text_t units, float up, float down, float step, int dec, float *value)
+__Os__ ui_return_t tui_valueboxd (tuid_t *tuid, int live, int key, text_t cap, text_t units, float up, float down, float step, int dec, float *value)
 {
    static float cur, v;
    static int ev=1, speedy=0;
@@ -135,6 +136,9 @@ ui_return_t tui_valueboxd (tuid_t *tuid, int key, text_t cap, text_t units, floa
       speedy = 0;
       _mk_caption (tuid, cap);
    }
+
+   if (live)
+      *value = v;
 
    //Navigating
    if (key == tuid->keys.UP)

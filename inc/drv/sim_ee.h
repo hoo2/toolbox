@@ -27,6 +27,7 @@
 
 #include <tbx_ioctl.h>
 #include <tbx_types.h>
+#include <toolbox_defs.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>

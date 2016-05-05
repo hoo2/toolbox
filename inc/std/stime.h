@@ -30,6 +30,7 @@
 extern "C" {
 #endif
 
+#include <toolbox_defs.h>
 #include <time.h>
 #include <stdint.h>
 

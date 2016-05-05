@@ -31,7 +31,7 @@
  *
  * \param pdst  String to output.
  */
-int puts(const char *dst)
+__Os__ int puts(const char *dst)
 {
    int num = 0;
 
@@ -66,7 +66,7 @@ inline int vprintf(const char *frm, __VALIST ap)
  *
  * \param  pfrmt  Format string.
  */
-int printf(const char *frm, ...)
+__Os__ int printf(const char *frm, ...)
 {
    __VALIST ap;
    int result;

@@ -52,7 +52,7 @@ inline int vsprintf(char *dst, const char *frm, va_list ap)
  * \param pdst   storage string.
  * \param pfrmt  Format string.
  */
-int sprintf(char *dst, const char *frm, ...)
+__Os__ int sprintf(char *dst, const char *frm, ...)
 {
    __VALIST ap;
    int result;

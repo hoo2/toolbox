@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef  __ui_h__
-#define  __ui_h__
+#ifndef  __tui_h__
+#define  __tui_h__
 
 #ifdef   __cplusplus
 extern "C" {
@@ -136,4 +136,4 @@ void   tui_textbox (tui_t *tui, text_t cap, char* str, int size);
 }
 #endif
 
-#endif //#ifndef  __ui_h__
+#endif //#ifndef  __tui_h__

@@ -27,6 +27,7 @@ extern "C" {
 #endif
 
 #include <tbx_types.h>
+#include <toolbox_defs.h>
 #include <string.h>
 
 typedef struct {

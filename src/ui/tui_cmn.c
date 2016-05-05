@@ -41,7 +41,7 @@ void _cmb_prev_item (combobox_item_t *items, int *it);
  * \param   cap   Caption string
  * \return  none
  */
-void _tuix_mk_caption (fb_t *fb, text_t cap)
+__Os__ void _tuix_mk_caption (fb_t *fb, text_t cap)
 {
    int offset;
    if (!fb->fb)   // No frame buffer attached, return
@@ -64,7 +64,7 @@ void _tuix_mk_caption (fb_t *fb, text_t cap)
  *    \arg  0  OK
  *    \arg  1  Error
  */
-int _tuix_clear_frame (fb_t *fb)
+__Os__ int _tuix_clear_frame (fb_t *fb)
 {
    int line;
 
@@ -92,7 +92,7 @@ int _tuix_clear_frame (fb_t *fb)
  * \param  ln     The language to use
  * \return none
  */
-void _cmb_frame_lines (fb_t *fb, combobox_item_t *items, int frame, int item, Lang_en ln)
+__Os__ void _cmb_frame_lines (fb_t *fb, combobox_item_t *items, int frame, int item, Lang_en ln)
 {
    #define _LINE(_l)    (fb->c*(_l))
    int line, offset;
@@ -130,7 +130,7 @@ void _cmb_frame_lines (fb_t *fb, combobox_item_t *items, int frame, int item, La
  * \param  it     Pointer to the item to update
  * \return none
  */
-void _cmb_next_item (combobox_item_t *items, int *it)
+__O3__ void _cmb_next_item (combobox_item_t *items, int *it)
 {
    if (!items[++*it].text[0])
       *it=1;
@@ -144,7 +144,7 @@ void _cmb_next_item (combobox_item_t *items, int *it)
  * \param  it     Pointer to the item to update
  * \return none
  */
-void _cmb_prev_item (combobox_item_t *items, int *it)
+__O3__ void _cmb_prev_item (combobox_item_t *items, int *it)
 {
    if (!--*it) {
       for (*it=1 ; items[*it].text[0]; ++*it)

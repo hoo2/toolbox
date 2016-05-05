@@ -41,6 +41,7 @@ extern "C" {
 #include <limits.h>
 #include <string.h>
 #include <stdint.h>
+#include <toolbox_defs.h>
 
 
 #define  _IO_NUM_OF_TYPES    (16)
@@ -149,7 +150,7 @@ typedef enum
    _IO_FRM_CRAP
 }_io_frm_obj_type_en;
 
-int _io_read (char* frm, _io_frm_obj_t* obj, _io_frm_obj_type_en *obj_type);
+int __Os__ _io_read (char* frm, _io_frm_obj_t* obj, _io_frm_obj_type_en *obj_type);
 
 #ifdef __cplusplus
 }
