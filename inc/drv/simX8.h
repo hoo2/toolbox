@@ -31,7 +31,7 @@ extern "C" {
 
 #include <tbx_types.h>
 #include <tbx_ioctl.h>
-#include <drv/nmea.h>
+#include <com/nmea.h>
 #include <string.h>
 #include <stdarg.h>
 

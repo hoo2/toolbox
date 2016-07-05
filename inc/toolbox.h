@@ -5,7 +5,7 @@
  *
  * This file is part of toolbox
  *
- * Copyright (C) 2014 Houtouridis Christos (http://www.houtouridis.net)
+ * Copyright (C) 2014 Christos Choutouridis (http://www.houtouridis.net)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -44,6 +44,12 @@ extern "C" {
 #include <algo/queue.h>
 #include <algo/spa_grena.h>
 
+/*!
+ * \defgroup Com
+ */
+#include <com/i2c_bb.h>
+#include <com/spi_bb.h>
+#include <com/nmea.h>
 
 /*!
  * \defgroup Cryptography
@@ -60,8 +66,7 @@ extern "C" {
  */
 #include <drv/alcd.h>
 #include <drv/buttons.h>
-#include <drv/i2c_bb.h>
-#include <drv/spi_bb.h>
+#include <drv/ee_i2c.h>
 
 #include <drv/pt100x.h>
 #include <drv/ktyx.h>
@@ -71,13 +76,11 @@ extern "C" {
 
 #include <drv/tle5009.h>
 
-#include <drv/nmea.h>
 #include <drv/simX8.h>
 
-#include <drv/ee_i2c.h>
 #include <drv/sim_ee.h>
 #include <drv/sd_spi.h>
-
+#include <drv/ss_display.h>
 #include <drv/s25fs_spi.h>
 
 /*!

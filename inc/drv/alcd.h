@@ -5,7 +5,7 @@
  *
  * This file is part of toolbox
  *
- * Copyright (C) 2014 Houtouridis Christos (http://www.houtouridis.net)
+ * Copyright (C) 2014 Christos Choutouridis (http://www.houtouridis.net)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -19,10 +19,6 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
- * Date:       05/2013
- * Version:    0.1
  *
  */
 

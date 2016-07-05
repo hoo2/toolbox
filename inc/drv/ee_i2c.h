@@ -1,11 +1,11 @@
 /*!
- * \file ee_i2c_pol.h
+ * \file ee_i2c.h
  * \brief
  *    A target independent EEPROM (24xx series) driver using i2c
  *
  * This file is part of toolbox
  *
- * Copyright (C) 2014 Houtouridis Christos (http://www.houtouridis.net)
+ * Copyright (C) 2014 Christos Choutouridis (http://www.houtouridis.net)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -30,7 +30,7 @@ extern "C" {
 
 #include <tbx_ioctl.h>
 #include <tbx_types.h>
-#include <drv/i2c_bb.h>
+#include <com/i2c_bb.h>
 /*
  * =================== User Defines =====================
  */

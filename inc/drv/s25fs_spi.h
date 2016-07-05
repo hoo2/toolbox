@@ -31,7 +31,7 @@ extern "C" {
 #include <tbx_ioctl.h>
 #include <tbx_types.h>
 #include <stddef.h>
-#include <drv/spi_bb.h>
+#include <com/spi_bb.h>
 #include <sys/jiffies.h>
 #include <crypt/cryptint.h>
 
