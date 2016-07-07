@@ -23,7 +23,7 @@
  * Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
  *
  */
-#include <drv/spi_bb.h>
+#include <com/spi_bb.h>
 
 /*
  * Link and Glue functions

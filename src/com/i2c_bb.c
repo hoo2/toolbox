@@ -23,7 +23,7 @@
  */
 
 
-#include <drv/i2c_bb.h>
+#include <com/i2c_bb.h>
 
 /*
  * Link and glue functions
