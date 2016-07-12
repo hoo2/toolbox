@@ -24,9 +24,11 @@
  */
 #include <math/quick_trig.h>
 
-#define QTR_A    -0.40528473456935108577
-#define QTR_B     1.27323954473516268615
-#define QTR_P     0.225
+#define B      (19900)
+#define C      (3516)
+#define qN     (13)
+#define qN_    (15)
+#define qA     (12)
 
 static double _abs (double x) __O3__ ;
 
@@ -34,71 +36,51 @@ static double _abs (double x) {
    return (x<0) ? -x : x;
 }
 
+
 /*!
  * \brief
- *    Calculates the sine of an angle in radians
+ *    A sine approximation via a fourth-order cosine approx.
  *
- *
- * if sin(x) = Ax^2 + Bx + C, then:
- *    sin(0) = 0     |    | A = -4/pi^2
- *    sin(pi/2) = 1  | => | B = 4/pi
- *    sin (pi) = 0   |    | C = 0
- *
- * We now are using the squared parabola
- * Q + P = 1
- * for (Q,P) = (0.775, 0.225) we have maximum absolute error 0.001!!!
- *
- * \param   th The angle in radians
- * \return  The sine
+ * \param   x  Angle (with 2^15 units/circle)
+ * \return     Sine value (Q12)
  */
-double qsin (double th)
+int32_t isin_S4 (int32_t x)
 {
-   double r;
+    int c, y;
 
-   if (th>M_PI)   th -= M_2PI;         // angle shift
-   r = QTR_A*th*_abs(th) + QTR_B*th;   // r = Ath^2 + Bth + C
-   r = r + QTR_P*(r*_abs(r) - r);      // Q = 1-P => r = Qr + Pr^2
-   return r;
+    c= x<<(30-qN);            // Semi-circle info into carry.
+    x -= 1<<qN;               // sine -> cosine calc
+
+    x= x<<(31-qN);            // Mask with PI
+    x= x>>(31-qN);            // Note: SIGNED shift! (to qN)
+    x= x*x>>(2*qN-14);        // x=x^2 To Q14
+
+    y= B - (x*C>>14);         // B - x^2*C
+    y= (1<<qA)-(x*y>>16);     // A - x^2*(B-x^2*C)
+
+    return (c>=0) ? y : -y;
 }
 
 /*!
  * \brief
- *    Calculates the cosine of an angle in radians
+ *    A fourth-order cosine approximation.
  *
- * We use sin algorithm with a angle shift of pi/2
- *
- * \param   th The angle in radians
- * \return  The cosine
+ * \param   x  Angle (with 2^15 units/circle)
+ * \return     Sine value (Q12)
  */
-double qcos (double th)
+int32_t icos_S4 (int32_t x)
 {
-   double r;
+   int c, y;
 
-   th += M_PI_2;
-   if (th>M_PI)   th -= M_2PI;         // angle shift
-   r = QTR_A*th*_abs(th) + QTR_B*th;   // r = Ath^2 + Bth + C
-   r = r + QTR_P*(r*_abs(r) - r);      // Q = 1-P => r = Qr + Pr^2
-   return r;
-}
+   c = 1<<qN;                 // pi/2 to 3pi/2 into carry
+   c = ((x<=c) || (x>=3*c)) ? 1 : -1;
 
-/*!
- * \brief
- *    Calculates the tangent of an angle in radians
- *
- * \param   th The angle in radians
- * \return  The tangent
- */
-double qtan (double th) {
-   return qsin(th)/qcos(th);
-}
+   x= x<<(31-qN);             // Mask with PI
+   x= x>>(31-qN);             // Note: SIGNED shift! (to qN)
+   x= x*x>>(2*qN-14);         // x=x^2 To Q14
 
-/*!
- * \brief
- *    Calculates the cotangent of an angle in radians
- *
- * \param   th The angle in radians
- * \return  The cotangent
- */
-double qcot (double th) {
-   return qcos(th)/qsin(th);
+   y= B - (x*C>>14);          // B - x^2*C
+   y= (1<<qA)-(x*y>>16);      // A - x^2*(B-x^2*C)
+
+   return (c>=0) ? y : -y;
 }

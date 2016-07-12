@@ -31,10 +31,9 @@ extern "C" {
 
 #include <math/math.h>
 
-double qsin (double th) __O3__ ;
-double qcos (double th) __O3__ ;
-double qtan (double th) __O3__ ;
-double qcot (double th) __O3__ ;
+int32_t isin_S4 (int32_t x)  ;
+int32_t icos_S4 (int32_t x)  ;
+
 
 #ifdef __cplusplus
 }
