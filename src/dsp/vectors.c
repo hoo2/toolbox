@@ -184,7 +184,8 @@ int vediv_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) { _ved
    }                                                           \
    return res;                                                 \
 }
-int vdot_i (int *a, int *b, int length) { int res; _vdot_body_r(); }
+int64_t vdot_i32 (int32_t *a, int32_t *b, int length) { int64_t res; _vdot_body_r(); }
+uint64_t vdot_ui32 (uint32_t *a, uint32_t *b, int length) { uint64_t res; _vdot_body_r(); }
 float vdot_f (float *a, float *b, int length) {float res;  _vdot_body_r(); }
 double vdot_d (double *a, double *b, int length) { double res; _vdot_body_r(); }
 complex_i_t vdot_ci (complex_i_t *a, complex_i_t *b, int length) {complex_i_t res; _vdot_body_c(); }
@@ -234,48 +235,123 @@ complex_d_t vnorm_cd (complex_d_t *x, int length) { complex_d_t res; _vnorm_body
 /*!
  * \brief
  *    Calculates the Cartesian coordinates from a polar vector
- *    of size two.
+ *    using double precision
  *
- * \param   c  Pointer to Cartesian vector {x,y}
- * \param   p  Pointer to polar vector {r,th}
- * \return  none
+ * \param   p  polar vector {r,th}
+ * \return  The Cartesian value {x,y}
  */
-#define _vcart_body() {          \
-   c[0] = p[0] * cos (p[1]);     \
-   c[1] = p[0] * sin (p[1]);     \
+inline cart2_d_t vcart_d (polar_d_t p){
+   cart2_d_t c;
+   c.x = p.abs * cos (p.arg);
+   c.y = p.abs * sin (p.arg);
+   return c;
 }
-inline void vcart_i (float *c, int *p) { _vcart_body(); }
-inline void vcart_f (float *c, float *p) { _vcart_body(); }
-inline void vcart_d (double *c, double *p) { _vcart_body(); }
-#undef _vcart_body
-
 
 /*!
  * \brief
- *    Calculates the polar coordinates from Cartesian vector
- *    of size two, or a complex number representing Cartesian
- *    coordinates.
+ *    Calculates the Cartesian coordinates from a polar vector
+ *    using single precision
  *
- * \param   p  Pointer to polar vector {r,th}
- * \param   c  Pointer to Cartesian vector {x,y}, or complex number.
- * \return  none
+ * \param   p  polar vector {r,th}
+ * \return  The Cartesian value {x,y}
  */
-#define _vpolar_body_r() {                \
-   t = c[0];                              \
-   p[0] = sqrt (c[0]*c[0] + c[1]*c[1]);   \
-   p[1] = atan2 (c[1], t);                \
+inline cart2_f_t vcart_f (polar_f_t p) {
+   cart2_f_t c;
+   c.x = p.abs * cosf (p.arg);
+   c.y = p.abs * sinf (p.arg);
+   return c;
 }
-#define _vpolar_body_c() {                   \
-   t = cc[0];                                \
-   p[0] = sqrt (cc[0]*cc[0] + cc[1]*cc[1]);  \
-   p[1] = atan2 (cc[1], t);                  \
+
+/*!
+ * \brief
+ *    Calculates a complex number in Cartesian form from a polar vector
+ *    using double precision
+ *
+ * \param   p  polar vector {r,th}
+ * \return  The Complex number
+ */
+inline complex_d_t vccart_d (polar_d_t p){
+   complex_d_t c;
+   real(c) = p.abs * cos (p.arg);
+   imag(c) = p.abs * sin (p.arg);
+   return c;
 }
-inline void vpolar_i (float *p, int *c) { int t;  _vpolar_body_r(); }
-inline void vpolar_f (float *p, float *c) { float t; _vpolar_body_r(); }
-inline void vpolar_d (double *p, double *c) { double t; _vpolar_body_r(); }
-inline void vpolar_ci (float *p, complex_i_t c) { int t; int *cc = (int*)&c; _vpolar_body_c(); }
-inline void vpolar_cf (float *p, complex_f_t c) { float t; float *cc = (float*)&c; _vpolar_body_c(); }
-inline void vpolar_cd (double *p, complex_d_t c){ double t; double *cc = (double*)&c; _vpolar_body_c(); }
-#undef _vpolar_body_r
-#undef _vpolar_body_c
+
+/*!
+ * \brief
+ *    Calculates a complex number in Cartesian form from a polar vector
+ *    using single precision
+ *
+ * \param   p  polar vector {r,th}
+ * \return  The Complex number
+ */
+inline complex_f_t vccart_f (polar_f_t p) {
+   complex_f_t c;
+   realf(c) = p.abs * cosf (p.arg);
+   imagf(c) = p.abs * sinf (p.arg);
+   return c;
+}
+
+/*!
+ * \brief
+ *    Calculates the polar coordinates from Cartesian coordinates.
+ *
+ * \param   x  x coordinate
+ * \param   y  y coordinate
+ * \return     the converted to polar value
+ */
+polar_f_t vpolar_f (float x, float y) {
+   polar_f_t p;
+   p.abs = sqrtf (x*x + y*y);
+   p.arg = atan2f (y, x);
+   return p;
+}
+
+/*!
+ * \brief
+ *    Calculates the polar coordinates from Cartesian coordinates.
+ *
+ * \param   x  x coordinate
+ * \param   y  y coordinate
+ * \return     the converted to polar value
+ */
+polar_d_t vpolar_d (double x, double y) {
+   polar_d_t p;
+   p.abs = sqrt (x*x + y*y);
+   p.arg = atan2 (y, x);
+   return p;
+}
+
+/*!
+ * \brief
+ *    Calculates the polar coordinates from  a complex number
+ *    representing Cartesian coordinates.
+ *    a.k.a transform complex number to polar notation
+ *
+ * \param   c  The complex in Cartesian representation
+ * \return     the converted to polar value
+ */
+polar_f_t vcpolar_f (complex_f_t c) {
+   polar_f_t p;
+   p.abs = sqrt (realf(c)*realf(c) + imagf(c)*imagf(c));
+   p.arg = atan2 (imagf(c), realf(c));
+   return p;
+}
+
+/*!
+ * \brief
+ *    Calculates the polar coordinates from  a complex number
+ *    representing Cartesian coordinates.
+ *    a.k.a transform complex number to polar notation
+ *
+ * \param   x  x coordinate
+ * \return     the converted to polar value
+ */
+polar_d_t vcpolar_d (complex_d_t c) {
+   polar_d_t p;
+   p.abs = sqrt (real(c)*real(c) + imag(c)*imag(c));
+   p.arg = atan2 (imag(c), real(c));
+   return p;
+}
+
 

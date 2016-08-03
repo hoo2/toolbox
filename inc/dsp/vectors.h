@@ -193,7 +193,8 @@ int vediv_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __O3__
 #endif   // #if __STDC_VERSION__ >= 201112L
 
 
-int vdot_i (int *a, int *b, int length) __O3__ ;
+int64_t vdot_i32 (int32_t *a, int32_t *b, int length) __O3__ ;
+uint64_t vdot_ui32 (uint32_t *a, uint32_t *b, int length) __O3__ ;
 float vdot_f (float *a, float *b, int length) __O3__ ;
 double vdot_d (double *a, double *b, int length) __O3__ ;
 complex_i_t vdot_ci (complex_i_t *a, complex_i_t *b, int length) __O3__ ;
@@ -222,7 +223,8 @@ complex_d_t vdot_cd (complex_d_t *a, complex_d_t *b, int length) __O3__ ;
  * \return The dot product of a and b
  */
 #define vdot(a, b, length) _Generic((a),  \
-               int*: vdot_i,              \
+           int32_t*: vdot_i32,            \
+          uint32_t*: vdot_ui32,           \
              float*: vdot_f,              \
             double*: vdot_d,              \
        complex_i_t*: vdot_ci,             \
@@ -273,9 +275,11 @@ complex_d_t vnorm_cd (complex_d_t *x, int length) __O3__ ;
 #endif   // #if __STDC_VERSION__ >= 201112L
 
 
-void vcart_i (float *c, int *p) __O3__ ;
-void vcart_f (float *c, float *p) __O3__ ;
-void vcart_d (double *c, double *p) __O3__ ;
+
+cart2_d_t vcart_d (polar_d_t p) __O3__ ;
+cart2_f_t vcart_f (polar_f_t p) __O3__ ;
+complex_d_t vccart_d (polar_d_t p) __O3__;
+complex_f_t vccart_f (polar_f_t p) __O3__;
 
 #if __STDC_VERSION__ >= 201112L
 #ifndef vcart
@@ -283,58 +287,92 @@ void vcart_d (double *c, double *p) __O3__ ;
  * A pseudo type-polymorphism mechanism using _Generic macro
  * to simulate:
  *
- * template<typename T, typename TT> void vcart (T *c, TT *p);
+ * template<typename T, typename TT> T vcart (TT p);
  *
  * \brief
  *    Calculates the Cartesian coordinates from a polar vector
- *    of size two.
  *
- * \param   c  Pointer to Cartesian vector {x,y}
- * \param   p  Pointer to polar vector {r,th}
- * \return  none
+ * \param   p  polar vector {r,th}
+ * \return  The Cartesian value {x,y}
  */
-#define vcart(c, p) _Generic((p),         \
-               int*: vcart_i,             \
-             float*: vcart_f,             \
-            double*: vcart_d,             \
-            default: vcart_d)(c, p)
+#define vcart(p) _Generic((p),            \
+          polar_f_t: vcart_f,             \
+          polar_d_t: vcart_d,             \
+            default: vcart_d)(p)
 #endif   // #ifndef vcart
+
+#ifndef vccart
+ /*!
+  * A pseudo type-polymorphism mechanism using _Generic macro
+  * to simulate:
+  *
+  * template<typename T, typename TT> T vccart (TT p);
+  *
+  * \brief
+ *    Calculates a complex number in Cartesian form from a polar vector
+  *
+  * \param   p  polar vector {r,th}
+  * \return  The Complex number
+  */
+ #define vccart(p) _Generic((p),           \
+           polar_f_t: vccart_f,            \
+           polar_d_t: vccart_d,            \
+             default: vccart_d)(p)
+#endif // #ifndef vccart
+
 #endif   // #if __STDC_VERSION__ >= 201112L
 
 
-void vpolar_i (float *p, int *c) __O3__ ;
-void vpolar_f (float *p, float *c) __O3__ ;
-void vpolar_d (double *p, double *c) __O3__ ;
-void vpolar_ci (float *p, complex_i_t c) __O3__ ;
-void vpolar_cf (float *p, complex_f_t c) __O3__ ;
-void vpolar_cd (double *p, complex_d_t c) __O3__ ;
+polar_f_t vpolar_f (float x, float y) __O3__ ;
+polar_d_t vpolar_d (double x, double y) __O3__ ;
+polar_f_t vcpolar_f (complex_f_t c) __O3__ ;
+polar_d_t vcpolar_d (complex_d_t c) __O3__ ;
 
 #if __STDC_VERSION__ >= 201112L
 #ifndef vpolar
+
 /*!
  * A pseudo type-polymorphism mechanism using _Generic macro
  * to simulate:
  *
- * template<typename T, typename TT> void vpolar (T *c, TT *p);
+ * template<typename T, typename T> polar_x_t vpolar (T x, T y);
+ *
+ *    Calculates the polar coordinates from Cartesian coordinates.
+ *
+ * \param   x  x coordinate
+ * \param   y  y coordinate
+ * \return     the converted to polar value
+ */
+#define vpolar(x, y) _Generic((x),        \
+             float: vpolar_f,             \
+            double: vpolar_d,             \
+            default: vpolar_d)(x, y)
+#endif   // #ifndef vpolar
+#endif   // #if __STDC_VERSION__ >= 201112L
+
+
+#if __STDC_VERSION__ >= 201112L
+#ifndef vcpolar
+
+/*!
+ * A pseudo type-polymorphism mechanism using _Generic macro
+ * to simulate:
+ *
+ * template<typename T, typename T> polar_x_t vcpolar (T c);
  *
  * \brief
- *    Calculates the polar coordinates from Cartesian vector
- *    of size two, or a complex number representing Cartesian
- *    coordinates.
+ *    Calculates the polar coordinates from  a complex number
+ *    representing Cartesian coordinates.
+ *    a.k.a transform complex number to polar notation
  *
- * \param   p  Pointer to polar vector {r,th}
- * \param   c  Pointer to Cartesian vector {x,y}, or complex number.
- * \return  none
+ * \param   c  The complex in Cartesian representation
+ * \return     the converted to polar value
  */
-#define vpolar(p, c) _Generic((c),        \
-               int*: vpolar_i,            \
-             float*: vpolar_f,            \
-            double*: vpolar_d,            \
-        complex_i_t: vpolar_ci,           \
-        complex_f_t: vpolar_cf,           \
-        complex_d_t: vpolar_cd,           \
-            default: vpolar_d)(p, c)
-#endif   // #ifndef vcart
+#define vcpolar(c) _Generic((c),          \
+       complex_f_t: vcpolar_f,            \
+       complex_d_t: vcpolar_d,            \
+           default: vcpolar_d)(c)
+#endif   // #ifndef vcpolar
 #endif   // #if __STDC_VERSION__ >= 201112L
 
 #ifdef __cplusplus
