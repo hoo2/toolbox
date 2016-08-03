@@ -136,39 +136,65 @@ static int _writepage (ee_t *ee, address_t add, byte_t *buf, bytecount_t n)
 /*
  * Link and Glue functions
  */
-inline void ee_link_i2c (ee_t *ee, void* i2c) {
+__INLINE void ee_link_i2c (ee_t *ee, void* i2c) {
    ee->io.i2c = i2c;
 }
-inline void ee_link_i2c_rx (ee_t *ee, ee_i2c_rx_ft fun) {
+__INLINE void ee_link_i2c_rx (ee_t *ee, ee_i2c_rx_ft fun) {
    ee->io.i2c_rx = fun;
 }
-inline void ee_link_i2c_tx (ee_t *ee, ee_i2c_tx_ft fun) {
+__INLINE void ee_link_i2c_tx (ee_t *ee, ee_i2c_tx_ft fun) {
    ee->io.i2c_tx = fun;
 }
-inline void ee_link_i2c_ioctl (ee_t *ee, ee_i2c_ioctl_ft fun) {
+__INLINE void ee_link_i2c_ioctl (ee_t *ee, ee_i2c_ioctl_ft fun) {
    ee->io.i2c_ioctl = fun;
 }
 
 /*
  * Set functions
  */
-inline void ee_set_hwaddress (ee_t *ee, address_t add) {
+
+/*!
+ * \brief
+ *    Set the Hardware address of the EEPROM. The address
+ *    has to contain the Chip select bits AND the Control code
+ *    For the 24xx family it is usually:  0xA0 | (chip select)
+ */
+__INLINE void ee_set_hwaddress (ee_t *ee, address_t add) {
    ee->conf.hw_addr = add;
 }
 
-inline void ee_set_size (ee_t *ee, ee_size_en s) {
+/*!
+ * \brief
+ *    Set the EEPROM size in form of \sa ee_size_en
+ */
+__INLINE void ee_set_size (ee_t *ee, ee_size_en s) {
    ee->conf.size = s;
 }
 
-inline void ee_set_page_size (ee_t *ee, uint32_t ps) {
+/*!
+ * \brief
+ *    Set the EEPROM's page size in bytes. This is used for Page
+ *    writes. (refer to eeprom's datasheet for more information
+ */
+__INLINE void ee_set_page_size (ee_t *ee, uint32_t ps) {
    ee->conf.page_size = ps;
 }
 
-inline void ee_set_sector_size (ee_t *ee, uint32_t ss) {
+/*!
+ * \brief
+ *    Select a sector size to use when a file system is using the EEPROM
+ */
+__INLINE void ee_set_sector_size (ee_t *ee, uint32_t ss) {
    ee->conf.sector_size = ss;
 }
 
-inline void ee_set_timeout (ee_t *ee, uint32_t to) {
+/*!
+ * \brief
+ *    Set the timeout times before give up waiting for EEPROM
+ *    to respond to a \sa _sendcontrol() command
+ *    For a 20MHz system a 0x100 value is around 25msec
+ */
+__INLINE void ee_set_timeout (ee_t *ee, uint32_t to) {
    ee->conf.timeout = to;
 }
 
