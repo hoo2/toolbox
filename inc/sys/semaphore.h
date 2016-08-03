@@ -45,7 +45,7 @@ int    sem_close (sem_t *s);
 
 int semaphore (sem_t *s);  // Checks
 void wait (sem_t *s);      // Wait
-void signal (sem_t *s);    // Feed
+void signl (sem_t *s);    // Feed
 
 int mutex (sem_t *m);      // Checks
 void lock (sem_t *m);      // wait to lock

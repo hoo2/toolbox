@@ -127,7 +127,7 @@ __O3__ void wait (sem_t *s)
 /*!
  * \brief Increase the semaphores value
  */
-inline void signal (sem_t *s) {
+inline void signl (sem_t *s) {
    ++s->val;
 }
 

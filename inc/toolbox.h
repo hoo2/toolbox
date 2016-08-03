@@ -117,7 +117,7 @@ extern "C" {
 //#include <sys/ffconf.h>
 //#include <sys/integer.h>
 #include <sys/jiffies.h>
-//#include <sys/semaphore.h>
+#include <sys/semaphore.h>
 
 /*!
  * \defgroup UserInterface
