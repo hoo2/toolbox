@@ -31,8 +31,13 @@ extern "C" {
 
 #include <math/math.h>
 
-int32_t isin_S4 (int32_t x)  ;
-int32_t icos_S4 (int32_t x)  ;
+#define  Q15_MAX        (0x8000)
+
+#define  Q12_MAX        (4096)
+#define  Q12_MIN        (-4096)
+
+int32_t isin_S4 (int32_t x) __O3__;
+int32_t icos_S4 (int32_t x) __O3__;
 
 
 #ifdef __cplusplus

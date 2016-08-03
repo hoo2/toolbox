@@ -30,12 +30,6 @@
 #define qN_    (15)
 #define qA     (12)
 
-static double _abs (double x) __O3__ ;
-
-static double _abs (double x) {
-   return (x<0) ? -x : x;
-}
-
 
 /*!
  * \brief
