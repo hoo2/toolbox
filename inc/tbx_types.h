@@ -81,23 +81,133 @@ typedef enum
    DRV_ERROR         /*!< Module/Device error */
 }drv_status_en;
 
-/*!
+/*
  * Complex types
  */
 typedef double _Complex    complex_d_t;
 typedef float _Complex     complex_f_t;
+
 #ifdef __GNUC__
 typedef int _Complex       complex_i_t;
 #endif
 
-#define  real(_z)       (((double*)&(_z))[0])
-#define  imag(_z)       (((double*)&(_z))[1])
-#define  realf(_z)      (((float*)&(_z))[0])
-#define  imagf(_z)      (((float*)&(_z))[1])
+#define  real(_z)       ( ((double*)&(_z)) [0] )
+#define  imag(_z)       ( ((double*)&(_z)) [1] )
+#define  realf(_z)      ( ((float*)&(_z)) [0] )
+#define  imagf(_z)      ( ((float*)&(_z)) [1] )
 #ifdef __GNUC__
-#define  reali(_z)      (((int*)&(_z))[0])
-#define  imagi(_z)      (((int*)&(_z))[1])
+#define  reali(_z)      ( ((int*)&(_z)) [0] )
+#define  imagi(_z)      ( ((int*)&(_z)) [1] )
 #endif
+
+/*
+ * Cartesian 2D coordinate types
+ */
+typedef struct {
+   double   x;
+   double   y;
+}cart2_d_t;
+
+typedef struct {
+   float    x;
+   float    y;
+}cart2_f_t;
+
+typedef struct {
+   int32_t  x;
+   int32_t  y;
+}cart2_i32_t;
+
+typedef struct {
+   uint32_t    x;
+   uint32_t    y;
+}cart2_ui32_t;
+
+/*
+ * Cartesian 3D coordinate types
+ */
+typedef struct {
+   double   x;
+   double   y;
+   double   z;
+}cart3_d_t;
+
+typedef struct {
+   float    x;
+   float    y;
+   float    z;
+}cart3_f_t;
+
+typedef struct {
+   int32_t  x;
+   int32_t  y;
+   int32_t  z;
+}cart3_i32_t;
+
+typedef struct {
+   uint32_t    x;
+   uint32_t    y;
+   uint32_t    z;
+}cart3_ui32_t;
+
+
+/*
+ * Polar coordinate types
+ */
+typedef struct {
+   double   abs;     // Amplitude
+   double   arg;     // Argument - angle
+}polar_d_t;
+
+typedef struct {
+   float    abs;     // Amplitude
+   float    arg;     // Argument - angle
+}polar_f_t;
+
+typedef struct {
+   int32_t  abs;     // Amplitude
+   int32_t  arg;     // Argument - angle
+}polar_i32_t;
+
+typedef struct {
+   uint32_t abs;     // Amplitude
+   uint32_t arg;     // Argument - angle
+}polar_ui32_t;
+
+
+
+#if   defined ( __CC_ARM )
+  #define __ASM            __asm                                      /*!< asm keyword for ARM Compiler          */
+  #define __INLINE         __inline                                   /*!< inline keyword for ARM Compiler       */
+  #define __STATIC_INLINE  static __inline
+
+#elif defined ( __GNUC__ )
+  #define __ASM            __asm                                      /*!< asm keyword for GNU Compiler          */
+  #define __INLINE         inline                                     /*!< inline keyword for GNU Compiler       */
+  #define __STATIC_INLINE  static inline
+
+#elif defined ( __ICCARM__ )
+  #define __ASM            __asm                                      /*!< asm keyword for IAR Compiler          */
+  #define __INLINE         inline                                     /*!< inline keyword for IAR Compiler. Only available in High optimization mode! */
+  #define __STATIC_INLINE  static inline
+
+#elif defined ( __TMS470__ )
+  #define __ASM            __asm                                      /*!< asm keyword for TI CCS Compiler       */
+  #define __STATIC_INLINE  static inline
+
+#elif defined ( __TASKING__ )
+  #define __ASM            __asm                                      /*!< asm keyword for TASKING Compiler      */
+  #define __INLINE         inline                                     /*!< inline keyword for TASKING Compiler   */
+  #define __STATIC_INLINE  static inline
+
+#elif defined ( __CSMC__ )
+  #define __packed
+  #define __ASM            _asm                                      /*!< asm keyword for COSMIC Compiler      */
+  #define __INLINE         inline                                    /*use -pc99 on compile line !< inline keyword for COSMIC Compiler   */
+  #define __STATIC_INLINE  static inline
+
+#endif
+
 #ifdef __cplusplus
 }
 #endif
