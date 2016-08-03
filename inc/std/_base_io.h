@@ -65,6 +65,8 @@ extern const char pr_flags[_IO_NUM_OF_FLAGS];
 #define _IO_FRACTIONAL_WIDTH        (3)
 #define _IO_WIDTH                   (5)
 #define _IO_MAX_INT_DIGITS          (15)
+#define _IO_MAX_INT32_DIGITS        (15)
+#define _IO_MAX_INT64_DIGITS        (22)
 #define _IO_MAX_DOUBLE_WIDTH        (20)
 
 #define _IO_MAX_FLOAT               (1e18)

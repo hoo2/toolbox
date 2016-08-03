@@ -32,7 +32,9 @@ static int _inschar (_putc_out_t _out, char* dst, char c) __Os__ ;
 static int _insnchar (_putc_out_t _out, char *dst, char c, int n) __Os__ ;
 static int _insstring (_putc_out_t _out, char *dst, const char *src, int length) __Os__ ;
 static int _insuint(_putc_out_t _out, char *dst, _io_frm_spec_t *fs, unsigned int value) __Os__ ;
+static int _insuint64 (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, unsigned long long value) __Os__;
 static int _insint (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, char min, int value) __Os__ ;
+static int _insint64 (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, char min, long long value) __Os__;
 static int _inshex (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, unsigned int value) __Os__ ;
 static int _inscoredouble (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, double value) __Os__ ;
 static int _insfdouble (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, double value) __Os__ ;
@@ -257,6 +259,50 @@ static int _insuint(_putc_out_t _out, char *dst, _io_frm_spec_t *fs, unsigned in
    return num;
 }
 
+/*!
+ * \brief
+ *    Writes an unsigned long long int inside the given string, using the provided
+ *    lead character & width parameters. To convert spreads an integer in
+ *    to an array discarding one LBS at a time. After that takes the last
+ *    digit of each and stream it to string.
+ *
+ *    For example the number 1234 will expand as:
+ *      [0]: 1234
+ *      [1]: 123
+ *      [2]: 12
+ *      [3]: 1
+ *      [4]: 0
+ *      After that it streams '1', '2', '3', and '4'
+ *
+ * \param  dst   destination string.
+ * \param  lead  Leading character.
+ * \param  width Minimum integer width.
+ * \param  value Integer value.
+ *
+ * \return The number of written characters.
+ */
+static int _insuint64 (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, unsigned long long value)
+{
+   int num = 0, i, j;
+   unsigned int bf[_IO_MAX_INT64_DIGITS];
+
+   // Spread value
+   for (i=0, bf[0]=value ; i<_IO_MAX_INT64_DIGITS-1 ; ) {
+      bf[i+1] = bf[i]/10;
+      if (!bf[++i])
+         break;
+   }
+
+   // Write leading characters
+   for (j=i ; j<fs->width ; ++j)
+      num += _inschar (_out, dst++, fs->flags.lead);
+
+   // Write actual numbers
+   for ( ; i ; --i)
+      num += _inschar (_out, dst++, (bf[i-1] - bf[i]*10) + '0');
+
+   return num;
+}
 
 /*!
  * \brief
@@ -299,6 +345,92 @@ static int _insint (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, char min, i
 
    // Spread absolute value
    for (i=0, bf[0]=absv ; i<_IO_MAX_INT_DIGITS-1 ; ) {
+      bf[i+1] = bf[i]/10;
+      if (!bf[++i])
+         break;
+   }
+   j = i + (fs->flags.plus || negative);
+
+   /*
+    *  Decide to run lead characters code or sign code first.
+    */
+   if (fs->flags.lead == '0')
+      pshift = _shift_left;
+   else
+      pshift = _shift_right;
+
+   for (scr=0x04 ; scr ; ) {
+      pshift (&scr);
+      switch (scr) {
+         case 0x01:
+         case 0x08:
+            // Write sign
+            if (negative)
+               num += _inschar (_out, dst++, '-');
+            else if (fs->flags.plus)
+               num += _inschar (_out, dst++, '+');
+            break;
+         case 0x02:
+         case 0x10:
+            // Write lead characters
+            for ( ; j<fs->width ; ++j)
+               num += _inschar (_out, dst++, fs->flags.lead);
+            break;
+         default:
+            scr = 0;
+            break;
+      }
+   }
+
+   // Write actual numbers
+   for ( ; i ; --i)
+      num += _inschar (_out, dst++, (bf[i-1] - bf[i]*10) + '0');
+
+   return num;
+}
+
+/*!
+ * \brief
+ *    Writes a signed long long inside the given string, using the provided
+ *    lead characters & width parameters. To convert spreads an integer in
+ *    to an array discarding one LBS at a time. After that takes the last
+ *    digit of each and stream it to string.
+ *
+ *    For example the number 1234 will expand as:
+ *      [0]: 1234
+ *      [1]: 123
+ *      [2]: 12
+ *      [3]: 1
+ *      [4]: 0
+ *      After that it streams '1', '2', '3', and '4'
+ *
+ * \param dst    destination string.
+ * \param lead   Leading character.
+ * \param width  Minimum integer width.
+ * \param sign   Always print sign flag.
+ * \param min    Is a negative number, used if value is zero.
+ * \param value  Signed integer value.
+ *
+ * \return The number of written characters.
+ */
+static int _insint64 (_putc_out_t _out, char *dst, _io_frm_spec_t *fs, char min, long long value)
+{
+   int num = 0, i, j;
+   int bf[_IO_MAX_INT64_DIGITS];
+   unsigned long long absv;
+   unsigned int negative=min, scr;
+   void (*pshift) (unsigned int*);
+
+   // Compute absolute value
+   if (value < 0) {
+      negative=1;
+      absv = -value;
+   }
+   else
+      absv = value;
+
+   // Spread absolute value
+   for (i=0, bf[0]=absv ; i<_IO_MAX_INT64_DIGITS-1 ; ) {
       bf[i+1] = bf[i]/10;
       if (!bf[++i])
          break;
