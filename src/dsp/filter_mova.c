@@ -24,6 +24,13 @@
 
 #include <dsp/filter_mova.h>
 
+
+/*
+ * General defines
+ */
+#define  _FILTER_MOVA_SAMPLES(_fc)   ( sqrt (0.196196 + _fc*_fc)/_fc )
+
+
 /*
  * =================== Public API =====================
  */
@@ -37,68 +44,163 @@
  * Set functions
  */
 
-/*!
- * \brief
- *    Set the size of data/points
- *
- * \param   f     Which filter to use
- * \param   size  The size in size_t
- * \return        none
-*/
-void filter_mova_set_item_size (filter_mova_t *f, uint32_t size) {
-   f->it_size = size;
-}
-
-/*!
- * \brief
- *    Set the normalised cut-off frequency of the filter.
- *    The range is 0 to 0.5, where 0.5 is half of the sampling frequency
- *
- * \param   f     Which filter to use
- * \param   fc    The normalised cut-off frequency of the filter
- * \return        none
-*/
-void filter_mova_set_fc (filter_mova_t *f, double fc) {
-   f->N = FILTER_MOVA_SAMPLES (fc);
-}
-
-
 /*
  * User Functions
  */
 
 /*!
  * \brief
- *    Moving Average filter de-initialisation.
+ *    Moving Average filter initialization.
  *
- * \param  f      Which filter to free
- * \return none
-*/
-void filter_mova_deinit (filter_mova_t* f) {
-   if ( f->bf )
-      free ((void*)f->bf);
-   memset ((void*)f, 0, sizeof (filter_mova_t));
+ * \param  f      Which filter to use
+ * \param  fc     The normalized cutoff frequency [0fs - 0.5fs]
+ * \return        The number of points
+ */
+uint32_t fir_ma_init_d (fir_ma_d_t* f, double fc)
+{
+   f->N = _FILTER_MOVA_SAMPLES (fc);
+
+   // Try to allocate memory and check sample points for cutoff frequency
+   if ( (f->N != 0) && ( (f->bf = (void*)calloc (f->N, sizeof(double))) != NULL )) {
+      // Clear accumulator and cursor
+      f->last = f->c = 0;
+      return f->N;
+   }
+   else
+      return 0;
+}
+
+
+/*!
+ * \brief
+ *    Moving Average filter initialization.
+ *
+ * \param  f      Which filter to use
+ * \param  fc     The normalized cutoff frequency [0fs - 0.5fs]
+ * \return        The number of points
+ */
+uint32_t fir_ma_init_f (fir_ma_f_t* f, float fc)
+{
+   f->N = _FILTER_MOVA_SAMPLES (fc);
+
+   // Try to allocate memory and check sample points for cutoff frequency
+   if ( (f->N != 0) && ( (f->bf = (void*)calloc (f->N, sizeof(float))) != NULL )) {
+      // Clear accumulator and cursor
+      f->last = f->c = 0;
+      return f->N;
+   }
+   else
+      return 0;
+}
+
+
+/*!
+ * \brief
+ *    Moving Average filter initialization.
+ *
+ * \param  f      Which filter to use
+ * \param  fc     The normalized cutoff frequency [0fs - 0.5fs]
+ * \return        The number of points
+ */
+uint32_t fir_ma_init_i32 (fir_ma_i32_t* f, float fc)
+{
+   f->N = _FILTER_MOVA_SAMPLES (fc);
+
+   // Try to allocate memory and check sample points for cutoff frequency
+   if ( (f->N != 0) && ( (f->bf = (void*)calloc (f->N, sizeof(int32_t))) != NULL )) {
+      // Clear accumulator and cursor
+      f->last = f->c = 0;
+      return f->N;
+   }
+   else
+      return 0;
+}
+
+
+/*!
+ * \brief
+ *    Moving Average filter initialization.
+ *
+ * \param  f      Which filter to use
+ * \param  fc     The normalized cutoff frequency [0fs - 0.5fs]
+ * \return        The number of points
+ */
+uint32_t fir_ma_init_ui32 (fir_ma_ui32_t* f, float fc)
+{
+   f->N = _FILTER_MOVA_SAMPLES (fc);
+
+   // Try to allocate memory and check sample points for cutoff frequency
+   if ( (f->N != 0) && ( (f->bf = (void*)calloc (f->N, sizeof(uint32_t))) != NULL )) {
+      // Clear accumulator and cursor
+      f->last = f->c = 0;
+      return f->N;
+   }
+   else
+      return 0;
+}
+
+
+/*!
+ * \brief
+ *    Moving Average filter initialization.
+ *
+ * \param  f      Which filter to use
+ * \param  fc     The normalized cutoff frequency [0fs - 0.5fs]
+ * \return        The number of points
+ */
+uint32_t fir_ma_init_cd (fir_ma_cd_t* f, double fc)
+{
+   f->N = _FILTER_MOVA_SAMPLES (fc);
+
+   // Try to allocate memory and check sample points for cutoff frequency
+   if ( (f->N != 0) && ( (f->bf = (void*)calloc (f->N, sizeof(complex_d_t))) != NULL )) {
+      // Clear accumulator and cursor
+      f->last = f->c = 0;
+      return f->N;
+   }
+   else
+      return 0;
 }
 
 /*!
  * \brief
- *    Moving Average filter initialisation.
+ *    Moving Average filter initialization.
  *
  * \param  f      Which filter to use
- * \param  fc     The normalised cutoff frequency [0fs - 0.5fs]
- * \return        None
+ * \param  fc     The normalized cutoff frequency [0fs - 0.5fs]
+ * \return        The number of points
  */
-uint32_t filter_mova_init (filter_mova_t* f)
+uint32_t fir_ma_init_cf (fir_ma_cf_t* f, float fc)
 {
-   // Check sample points for cutoff frequency
-   if (f->N == 0)
-      return 0;
+   f->N = _FILTER_MOVA_SAMPLES (fc);
 
-   // Try to allocate memory
-   if ( (f->bf = (void*)calloc (f->N, f->it_size)) != NULL ) {
+   // Try to allocate memory and check sample points for cutoff frequency
+   if ( (f->N != 0) && ( (f->bf = (void*)calloc (f->N, sizeof(complex_f_t))) != NULL )) {
       // Clear accumulator and cursor
-      memset ((void*)f->last, 0, FILTER_MOVA_LAST_SIZE);
-      f->c = 0;
+      f->last = f->c = 0;
+      return f->N;
+   }
+   else
+      return 0;
+}
+
+
+/*!
+ * \brief
+ *    Moving Average filter initialization.
+ *
+ * \param  f      Which filter to use
+ * \param  fc     The normalized cutoff frequency [0fs - 0.5fs]
+ * \return        The number of points
+ */
+uint32_t fir_ma_init_ci (fir_ma_ci_t* f, float fc)
+{
+   f->N = _FILTER_MOVA_SAMPLES (fc);
+
+   // Try to allocate memory and check sample points for cutoff frequency
+   if ( (f->N != 0) && ( (f->bf = (void*)calloc (f->N, sizeof(complex_i_t))) != NULL )) {
+      // Clear accumulator and cursor
+      f->last = f->c = 0;
       return f->N;
    }
    else
@@ -107,27 +209,6 @@ uint32_t filter_mova_init (filter_mova_t* f)
 
 
 
-/*!
- * \brief
- *    Recursive moving average algorithm
- */
-#define  _filter_body(_rtype, _type)  {   \
-   _type dep;                             \
-                                          \
-   dep = ((_type*)f->bf)[f->c];     /* Save departed point */        \
-   ((_type*)f->bf)[f->c] = in;      /* Get new value */              \
-   if ( ++(f->c) >= f->N)           /* Buffer overflow checking */   \
-      f->c = 0;                           \
-   /* Recursive calculation */            \
-   return *(_rtype*)(f->last) += (_rtype)(in - dep)/f->N;            \
-}
-
-#define  _double     double
-#define  _float      float
-#define  _int        int
-#define  _complex_d  complex_d_t
-#define  _complex_f  complex_f_t
-#define  _complex_i  complex_i_t
 
 /*!
  * \brief
@@ -139,8 +220,14 @@ uint32_t filter_mova_init (filter_mova_t* f)
  *
  * \return        Filtered value
  */
-double filter_mova_d (filter_mova_t* f, double in) {
-   _filter_body(_double, _double);
+double fir_ma_d (fir_ma_d_t* f, double in) {
+   double dep;
+
+   dep = f->bf[f->c];            /* Save departed point */
+   f->bf[f->c] = in;             /* Get new value */
+   if ( ++(f->c) >= f->N)        /* Buffer overflow checking */
+      f->c = 0;
+   return f->last += (double)(in - dep)/f->N;   /* Recursive calculation */
 }
 
 /*!
@@ -153,13 +240,19 @@ double filter_mova_d (filter_mova_t* f, double in) {
  *
  * \return        Filtered value
  */
-float filter_mova_f (filter_mova_t* f, float in) {
-   _filter_body(_float, _float);
+float fir_ma_f (fir_ma_f_t* f, float in) {
+   float dep;
+
+   dep = f->bf[f->c];            /* Save departed point */
+   f->bf[f->c] = in;             /* Get new value */
+   if ( ++(f->c) >= f->N)        /* Buffer overflow checking */
+      f->c = 0;
+   return f->last += (float)(in - dep)/f->N;   /* Recursive calculation */
 }
 
 /*!
  * \brief
- *    Integer recursive Moving Average filter returning
+ *    Signed Integer recursive Moving Average filter returning
  *    single precision float.
  *    Output = Moving_Average (Input)
  *
@@ -168,13 +261,20 @@ float filter_mova_f (filter_mova_t* f, float in) {
  *
  * \return        Filtered value
  */
-float filter_mova_i (filter_mova_t* f, int in) {
-   _filter_body(_float, _int);
+float fir_ma_i32 (fir_ma_i32_t* f, int32_t in) {
+   int32_t dep;
+
+   dep = f->bf[f->c];            /* Save departed point */
+   f->bf[f->c] = in;             /* Get new value */
+   if ( ++(f->c) >= f->N)        /* Buffer overflow checking */
+      f->c = 0;
+   return f->last += (float)(in - dep)/f->N;   /* Recursive calculation */
 }
 
 /*!
  * \brief
- *    Double precision complex recursive Moving Average filter.
+ *    Unsigned Integer recursive Moving Average filter returning
+ *    single precision float.
  *    Output = Moving_Average (Input)
  *
  * \param  f      Which filter to use
@@ -182,13 +282,20 @@ float filter_mova_i (filter_mova_t* f, int in) {
  *
  * \return        Filtered value
  */
-complex_d_t filter_mova_cd (filter_mova_t* f, complex_d_t in) {
-   _filter_body(_complex_d, _complex_d);
+float fir_ma_ui32 (fir_ma_ui32_t* f, uint32_t in) {
+   uint32_t dep;
+
+   dep = f->bf[f->c];            /* Save departed point */
+   f->bf[f->c] = in;             /* Get new value */
+   if ( ++(f->c) >= f->N)        /* Buffer overflow checking */
+      f->c = 0;
+   return f->last += (float)(in - dep)/f->N;   /* Recursive calculation */
 }
 
 /*!
  * \brief
- *    Single precision complex recursive Moving Average filter.
+ *    Double precision complex recursive Moving Average filter returning
+ *    double precision complex.
  *    Output = Moving_Average (Input)
  *
  * \param  f      Which filter to use
@@ -196,13 +303,19 @@ complex_d_t filter_mova_cd (filter_mova_t* f, complex_d_t in) {
  *
  * \return        Filtered value
  */
-complex_f_t filter_mova_cf (filter_mova_t* f, complex_f_t in) {
-   _filter_body(_complex_f, _complex_f);
+complex_d_t fir_ma_cd (fir_ma_cd_t* f, complex_d_t in) {
+   complex_d_t dep;
+
+   dep = f->bf[f->c];            /* Save departed point */
+   f->bf[f->c] = in;             /* Get new value */
+   if ( ++(f->c) >= f->N)        /* Buffer overflow checking */
+      f->c = 0;
+   return f->last += (complex_d_t)(in - dep)/f->N;   /* Recursive calculation */
 }
 
 /*!
  * \brief
- *    Integer complex recursive Moving Average filter, returning
+ *    Single precision complex recursive Moving Average filter returning
  *    single precision complex.
  *    Output = Moving_Average (Input)
  *
@@ -211,16 +324,36 @@ complex_f_t filter_mova_cf (filter_mova_t* f, complex_f_t in) {
  *
  * \return        Filtered value
  */
-complex_f_t filter_mova_ci (filter_mova_t* f, complex_i_t in) {
-   _filter_body(_complex_f, _complex_i);
+complex_f_t fir_ma_cf (fir_ma_cf_t* f, complex_f_t in) {
+   complex_f_t dep;
+
+   dep = f->bf[f->c];            /* Save departed point */
+   f->bf[f->c] = in;             /* Get new value */
+   if ( ++(f->c) >= f->N)        /* Buffer overflow checking */
+      f->c = 0;
+   return f->last += (complex_f_t)(in - dep)/f->N;   /* Recursive calculation */
 }
 
-#undef   _filter_body
-#undef  _double
-#undef  _float
-#undef  _int
-#undef  _complex_d
-#undef  _complex_f
-#undef  _complex_i
+/*!
+ * \brief
+ *    Integer complex recursive Moving Average filter returning
+ *    single precision complex.
+ *    Output = Moving_Average (Input)
+ *
+ * \param  f      Which filter to use
+ * \param  in     The input value.
+ *
+ * \return        Filtered value
+ */
+complex_f_t fir_ma_ci (fir_ma_ci_t* f, complex_i_t in) {
+   complex_i_t dep;
+
+   dep = f->bf[f->c];            /* Save departed point */
+   f->bf[f->c] = in;             /* Get new value */
+   if ( ++(f->c) >= f->N)        /* Buffer overflow checking */
+      f->c = 0;
+   return f->last += (complex_f_t)(in - dep)/f->N;   /* Recursive calculation */
+}
+
 
 

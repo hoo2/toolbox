@@ -26,37 +26,78 @@
 
 /*!
  * \brief
- *    DeInitialize the leaky integrator filter pointed by li
+ *    DeInitialize the double precision leaky integrator
+ *    filter pointed by li
  *
  * \param   li,   which filter to de-initialize
  */
-__Os__ void leaky_int_deinit (leaky_int_t* li) {
-   li->lambda = li->out = 0;
+__Os__ void iir_li_d_deinit (iir_li_d_t* li) {
+   li->l = li->out = 0;
 }
 
 /*!
  * \brief
- *    Initialize the leaky integrator filter pointed by li
+ *    DeInitialize the single precision leaky integrator
+ *    filter pointed by li
+ *
+ * \param   li,   which filter to de-initialize
+ */
+__Os__ void iir_li_f_deinit (iir_li_f_t* li) {
+   li->l = li->out = 0;
+}
+
+/*!
+ * \brief
+ *    Initialize double precision the leaky integrator
+ *    filter pointed by li
  *
  * \param   li,   which filter to initialize
  * \param   l,    the lambda factor of the filter
  */
-__Os__ void leaky_int_init (leaky_int_t* li, double l) {
+__Os__ void iir_li_d_init (iir_li_d_t* li, double l) {
    li->out = 0;
-   li->lambda = l;
+   li->l = l;
 }
 
 /*!
  * \brief
- *    The leaky integrator function
+ *    Initialize the single precision leaky integrator
+ *    filter pointed by li
+ *
+ * \param   li,   which filter to initialize
+ * \param   l,    the lambda factor of the filter
+ */
+__Os__ void iir_li_f_init (iir_li_f_t* li, float l) {
+   li->out = 0;
+   li->l = l;
+}
+
+/*!
+ * \brief
+ *    The double precision leaky integrator function
  *
  * \param   li,      which filter to use
  * \param   value,   the input value
  *
  * \return           The filtered value.
  */
-__O3__ double leaky_int (leaky_int_t* li, double value) {
+__O3__ double iir_li_d (iir_li_d_t* li, double value) {
    if (isnan (value))
       return (li->out = 0);
-   return (li->out = li->out*li->lambda + (1-li->lambda)*value);
+   return (li->out = li->out*li->l + (1-li->l)*value);
+}
+
+/*!
+ * \brief
+ *    The single precision leaky integrator function
+ *
+ * \param   li,      which filter to use
+ * \param   value,   the input value
+ *
+ * \return           The filtered value.
+ */
+__O3__ float iir_li_f (iir_li_f_t* li, float value) {
+   if (isnan (value))
+      return (li->out = 0);
+   return (li->out = li->out*li->l + (1-li->l)*value);
 }

@@ -33,27 +33,36 @@ extern "C" {
 #include <string.h>
 
 /*
- * General defines
- */
-#define  FILTER_MOVA_SAMPLES(_fc)   ( sqrt (0.196196 + _fc*_fc)/_fc )
-#define  FILTER_MOVA_LAST_SIZE      (16)
-   //!< 16 bytes sould be enough for supported data types
-
-
-/*
  * =================== Data types =====================
  */
-typedef struct
-{
-   void     *bf;     //!< Pointer to sample buffer
-   uint32_t it_size; //!< Each item size
-   byte_t   last[FILTER_MOVA_LAST_SIZE];  //!< Allocated space for the last output
-   uint32_t N;       //!< The number of samples / cut-off frequency
-   uint32_t c;       //!< Buffer cursor
-}filter_mova_t;
+
+/*!
+ * Moving average filter make define
+ *
+ * bf    Pointer to sample buffer
+ * last  Allocated space for the last output
+ * N     The number of samples / cut-off frequency
+ * c     Buffer cursor
+ */
+#define _fir_mova_mktype(_type, _rtype, _type_name)  \
+typedef struct {        \
+      _type   *bf;      \
+      _rtype   last;    \
+      uint32_t N;       \
+      uint32_t c;       \
+}_type_name
+
+_fir_mova_mktype (double, double, fir_ma_d_t);        /*!< * Moving average filter double precision */
+_fir_mova_mktype (float, float, fir_ma_f_t);         /*!< * Moving average filter single precision */
+_fir_mova_mktype (int32_t, float, fir_ma_i32_t);     /*!< * Moving average filter signed int32 */
+_fir_mova_mktype (uint32_t, float, fir_ma_ui32_t);   /*!< * Moving average filter unsigned int32 */
+_fir_mova_mktype (complex_d_t, complex_d_t, fir_ma_cd_t);  /*!< * Moving average filter double precision complex */
+_fir_mova_mktype (complex_f_t, complex_f_t, fir_ma_cf_t);  /*!< * Moving average filter signed precision complex */
+_fir_mova_mktype (complex_i_t, complex_f_t, fir_ma_ci_t);  /*!< * Moving average filter signed int32 complex */
 
 
 /* =================== Public API ===================== */
+
 /*
  * Link and Glue functions
  */
@@ -61,29 +70,58 @@ typedef struct
 /*
  * Set functions
  */
-void filter_mova_set_item_size (filter_mova_t *f, uint32_t size);
-void filter_mova_set_fc (filter_mova_t *f, double fc);
 
 /*
  * User Functions
  */
-void filter_mova_deinit (filter_mova_t* f);
-uint32_t filter_mova_init (filter_mova_t* f);
+uint32_t fir_ma_init_d (fir_ma_d_t* f, double fc);
+uint32_t fir_ma_init_f (fir_ma_f_t* f, float fc);
+uint32_t fir_ma_init_i32 (fir_ma_i32_t* f, float fc);
+uint32_t fir_ma_init_ui32 (fir_ma_ui32_t* f, float fc);
+uint32_t fir_ma_init_cd (fir_ma_cd_t* f, double fc);
+uint32_t fir_ma_init_cf (fir_ma_cf_t* f, float fc);
+uint32_t fir_ma_init_ci (fir_ma_ci_t* f, float fc);
 
-double filter_mova_d (filter_mova_t* f, double in) __O3__ ;
-float filter_mova_f (filter_mova_t* f, float in) __O3__ ;
-float filter_mova_i (filter_mova_t* f, int in) __O3__ ;
-complex_d_t filter_mova_cd (filter_mova_t* f, complex_d_t in) __O3__ ;
-complex_f_t filter_mova_cf (filter_mova_t* f, complex_f_t in) __O3__ ;
-complex_f_t filter_mova_ci (filter_mova_t* f, complex_i_t in) __O3__ ;
+
+double fir_ma_d (fir_ma_d_t* f, double in) __O3__ ;
+float fir_ma_f (fir_ma_f_t* f, float in) __O3__ ;
+float fir_ma_i32 (fir_ma_i32_t* f, int32_t in) __O3__ ;
+float fir_ma_ui32 (fir_ma_ui32_t* f, uint32_t in) __O3__ ;
+complex_d_t fir_ma_cd (fir_ma_cd_t* f, complex_d_t in) __O3__ ;
+complex_f_t fir_ma_cf (fir_ma_cf_t* f, complex_f_t in) __O3__ ;
+complex_f_t fir_ma_ci (fir_ma_ci_t* f, complex_i_t in) __O3__ ;
 
 #if __STDC_VERSION__ >= 201112L
 #ifndef filter_mova
+
 /*!
  * A pseudo type-polymorphism mechanism using _Generic macro
  * to simulate:
  *
- * template<typename T1, typename T2> T2 filter_mova (filter_mova_t *f, T1 in);
+ * template<typename T1, typename T2> uint32_t fir_ma_init (T1 *f, T2 fc);
+ *
+ * \brief
+ *    Moving Average filter initialization.
+ *
+ * \param  f      Which filter to use
+ * \param  fc     The normalized cutoff frequency [0fs - 0.5fs]
+ * \return        The number of points
+ */
+#define fir_ma_init(f, in)    _Generic((f),       \
+           fir_ma_d_t*: fir_ma_init_d,            \
+           fir_ma_f_t*: fir_ma_init_f,            \
+         fir_ma_i32_t*: fir_ma_init_i32,          \
+        fir_ma_ui32_t*: fir_ma_init_ui32,         \
+          fir_ma_cd_t*: fir_ma_init_cd,           \
+          fir_ma_cf_t*: fir_ma_init_cf,           \
+          fir_ma_ci_t*: fir_ma_init_ci,           \
+               default: fir_ma_init_f)(f, in)
+
+/*!
+ * A pseudo type-polymorphism mechanism using _Generic macro
+ * to simulate:
+ *
+ * template<typename T1, typename T2> T2 fir_ma (T1 *f, T1 in);
  *
  * \brief
  *    Recursive Moving Average filter.
@@ -94,14 +132,15 @@ complex_f_t filter_mova_ci (filter_mova_t* f, complex_i_t in) __O3__ ;
  *
  * \return        Filtered value
  */
-#define filter_mova(f, in)    _Generic((in),    \
-           complex_d_t: filter_mova_cd,         \
-           complex_f_t: filter_mova_cf,         \
-           complex_i_t: filter_mova_ci,         \
-                double: filter_mova_d,          \
-                 float: filter_mova_f,          \
-                   int: filter_mova_i,          \
-                default: filter_mova_d)(f, in)
+#define fir_ma(f, in)    _Generic((in),      \
+                double: fir_ma_d,            \
+                 float: fir_ma_f,            \
+               int32_t: fir_ma_i32,          \
+              uint32_t: fir_ma_ui32,         \
+           complex_d_t: fir_ma_cd,           \
+           complex_f_t: fir_ma_cf,           \
+           complex_i_t: fir_ma_ci,           \
+               default: fir_ma_f)(f, in)
 #endif   // #ifndef filter_mova
 #endif   // #if __STDC_VERSION__ >= 201112L
 
