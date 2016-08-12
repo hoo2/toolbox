@@ -32,7 +32,7 @@ static keys_t _get_buttons (void);
 
 /*!
   * \brief
-  *    Reads the back-end functions and combine them to synthesise the
+  *    Reads the back-end functions and combine them to synthesize the
   *    key value. Each pin corresponds to one bit in the key variable.
   *    for example:
   *    key: 0x0009 ==> BTN0 and BTN3 are pressed.
