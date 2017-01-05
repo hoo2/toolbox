@@ -42,9 +42,9 @@ extern "C" {
 /*!
  * This assert macro is used for the toolbox
  */
-#define tbx_assert(x)  ((void)sizeof(x))
+#define tbx_assert(x)   ((void)sizeof(x))
 
-
+#define tbx_unused(x)   ((void)(x))
 
 /*!
  * Optimisations

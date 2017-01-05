@@ -390,7 +390,7 @@ drv_status_en alcd_init (alcd_t *alcd)
    alcd->c.x = alcd->c.y = 1;
    alcd->io.en (0);
    alcd->io.rs (0);
-   jf_delay_us(100000);
+   jf_delay_us (100000);
 
    //Pre-Init phase 8bit at this point
    _set_bus (alcd, 0x3);
@@ -410,9 +410,8 @@ drv_status_en alcd_init (alcd_t *alcd)
    _command (alcd, LCD_CLRSCR);      //Clear Display
       jf_delay_us(5000);
    _command (alcd, LCD_ENTRYMODE);   //Entry Mode Set
-
-   _command (alcd, LCD_CLRSCR);
       jf_delay_us(5000);
+
    _command (alcd, LCD_RETHOME);
       jf_delay_us(10000);
    _command (alcd, LCD_DISP_ON);
@@ -450,10 +449,10 @@ void alcd_enable (alcd_t *alcd, uint8_t on)
 {
    if (on) {
       _command (alcd, LCD_DISP_ON);
-      //alcd_backlight (alcd, 1);
+      alcd_backlight (alcd, 1);
    } else {
       _command (alcd, LCD_DISP_OFF);
-      //alcd_backlight (alcd, 0);
+      alcd_backlight (alcd, 0);
    }
 }
 

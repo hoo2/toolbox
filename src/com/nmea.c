@@ -779,7 +779,21 @@ void _stream (nmea_t *nmea, char *str)
 /*
  * =============== Public NMEA API =================
  */
+/*!
+ * \brief
+ *    This function calls the unused static api while development.
+ * \note
+ *    DO NOT CALL this function
+ */
+void mnea_unused (void) {
+   char tmp [2] = "0";
 
+   tbx_unused (_dec2nmea (0));
+   tbx_unused (_msgid_str (NMEA_NULL));
+   tbx_unused (_msgid_type (tmp));
+   tbx_unused (_read_course_type (tmp, NMEA_COURSE_TRUE));
+   tbx_unused (_read_sp_unts (tmp, NMEA_KNOTS));
+}
 /*
  * ========= Link and Glue functions ==============
  */

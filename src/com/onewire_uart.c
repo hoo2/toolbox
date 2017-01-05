@@ -1,7 +1,8 @@
 /*!
- * \file onewire_bb.c
+ * \file onewire_uart.c
  * \brief
- *    A target independent 1-wire using bit-banging implementation driver.
+ *    A target independent 1-wire implementation using a microprocessor's uart
+ *    for bit timing
  *
  * This file is part of toolbox
  *
@@ -21,45 +22,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#include <com/onewire_bb.h>
+#include <com/onewire_uart.h>
 
 /*
  * ========= Private helper macros ===========
  */
-
-#define  _delay(_time_)    jf_delay_100ns (_time_)    /*!< Delay using 100nsec time base */
-#define  _waiting(_time_)  jf_check_100nsec (_time_)  /*!< Polling version delay using 100nsec time base */
-
-
-/*!
- * \brief
- *    Change bus pin direction to output  macro, to ensure we wont forget
- *    to mark the dir_state every time, we change direction
- * \note
- *    The order of the operations is reversed from the one used for input.
- *    This is to improve timing in the 1-Wire module
- * \param   _ow_     Pointer to select 1-Wire structure for the operation.
- */
-#define  _ow_dir_output(_ow_)                \
-   do {                                      \
-      _ow_->io.dir_state = drv_pin_output;   \
-      _ow_->io.dir (drv_pin_output);         \
-   } while (0)
-
-/*!
- * \brief
- *    Change bus pin direction to input  macro, to ensure we wont forget
- *    to mark the dir_state every time, we change direction
- * \note
- *    The order of the operations is reversed from the one used for output.
- *    This is to improve timing in the 1-Wire module
- * \param   _ow_     Pointer to select 1-Wire structure for the operation.
- */
-#define  _ow_dir_input(_ow_)              \
-   do {                                   \
-      _ow_->io.dir (drv_pin_input);       \
-      _ow_->io.dir_state = drv_pin_input; \
-   } while (0)
 
 /*!
  * Clear a virtual 64bit unsigned register.
@@ -102,15 +69,20 @@
       else     _reg_[(_bit_)/8] &= ~(1 << ((_bit_)%8));  \
    } while (0)
 
+
+
 /*
  * ============= Private functions ===========
  */
 /* Data manipulation functions */
 static int _cmp_u64 (uint8_t *reg1, uint8_t *reg2);
 
+/* Set functions */
+static drv_status_en _set_baudrate (ow_uart_t *ow, ow_uart_state_en st);
+
 /* Bus functions */
-static void _write_bit (ow_bb_t *ow, uint8_t b);
-static uint8_t _read_bit (ow_bb_t *ow);
+static uint8_t _write_bit (ow_uart_t *ow, uint8_t b);
+static uint8_t _read_bit (ow_uart_t *ow);
 
 
 /*!
@@ -139,52 +111,81 @@ static __O3__ int _cmp_u64 (uint8_t *reg1, uint8_t *reg2) {
 
 /*!
  * \brief
- *    Send a 1-Wire write bit and provide the recovery time
+ *    Set UART Baudrate and handle all function calls and data
+ *    manipulation
+ * \param   ow    Pointer to select 1-Wire structure for the operation.
+ * \param   st    The 1-Wire operational state \sa ow_uart_state_en
+ * \return        The status of the operation
+ *    \arg  DRV_ERROR   Could not set baudrate (callback pointer function error)
+ *    \arg  DRV_READY   Success
+ */
+static __O3__ drv_status_en _set_baudrate (ow_uart_t *ow, ow_uart_state_en st)
+{
+   uint32_t       st_br;
+
+   /* Get the desired baudrate */
+   switch (st) {
+      case OWS_RESET:   st_br = ow->baudrate.reset;   break;
+      default:
+      case OWS_OPER:    st_br = ow->baudrate.oper;    break;
+   }
+
+   if (ow->baudrate.current != st_br) {
+      if (ow->io.br (st_br) != DRV_READY)    return DRV_ERROR;
+      ow->baudrate.current = st_br;
+   }
+   return DRV_READY;
+}
+
+/*!
+ * \brief
+ *    Send a 1-Wire write bit
  *
- *     M       set     release
- *     S                      sample
+ *           ---       --------------------------------------
+ * Write 1      \     /
+ *               ----
+ *  RS:          |   |   |   |   |   |   |   |   |   |   |
+ *  bit:          st   0   1   2   3   4   5   6   7   st
+ *               < ------------- 87/11 usec ------------->
+ *  8 bits, no parity, 1 stop
+ *  standard:  BR: 115200              Overdrive: BR: 921600
+ *  TX: 0xFF
+ *  RX: 0xFF
  *
- *           ---        --------------------------
- * Write 1      \      /
- *               ------
- *              <  A  ><          B           >
- *
- *           ---                          --------
- * Write 0      \                        /
- *               ------------------------
- *              <         C             ><  D >
+ *           ---                                       ------
+ * Write 0      \                                     /
+ *               -------------------------------------
+ *  RS:          |   |   |   |   |   |   |   |   |   |   |
+ *  bit:          st   0   1   2   3   4   5   6   7   st
+ *               < ------------- 87/11 usec ------------->
+ *  8 bits, no parity, 1 stop
+ *  standard:  BR: 115200              Overdrive: BR: 921600
+ *  TX: 0x00
+ *  RX: 0x00
  *
  * \param   ow    Pointer to select 1-Wire structure for the operation.
  * \param   b     The bit to send
- * \return  None
+ * \return        Status of the operation
+ *    \arg  0     Success
+ *    \arg  1     Fail
  */
-static __O3__ void _write_bit (ow_bb_t *ow, uint8_t b)
+static __O3__ uint8_t _write_bit (ow_uart_t *ow, uint8_t b)
 {
-   /*
-    * Drive low but first make sure bus is configured as output
-    */
-   if (ow->io.dir_state != drv_pin_output) { ow->io.out (0);
-                                             _ow_dir_output (ow);
-   }
-   else {                                    ow->io.out(0);
-   }
-   /*
-    * Select timing and release the bus by keeping the pin in output mode
-    */
-   switch (b) {
-      case 0:
-         _delay (_ow_time_C (ow));
-         ow->io.out (1);
-         _delay (_ow_time_D (ow));
-         break;
+   uint8_t  w,r;
 
-      default: /* Act as C does, anything none zero is true */
-      case 1:
-         _delay (_ow_time_A (ow));
-         ow->io.out (1);
-         _delay (_ow_time_B (ow));
-         break;
-   }
+   /*
+    * Make sure we are at the write baudrate
+    */
+   if (_set_baudrate (ow, OWS_OPER) != DRV_READY)
+      return 1;
+
+   /* Select frame to send and check the bus by evaluating the rx */
+   w = (b) ? 0xFF : 0x00;
+   if (ow->io.tx (0xFF))   return 1;
+   r = ow->io.rx ();
+
+   if (r != w)    return 1;
+   else           return 0;
 }
 
 /*!
@@ -192,42 +193,42 @@ static __O3__ void _write_bit (ow_bb_t *ow, uint8_t b)
  *    Read a bit from the 1-Wire bus, return it and provide
  *    the recovery time.
  *
- *     M       set     rel    sample
- *     S                s/r
+ *           ---       -  -  -  -  -  -  -  -  -  -  - ------
+ * Read         \     / X X X X X X X X X X X X X X X /
+ *               ----  -  -  -  -  -  -  -  -  -  - -
+ *  RS:          |   |   |   |   |   |   |   |   |   |   |
+ *  bit:          st   0   1   2   3   4   5   6   7   st
+ *               < ------------- 87/11 usec ------------->
+ *                     ^
+ *                     |
+ *                Master sample
  *
- *           ---         - - - - - - - - - - - - -
- * Read         \      /   X X X X X X X X X X X X
- *               ------  - - - - - - - - - - - - -
- *              <  A  ><   E   > <      F      >
+ *  8 bits, no parity, 1 stop
+ *  standard:  BR: 115200              Overdrive: BR: 921600
+ *  TX: 0xFF
+ *  RX: {1 - 0xFF,   0 - [0x00 - 0xFE] }
  *
- * \param   ow    Pointer to select 1-Wire structure for the operation.
- * \return  None
+ * \return  The answer
+ *    \arg  0  Read 0
+ *    \arg  1  Read 1 (This is also returned on transition error).
  */
-static __O3__ uint8_t _read_bit (ow_bb_t *ow)
+static __O3__ uint8_t _read_bit (ow_uart_t *ow)
 {
-   uint8_t r;
+   uint8_t  r;
 
    /*
-    * Drive low but first make sure bus is configured as output
+    * Make sure we are at the right baudrate
     */
-   if (ow->io.dir_state != drv_pin_output) { ow->io.out (0);
-                                             _ow_dir_output (ow);
-   }
-   else {                                    ow->io.out(0);
-   }
-   _delay (_ow_time_A (ow));        /* Keep read timing */
+   if (_set_baudrate (ow, OWS_OPER) != DRV_READY)
+      return 1;
 
-   ow->io.out (1);                  /* Release to read after a while */
-   _waiting (_ow_time_E (ow));
-   _ow_dir_input (ow);
-   while  (_waiting (_ow_time_E (ow)));
+   /* Send frame for read */
+   if (ow->io.tx (0xFF))   return 1;
+   r = ow->io.rx ();
 
-   r = ow->io.in ();                /* Sample the bus */
-
-   _waiting (_ow_time_F (ow));      /* Leave bus as output - released */
-   _ow_dir_output (ow);
-   while  (_waiting (_ow_time_F (ow)));
-   return r;
+   /* Dispatch answer */
+   if (r < 0xFF)  return 0;
+   else           return 1;
 }
 
 
@@ -240,48 +241,52 @@ static __O3__ uint8_t _read_bit (ow_bb_t *ow)
  */
 
 /*!
- * \brief   link driver's input pin wire function
+ * \brief   link driver's UART transmit function
  * \param   ow    pointer to select 1-Wire structure for the operation.
- * \param   wire  drv_pinin_ft pointer to drivers 1-Wire bus pin I/O function
+ * \param   tx    ow_uart_tx_ft pointer to drivers UART tx function
  */
-void ow_bb_link_in (ow_bb_t *ow, drv_pinin_ft in) {
-   ow->io.in = (drv_pinin_ft)((in != 0) ? in : 0);
+void ow_uart_link_tx (ow_uart_t *ow, ow_uart_tx_ft tx) {
+   ow->io.tx = (ow_uart_tx_ft)((tx != 0) ? tx : 0);
 }
 
 /*!
- * \brief   link driver's output pin wire function
- * \param   ow    Pointer to select 1-Wire structure for the operation.
- * \param   wire  drv_pinout_ft pointer to drivers 1-Wire bus pin I/O function
- */
-void ow_bb_link_out (ow_bb_t *ow, drv_pinout_ft out) {
-   ow->io.out = (drv_pinout_ft)((out != 0) ? out : 0);
-}
-/*!
- * \brief   link driver's pin wire direction function
+ * \brief   link driver's UART receive function
  * \param   ow    pointer to select 1-Wire structure for the operation.
- * \param   dir   drv_pindir_ft pointer to drivers 1-Wire bus pin direction configuration function
+ * \param   tx    ow_uart_rx_ft pointer to drivers UART rx function
  */
-void ow_bb_link_dir (ow_bb_t *ow, drv_pindir_ft dir) {
-   ow->io.dir = (drv_pindir_ft)((dir != 0) ? dir : 0);
+void ow_uart_link_rx (ow_uart_t *ow, ow_uart_rx_ft rx) {
+   ow->io.rx = (ow_uart_rx_ft)((rx != 0) ? rx : 0);
 }
+
+/*!
+ * \brief   link driver's UART baudrate function
+ * \param   ow    pointer to select 1-Wire structure for the operation.
+ * \param   tx    ow_uart_tx_ft pointer to drivers UART baudrate function
+ */
+void ow_uart_link_br (ow_uart_t *ow, ow_uart_br_ft br) {
+   ow->io.br = (ow_uart_br_ft)((br != 0) ? br : 0);
+}
+
 
 /*
  * Set functions
  */
 
 /*!
- * \brief  set 1-wire timing mode
+ * \brief  set 1-wire timing mode and update baudrate table.
+ *          If the owt parameter is not a valid ow_uart_timing_en
+ *          then set timings to OW_STANDTARD.
  * \param  ow     pointer to select 1-Wire structure for the operation.
  * \param  owt    Timing type
- *    \arg  OW_BB_T_STANDARD      Use standard timing
- *    \arg  OW_BB_T_OVERDRIVE     Use overdrive timing
+ *    \arg  OWT_STANDARD      Use standard timing
+ *    \arg  OWT_OVERDRIVE     Use overdrive timing
  */
-void ow_bb_set_timing (ow_bb_t *ow, uint32_t owt)
-{
+void ow_uart_set_timing (ow_uart_t *ow, uint32_t owt) {
+   ow->timing = (_ow_uart_is_timings(owt)) ? owt : OW_UART_T_STANDARD;
+
    switch (owt) {
-      default:
-      case OW_BB_T_STANDARD:   _ow_timings_standard (ow);    break;
-      case OW_BB_T_OVERDRIVE:  _ow_timings_overdrive (ow);   break;
+      case OW_UART_T_STANDARD:   _ow_baudrate_standard (ow->baudrate);  break;
+      case OW_UART_T_OVERDRIVE:  _ow_baudrate_overdrive (ow->baudrate); break;
    }
 }
 
@@ -295,13 +300,10 @@ void ow_bb_set_timing (ow_bb_t *ow, uint32_t owt)
  * \param  ow    pointer to select 1-Wire structure for the operation.
  * \return none
  */
-void ow_bb_deinit (ow_bb_t *ow)
+void ow_uart_deinit (ow_uart_t *ow)
 {
-   // Free bus
-   _ow_dir_input (ow);
-
    // Clear data
-   memset ((void*)ow, 0, sizeof (ow_bb_t));
+   memset ((void*)ow, 0, sizeof (ow_uart_t));
    /*!<
     * This leaves the status = DRV_NOINIT
     */
@@ -315,21 +317,25 @@ void ow_bb_deinit (ow_bb_t *ow)
  *    \arg DRV_READY
  *    \arg DRV_ERROR
  */
-drv_status_en ow_bb_init (ow_bb_t *ow)
+drv_status_en ow_uart_init (ow_uart_t *ow)
 {
    // Check requirements
-   if (!ow->io.dir)     return ow->status = DRV_ERROR;
-   if (!ow->io.in)      return ow->status = DRV_ERROR;
-   if (!ow->io.out)     return ow->status = DRV_ERROR;
-   if (jf_probe () != DRV_READY)
-      return ow->status = DRV_ERROR;
+   if (!ow->io.tx)      return ow->status = DRV_ERROR;
+   if (!ow->io.rx)      return ow->status = DRV_ERROR;
+   if (!ow->io.br)      return ow->status = DRV_ERROR;
 
    // Init the bus
    ow->status = DRV_BUSY;
-   ow->io.out (1);
-   _ow_dir_output (ow);
-   if (ow->timings.state != _ow_have_timings)
-      _ow_timings_standard (ow);
+   if ( _ow_uart_is_timings(ow->timing) != 1) {
+      ow->timing = OW_UART_T_STANDARD;
+      _ow_baudrate_standard (ow->baudrate);
+   }
+   switch (ow->timing) {
+      case OW_UART_T_STANDARD:   _ow_baudrate_standard (ow->baudrate);  break;
+      case OW_UART_T_OVERDRIVE:  _ow_baudrate_overdrive (ow->baudrate); break;
+   }
+   if (_set_baudrate (ow, OWS_RESET) != DRV_READY)
+      return ow->status = DRV_ERROR;
    return ow->status = DRV_READY;
 }
 
@@ -337,57 +343,46 @@ drv_status_en ow_bb_init (ow_bb_t *ow)
  * \brief
  *    Generate a 1-wire reset
  *
- *     M              set           release
- *     S                                 set   release
- *           ---------                ----       -------------
- * Reset       |      \              /    \     /
- *             |       --------------      -----
- *              <  G ><      H      ><   I  > <  J   >
- *                                           ^
- *                                           |
- *                                       Master Sample
+ *           ---                      ----  -  -  -  -------
+ * Reset        \                    /    \ X  X  X /
+ *               --------------------      -  -  - -
+ *  RS:          |   |   |   |   |   |   |   |   |   |   |
+ *  bit:          st   0   1   2   3   4   5   6   7   st
+ *               < ---------- 1024/174 usec ------------->
+ *
+ *  8 bits, no parity, 1 stop
+ *  Standard:                          Overdrive :
+ *  BR: 9600,                          BR: 57600
+ *  TX: 0xF0,                          TX: 0xF8
+ *  RX: 0xF0 not present               RX: 0xF8 not present
+ *      less if present                    less if present
  *
  * \note    Does not handle alarm presence from DS2404/DS1994
  * \param   None
  * \return  The status of the operation
- *    \arg  DRV_ERROR      Error, the bus is reserved
+ *    \arg  DRV_ERROR      Error, callback baudrate error or bus error
  *    \arg  DRV_NODEV      If no presence detect was found
  *    \arg  DRV_READY      Otherwise
  */
-__O3__ drv_status_en ow_bb_reset (ow_bb_t *ow)
+__O3__ drv_status_en ow_uart_reset (ow_uart_t *ow)
 {
-   drv_status_en  r;
+   uint8_t  w,r;
 
    /*
-    * Release the bus and poll for high state
+    * Make sure we are at the write baudrate
     */
-   if (ow->io.dir_state != drv_pin_output)
-      { ow->io.out (1); _ow_dir_output (ow); }
-   else
-      { ow->io.out(1); }
-   do
-      if ((r = ow->io.in ()) == 1)   break;
-   while (_waiting (_ow_time_G (ow))) ;
-
-   if (r != 1)
+   if (_set_baudrate (ow, OWS_RESET) != DRV_READY)
       return DRV_ERROR;
-   else {
-      ow->io.out (0);               /* Drive low */
-      _delay (_ow_time_H (ow));
 
-      ow->io.out (1);               /* Release the bus */
+   /* Select frame to send */
+   w = (ow->timing == OW_UART_T_OVERDRIVE) ? 0xF8 : 0xF0;
 
-      _waiting (_ow_time_I (ow));   /* Change direction to input while waiting */
-      _ow_dir_input (ow);
-      while  (_waiting (_ow_time_I (ow))) ;
+   ow->io.tx (w);
+   r = ow->io.rx ();
 
-      r = ow->io.in ();             /* Sample the slave's response, if any */
-
-      _waiting (_ow_time_J (ow));   /* Leave bus as output - released while waiting */
-      _ow_dir_output (ow);
-      while  (_waiting (_ow_time_J (ow))) ;
-      return (r == 0) ? DRV_READY : DRV_NODEV;
-   }
+   if (w>r)       return DRV_READY;
+   else if (w==r) return DRV_NODEV;
+   else           return DRV_ERROR;
 }
 
 /*!
@@ -396,7 +391,7 @@ __O3__ drv_status_en ow_bb_reset (ow_bb_t *ow)
  * \param  ow    pointer to select 1-Wire structure for the operation.
  * \return  The byte received.
  */
-uint8_t ow_bb_rx (ow_bb_t *ow)
+__Os__ uint8_t ow_uart_rx (ow_uart_t *ow)
 {
    uint8_t  i;
    byte_t byte;
@@ -415,7 +410,7 @@ uint8_t ow_bb_rx (ow_bb_t *ow)
  * \param  b:    The byte to write
  * \return  none
  */
-void ow_bb_tx (ow_bb_t *ow, byte_t byte)
+__Os__ void ow_uart_tx (ow_uart_t *ow, byte_t byte)
 {
    uint8_t  i;
 
@@ -432,7 +427,7 @@ void ow_bb_tx (ow_bb_t *ow, byte_t byte)
  * \param   byte  The byte to write
  * \return  The byte received.
  */
-uint8_t  ow_bb_rw (ow_bb_t *ow, byte_t byte)
+__Os__ uint8_t ow_uart_rw (ow_uart_t *ow, byte_t byte)
 {
    uint8_t  i;
    byte_t ret;
@@ -466,7 +461,7 @@ uint8_t  ow_bb_rw (ow_bb_t *ow, byte_t byte)
  *    \arg  DRV_BUSY  (2)  Search is succeed, plus there are more ROM IDs to found
  *    \arg  DRV_ERROR (3)  Search failed, Reading error
  */
-drv_status_en ow_bb_search (ow_bb_t *ow, uint8_t *romid)
+__Os__ drv_status_en ow_uart_search (ow_uart_t *ow, uint8_t *romid)
 {
    static uint8_t dec[8];  /*!<
                             * Hold the algorithm's select bit when a discrepancy
@@ -482,9 +477,9 @@ drv_status_en ow_bb_search (ow_bb_t *ow, uint8_t *romid)
    uint8_t i, cur[8];      /* Current pass bit position, in a pos[8] like representation of it */
    uint8_t  b, b1, b2;     /* bit helper vars */
 
-   if (ow_bb_reset (ow) != DRV_READY)
+   if (ow_uart_reset (ow) != DRV_READY)
       return DRV_NODEV;
-   ow_bb_tx (ow, 0xF0);    /* Issue search command */
+   ow_uart_tx (ow, 0xF0);    /* Issue search command */
 
    for (i=0 ; i<64 ; ++i) {
       /* Get response pair bits */
@@ -563,7 +558,7 @@ drv_status_en ow_bb_search (ow_bb_t *ow, uint8_t *romid)
  *    \arg DRV_READY
  *    \arg DRV_ERROR
  */
-drv_status_en ow_bb_ioctl (ow_bb_t *ow, ioctl_cmd_t cmd, ioctl_buf_t buf)
+__Os__ drv_status_en ow_uart_ioctl (ow_uart_t *ow, ioctl_cmd_t cmd, ioctl_buf_t buf)
 {
    switch (cmd) {
       case CTRL_GET_STATUS:      /*!< Probe function */
@@ -571,13 +566,13 @@ drv_status_en ow_bb_ioctl (ow_bb_t *ow, ioctl_cmd_t cmd, ioctl_buf_t buf)
             *(drv_status_en*)buf = ow->status;
          return DRV_READY;
       case CTRL_DEINIT:          /*!< De-init */
-         ow_bb_deinit (ow);
+         ow_uart_deinit (ow);
          return DRV_READY;
       case CTRL_INIT:            /*!< Init */
          if (buf)
-            *(drv_status_en*)buf = ow_bb_init (ow);
+            *(drv_status_en*)buf = ow_uart_init (ow);
          else
-            ow_bb_init (ow);
+            ow_uart_init (ow);
       case CTRL_SEARCH:         /*!< Search */
 
       default:                  /*!< Unsupported command, error */
@@ -586,12 +581,8 @@ drv_status_en ow_bb_ioctl (ow_bb_t *ow, ioctl_cmd_t cmd, ioctl_buf_t buf)
    }
 }
 
-#undef  _delay
-#undef  _waiting
-#undef  _ow_dir_output
-#undef  _ow_dir_input
+
 #undef  _clear_u64
 #undef  _read_bit_u64
 #undef  _write_bit_u64
-#undef  _usec
-#undef _ow_is_timings
+#undef  _ow_is_timings

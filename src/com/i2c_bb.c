@@ -36,7 +36,7 @@
  * \return none
  */
 inline void i2c_link_sda(i2c_bb_t *i2c, drv_pinio_ft sda) {
-   i2c->sda = sda;
+   i2c->sda = (drv_pinio_ft)(sda != 0) ? sda : 0;
 }
 
 /*!
@@ -47,7 +47,7 @@ inline void i2c_link_sda(i2c_bb_t *i2c, drv_pinio_ft sda) {
  * \return none
  */
 inline void i2c_link_scl (i2c_bb_t *i2c, drv_pinout_ft scl) {
-   i2c->scl = scl;
+   i2c->scl = (drv_pinout_ft)(scl != 0) ? scl : 0;
 }
 
 /*!
@@ -58,7 +58,7 @@ inline void i2c_link_scl (i2c_bb_t *i2c, drv_pinout_ft scl) {
  * \return none
  */
 inline void i2c_link_sdadir (i2c_bb_t *i2c, drv_pindir_ft pd) {
-   i2c->sda_dir = pd;
+   i2c->sda_dir = (drv_pindir_ft)(pd != 0) ? pd : 0;
 }
 
 /*
@@ -213,6 +213,7 @@ byte_t i2c_rx(i2c_bb_t *i2c, uint8_t ack)
    i2c->sda (0);
    return byte;
 }
+
 /*!
  * \brief
  *    Transmit a byte to the i2c bus.

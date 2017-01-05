@@ -43,10 +43,17 @@ typedef uint32_t address_t;      /*!< general index/address type */
  *    These function pointers do not correspond to pin levels.
  *    They correspond to the enable/disable functionality of that pin.
  */
+
+typedef enum {
+   drv_pin_disable = 0,
+   drv_pin_input,
+   drv_pin_output
+}drv_pin_dir_en;
+
 typedef uint8_t (*drv_pinin_ft)  (void);
 typedef    void (*drv_pinout_ft) (uint8_t);
 typedef uint8_t (*drv_pinio_ft)  (uint8_t);
-typedef    void (*drv_pindir_ft) (uint8_t);
+typedef    void (*drv_pindir_ft) (drv_pin_dir_en);
 
 /*!
  * Analog input function pointer

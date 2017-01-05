@@ -74,8 +74,18 @@ inline int isleap (int year) {
 /*!
  * \brief
  *    Converts Gregorian date to seconds since 1970-01-01 00:00:00.
- *    Assumes input in normal date format, i.e. 1980-12-31 23:59:59
- *    => year=1980, mon=12, day=31, hour=23, min=59, sec=59.
+ *    Assumes input in normal struct tm format
+ *    struct tm {
+ *       int tm_sec;         seconds,  range 0 to 59
+ *       int tm_min;         minutes, range 0 to 59
+ *       int tm_hour;        hours, range 0 to 23
+ *       int tm_mday;        day of the month, range 1 to 31
+ *       int tm_mon;         month, range 0 to 11
+ *       int tm_year;        The number of years since 1900
+ *       int tm_wday;        day of the week, range 0 to 6
+ *       int tm_yday;        day in the year, range 0 to 365
+ *       int tm_isdst;       daylight saving time
+ *    };
  *
  *  This algorithm was first published by Gauss (I think).
  *
@@ -95,8 +105,8 @@ inline int isleap (int year) {
  */
 __Os__ time_t smktime (struct tm *_t)
 {
-   unsigned int mon = _t->tm_mon,
-                year = _t->tm_year;
+   unsigned int mon  = _TM_MON_2_MON (_t->tm_mon);
+   unsigned int year = _TM_YEAR_2_YEAR (_t->tm_year);
 
    /* 1..12 -> 11,12,1..10 */
    if ((int) (mon -= 2) <= 0) {
@@ -123,43 +133,53 @@ __Os__ time_t smktime (struct tm *_t)
  *    that represent the corresponding time, expressed as a UTC time
  *    (i.e., the time at the GMT timezone).
  *
- * \param  _timer  A pointer to an object of type time_t that contains a time value.
- * \return         A pointer to a tm structure with its members filled with the values that
- *                 correspond to the UTC time representation of timer.
+ * \param  _timer    A pointer to an object of type time_t that contains a time value.
+ * \return           A pointer to a tm structure with its members filled with the values that
+ *                   correspond to the UTC time representation of timer.
+ *                   Assumes output in normal struct tm format
+ *                      struct tm {
+ *                         int tm_sec;         seconds,  range 0 to 59
+ *                         int tm_min;         minutes, range 0 to 59
+ *                         int tm_hour;        hours, range 0 to 23
+ *                         int tm_mday;        day of the month, range 1 to 31
+ *                         int tm_mon;         month, range 0 to 11
+ *                         int tm_year;        The number of years since 1900
+ *                         int tm_wday;        day of the week, range 0 to 6
+ *                         int tm_yday;        day in the year, range 0 to 365
+ *                         int tm_isdst;       daylight saving time
+ *                      };
  */
 __Os__ struct tm *sgmtime  (const time_t *_timer)
 {
    #define _SPD   (86400)
    time_t i, k;
-   time_t work=*_timer%_SPD;
+   time_t work = *_timer%_SPD;
 
    _rt.tm_sec = work%60;    work /= 60;
    _rt.tm_min = work%60;
    _rt.tm_hour = work/60;   work = *_timer/_SPD;
    _rt.tm_wday = (4+work)%7;   // Day one was Thursday
    // Find the year
-   for (i=1970; 1 ; ++i)
-   {
+   for (i=1970; 1 ; ++i) {
       k = isleap(i) ? 366:365;
       if (work >= k)
          work -= k;
       else
          break;
    }
-   _rt.tm_year = i;
+   _rt.tm_year = _YEAR_2_TM_YEAR (i);
    _rt.tm_yday = work;
    _rt.tm_mday = 1;
-   if (isleap(i) && (work>58))
-   {
+   if (isleap(i) && (work>58)) {
       if (work==59)  // Add leap day
          _rt.tm_mday = 2;
       work -= 1;
    }
 
-   // Find month and month-day
+   // Find month and month-day using struct tm month format
    for (i=11; i && (_spm[i]>work); --i)
       ;
-   _rt.tm_mon = i+1;
+   _rt.tm_mon = i;
    _rt.tm_mday += (work - _spm[i]);
 
    #undef _SPD

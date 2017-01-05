@@ -40,6 +40,7 @@ extern "C" {
 #endif
 
 #include <std/_base_io.h>
+#include <toolbox_defs.h>
 
 /*!
  * callback function pointer to use in:
@@ -57,6 +58,7 @@ int _putc_fil (char *dst, const char c);  /*!< back end for file printf family *
 /*
  * ============================ Public Functions ============================
  */
+void _io_unused (void);
 
 int vsxprintf(_putc_out_t _putc_out, char *dst, char *pfrm, __VALIST ap);
 

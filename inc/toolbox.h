@@ -28,6 +28,15 @@
 extern "C" {
 #endif
 
+/*!
+ * Main Toolbox defines
+ */
+#define  __TOOLBOX__
+
+#define  __TBX_VER__MAIN__          (1)
+#define  __TBX_VER_SUB__            (9)
+
+
 #include <toolbox_defs.h>
 #include <tbx_ioctl.h>
 #include <tbx_types.h>
@@ -42,14 +51,18 @@ extern "C" {
  * \defgroup Algorithm
  */
 #include <algo/queue.h>
+#include <algo/spa.h>
 #include <algo/spa_grena.h>
-
+#include <algo/psa.h>
 /*!
  * \defgroup Com
  */
 #include <com/i2c_bb.h>
 #include <com/spi_bb.h>
+#include <com/onewire_bb.h>
+#include <com/onewire_uart.h>
 #include <com/nmea.h>
+
 
 /*!
  * \defgroup Cryptography

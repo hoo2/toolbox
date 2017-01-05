@@ -38,7 +38,6 @@ extern "C" {
 /* ================   General Defines   ====================*/
 #define I2C_FREQ_DEF        (100000)           // 100KHz
 
-
 typedef volatile struct
 {
    drv_pinio_ft   sda;

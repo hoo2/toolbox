@@ -56,18 +56,18 @@ inline static double _deg2rad (double dec) {
  * \param   utc   UTC time in UNIX format
  * \param   dt    Difference between UT and terrestrial time
  */
-void spa_set_time (spa_t *spa, time_t utc, double dt)
+void spa_grena_set_time (spa_grena_t *spa, time_t utc, double dt)
 {
    struct tm *t;
    double year, month, ftime;
 
    // broke down utc time
-   t = gmtime(&utc);
+   t = sgmtime (&utc);
    ftime = t->tm_hour + t->tm_min / 60.0 + t->tm_sec / 3600.0;
 
    // round year and month
-   month = (double)t->tm_mon + 1;
-   year  = (double)t->tm_year + 1900;
+   month = (double) _TM_MON_2_MON (t->tm_mon);
+   year  = (double) _TM_YEAR_2_YEAR (t->tm_year);
    if (month <= 2) {
       year -= 1.0;
       month += 12.0;
@@ -88,7 +88,7 @@ void spa_set_time (spa_t *spa, time_t utc, double dt)
  * \param   spa   Pointer to linked data struct
  * \param   lat   Latitude in Degrees.
  */
-inline void spa_set_latitude (spa_t *spa, double lat) {
+inline void spa_grena_set_latitude (spa_grena_t *spa, double lat) {
    spa->latitude = _deg2rad (lat);
 }
 
@@ -98,7 +98,7 @@ inline void spa_set_latitude (spa_t *spa, double lat) {
  * \param   spa   Pointer to linked data struct
  * \param   lon   Longitude in Degrees.
  */
-inline void spa_set_longitude (spa_t *spa, double lon) {
+inline void spa_grena_set_longitude (spa_grena_t *spa, double lon) {
    spa->longitude = _deg2rad (lon);
 }
 
@@ -108,7 +108,7 @@ inline void spa_set_longitude (spa_t *spa, double lon) {
  * \param   spa   Pointer to linked data struct
  * \param   p     Pressure in Atm.
  */
-inline void spa_set_pressure (spa_t *spa, double p) {
+inline void spa_grena_set_pressure (spa_grena_t *spa, double p) {
    spa->p = p;
 }
 
@@ -118,7 +118,7 @@ inline void spa_set_pressure (spa_t *spa, double p) {
  * \param   spa   Pointer to linked data struct
  * \param   p     Pressure in °C.
  */
-inline void spa_set_temperature (spa_t *spa, double T) {
+inline void spa_grena_set_temperature (spa_grena_t *spa, double T) {
    spa->T = T;
 }
 
@@ -131,7 +131,7 @@ inline void spa_set_temperature (spa_t *spa, double T) {
  *    Initialise the spa data
  * \param   spa   Pointer to linked data struct
  */
-void spa_init (spa_t *spa)
+void spa_grena_init (spa_grena_t *spa)
 {
    if (spa->T == 0)  spa->T = 20;
    if (spa->p == 0)  spa->p = 1;
@@ -142,11 +142,12 @@ void spa_init (spa_t *spa)
  *    Sun position algorithm based on Roberto Grena's paper
  *
  * \param   spa      Pointer to linked data struct
- * \param   elev     Pointer to elevation variable for the results in rad [-pi, pi]
- * \param   azimuth  Pointer to azimuth variable for the results in rad [0, 2pi]
+ * \return           The Sun position as \sa sun_pos_t
  */
-void spa_calculation (spa_t *spa, double *elev, double *azimuth)
+sun_pos_t spa_grena_calculation (spa_grena_t *spa)
 {
+   sun_pos_t ret;       // Return data
+
    double t, t2;        // Global time and helper time variable
    double Lh;           // Heliocentric longitude
    double Dy;           // Geocentric longitude correction
@@ -250,13 +251,14 @@ void spa_calculation (spa_t *spa, double *elev, double *azimuth)
       De = 0;
 
    // local coordinates of the sun
-   *elev = e0 - De;
-   *azimuth = M_PI + atan2 (sht, cht*sin_phy - sin_Dt*cos_phy);
+   ret.elev = e0 - De;
+   ret.azimuth = M_PI + atan2 (sht, cht*sin_phy - sin_Dt*cos_phy);
    /*
     * xxx:
     * The original equation returns azimuth [-pi, pi] with zero azimuth
-    * towards south, and positive in the western hemisphere.
+    * towards south, and positive in the western hemisphere (clockwise).
     * Shift azimuth pointing North, by adding pi to it. It is also shifted
-    * in [0, 2pi).
+    * in [0, 2pi) and positive to eastern hemisphere (clockwise).
     */
+   return ret;
 }

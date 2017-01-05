@@ -29,11 +29,11 @@
 #ifndef __spa_grena_h__
 #define __spa_grena_h__
 
-#ifdef __cpluaplua
+#ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <time.h>
+#include <std/stime.h>
 #include <math.h>
 
 #ifndef M_PI
@@ -57,8 +57,15 @@ typedef struct {
    double longitude;    //!< Longitude (E = positive), in RADIANS.
    double p;            //!< Pressure, in ATM (used for refraction calculation)
    double T;            //!< Temperature, in °C (used for refraction calculation)
-}spa_t;
+}spa_grena_t;
 
+/*!
+ * The algorithm return pair type
+ */
+typedef struct {
+   double   azimuth;    /*!< azimuth variable for the results in rad [0, 2pi] */
+   double   elev;       /*!< elevation variable for the results in rad [-pi, pi] */
+}sun_pos_t;
 
 /*
  * ============= Link Functions ===========
@@ -67,19 +74,19 @@ typedef struct {
 /*
  * ============= Set functions ============
  */
-void spa_set_time (spa_t *spa, time_t utc, double dt);
-void spa_set_latitude (spa_t *spa, double lat);
-void spa_set_longitude (spa_t *spa, double lon);
-void spa_set_pressure (spa_t *spa, double p);
-void spa_set_temperature (spa_t *spa, double T);
+void spa_grena_set_time (spa_grena_t *spa, time_t utc, double dt);
+void spa_grena_set_latitude (spa_grena_t *spa, double lat);
+void spa_grena_set_longitude (spa_grena_t *spa, double lon);
+void spa_grena_set_pressure (spa_grena_t *spa, double p);
+void spa_grena_set_temperature (spa_grena_t *spa, double T);
 
 /*
  * ============ User functions ===========
  */
-void spa_init (spa_t *spa);
-void spa_calculation (spa_t *spa, double *elev, double *azimuth);
+void spa_grena_init (spa_grena_t *spa);
+sun_pos_t spa_grena_calculation (spa_grena_t *spa);
 
-#ifdef __cpluaplua
+#ifdef __cplusplus
 }
 #endif
 

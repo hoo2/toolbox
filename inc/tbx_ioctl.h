@@ -55,6 +55,11 @@ extern "C" {
 #define CTRL_ERASE_ALL           0x17  /*!< Erase all pages */
 #define CTRL_FORMAT              0x18  /*!< Physical format the media */
 
+#define CTRL_SEARCH              0x19  /*!< Generic search command */
+#define CTRL_ENTER               0x1A  /*!< Generic enter command */
+#define CTRL_BACK                0x1B  /*!< Generic back command */
+#define CTRL_SELECT              0x1C  /*!< Generic select command */
+
 /*
  * Power commands
  */

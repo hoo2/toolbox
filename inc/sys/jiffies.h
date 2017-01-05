@@ -46,8 +46,7 @@ typedef int          (*jf_setfreq_pt) (uint32_t, uint32_t);   //!< Pointer to se
  *    We name jiffy each tick of the extra timer.
  *    The equalivent of linux jiffies is the return value of clock ().
  */
-typedef volatile struct
-{
+typedef volatile struct {
    jf_setfreq_pt  setfreq;       /*!< Pointer to driver's timer set freq function */
    /*
     * \note
@@ -58,7 +57,9 @@ typedef volatile struct
    jiffy_t        *value;        /*!< Pointer to timers current value */
    uint32_t       freq;          /*!< timer's  frequency */
    jiffy_t        jiffies;       /*!< jiffies max value (timer's max value) */
-   jiffy_t        jpus;          /*!< Variable for the delay function */
+   jiffy_t        jp1ms;         /*!< Jiffies per 1 msec to use in delay function */
+   jiffy_t        jp1us;         /*!< Jiffies per 1 usec to use in delay function */
+   jiffy_t        jp100ns;       /*!< Jiffies per 100 nsec to use in delay function */
    drv_status_en  status;
 }jf_t;
 
@@ -82,22 +83,27 @@ void jf_link_value (jiffy_t* v);
  */
 drv_status_en jf_probe (void);
 void jf_deinit (void);
-int jf_init (uint32_t jf_freq, jiffy_t jiffies);
+drv_status_en jf_init (uint32_t jf_freq, jiffy_t jiffies);
 
 jiffy_t jf_get_jiffies (void);
 jiffy_t jf_get_jiffy (void);
 jiffy_t jf_per_msec (void);
 jiffy_t jf_per_usec (void);
+jiffy_t jf_per_100nsec (void);
 
-void jf_delay_us (jtime_t usec);
 void jf_delay_ms (jtime_t msec);
+void jf_delay_us (jtime_t usec);
+void jf_delay_100ns (jtime_t _100nsec);
 int jf_check_usec (jtime_t usec);
+int jf_check_100nsec (jtime_t _100nsec);
 
 /*!
  * \note
  * The Jiffy lib has no jiffy_t target pointer in the API. This means
- * that it can be only one jiffy timer per application.
+ * that IT CAN BE ONLY ONE jiffy timer per application.
  */
+
+
 
 #ifdef __cplusplus
  }

@@ -51,7 +51,7 @@ inline int vsscanf (const char *src, const char *frm, __VALIST ap)
  * \return        The number of items in the argument list successfully filled
  */
 
-__attribute__((weak)) int sscanf (const char *src, const char *frm, ...)
+int sscanf (const char *src, const char *frm, ...)
 {
    __VALIST ap;
    int result;

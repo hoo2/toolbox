@@ -43,6 +43,17 @@ extern "C" {
 #ifndef TIME_CALENDAR
 #define TIME_CALENDAR (GREGORIAN_CALENDAR)
 #endif
+
+/*
+ * =================== Helper Macros ====================
+ */
+#define  _YEAR_2_TM_YEAR(_y)  ((_y) - 1900)     /*!< Convert a year (ex: 2013) to struct tm year format (years after 1900) */
+#define  _TM_YEAR_2_YEAR(_y)  ((_y) + 1900)     /*!< Convert a struct tm year format (years after 1900) to year (ex: 2013) */
+
+#define  _MON_2_TM_MON(_m)    ((_m) - 1)        /*!< Convert a month (ex: 2 for Feb) to struct tm month format (0-11) */
+#define  _TM_MON_2_MON(_m)    ((_m) + 1)        /*!< Convert a  struct tm month format (0-11) to month (ex: 2 for Feb) */
+
+
 /* =================== Exported Functions ===================== */
 
 int isleap(int year);

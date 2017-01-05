@@ -29,6 +29,7 @@
 extern "C" {
 #endif
 
+#include <toolbox_defs.h>
 #include <tbx_types.h>
 #include <tbx_ioctl.h>
 #include <string.h>
@@ -280,6 +281,7 @@ typedef struct {
 /*
  * ============ Public NMEA API ============
  */
+void mnea_unused (void);
 
 /*
  * \name Link and Glue functions

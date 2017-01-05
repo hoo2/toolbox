@@ -46,7 +46,8 @@
       y[length] = a[length] + b[length];                       \
    }                                                           \
 }
-void vadd_i (int *y, int *a, int *b, int length) { _vadd_body(); }
+void vadd_i32 (int32_t *y, int32_t *a, int32_t *b, int length) { _vadd_body(); }
+void vadd_ui32 (uint32_t *y, uint32_t *a, uint32_t *b, int length) { _vadd_body(); }
 void vadd_f (float *y, float *a, float *b, int length) {_vadd_body(); }
 void vadd_d (double *y, double *a, double *b, int length) { _vadd_body(); }
 void vadd_ci (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) { _vadd_body(); }
@@ -73,7 +74,8 @@ void vadd_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) { _vad
       y[length] = a[length] - b[length];                       \
    }                                                           \
 }
-void vsub_i (int *y, int *a, int *b, int length) { _vsub_body(); }
+void vsub_i32 (int32_t *y, int32_t *a, int32_t *b, int length) { _vsub_body(); }
+void vsub_ui32 (uint32_t *y, uint32_t *a, uint32_t *b, int length) { _vsub_body(); }
 void vsub_f (float *y, float *a, float *b, int length) { _vsub_body(); }
 void vsub_d (double *y, double *a, double *b, int length) { _vsub_body(); }
 void vsub_ci (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) { _vsub_body(); }

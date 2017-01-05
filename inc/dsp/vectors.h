@@ -35,7 +35,8 @@ extern "C" {
  * ================== Public API ====================
  */
 
-void vadd_i (int *y, int *a, int *b, int length) __O3__ ;
+void vadd_i32 (int32_t *y, int32_t *a, int32_t *b, int length) __O3__ ;
+void vadd_ui32 (uint32_t *y, uint32_t *a, uint32_t *b, int length) __O3__ ;
 void vadd_f (float *y, float *a, float *b, int length) __O3__ ;
 void vadd_d (double *y, double *a, double *b, int length) __O3__ ;
 void vadd_ci (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __O3__ ;
@@ -63,7 +64,8 @@ void vadd_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __O3__
  * \return none
  */
 #define vadd(y, a, b, length) _Generic((y),  \
-               int*: vadd_i,              \
+           int32_t*: vadd_i32,            \
+          uint32_t*: vadd_ui32,           \
              float*: vadd_f,              \
             double*: vadd_d,              \
        complex_i_t*: vadd_ci,             \
@@ -74,7 +76,8 @@ void vadd_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __O3__
 #endif   // #if __STDC_VERSION__ >= 201112L
 
 
-void vsub_i (int *y, int *a, int *b, int length) __O3__ ;
+void vsub_i32 (int32_t *y, int32_t *a, int32_t *b, int length) __O3__ ;
+void vsub_ui32 (uint32_t *y, uint32_t *a, uint32_t *b, int length) __O3__ ;
 void vsub_f (float *y, float *a, float *b, int length) __O3__ ;
 void vsub_d (double *y, double *a, double *b, int length) __O3__ ;
 void vsub_ci (complex_i_t *y, complex_i_t *a, complex_i_t *b, int length) __O3__ ;
@@ -102,7 +105,8 @@ void vsub_cd (complex_d_t *y, complex_d_t *a, complex_d_t *b, int length) __O3__
  * \return none
  */
 #define vsub(y, a, b, length) _Generic((y),  \
-               int*: vsub_i,              \
+            int32_t*: vsub_i32,           \
+           uint32_t*: vsub_ui32,          \
              float*: vsub_f,              \
             double*: vsub_d,              \
        complex_i_t*: vsub_ci,             \

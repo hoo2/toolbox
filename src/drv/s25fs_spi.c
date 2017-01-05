@@ -374,7 +374,7 @@ drv_status_en s25fs_init (s25fs_t *drv)
    // Connectivity check
    if (_bad_link(cs))         return drv->status = DRV_ERROR;
    if (_bad_link(spi))        return drv->status = DRV_ERROR;
-   if (_bad_link(spi_ioctl))  return drv->status = DRV_ERROR;
+   //if (_bad_link(spi_ioctl))  return drv->status = DRV_ERROR;
    if (_bad_link(spi_read))   return drv->status = DRV_ERROR;
    if (_bad_link(spi_write))  return drv->status = DRV_ERROR;
 

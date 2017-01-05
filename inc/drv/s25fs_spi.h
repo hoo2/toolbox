@@ -139,8 +139,8 @@ typedef volatile struct {
    drv_pinout_ft  wp;            /*!< Write protect pin - Optional */
    drv_pinout_ft  cs;            /*!< Chip Select pin */
    void*          spi;           /*!< void SPI type structure - NULL for hardware SPI */
-   s25fs_spi_ioctl_t
-                  spi_ioctl;     /*!< SPI ioctl function */
+   //s25fs_spi_ioctl_t
+   //               spi_ioctl;     /*!< SPI ioctl function */
    s25fs_spi_rw_t spi_read;      /*!< SPI read/write function */
    s25fs_spi_rw_t spi_write;     /*!< SPI read/write function */
 }s25fs_io_t;
@@ -191,6 +191,7 @@ void   s25fs_set_sector_size (s25fs_t *drv, uint32_t size);
 void s25fs_deinit (s25fs_t *drv);                  /*!< for compatibility */
 drv_status_en s25fs_init (s25fs_t *drv);           /*!< for compatibility */
 
+drv_status_en        s25fs_erase (s25fs_t *drv, s25fs_idx_t idx);
 drv_status_en         s25fs_read (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *buf, int count);
 drv_status_en        s25fs_write (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *buf, int count);
 drv_status_en  s25fs_read_sector (s25fs_t *drv, int sector, s25fs_data_t *buf, int count);

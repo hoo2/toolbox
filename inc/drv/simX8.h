@@ -32,6 +32,7 @@ extern "C" {
 #include <tbx_types.h>
 #include <tbx_ioctl.h>
 #include <com/nmea.h>
+#include <std/stime.h>
 #include <string.h>
 #include <stdarg.h>
 

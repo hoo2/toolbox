@@ -742,7 +742,19 @@ static double _va_args_double(__VALIST ap) {
 /*
  * ============================ Public Functions ============================
  */
+/*!
+ * \brief
+ *    This function calls the unused static api while development.
+ * \note
+ *    DO NOT CALL this function
+ */
+void _io_unused (void) {
+   char tmp [2] = "0";
+   _io_frm_spec_t tmp2 = {0};
 
+   tbx_unused (_insint64 (_putc_usr, tmp, &tmp2, 0, 0) );
+   tbx_unused (_insuint64 (_putc_usr, tmp, &tmp2, 0));
+}
 
 /*!
  * \brief
