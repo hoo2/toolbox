@@ -64,8 +64,8 @@ void jf_connect_value (jiffy_t* v);
 void jf_deinit (void);
 void jf_init (uint32_t f);
 
-inline jiffy_t jf_get_jiffies (void);
-inline jiffy_t jf_get_jiffy (void);
+jiffy_t jf_get_jiffies (void);
+jiffy_t jf_get_jiffy (void);
 
 // Helper functions
 jiffy_t jf_per_msec (void);
