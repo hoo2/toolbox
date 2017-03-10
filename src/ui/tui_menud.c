@@ -479,3 +479,89 @@ __Os__ ui_return_t tui_menud (tuid_t *tuid, int key, menud_item_t *mn, Lang_en l
    }
    return EXIT_STAY;
 }
+
+__Os__ ui_return_t tui_line_menud (tuid_t *tuid, int key, menud_item_t *mn, Lang_en ln)
+{
+   static uint8_t ev=1, task=EXIT_RETURN;
+
+   if (ev) {
+      // It is the first call of every menu
+      tuid->menu_data.mn_it = 0;
+      tuid->menu_data.mn_frm = 0;
+      tuid->menu_data.fb_it = 0;
+      tuid->menu_data.fb_frm = 0;
+      task=EXIT_STAY;   // Prepare optional call
+
+      if (_menu_stack_empty (tuid)) // First menu call
+         tuid->menu_data.menu = mn;
+      ev = 0;
+   }
+
+   if (task == EXIT_STAY) {
+      // We have call
+      if (tuid->menu_data.menu[tuid->menu_data.mn_it].node.task)
+         task = tuid->menu_data.menu[tuid->menu_data.mn_it].node.task ();
+      else
+         task = EXIT_RETURN;
+      if (!tuid->menu_data.mn_it) {
+         // Clear optional call and init items
+         _next_item (tuid, &tuid->menu_data.mn_it);
+         _next_item (tuid, &tuid->menu_data.mn_frm);
+         tuid->menu_data.fb_frm = tuid->menu_data.fb_it = 1;
+      }
+   }
+   else {
+      // We have menu navigation
+      if (key == tuid->keys.UP)
+         tuid->menu_data.fb_it -= _prev_item (tuid, &tuid->menu_data.mn_it);
+      if (key == tuid->keys.DOWN)
+         tuid->menu_data.fb_it += _next_item (tuid, &tuid->menu_data.mn_it);
+
+      if (key == tuid->keys.LEFT) {
+         _pop_menu (&tuid->hist, &tuid->menu_data);
+         if ( !tuid->menu_data.menu ) {
+            ev = 1;
+            return EXIT_RETURN;
+         }
+         return EXIT_STAY;
+      }
+      if (key == tuid->keys.ESC) {
+         _esc_menu (&tuid->hist, &tuid->menu_data);
+         ev = 1;
+         return EXIT_RETURN;
+      }
+      if (key == tuid->keys.RIGHT || key == tuid->keys.ENTER)
+         switch (tuid->menu_data.menu[tuid->menu_data.mn_it].item_type)
+         {
+            case UI_NONE:
+            case UI_RETURN:
+               _pop_menu (&tuid->hist, &tuid->menu_data);
+               if (!tuid->menu_data.menu) {
+                  ev = 1;
+                  return EXIT_RETURN;
+               }
+               return EXIT_STAY;
+            case UI_TASK_ITEM:
+               return task = EXIT_STAY;
+            case UI_MENU_ITEM:
+               _push_menu (&tuid->hist, &tuid->menu_data);
+               tuid->menu_data.menu = tuid->menu_data.menu[tuid->menu_data.mn_it].node.menu;
+               ev = 1;
+               return EXIT_STAY;
+         }
+
+      // Roll frame
+      if (tuid->menu_data.fb_it < tuid->menu_data.fb_frm) {
+         tuid->menu_data.fb_frm = tuid->menu_data.fb_it;
+         tuid->menu_data.mn_frm = tuid->menu_data.mn_it;
+      }
+      if (tuid->menu_data.fb_it - tuid->menu_data.fb_frm >= tuid->frame_buffer.l - 1) {
+         ++tuid->menu_data.fb_frm;
+         _next_item (tuid, &tuid->menu_data.mn_frm);
+      }
+      //Send current line for printing
+      sprintf ((char*)tuid->frame_buffer.fb, "%s", (char*)tuid->menu_data.menu[tuid->menu_data.mn_it].text[ln]);
+   }
+   return EXIT_STAY;
+}
+

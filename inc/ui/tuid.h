@@ -40,7 +40,7 @@ typedef ui_return_t (*taskd_ft) (void);      /*!< Menu function Task */
 typedef struct _menud_item menud_item_t;
 
 /*!
- * Node union structrure for demonised menu
+ * Node union structure for demonised menu
  */
 typedef union _noded
 {
@@ -59,7 +59,7 @@ typedef struct _menud_item
    menu_item_type_en
                   item_type;                    /*!< Menu item type enumerator */
    mm_item_t      mm[4];                        /*!<
-                                                 *  Each member holds the bit posision in the Menu_mask variable
+                                                 *  Each member holds the bit position in the Menu_mask variable
                                                  *  of the EN/DIS flag for the menu item.
                                                  */
 }menud_item_t;
@@ -143,12 +143,14 @@ menud_item_t* tui_menud_this (tuid_t *tuid);
 menud_item_t* tui_menud_id2idx (menud_item_t *mn, menu_id_t id);
 menu_id_t     tui_menud_idx2id (menud_item_t *mn);
 
-ui_return_t     tui_menud (tuid_t *tuid, int key, menud_item_t *mn, Lang_en ln);
-ui_return_t tui_comboboxd (tuid_t *tuid, int live, int key, combobox_item_t *items, int *id, Lang_en ln);
-ui_return_t tui_valueboxd (tuid_t *tuid, int live, int key, text_t cap, text_t units, float up, float down, float step, int dec, float *value);
-ui_return_t  tui_timeboxd (tuid_t *tuid, int live, int key, text_t cap, uint8_t frm, time_t up, time_t down, time_t step, time_t *value);
-ui_return_t  tui_textboxd (tuid_t *tuid, int key, text_t cap, char* str, int size);
-ui_return_t   tui_msgboxd (tuid_t *tuid, int key, text_t cap, text_t msg);
+ui_return_t      tui_menud (tuid_t *tuid, int key, menud_item_t *mn, Lang_en ln);
+ui_return_t tui_line_menud (tuid_t *tuid, int key, menud_item_t *mn, Lang_en ln);
+ui_return_t  tui_comboboxd (tuid_t *tuid, int live, int key, combobox_item_t *items, int *id, Lang_en ln);
+ui_return_t  tui_valueboxd (tuid_t *tuid, int live, int key, text_t cap, text_t units, float up, float down, float step, int dec, float *value);
+ui_return_t tui_line_valueboxd (tuid_t *tuid, int live, int key, text_t units, float up, float down, float step, int width, int dec, float *value);
+ui_return_t   tui_timeboxd (tuid_t *tuid, int live, int key, text_t cap, uint8_t frm, time_t up, time_t down, time_t step, time_t *value);
+ui_return_t   tui_textboxd (tuid_t *tuid, int key, text_t cap, char* str, int size);
+ui_return_t    tui_msgboxd (tuid_t *tuid, int key, text_t cap, text_t msg);
 
 #ifdef  __cplusplus
 }

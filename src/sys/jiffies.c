@@ -266,6 +266,41 @@ __O3__ void jf_delay_100ns (jtime_t _100nsec)
  *    A code based polling version delay implementation, using jiffies for timing.
  *    This is NOT accurate but it ensures that the time passed is always
  *    more than the requested value.
+ *    The delay values are multiplications of 1 msec.
+ * \param   msec     Time in msec for delay
+ * \return  The status of ongoing delay
+ *    \arg  0:    Delay time has passed
+ *    \arg  1:    Delay is ongoing, keep calling
+ */
+__O3__ int jf_check_msec (jtime_t msec)
+{
+   static jtime_t m1=-1, cnt;
+   jtime_t m, m2;
+
+   if (m1 == -1) {
+      m1 = *_jf.value;
+      cnt = _jf.jp1ms * msec;
+   }
+
+   // Eat the time difference from msec value.
+   if (cnt>0) {
+      m2 = (jtime_t)(*_jf.value);
+      m = m2-m1;
+      cnt -= (m>=0) ? m : _jf.jiffies + m;
+      m1 = m2;
+      return 1;   // wait
+   }
+   else {
+      m1 = -1;
+      return 0;   // do not wait any more
+   }
+}
+
+/*!
+ * \brief
+ *    A code based polling version delay implementation, using jiffies for timing.
+ *    This is NOT accurate but it ensures that the time passed is always
+ *    more than the requested value.
  *    The delay values are multiplications of 1 usec.
  * \param   usec     Time in usec for delay
  * \return  The status of ongoing delay

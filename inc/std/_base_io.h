@@ -60,6 +60,7 @@ extern const char pr_flags[_IO_NUM_OF_FLAGS];
 #define IS_DOT(_c)         ((_c) == '.')                 /*!< match '.' symbol */
 #define IS_PLUS(_c)        ((_c) == '+')                 /*!< match '+' symbol */
 #define IS_MINUS(_c)       ((_c) == '-')                 /*!< match '+' symbol */
+#define IS_ASTERISK(_c)    ((_c) == '*')                 /*!< match '*' symbol */
 #define IS_EXP(_c)         ((_c) == 'e' || (_c) == 'E')  /*!< match exponement sympol */
 
 #define _IO_FRACTIONAL_WIDTH        (3)
@@ -119,38 +120,61 @@ typedef union
    double d;
 }_double_un_t;
 
-
-
-
-typedef struct
-{
-   uint8_t  plus     :1;
-   uint8_t  minus    :1;
-   uint8_t  sharp    :1;
+/*!
+ * Base io format flags
+ */
+typedef struct {
+   uint8_t  plus     :1;   /*!< format specifier has plus + */
+   uint8_t  minus    :1;   /*!< format specifier has minus - */
+   uint8_t  sharp    :1;   /*!< format specifier has sharp # */
+   uint8_t  vwidth   :1;   /*!< format specifier has an asterisk *, for ex "%*d"
+                            *   This is variable width field and expects width from va_list
+                            *   as next argument
+                            */
+   uint8_t  vfrac    :1;   /*!< format specifier has an asterisc * after . for ex "%.*f"
+                            *   This is variable frac field and expects width from va_list
+                            *   as next argument
+                            */
    char     lead;
 }_io_flags_t;
 
-typedef struct
-{
-   _io_types_en   type;
-   _io_flags_t    flags;
-   int            width;
-   int            frac;
+/*!
+ * Base IO format specifier type to hold the information of
+ * the current specifier in format string
+ */
+typedef struct {
+   _io_types_en   type;    /*!< The type of the variable */
+   _io_flags_t    flags;   /*!< The flags enabled */
+   int            width;   /*!< The desired width */
+   int            frac;    /*!< The desired fractional part width */
 }_io_frm_spec_t;
 
-typedef union
-{
-   int               character;
-   _io_frm_spec_t    frm_specifier;
+/*!
+ * Base IO object type, to describe a caracter in format string
+ * or a format specifier.
+ */
+typedef union {
+   int               character;        /*!< Stream character */
+   _io_frm_spec_t    frm_specifier;    /*!< Format specifier */
 }_io_frm_obj_t;
 
-typedef enum
-{
-   _IO_FRM_STREAM = 0,
-   _IO_FRM_SPECIFIER,
-   _IO_FRM_TERMINATOR,
-   _IO_FRM_CRAP
+/*!
+ * The possible types of objects of type \ref _io_frm_obj_t
+ */
+typedef enum {
+   _IO_FRM_STREAM = 0,     /*!< The object is a stram character */
+   _IO_FRM_SPECIFIER,      /*!< The object is a Format specifier */
+   _IO_FRM_TERMINATOR,     /*!< The object is a string terminator */
+   _IO_FRM_CRAP            /*!< The object is crap, we dont know hot to parse it */
 }_io_frm_obj_type_en;
+
+
+#define  __io_init_frm_obj(_obj_)   _obj_ = {      \
+      .frm_specifier.type = INT_c,                 \
+      .frm_specifier.flags = {0, 0, 0, 0, 0, ' '}, \
+      .frm_specifier.width = 0,                    \
+      .frm_specifier.frac = 0                      \
+}
 
 int __Os__ _io_read (char* frm, _io_frm_obj_t* obj, _io_frm_obj_type_en *obj_type);
 

@@ -28,6 +28,7 @@
 // Static functions
 static void _mk_caption (tuid_t *tuid, text_t cap);
 static void _mk_frame (tuid_t *tuid, float v, int dec, text_t units);
+static void _mk_line (tuid_t *tuid, float v, int width, int dec, text_t units);
 
 // Common API
 extern int _tuix_clear_frame (fb_t *fb);
@@ -40,8 +41,7 @@ extern void _tuix_mk_caption (fb_t *fb, text_t cap);
  * \param  cap    Pointer to caption string
  * \return none
  */
-__O3__ static void _mk_caption (tuid_t *tuid, text_t cap)
-{
+__O3__ static void _mk_caption (tuid_t *tuid, text_t cap) {
    _tuix_mk_caption (&tuid->frame_buffer, cap);
 }
 
@@ -63,33 +63,50 @@ __Os__ static void _mk_frame (tuid_t *tuid, float v, int dec, text_t units)
    if (_tuix_clear_frame (&tuid->frame_buffer))
       return;
    // Print value
-   switch (dec)
-   {
-      case 0:
-         offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)], "=%d %s", (int)v, (char*)units);
-         break;
-      default:
-      case 1:
-         offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)], "=%.1f", v);
-         offset += sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)+offset], " %s", (char*)units);
-         break;
-      case 2:
-         offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)], "=%.2f", v);
-         offset += sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)+offset], " %s", (char*)units);
-         break;
-      case 3:
-         offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)], "=%.3f", v);
-         offset += sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)+offset], " %s", (char*)units);
-         break;
-      case 4:
-         offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)], "=%.4f", v);
-         offset += sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)+offset], " %s", (char*)units);
-         break;
-   }
+   if (dec == 0)
+      offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)], "=%d", (int)v);
+   else
+      offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)], "=%.*f", dec, v);
+
+   offset += sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)+offset], " %s", (char*)units);
+
    // discard null termination inside frame buffer
    tuid->frame_buffer.fb[_LINE(1)+offset] = ' ';
    // Keep null termination at end of each line
    tuid->frame_buffer.fb[_LINE(1)+tuid->frame_buffer.c-1] = 0;
+   #undef _LINE
+}
+
+
+/*!
+ * \brief
+ *    Paints the line in the frame buffer
+ * \param  tuid   Pointer to the active tuid_t struct
+ * \param  v      Value to print
+ * \param  dec    The number of decimal points to use
+ * \param  units  The units string to append.
+ * \return none
+ */
+__Os__ static void _mk_line (tuid_t *tuid, float v, int width, int dec, text_t units)
+{
+   int offset=0;
+
+   // CLear frame
+   memset ((char*)tuid->frame_buffer.fb, ' ', tuid->frame_buffer.c-1);
+
+   // Print value
+   if (dec == 0)
+      offset = sprintf ((char*)tuid->frame_buffer.fb, "%*d", width, (int)v);
+   else
+      offset = sprintf ((char*)tuid->frame_buffer.fb, "%*.*f", width, dec, v);
+
+   if (*units != 0)
+      offset += sprintf ((char*)(tuid->frame_buffer.fb+offset), " %s", (char*)units);
+
+   // discard null termination inside frame buffer
+   tuid->frame_buffer.fb[offset] = ' ';
+   // Keep null termination at end of each line
+   tuid->frame_buffer.fb[tuid->frame_buffer.c-1] = 0;
    #undef _LINE
 }
 
@@ -151,7 +168,7 @@ __Os__ ui_return_t tui_valueboxd (tuid_t *tuid, int live, int key, text_t cap, t
       ev = 1;
       return EXIT_RETURN;
    }
-   else if (key == tuid->keys.RIGHT || key == tuid->keys.ENTER){
+   else if (key == tuid->keys.RIGHT || key == tuid->keys.ENTER) {
       // Return the new value.
       *value = v;
       ev = 1;
@@ -166,6 +183,51 @@ __Os__ ui_return_t tui_valueboxd (tuid_t *tuid, int live, int key, text_t cap, t
 
    // Print frame
    _mk_frame (tuid, v, dec, units);
+
+   return EXIT_STAY;
+}
+
+__Os__ ui_return_t tui_line_valueboxd (tuid_t *tuid, int live, int key, text_t units, float up, float down, float step, int width, int dec, float *value)
+{
+   static float cur, v;
+   static int ev=1, speedy=0;
+
+   // First (each) time
+   if (ev) {
+      cur = v = *value;
+      ev = 0;
+      speedy = 0;
+   }
+
+   if (live)
+      *value = v;
+
+   //Navigating
+   if (key == tuid->keys.UP)
+      v += step + step*(speedy++/10);
+   else if (key == tuid->keys.DOWN)
+      v -= step + step*(speedy++/10);
+   else if (key == tuid->keys.ESC || key == tuid->keys.LEFT) {
+      // Restore previous value
+      *value = cur;
+      ev = 1;
+      return EXIT_RETURN;
+   }
+   else if (key == tuid->keys.RIGHT || key == tuid->keys.ENTER) {
+      // Return the new value.
+      *value = v;
+      ev = 1;
+      return EXIT_RETURN;
+   }
+   else
+      speedy = 0;
+
+   //Cycle the values
+   if (v > up)     v = down;
+   if (v < down)   v = up;
+
+   // Send line for printing
+   _mk_line (tuid, v, width, dec, units);
 
    return EXIT_STAY;
 }

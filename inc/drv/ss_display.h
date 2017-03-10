@@ -51,7 +51,7 @@ extern "C" {
 typedef void (*ssd_pin_ft) (uint8_t);
 
 /*!
- * Seven Segment Display Pin assignements.
+ * Seven Segment Display Pin assignments.
  * Each one can be called xx.SSA(1); or xx.SSA(0); in order to set
  * or clear the corresponding pin.
  *

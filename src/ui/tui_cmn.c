@@ -34,6 +34,7 @@ void _cmb_frame_lines (fb_t *fb, combobox_item_t *items, int frame, int item, La
 void _cmb_next_item (combobox_item_t *items, int *it);
 void _cmb_prev_item (combobox_item_t *items, int *it);
 
+
 /*!
  * \brief
  *    Common make caption functionality for the tui lib.

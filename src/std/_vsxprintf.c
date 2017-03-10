@@ -774,9 +774,9 @@ void _io_unused (void) {
  */
 int vsxprintf(_putc_out_t _out, char *dst, char *frm, __VALIST ap)
 {
-   _io_frm_obj_t  obj;              // object place holder
-   _io_frm_obj_type_en  obj_type;   // object type place holder
-   char* dst_start = dst;           // Destination starting address
+   _io_frm_obj_t  __io_init_frm_obj (obj);   /* object place holder */
+   _io_frm_obj_type_en  obj_type;            /* object type place holder */
+   char* dst_start = dst;                    /* Destination starting address */
 
    while (*frm != 0) {
       frm += _io_read (frm, &obj, &obj_type);
@@ -785,6 +785,13 @@ int vsxprintf(_putc_out_t _out, char *dst, char *frm, __VALIST ap)
             _out (dst++, obj.character);
             break;
          case _IO_FRM_SPECIFIER:
+            // Variable width reading
+            if (obj.frm_specifier.flags.vwidth)
+               obj.frm_specifier.width = va_arg(ap, signed int);
+            if (obj.frm_specifier.flags.vfrac)
+               obj.frm_specifier.frac = va_arg(ap, signed int);
+
+            // Type dispatcher
             if (obj.frm_specifier.type == INT_d ||
                 obj.frm_specifier.type == INT_i ||
                 obj.frm_specifier.type == INT_l)

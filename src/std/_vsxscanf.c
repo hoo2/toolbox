@@ -95,8 +95,8 @@ static int _isterm (char c)
 static int _is_int_number (char c)
 {
    if ((c >= '0' && c <= '9') ||
-      c == '-' || c == '+'
-      )
+       c == '-' || c == '+'
+       )
       return 1;
    else
       return 0;
@@ -114,7 +114,9 @@ static int _is_int_number (char c)
 static int _is_hex_number (char c)
 {
    if ((c >= '0' && c <= '9') ||
-      c == '-' || c == '+'
+       (c >= 'A' && c <= 'F') ||
+       (c >= 'a' && c <= 'f') ||
+       c == '-' || c == '+' || c == 'x'
       )
       return 1;
    else
@@ -133,9 +135,9 @@ static int _is_hex_number (char c)
 static int _is_real_number (char c)
 {
    if ((c >= '0' && c <= '9') ||
-      c == '.' ||
-      c == 'e' || c == 'E' ||
-      c == '-' || c == '+'
+       c == '.' ||
+       c == 'e' || c == 'E' ||
+       c == '-' || c == '+'
       )
       return 1;
    else
@@ -559,9 +561,9 @@ static int _read_ffloat (_getc_in_t _in, const char *src, char **psrc, float *ds
 
 int vsxscanf (_getc_in_t _in, const char *src, const char *frm, __VALIST ap)
 {
-   _io_frm_obj_t  obj;              // object place holder
-   _io_frm_obj_type_en  obj_type;   // object type place holder
-   int arg=0;                       // Number of parsed arguments
+   _io_frm_obj_t  __io_init_frm_obj (obj);   /* object place holder */
+   _io_frm_obj_type_en  obj_type;            /* object type place holder */
+   int arg=0;                                /* Number of parsed arguments */
    int ch=0;
 
    while (*frm != 0) {
@@ -589,6 +591,13 @@ int vsxscanf (_getc_in_t _in, const char *src, const char *frm, __VALIST ap)
             break;
 
          case _IO_FRM_SPECIFIER:
+            // Variable width reading
+            if (obj.frm_specifier.flags.vwidth)
+               obj.frm_specifier.width = va_arg(ap, signed int);
+            if (obj.frm_specifier.flags.vfrac)
+               obj.frm_specifier.frac = va_arg(ap, signed int);
+
+            // Type dispatcher
             if (obj.frm_specifier.type == INT_d ||
                 obj.frm_specifier.type == INT_i ||
                 obj.frm_specifier.type == INT_l)

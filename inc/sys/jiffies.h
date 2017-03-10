@@ -94,6 +94,7 @@ jiffy_t jf_per_100nsec (void);
 void jf_delay_ms (jtime_t msec);
 void jf_delay_us (jtime_t usec);
 void jf_delay_100ns (jtime_t _100nsec);
+int jf_check_msec (jtime_t msec);
 int jf_check_usec (jtime_t usec);
 int jf_check_100nsec (jtime_t _100nsec);
 

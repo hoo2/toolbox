@@ -84,6 +84,7 @@ extern "C" {
 #include <drv/pt100x.h>
 #include <drv/ktyx.h>
 #include <drv/ntc3997k.h>
+#include <drv/ntc10k_3435k.h>
 #include <drv/jtype.h>
 #include <drv/brh_fcx.h>
 

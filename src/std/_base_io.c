@@ -117,8 +117,6 @@ int _io_read (char* frm, _io_frm_obj_t* obj, _io_frm_obj_type_en *obj_type)
    else {
       // Clear and init data
       count = pc = 0;
-      memset ((void*)obj, 0, sizeof (_io_frm_obj_t));
-      obj->frm_specifier.flags.lead = ' ';
       *obj_type = _IO_FRM_SPECIFIER;
 
       state = ST_PC; // init state machine
@@ -142,7 +140,7 @@ int _io_read (char* frm, _io_frm_obj_t* obj, _io_frm_obj_type_en *obj_type)
                   state = ST_TYPE;
                else if ((cf = _isflag (*frm)) != NO_FLAG)
                   state = ST_FLAG;
-               else if (IS_1TO9(*frm))
+               else if (IS_1TO9(*frm) || IS_ASTERISK(*frm))
                   state = ST_WIDTH;
                else if (IS_DOT (*frm))
                   state = ST_DOT;
@@ -162,7 +160,7 @@ int _io_read (char* frm, _io_frm_obj_t* obj, _io_frm_obj_type_en *obj_type)
                _skip_char (frm);       // Skip it
 
                // State switcher
-               if (IS_1TO9(*frm))
+               if (IS_1TO9(*frm) || IS_ASTERISK(*frm))
                   state = ST_WIDTH;
                else if ((ct = _istype (*frm)) != NO_TYPE)
                   state = ST_TYPE;
@@ -175,7 +173,11 @@ int _io_read (char* frm, _io_frm_obj_t* obj, _io_frm_obj_type_en *obj_type)
                break;
 
             case ST_WIDTH:
-               obj->frm_specifier.width = (obj->frm_specifier.width*10) + *frm-'0';
+               // dispatch width and variable width
+               if (IS_ASTERISK(*frm))
+                  obj->frm_specifier.flags.vwidth = 1;
+               else
+                  obj->frm_specifier.width = (obj->frm_specifier.width*10) + *frm-'0';
                _skip_char (frm);       // Skip it
 
                // State switcher
@@ -193,14 +195,18 @@ int _io_read (char* frm, _io_frm_obj_t* obj, _io_frm_obj_type_en *obj_type)
                _skip_char (frm);       // Skip dot
 
                // State switcher
-               if (IS_0TO9(*frm))
+               if (IS_0TO9(*frm) || IS_ASTERISK(*frm))
                   state = ST_FRAC;
                else
                   state = ST_ERROR;
                break;
 
             case ST_FRAC:
-               obj->frm_specifier.frac = (obj->frm_specifier.frac*10) + *frm-'0';
+               // dispatch width and variable width
+               if (IS_ASTERISK(*frm))
+                  obj->frm_specifier.flags.vfrac = 1;
+               else
+                  obj->frm_specifier.frac = (obj->frm_specifier.frac*10) + *frm-'0';
                _skip_char (frm);       // Skip it
 
                // State switcher
