@@ -98,6 +98,7 @@ extern "C" {
 #include <drv/s25fs_spi.h>
 #include <drv/ds2431.h>
 
+#include <drv/tca953x.h>
 
 /*!
  * \defgroup DSP
