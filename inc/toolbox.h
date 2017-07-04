@@ -96,6 +96,8 @@ extern "C" {
 #include <drv/sd_spi.h>
 #include <drv/ss_display.h>
 #include <drv/s25fs_spi.h>
+#include <drv/ds2431.h>
+
 
 /*!
  * \defgroup DSP
