@@ -107,7 +107,6 @@ __Os__ static void _mk_line (tuid_t *tuid, float v, int width, int dec, text_t u
    tuid->frame_buffer.fb[offset] = ' ';
    // Keep null termination at end of each line
    tuid->frame_buffer.fb[tuid->frame_buffer.c-1] = 0;
-   #undef _LINE
 }
 
 /*!

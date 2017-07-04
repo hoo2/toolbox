@@ -144,13 +144,16 @@ menud_item_t* tui_menud_id2idx (menud_item_t *mn, menu_id_t id);
 menu_id_t     tui_menud_idx2id (menud_item_t *mn);
 
 ui_return_t      tui_menud (tuid_t *tuid, int key, menud_item_t *mn, Lang_en ln);
-ui_return_t tui_line_menud (tuid_t *tuid, int key, menud_item_t *mn, Lang_en ln);
 ui_return_t  tui_comboboxd (tuid_t *tuid, int live, int key, combobox_item_t *items, int *id, Lang_en ln);
 ui_return_t  tui_valueboxd (tuid_t *tuid, int live, int key, text_t cap, text_t units, float up, float down, float step, int dec, float *value);
-ui_return_t tui_line_valueboxd (tuid_t *tuid, int live, int key, text_t units, float up, float down, float step, int width, int dec, float *value);
 ui_return_t   tui_timeboxd (tuid_t *tuid, int live, int key, text_t cap, uint8_t frm, time_t up, time_t down, time_t step, time_t *value);
 ui_return_t   tui_textboxd (tuid_t *tuid, int key, text_t cap, char* str, int size);
 ui_return_t    tui_msgboxd (tuid_t *tuid, int key, text_t cap, text_t msg);
+
+ui_return_t tui_line_menud (tuid_t *tuid, int key, menud_item_t *mn, Lang_en ln);
+ui_return_t tui_line_valueboxd (tuid_t *tuid, int live, int key, text_t units, float up, float down, float step, int width, int dec, float *value);
+ui_return_t tui_line_comboboxd (tuid_t *tuid, int live, int key, combobox_item_t *items, int *id, Lang_en ln);
+ui_return_t tui_line_timeboxd  (tuid_t *tuid, int live, int key, uint8_t frm, time_t up, time_t down, time_t step, time_t *value);
 
 #ifdef  __cplusplus
 }

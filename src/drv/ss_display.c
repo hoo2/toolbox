@@ -41,12 +41,12 @@ static uint8_t const _font_ALPHA[26] = {
    0x77, 0x00, 0x39, 0x00, 0x79, 0x71, 0x7D,    /* A - _ - C - _ - E - F - G */
    0x76, 0x30, 0x0E, 0x00, 0x38, 0x00, 0x00,    /* H - I - J - _ - L - _ - _ */
    0x3F, 0x73, 0x00, 0x00, 0x6D, 0x00, 0x3E,    /* O - P - _ - _ - S - _ - U */
-   0x00, 0x00, 0x00, 0x6E, 0x00 };              /* _ - _ - _ - Y - Z */
+   0x3E, 0x00, 0x00, 0x6E, 0x00 };              /* V - _ - _ - Y - _ */
 static uint8_t const _font_alpha[26] = {
    0x00, 0x7C, 0x58, 0x5E, 0x7B, 0x00, 0x00,    /* _ - b - c - d - e - _ - _ */
    0x74, 0x10, 0x00, 0x00, 0x30, 0x00, 0x54,    /* h - i - _ - _ - l - _ - n */
    0x5C, 0x00, 0x00, 0x50, 0x00, 0x78, 0x1C,    /* o - _ - _ - r - _ - t - u */
-   0x00, 0x00, 0x00, 0x00, 0x00 };              /* _ - _ - _ - _ - _ */
+   0x1C, 0x00, 0x00, 0x00, 0x00 };              /* v - _ - _ - _ - _ */
 static uint8_t const _font_symbols[3] = {
    0x00,    // ' '
    0x08,    // '_'
@@ -86,7 +86,7 @@ static void _fb_del (void) {
 static inline void _fb_put_character (char ch)
 {
    if (_ssd.fb.cursor>=0 && _ssd.fb.cursor<_ssd.fb.size) {
-      if (ch == '.') {
+      if ((ch == '.') || (ch == ':')) {
          if (_ssd.fb.cursor == 0)
             _ssd.fb.buffer[_ssd.fb.cursor] = _font_dot_mask;
          else
@@ -169,12 +169,14 @@ void ssd_service (void)
    clock_t now = clock ();
 
    // Clear displays
-   _ssd.io.bus (0);
-   _ssd.io.dis (0);
+   //_ssd.io.bus (0);
+   //_ssd.io.dis (0);
 
    // Power flag does not stop service
    if (_ssd.power == 0) {
       _ssd.disp = 1;
+      _ssd.io.bus (0);
+      _ssd.io.dis (0);
       return;
    }
 
@@ -200,6 +202,7 @@ void ssd_service (void)
 
    // Display Switcher 1-1 for now (no shift implemented)
    if (on_off) {
+      _ssd.io.dis (0);
       _ssd.io.bus (_ssd.fb.buffer[_ssd.disp]);
       _ssd.io.dis (0x01 << _ssd.disp);
    }
@@ -234,7 +237,7 @@ drv_status_en ssd_init (void)
     */
    _ssd.status = DRV_NOINIT;
 
-   if (_ssd.blink_time == 0)  _ssd.blink_time = (clock_t)(SSD_BLINK_TIME_DEF * get_freq ());
+   if (_ssd.blink_time == 0)  _ssd.blink_time = (clock_t)(SSD_BLINK_TIME_DEF);
    if (_ssd.digits == 0)      _ssd.digits = SSD_DIGITS_DEF;
    if (_ssd.fb.size == 0)     _ssd.fb.size = SSD_FB_SIZE_DEF;
 

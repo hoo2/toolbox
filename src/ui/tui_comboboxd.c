@@ -164,3 +164,51 @@ __Os__ ui_return_t tui_comboboxd (tuid_t *tuid, int live, int key, combobox_item
 
    return EXIT_STAY;
 }
+
+
+__Os__ ui_return_t tui_line_comboboxd (tuid_t *tuid, int live, int key, combobox_item_t *items, int *id, Lang_en ln)
+{
+   static uint8_t ev=1;
+   static int cur;
+   static int i;
+
+   if (ev) {  // It is the first call of combobox
+      // Find cur in combobox table
+      for (i=1 ; 1 ; ++i) {
+         if (!items[i].text[ln]) {
+            i=1;
+            break;
+         }
+         if (items[i].id == *id)
+            break;
+      }
+
+      // Update counters
+      cur = i;
+      ev = 0;
+   }
+
+   if (live)
+      *id = items[i].id;
+
+   // UI loop - Navigating
+   if (key == tuid->keys.UP)     _cmb_prev_item (items, &i);
+   if (key == tuid->keys.DOWN)   _cmb_next_item (items, &i);
+   if (key == tuid->keys.ESC || key == tuid->keys.LEFT) {
+      // Restore previous value
+      *id = items[cur].id;
+      ev = 1;
+      return EXIT_RETURN;
+   }
+   if (key == tuid->keys.RIGHT || key == tuid->keys.ENTER) {
+      // Apply the new value
+      *id = items[i].id;
+      ev = 1;
+      return EXIT_RETURN;
+   }
+
+   //Send current line for printing
+   sprintf ((char*)tuid->frame_buffer.fb, "%s", (char*)items[i].text[ln]);
+
+   return EXIT_STAY;
+}

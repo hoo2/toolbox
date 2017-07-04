@@ -43,7 +43,7 @@ extern "C" {
 #define  DEL                  (0x7F)
 
 #define  SSD_BLINK_DEF        (0)
-#define  SSD_BLINK_TIME_DEF   (0.5)
+#define  SSD_BLINK_TIME_DEF   (500)
 #define  SSD_DIGITS_DEF       (3)
 #define  SSD_FB_SIZE_DEF      (SSD_DIGITS_DEF+1)
 
