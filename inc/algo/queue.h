@@ -50,25 +50,28 @@ typedef struct {
 /*
  * Link and Glue functions
  */
-void queue_link_buffer (queue_t *queue, void* buf);
+void queue_link_buffer (queue_t *q, void* buf);
 
 
 /*
  * Set functions
  */
-void queue_set_item_size (queue_t *queue, int size);
-void queue_set_items (queue_t *queue, int items);
+void queue_set_item_size (queue_t *q, int size);
+void queue_set_items (queue_t *q, int items);
 
 /*
  * User Functions
  */
-int  queue_is_full (queue_t *queue);
-int queue_is_empty (queue_t *queue);
+int  queue_is_full (queue_t *q);
+int queue_is_empty (queue_t *q);
+int  queue_waiting (queue_t *q);
+void   queue_flush (queue_t *q);
 
-void  queue_init (queue_t *queue);
-int    queue_put (queue_t *queue, void *b);
-int    queue_get (queue_t *queue, void *b);
-void* queue_head (queue_t *queue);
+void  queue_init (queue_t *q);
+int    queue_put (queue_t *q, void *b);
+int    queue_get (queue_t *q, void *b);
+void* queue_head (queue_t *q);
+void* queue_tail (queue_t *q);
 
 #ifdef __cplusplus
 }
