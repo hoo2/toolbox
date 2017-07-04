@@ -44,8 +44,7 @@ extern "C" {
 
 /* ================   General Defines   ====================*/
 
-typedef uint8_t (*ow_uart_tx_ft) (uint8_t);  /*!< UART transmit function pointer */
-typedef uint8_t (*ow_uart_rx_ft) (void);     /*!< UART receive function pointer */
+typedef uint16_t (*ow_uart_rw_ft) (uint8_t);           /*!< UART read-write function pointer */
 typedef drv_status_en (*ow_uart_br_ft) (uint32_t);    /*!< UART baudrate modify function pointer */
 
 /*!
@@ -71,8 +70,7 @@ typedef struct {
  *    The function in this structure provided from the low level driver (usually).
  */
 typedef struct {
-   ow_uart_tx_ft  tx;      /*!< Pointer UART transmit function */
-   ow_uart_rx_ft  rx;      /*!< Pointer UART receive function */
+   ow_uart_rw_ft  rw;      /*!< Pointer UART read-write function */
    ow_uart_br_ft  br;      /*!< Pointer to UART baudrate function */
 }ow_uart_io_t;
 
@@ -181,8 +179,7 @@ typedef struct {
 /*
  * Link and Glue functions
  */
-void ow_uart_link_tx (ow_uart_t *ow, ow_uart_tx_ft tx);     /*!< link driver's transmit function */
-void ow_uart_link_rx (ow_uart_t *ow, ow_uart_rx_ft rx);    /*!< link driver's receive function */
+void ow_uart_link_rw (ow_uart_t *ow, ow_uart_rw_ft tx);    /*!< link driver's read-write function */
 void ow_uart_link_br (ow_uart_t *ow, ow_uart_br_ft br);    /*!< link driver's baudrate function*/
 
 /*

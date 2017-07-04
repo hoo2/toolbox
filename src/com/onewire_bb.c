@@ -318,7 +318,7 @@ void ow_bb_deinit (ow_bb_t *ow)
 drv_status_en ow_bb_init (ow_bb_t *ow)
 {
    // Check requirements
-   if (!ow->io.dir)     return ow->status = DRV_ERROR;
+   //if (!ow->io.dir)     return ow->status = DRV_ERROR;
    if (!ow->io.in)      return ow->status = DRV_ERROR;
    if (!ow->io.out)     return ow->status = DRV_ERROR;
    if (jf_probe () != DRV_READY)

@@ -101,7 +101,7 @@ static uint8_t _read_bit (ow_uart_t *ow);
  *    \arg  -1    Register 2 is larger than register 1
  */
 static __O3__ int _cmp_u64 (uint8_t *reg1, uint8_t *reg2) {
-   uint8_t i;
+   int i;
    for (i=7 ; i>=0 ; --i) {
       if (reg1[i] > reg2[i])        return 1;   /* reg1 > reg2 */
       else if (reg1[i] < reg2[i])   return -1;  /* reg1 < reg2 */
@@ -169,9 +169,10 @@ static __O3__ drv_status_en _set_baudrate (ow_uart_t *ow, ow_uart_state_en st)
  *    \arg  0     Success
  *    \arg  1     Fail
  */
-static __O3__ uint8_t _write_bit (ow_uart_t *ow, uint8_t b)
+static uint8_t _write_bit (ow_uart_t *ow, uint8_t b)
 {
-   uint8_t  w,r;
+   uint8_t  w;
+   uint16_t r;
 
    /*
     * Make sure we are at the write baudrate
@@ -179,10 +180,9 @@ static __O3__ uint8_t _write_bit (ow_uart_t *ow, uint8_t b)
    if (_set_baudrate (ow, OWS_OPER) != DRV_READY)
       return 1;
 
-   /* Select frame to send and check the bus by evaluating the rx */
+   /* Select frame to send and check the bus by evaluating the return value */
    w = (b) ? 0xFF : 0x00;
-   if (ow->io.tx (0xFF))   return 1;
-   r = ow->io.rx ();
+   r = ow->io.rw (w);
 
    if (r != w)    return 1;
    else           return 0;
@@ -212,9 +212,9 @@ static __O3__ uint8_t _write_bit (ow_uart_t *ow, uint8_t b)
  *    \arg  0  Read 0
  *    \arg  1  Read 1 (This is also returned on transition error).
  */
-static __O3__ uint8_t _read_bit (ow_uart_t *ow)
+static uint8_t _read_bit (ow_uart_t *ow)
 {
-   uint8_t  r;
+   uint16_t  r;
 
    /*
     * Make sure we are at the right baudrate
@@ -223,8 +223,7 @@ static __O3__ uint8_t _read_bit (ow_uart_t *ow)
       return 1;
 
    /* Send frame for read */
-   if (ow->io.tx (0xFF))   return 1;
-   r = ow->io.rx ();
+   r = ow->io.rw (0xFF);
 
    /* Dispatch answer */
    if (r < 0xFF)  return 0;
@@ -241,21 +240,12 @@ static __O3__ uint8_t _read_bit (ow_uart_t *ow)
  */
 
 /*!
- * \brief   link driver's UART transmit function
- * \param   ow    pointer to select 1-Wire structure for the operation.
- * \param   tx    ow_uart_tx_ft pointer to drivers UART tx function
- */
-void ow_uart_link_tx (ow_uart_t *ow, ow_uart_tx_ft tx) {
-   ow->io.tx = (ow_uart_tx_ft)((tx != 0) ? tx : 0);
-}
-
-/*!
- * \brief   link driver's UART receive function
+ * \brief   link driver's UART read-write function
  * \param   ow    pointer to select 1-Wire structure for the operation.
  * \param   tx    ow_uart_rx_ft pointer to drivers UART rx function
  */
-void ow_uart_link_rx (ow_uart_t *ow, ow_uart_rx_ft rx) {
-   ow->io.rx = (ow_uart_rx_ft)((rx != 0) ? rx : 0);
+void ow_uart_link_rw (ow_uart_t *ow, ow_uart_rw_ft rw) {
+   ow->io.rw = (ow_uart_rw_ft)((rw != 0) ? rw : 0);
 }
 
 /*!
@@ -320,8 +310,7 @@ void ow_uart_deinit (ow_uart_t *ow)
 drv_status_en ow_uart_init (ow_uart_t *ow)
 {
    // Check requirements
-   if (!ow->io.tx)      return ow->status = DRV_ERROR;
-   if (!ow->io.rx)      return ow->status = DRV_ERROR;
+   if (!ow->io.rw)      return ow->status = DRV_ERROR;
    if (!ow->io.br)      return ow->status = DRV_ERROR;
 
    // Init the bus
@@ -364,9 +353,10 @@ drv_status_en ow_uart_init (ow_uart_t *ow)
  *    \arg  DRV_NODEV      If no presence detect was found
  *    \arg  DRV_READY      Otherwise
  */
-__O3__ drv_status_en ow_uart_reset (ow_uart_t *ow)
+drv_status_en ow_uart_reset (ow_uart_t *ow)
 {
-   uint8_t  w,r;
+   uint8_t  w;
+   uint16_t r;
 
    /*
     * Make sure we are at the write baudrate
@@ -377,8 +367,8 @@ __O3__ drv_status_en ow_uart_reset (ow_uart_t *ow)
    /* Select frame to send */
    w = (ow->timing == OW_UART_T_OVERDRIVE) ? 0xF8 : 0xF0;
 
-   ow->io.tx (w);
-   r = ow->io.rx ();
+   r = ow->io.rw (w);
+   r = ow->io.rw (w);   // Send it twice to make sure
 
    if (w>r)       return DRV_READY;
    else if (w==r) return DRV_NODEV;
@@ -391,7 +381,7 @@ __O3__ drv_status_en ow_uart_reset (ow_uart_t *ow)
  * \param  ow    pointer to select 1-Wire structure for the operation.
  * \return  The byte received.
  */
-__Os__ uint8_t ow_uart_rx (ow_uart_t *ow)
+uint8_t ow_uart_rx (ow_uart_t *ow)
 {
    uint8_t  i;
    byte_t byte;
@@ -410,7 +400,7 @@ __Os__ uint8_t ow_uart_rx (ow_uart_t *ow)
  * \param  b:    The byte to write
  * \return  none
  */
-__Os__ void ow_uart_tx (ow_uart_t *ow, byte_t byte)
+void ow_uart_tx (ow_uart_t *ow, byte_t byte)
 {
    uint8_t  i;
 
@@ -427,7 +417,7 @@ __Os__ void ow_uart_tx (ow_uart_t *ow, byte_t byte)
  * \param   byte  The byte to write
  * \return  The byte received.
  */
-__Os__ uint8_t ow_uart_rw (ow_uart_t *ow, byte_t byte)
+uint8_t ow_uart_rw (ow_uart_t *ow, byte_t byte)
 {
    uint8_t  i;
    byte_t ret;
@@ -461,7 +451,7 @@ __Os__ uint8_t ow_uart_rw (ow_uart_t *ow, byte_t byte)
  *    \arg  DRV_BUSY  (2)  Search is succeed, plus there are more ROM IDs to found
  *    \arg  DRV_ERROR (3)  Search failed, Reading error
  */
-__Os__ drv_status_en ow_uart_search (ow_uart_t *ow, uint8_t *romid)
+drv_status_en ow_uart_search (ow_uart_t *ow, uint8_t *romid)
 {
    static uint8_t dec[8];  /*!<
                             * Hold the algorithm's select bit when a discrepancy
@@ -553,10 +543,18 @@ __Os__ drv_status_en ow_uart_search (ow_uart_t *ow, uint8_t *romid)
  *    \arg CTRL_DEINIT
  *    \arg CTRL_INIT
  *    \arg CTRL_SEARCH
+ *    \arg CTRL_RESET
  * \param  buf    pointer to buffer for ioctl
  * \return The status of the operation
- *    \arg DRV_READY
- *    \arg DRV_ERROR
+ *    \arg  DRV_ERROR      Error
+ *    \arg  DRV_NODEV      If no presence detect was found
+ *    \arg  DRV_READY      Success
+ * When the command is CTRL_SEARCH then return the status of the search which is the same
+ * plus DRV_BUSY. The meaning of the return status is now:
+ *    \arg  DRV_NODEV (-1) Search was failed, No device found
+ *    \arg  DRV_READY (1)  Search is complete, all ROM IDs was found. This was the last
+ *    \arg  DRV_BUSY  (2)  Search is succeed, plus there are more ROM IDs to found
+ *    \arg  DRV_ERROR (3)  Search failed, Reading error
  */
 __Os__ drv_status_en ow_uart_ioctl (ow_uart_t *ow, ioctl_cmd_t cmd, ioctl_buf_t buf)
 {
@@ -573,8 +571,11 @@ __Os__ drv_status_en ow_uart_ioctl (ow_uart_t *ow, ioctl_cmd_t cmd, ioctl_buf_t 
             *(drv_status_en*)buf = ow_uart_init (ow);
          else
             ow_uart_init (ow);
+         return DRV_READY;
       case CTRL_SEARCH:         /*!< Search */
-
+         return ow_uart_search (ow, (uint8_t*)buf);
+      case CTRL_RESET:
+         return ow_uart_reset (ow);
       default:                  /*!< Unsupported command, error */
          return DRV_ERROR;
 

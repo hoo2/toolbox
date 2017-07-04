@@ -43,6 +43,7 @@ extern "C" {
 #define CTRL_GET_STATUS          0x00  /*!< Generic status command */
 #define CTRL_DEINIT              0x01  /*!< Generic de-init command */
 #define CTRL_INIT                0x02  /*!< Generic init command */
+#define CTRL_RESET               0x03  /*!< Generic reset command */
 
 #define CTRL_SYNC                0x10  /*!< Flush disk cache (for write functions) used by FatFs*/
 #define CTRL_FLUSH               0x10  /*!< Flush buffers */
