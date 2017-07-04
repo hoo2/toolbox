@@ -34,22 +34,30 @@
 /*!
  * Semaphore data type
  */
-typedef volatile struct
-{
+typedef struct {
    int val;          /*!< Semaphore value. */
 }sem_t;
 
-sem_t* sem_open(int v);
-sem_t* mut_open (int v);
-int    sem_close (sem_t *s);
+/*
+ * Semaphores
+ */
+void sem_init (sem_t* s, int v);
+int  sem_close (sem_t *s);
 
-int semaphore (sem_t *s);  // Checks
-void wait (sem_t *s);      // Wait
-void signl (sem_t *s);    // Feed
+ int sem_getvalue (sem_t *s); // Reads semaphore's value
+ int sem_check (sem_t *s);    // Checks semaphore but return instead of waiting
+void sem_wait (sem_t *s);     // Wait
+void sem_post (sem_t *s);     // Feed
 
-int mutex (sem_t *m);      // Checks
-void lock (sem_t *m);      // wait to lock
-void unlock (sem_t *m);    // feed to unlock
+/*
+ * Mutex
+ */
+void mut_init (sem_t* m, int v);
+int  mut_close (sem_t *s);
+
+ int mut_trylock (sem_t *m);  // Try to lock
+void mut_lock (sem_t *m);     // wait to lock
+void mut_unlock (sem_t *m);   // feed to unlock
 
 #endif //#ifndef __semaphore_h__
 

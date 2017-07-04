@@ -1,7 +1,7 @@
 /*
  * \file sem.c
  * \brief
- *    This file provides pkernel compatible semaphore/mutex capabilities
+ *    This file provides semaphore/mutex capabilities
  *
  * Copyright (C) 2013 Houtouridis Christos <houtouridis.ch@gmail.com>
  *
@@ -18,90 +18,70 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Author:     Houtouridis Christos <houtouridis.ch@gmail.com>
- * Date:       09/2013
- * Version:
- *
  */
 
 #include <sys/semaphore.h>
 
 /*!
- * \brief Open semaphore. Try to find a space for a new semaphore.
- * If there is, then allocates it and initialize the semaphore to \a v
+ * \brief
+ *    Open/Initialize semaphore.
  *
- * \param v The initial value of semaphore.
- * \return Pointer to semaphore on success, NULL if no space.
- *
- * \note
- *    This function MUST NOT called within the pkernel's Interrupts
-*/
-__Os__ static sem_t* sopen(int v)
-{
-   sem_t* s;
-
-   s = (sem_t*) malloc (sizeof (sem_t));
+ * \param s,   Pointer to semaphore to initialize
+ * \param v    The initial value of semaphore.
+ */
+__Os__ static void _sinit (sem_t *s, int v) {
    if (s)
       s->val = v;
-   return s;
 }
 
-
 /*!
- * \brief Open/Create semaphore. Try to find a space for a new semaphore.
- * If there is space in semaphore[], allocates it and initialize the
- * semaphore to 0.
+ * \brief
+ *    Open/Initialize semaphore.
+ * \note
+ *    The usual init value of a semaphore is 0.
  *
- * \param None
- * \return Pointer to semaphore on success, NULL if no space.
-*/
-inline sem_t* sem_open(int v)
-{
-   return sopen (v);
+ * \param s,   Pointer to semaphore to initialize
+ * \param v    The initial value of semaphore.
+ */
+__Os__ inline void sem_init (sem_t* s, int v) {
+   _sinit (s, v);
 }
 
 /*!
- * \brief Open/Create a mutex(binary semaphore). Tryto find a space for a new mutex.
- * If there is space in semaphore[], allocates it and initialize the semaphore to 1 (unlocked).
+ * \brief
+ *    Close/De-Initialize a semaphore.
  *
- * \param None
- * \return Pointer to mutex on success, NULL if no space.
-*/
-inline sem_t* mut_open (int v)
-{
-   return sopen (v);
+ * \param   s,   Pointer to semaphore to close
+ * \return  0
+ */
+__Os__ int sem_close (sem_t *s) {
+   return s->val = 0;
 }
 
 /*!
- * \brief Close semaphore. If semaphore's value don't indicate
- * a locking state(val<0), then clears it.
+ * \brief
+ *    Get semaphore's value without any interaction to it
  *
- * \param s Semaphore to close.
- * \return Positive on success, 0 if the semaphore is locked.
-*/
-__Os__ int sem_close (sem_t *s)
-{
-   if (s->val>=0)
-   {
-      free ((void*)s);
-      return 1;
-   }
-   return 0;
+ * \param  s pointer to semaphore used
+ * \return The semaphore value
+ */
+__O3__ inline int sem_getvalue (sem_t *s) {
+   return s->val;
 }
 
 /*!
- * \brief This function checks for a semaphore value. If the semaphore
- *  is positive decreases it and return true. Else return false
+ * \brief
+ *    This function checks for a semaphore value. If the semaphore
+ *    is positive decreases it and return true. Else return false
  *
  * \param  s pointer to semaphore used
  * \return true for positive semaphore value.
  *
  * \note Thread safe, not reentrant.
  */
-__Os__ int semaphore (sem_t *s)
+__O3__ int sem_check (sem_t *s)
 {
-   if (s->val>0)
-   {
+   if (s->val>0) {
       --s->val;
       return 1;
    }
@@ -110,14 +90,15 @@ __Os__ int semaphore (sem_t *s)
 }
 
 /*!
- * \brief This function waits for a semaphore(spin-lock). If the semaphore
- *  is positive decreases it and continue.
+ * \brief
+ *    This function waits for a semaphore(spin-lock). If the semaphore
+ *    is positive decreases it and continue.
  *
  * \param  s pointer to semaphore used
  * \return None
  * \note Thread safe, not reentrant.
  */
-__O3__ void wait (sem_t *s)
+__O3__ void sem_wait (sem_t *s)
 {
    while (s->val<=0)
       ;
@@ -127,39 +108,82 @@ __O3__ void wait (sem_t *s)
 /*!
  * \brief Increase the semaphores value
  */
-inline void signl (sem_t *s) {
+__O3__ inline void sem_post (sem_t *s) {
    ++s->val;
 }
 
+
+
+
+
+
 /*!
- * \brief This function checks for a mutex. If its positive
- * decreases it and return true. Else return false
- *
- * \param  s pointer to mutex used
- * \return true for positive(1) mutex value.
- *
- * \note Thread safe, not reentrant.
- */
-inline int mutex (sem_t *m) {
-   return semaphore (m);
+ * \brief
+ *    Open/Initialize mutex which is a binary semaphore for this implementation
+ * \note
+ *    The usual init value of a mutex is 0 (unlocked)
+ * \param s,   Pointer to semaphore to initialize
+ * \param v    The initial value of mutex.
+*/
+__Os__ inline void mut_init (sem_t* m, int v) {
+   _sinit (m, v);
 }
 
 /*!
- * \brief  This function waits for a mutex (spin-lock).
- * If the mutex is positive(1) decreases it and continue.
+ * \brief
+ *    Close/De-Initialize a mutex.
+ *
+ * \param   s,   Pointer to mutex to close
+ * \return  0
+ */
+__Os__ int mut_close (sem_t *m) {
+   return m->val = 0;
+}
+
+/*!
+ * \brief
+ *    This function checks for a mutex.
+ *    If its zero (unlocked) increases it and return true.
+ *    Else return false (already locked)
+ *
+ * \param  s pointer to mutex used
+ * \return the status of the operation
+ *    \arg  0  Fail to lock, mutex already locked
+ *    \arg  1  Success, mutex is locked by the function
+ *
+ * \note Thread safe, not reentrant.
+ */
+__O3__ int mut_trylock (sem_t *m)
+{
+   if (m->val<=0) {
+      m->val = 1;
+      return 1;
+   }
+   else
+      return 0;
+}
+
+/*!
+ * \brief
+ *    This function waits for a mutex (spin-lock).
+ *    If is zero(unlocked), increases it and continue.
+ *    If the mutex is positive(1, already locked) waits.
+ *
+ * \param  s pointer to mutex used
  * \return None
  * \note Thread safe, not reentrant.
  */
-inline void lock (sem_t *m) {
-   wait (m);
+__O3__ inline void mut_lock (sem_t *m)
+{
+   while (m->val>0)
+      ;
+   m->val = 1;
 }
 
 /*!
- * Unlock (by setting high) the semaphore.
+ * Unlock (by setting low) the semaphore.
 */
-__O3__ void unlock (sem_t *m)
-{
-   if (++m->val > 1) // Binary semaphore
-      m->val=1;
+__O3__ inline void mut_unlock (sem_t *m) {
+   m->val = 0;
 }
 
