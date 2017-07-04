@@ -49,6 +49,7 @@ extern "C" {
 /*!
  * \defgroup Algorithm
  */
+#include <algo/crc.h>
 #include <algo/queue.h>
 #include <algo/spa.h>
 #include <algo/spa_grena.h>
