@@ -83,8 +83,7 @@ static void sha2_pre (sha2_t *ctx, sha2_size sz)
    ctx->sz = sz;
    ctx->total[0] = ctx->total[1] = 0;
 
-   switch (sz)
-   {
+   switch (sz) {
       case SHA2_224:
          ctx->state[0] = 0xC1059ED8;
          ctx->state[1] = 0x367CD507;
@@ -108,6 +107,7 @@ static void sha2_pre (sha2_t *ctx, sha2_size sz)
       default:
          break;
    }
+   memset ((void*)ctx->buffer, 0, 64);
 }
 
 /*!
