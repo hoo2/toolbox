@@ -99,6 +99,8 @@ extern "C" {
 #include <drv/ds2431.h>
 
 #include <drv/tca953x.h>
+#include <drv/mcp4728.h>
+
 
 /*!
  * \defgroup DSP
