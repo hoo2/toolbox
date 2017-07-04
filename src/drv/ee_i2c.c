@@ -53,7 +53,7 @@ static drv_status_en _sendcontrol (ee_t *ee, uint8_t rd, uint8_t ackp)
    // Control byte (read/write) with ACK polling or not
    do {
       ee->io.i2c_ioctl (ee->io.i2c, CTRL_START, (void*)0);
-      ack = ee->io.i2c_tx (ee->io.i2c, ee->conf.hw_addr + rd);
+      ack = ee->io.i2c_tx (ee->io.i2c, ee->conf.hw_addr | rd, I2C_SEQ_BYTE_ACK);
       --to;
    }while (!ack && ackp && to);
 
@@ -73,13 +73,13 @@ static drv_status_en _sendcontrol (ee_t *ee, uint8_t rd, uint8_t ackp)
 static drv_status_en _sendaddress (ee_t *ee, address_t add)
 {
    if (ee->conf.size == EE_08) {
-      if (!ee->io.i2c_tx (ee->io.i2c, add))
+      if (!ee->io.i2c_tx (ee->io.i2c, add, I2C_SEQ_BYTE_ACK))
          return DRV_ERROR;
    } else {
       // MSB of the address first
-      if (!ee->io.i2c_tx (ee->io.i2c, (byte_t)((add & 0xFF00)>>8)))
+      if (!ee->io.i2c_tx (ee->io.i2c, (byte_t)((add & 0xFF00)>>8), I2C_SEQ_BYTE_ACK))
          return DRV_ERROR;
-      if (!ee->io.i2c_tx (ee->io.i2c, (byte_t)(add & 0x00FF)))
+      if (!ee->io.i2c_tx (ee->io.i2c, (byte_t)(add & 0x00FF), I2C_SEQ_BYTE_ACK))
          return DRV_ERROR;
    }
    return DRV_READY;
@@ -116,7 +116,7 @@ static int _writepage (ee_t *ee, address_t add, byte_t *buf, bytecount_t n)
 
    // Try to write the data
    for (i=0 ; i<nl ; ++i, ++buf)
-      if (!ee->io.i2c_tx (ee->io.i2c, *buf))
+      if (!ee->io.i2c_tx (ee->io.i2c, *buf, I2C_SEQ_BYTE_ACK))
          break;
 
    // Stop and return the number of written bytes.
@@ -139,13 +139,13 @@ static int _writepage (ee_t *ee, address_t add, byte_t *buf, bytecount_t n)
 __INLINE void ee_link_i2c (ee_t *ee, void* i2c) {
    ee->io.i2c = i2c;
 }
-__INLINE void ee_link_i2c_rx (ee_t *ee, ee_i2c_rx_ft fun) {
+__INLINE void ee_link_i2c_rx (ee_t *ee, drv_i2c_rx_ft fun) {
    ee->io.i2c_rx = fun;
 }
-__INLINE void ee_link_i2c_tx (ee_t *ee, ee_i2c_tx_ft fun) {
+__INLINE void ee_link_i2c_tx (ee_t *ee, drv_i2c_tx_ft fun) {
    ee->io.i2c_tx = fun;
 }
-__INLINE void ee_link_i2c_ioctl (ee_t *ee, ee_i2c_ioctl_ft fun) {
+__INLINE void ee_link_i2c_ioctl (ee_t *ee, drv_i2c_ioctl_ft fun) {
    ee->io.i2c_ioctl = fun;
 }
 
@@ -263,7 +263,7 @@ drv_status_en ee_read_cursor (ee_t *ee, byte_t *byte)
       return DRV_ERROR;
 
    // Read with NACK
-   *byte = ee->io.i2c_rx (ee->io.i2c, 0);
+   *byte = ee->io.i2c_rx (ee->io.i2c, 0, I2C_SEQ_BYTE_ACK);
 
    ee->io.i2c_ioctl (ee->io.i2c, CTRL_STOP, (void*)0);
    return DRV_READY;
@@ -295,7 +295,7 @@ drv_status_en ee_read_byte (ee_t *ee, address_t add, byte_t *byte)
       return DRV_ERROR;
 
    // Read with NACK
-   *byte = ee->io.i2c_rx (ee->io.i2c, 0);
+   *byte = ee->io.i2c_rx (ee->io.i2c, 0, I2C_SEQ_BYTE_ACK);
 
    ee->io.i2c_ioctl (ee->io.i2c, CTRL_STOP, (void*)0);
    return DRV_READY;
@@ -322,7 +322,7 @@ drv_status_en ee_write_byte (ee_t *ee, address_t add, byte_t byte)
    if (_sendaddress (ee, add) == DRV_ERROR)
       return DRV_ERROR;
 
-   if (!ee->io.i2c_tx (ee->io.i2c, byte))
+   if (!ee->io.i2c_tx (ee->io.i2c, byte, I2C_SEQ_BYTE_ACK))
       return DRV_ERROR;
 
    ee->io.i2c_ioctl (ee->io.i2c, CTRL_STOP, (void*)0);
@@ -361,7 +361,7 @@ drv_status_en ee_read (ee_t *ee, address_t add, byte_t *buf, bytecount_t n)
    // Seq read bytes with ACK except last one
    do {
       ack = (n>1) ? 1:0;
-      *buf++ = ee->io.i2c_rx (ee->io.i2c, ack);
+      *buf++ = ee->io.i2c_rx (ee->io.i2c, ack, I2C_SEQ_BYTE_ACK);
       --n;
    }while (n);
 
@@ -438,8 +438,7 @@ drv_status_en ee_write_sector (ee_t *ee, int sector, byte_t *buf, int count) {
  */
 drv_status_en ee_ioctl (ee_t *ee, ioctl_cmd_t cmd, ioctl_buf_t buf)
 {
-   switch (cmd)
-   {
+   switch (cmd) {
       case CTRL_GET_STATUS:      /*!< Probe function */
          if (buf)
             *(drv_status_en*)buf = ee->status;

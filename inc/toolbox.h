@@ -38,7 +38,6 @@ extern "C" {
 
 
 #include <toolbox_defs.h>
-#include <tbx_ioctl.h>
 #include <tbx_types.h>
 
 /*!

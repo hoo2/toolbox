@@ -28,7 +28,6 @@
 extern "C" {
 #endif
 
-#include <tbx_ioctl.h>
 #include <tbx_types.h>
 #include <com/i2c_bb.h>
 /*
@@ -52,16 +51,12 @@ typedef enum {
 } ee_size_en;
 
 
-typedef byte_t (*ee_i2c_rx_ft) (void *, uint8_t);
-typedef int    (*ee_i2c_tx_ft) (void *, byte_t);
-typedef drv_status_en (*ee_i2c_ioctl_ft) (void *, ioctl_cmd_t, ioctl_buf_t);
-
-typedef volatile struct
+typedef struct
 {
    void*             i2c;        /*!< void I2C type structure - NULL for hardware I2C */
-   ee_i2c_rx_ft      i2c_rx;     /*!< I2C read function */
-   ee_i2c_tx_ft      i2c_tx;     /*!< I2C write function */
-   ee_i2c_ioctl_ft   i2c_ioctl;  /*!< I2C ioctl function */
+   drv_i2c_rx_ft     i2c_rx;     /*!< I2C read function */
+   drv_i2c_tx_ft     i2c_tx;     /*!< I2C write function */
+   drv_i2c_ioctl_ft  i2c_ioctl;  /*!< I2C ioctl function */
 }ee_io_t;
 
 typedef volatile struct
@@ -90,9 +85,9 @@ typedef volatile struct
  * Link and Glue functions
  */
 void ee_link_i2c (ee_t *ee, void* i2c);
-void ee_link_i2c_rx (ee_t *ee, ee_i2c_rx_ft fun);
-void ee_link_i2c_tx (ee_t *ee, ee_i2c_tx_ft fun);
-void ee_link_i2c_ioctl (ee_t *ee, ee_i2c_ioctl_ft fun);
+void ee_link_i2c_rx (ee_t *ee, drv_i2c_rx_ft fun);
+void ee_link_i2c_tx (ee_t *ee, drv_i2c_tx_ft fun);
+void ee_link_i2c_ioctl (ee_t *ee, drv_i2c_ioctl_ft fun);
 
 /*
  * Set functions

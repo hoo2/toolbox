@@ -29,6 +29,8 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <tbx_ioctl.h>
+
 
 typedef uint8_t  byte_t;         /*!< 8 bits wide */
 typedef uint16_t word_t;         /*!< 16 bits wide */
@@ -36,6 +38,23 @@ typedef uint32_t dword_t;        /*!< 32 bits wide */
 
 typedef uint32_t bytecount_t;    /*!< general counter */
 typedef uint32_t address_t;      /*!< general index/address type */
+
+
+/*!
+ * This is a toolbox wide generic driver status type.
+ * \note
+ *    DRV_NOINIT = 0, so after memset to zero called by XXXX_deinit() the
+ *    module/device will automatically set to NOINIT state.
+ */
+typedef enum {
+   DRV_NODEV=-1,     /*!< No device/module */                      //!< DRV_NODEV
+   DRV_NOINIT=0,     /*!< Module/Device exist but no initialized *///!< DRV_NOINIT
+   DRV_READY,        /*!< Module/Device initialized succesfully */ //!< DRV_READY
+   DRV_BUSY,         /*!< Module/Device busy */                    //!< DRV_BUSY
+   //DRV_COMPLETE,     /*!< Module/device operation complete status */
+   DRV_ERROR         /*!< Module/Device error */                   //!< DRV_ERROR
+}drv_status_en;
+
 
 /*!
  * Pin function pointers
@@ -73,20 +92,14 @@ typedef     void (*drv_out_i_ft) (int);
 typedef     void (*drv_out_f_ft) (float);
 
 /*!
- * This is a toolbox wide generic driver status type.
- * \note
- *    DRV_NOINIT = 0, so after memset to zero called by XXXX_deinit() the
- *    module/device will automatically set to NOINIT state.
+ * I2C I/O Function pointer
  */
-typedef enum
-{
-   DRV_NODEV=-1,     /*!< No device/module */
-   DRV_NOINIT=0,     /*!< Module/Device exist but no initialized */
-   DRV_READY,        /*!< Module/Device initialized succesfully */
-   DRV_BUSY,         /*!< Module/Device busy */
-   //DRV_COMPLETE,     /*!< Module/device operation complete status */
-   DRV_ERROR         /*!< Module/Device error */
-}drv_status_en;
+typedef   void (*drv_i2c_start_ft) (void *);
+typedef   void (*drv_i2c_stop_ft) (void *);
+typedef byte_t (*drv_i2c_rx_ft) (void *, uint8_t, int);
+typedef    int (*drv_i2c_tx_ft) (void *, byte_t, int);
+typedef drv_status_en (*drv_i2c_ioctl_ft) (void *, ioctl_cmd_t, ioctl_buf_t);
+
 
 /*
  * Complex types

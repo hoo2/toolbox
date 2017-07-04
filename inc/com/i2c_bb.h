@@ -28,9 +28,7 @@
 extern "C" {
 #endif
 
-#include <tbx_ioctl.h>
 #include <tbx_types.h>
-//#include <toolbox_defs.h>
 #include <sys/jiffies.h>
 #include <string.h>
 #include <stdint.h>
@@ -38,8 +36,21 @@ extern "C" {
 /* ================   General Defines   ====================*/
 #define I2C_FREQ_DEF        (100000)           // 100KHz
 
-typedef volatile struct
-{
+/*!
+ * I2C transmit/receive sequence
+ */
+typedef enum {
+   I2C_SEQ_BYTE = 0,    //!< Only read byte           [8 clocks]
+   I2C_SEQ_ACK,         //!< Only send ack            [1 clock]
+   I2C_SEQ_BYTE_ACK     //!< Read byte and send ack   [9 clocks]
+}i2c_bb_seq_en;
+
+
+
+/*!
+ * I2C bit-banging data type
+ */
+typedef struct {
    drv_pinio_ft   sda;
    drv_pinout_ft  scl;
    drv_pindir_ft  sda_dir;
@@ -73,9 +84,8 @@ drv_status_en i2c_init (i2c_bb_t *i2c);  /*!< for compatibility */
 
 void i2c_start(i2c_bb_t *i2c);
 void i2c_stop (i2c_bb_t *i2c);
-byte_t i2c_rx (i2c_bb_t *i2c, uint8_t ack);
-int    i2c_tx (i2c_bb_t *i2c, byte_t byte);
-
+byte_t i2c_rx (i2c_bb_t *i2c, uint8_t ack, i2c_bb_seq_en seq);
+int    i2c_tx (i2c_bb_t *i2c, byte_t byte, i2c_bb_seq_en seq);
 
 drv_status_en i2c_ioctl (i2c_bb_t *i2c, ioctl_cmd_t cmd, ioctl_buf_t buf);
 

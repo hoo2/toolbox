@@ -181,36 +181,49 @@ void i2c_stop (i2c_bb_t *i2c)
  * \param  ack    Optional ack bit.
  *    \arg 1  ACK the reception
  *    \arg 0  Don't ACK the reception.
+ * \param   seq   The operation sequence to execute
+ *    \arg  I2C_RXSEQ_BYTE       Receive only the byte, do not send ack clock
+ *    \arg  I2C_RXSEQ_ACK        Send only the ack bit
+ *    \arg  I2C_RXSEQ_BYTE_ACK   Receive the byte and send the ack bit
  * \return   The byte received.
  */
-byte_t i2c_rx(i2c_bb_t *i2c, uint8_t ack)
+byte_t i2c_rx (i2c_bb_t *i2c, uint8_t ack, i2c_bb_seq_en seq)
 {
-   uint8_t i = 8;
+   uint8_t b, a;
    byte_t byte = 0;
 
+   switch (seq) {
+      default:                b=0;  a=0;  break;
+      case I2C_SEQ_BYTE:      b=1;  a=0;  break;
+      case I2C_SEQ_ACK:       b=0;  a=1;  break;
+      case I2C_SEQ_BYTE_ACK:  b=1;  a=1;  break;
+   }
    //Initial conditions
    i2c->scl (0);
 
-   // read 8 data bits
-   i2c->sda_dir (0);
-   while(i--) {
-      byte <<= 1;
+   if (b != 0) {
+      // read 8 data bits
+      i2c->sda_dir (0);
+      for (int i=0 ; i<8 ; ++i) {
+         byte <<= 1;
+         i2c->scl (1);
+            jf_delay_us (i2c->clk_delay);
+         byte |= i2c->sda (0);
+         i2c->scl (0);
+            jf_delay_us (i2c->clk_delay);
+      }
+   }
+   if (a != 0) {
+      //Send or not ACK
+      i2c->sda_dir (1);
+      if (ack)       i2c->sda (0);  // ACK
+      else           i2c->sda (1);  // Don't ACK
       i2c->scl (1);
          jf_delay_us (i2c->clk_delay);
-      byte |= i2c->sda (0);
-      i2c->scl (0);
+      i2c->scl (0);     // Keep the bus busy
          jf_delay_us (i2c->clk_delay);
+      i2c->sda (0);
    }
-
-   //Send or not ACK
-   i2c->sda_dir (1);
-   if (ack)       i2c->sda (0);  // ACK
-   else           i2c->sda (1);  // Don't ACK
-   i2c->scl (1);
-      jf_delay_us (i2c->clk_delay);
-   i2c->scl (0);     // Keep the bus busy
-      jf_delay_us (i2c->clk_delay);
-   i2c->sda (0);
    return byte;
 }
 
@@ -219,37 +232,51 @@ byte_t i2c_rx(i2c_bb_t *i2c, uint8_t ack)
  *    Transmit a byte to the i2c bus.
  * \param  i2c    pointer to active i2c.
  * \param  byte   The byte to send.
+ * \param   seq   The operation sequence to execute
+ *    \arg  I2C_TXSEQ_BYTE       Transmit only the byte, do not read ack bit
+ *    \arg  I2C_TXSEQ_ACK        Read only the ack bit
+ *    \arg  I2C_TXSEQ_BYTE_ACK   Transmit the byte and read the ack bit
  * \return Slave's ACK bit
  *    \arg 0 Slave didn't ACK
  *    \arg 1 Slave did ACK
  */
-int i2c_tx(i2c_bb_t *i2c, byte_t byte)
+int i2c_tx (i2c_bb_t *i2c, byte_t byte, i2c_bb_seq_en seq)
 {
-   uint8_t i = 8;
-   int ack;
+   uint8_t b, a;
+   int ack = 0;
+
+   switch (seq) {
+      default:                b=0;  a=0;  break;
+      case I2C_SEQ_BYTE:      b=1;  a=0;  break;
+      case I2C_SEQ_ACK:       b=0;  a=1;  break;
+      case I2C_SEQ_BYTE_ACK:  b=1;  a=1;  break;
+   }
 
    //Initial conditions
    i2c->scl (0);
-
-   //Send 8 bit data
-   while(i--) {
-      //Send MSB
-      i2c->sda (byte & 0x80);
-      byte <<= 1;
+   if (b != 0) {
+      //Send 8 bit data
+      for (int i=0 ; i<8 ; ++i) {
+         //Send MSB
+         i2c->sda (byte & 0x80);
+         byte <<= 1;
+         i2c->scl (1);
+            jf_delay_us (i2c->clk_delay);
+         i2c->scl (0);
+            jf_delay_us (i2c->clk_delay);
+      }
+   }
+   if (a != 0) {
+      // Get ACK
+      i2c->sda_dir (0);
       i2c->scl (1);
          jf_delay_us (i2c->clk_delay);
-      i2c->scl (0);
+      ack = !i2c->sda (0);
+      i2c->scl (0);     // Keep the bus busy
          jf_delay_us (i2c->clk_delay);
+      i2c->sda_dir (1);
+      i2c->sda (0);
    }
-   // Get ACK
-   i2c->sda_dir (0);
-   i2c->scl (1);
-      jf_delay_us (i2c->clk_delay);
-   ack = !i2c->sda (0);
-   i2c->scl (0);     // Keep the bus busy
-      jf_delay_us (i2c->clk_delay);
-   i2c->sda_dir (1);
-   i2c->sda (0);
    return ack;
 }
 
