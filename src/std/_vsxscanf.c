@@ -151,6 +151,7 @@ static int _is_real_number (char c)
  *
  * \param   _in   callback function to use for input streaming
  * \param   src   Destination string (if any).
+ * \param  psrc   Caller's source string pointer address
  *
  * \return        The non-whitespace character from the stream
  */
@@ -561,9 +562,9 @@ static int _read_ffloat (_getc_in_t _in, const char *src, char **psrc, float *ds
 
 int vsxscanf (_getc_in_t _in, const char *src, const char *frm, __VALIST ap)
 {
-   _io_frm_obj_t  __io_init_frm_obj (obj);   /* object place holder */
-   _io_frm_obj_type_en  obj_type;            /* object type place holder */
-   int arg=0;                                /* Number of parsed arguments */
+   _io_frm_obj_t obj;               /* object place holder */
+   _io_frm_obj_type_en  obj_type;   /* object type place holder */
+   int arg=0;                       /* Number of parsed arguments */
    int ch=0;
 
    while (*frm != 0) {

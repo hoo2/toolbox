@@ -79,14 +79,14 @@ extern const char pr_flags[_IO_NUM_OF_FLAGS];
  */
 typedef enum
 {
-   ST_NONE=0,
-   ST_PC,
-   ST_FLAG,
-   ST_WIDTH,
-   ST_DOT,
-   ST_FRAC,
-   ST_TYPE,
-   ST_ERROR
+   _IO_ST_NONE=0,
+   _IO_ST_PC,
+   _IO_ST_FLAG,
+   _IO_ST_WIDTH,
+   _IO_ST_DOT,
+   _IO_ST_FRAC,
+   _IO_ST_TYPE,
+   _IO_ST_ERROR
 }_parser_st_t;
 
 /*!

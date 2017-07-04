@@ -30,6 +30,11 @@
 #include <std/_base_io.h>
 
 /*!
+ * Object initialization data
+ */
+static const _io_frm_obj_t __io_init_frm_obj (_zero_obj);
+
+/*!
  * The supported type conversion characters.
  * \note They MUST be in the same order as _printf_types_en \sa _printf_types_en
  */
@@ -97,6 +102,7 @@ int _io_read (char* frm, _io_frm_obj_t* obj, _io_frm_obj_type_en *obj_type)
    char           pc;         // Previous character
    uint8_t        parse = 1;  // done parsing flag
    _parser_st_t   state;
+   *obj = (_io_frm_obj_t)_zero_obj; // Init object
 
    /*
     * Parse string
@@ -105,31 +111,31 @@ int _io_read (char* frm, _io_frm_obj_t* obj, _io_frm_obj_type_en *obj_type)
     */
    // String check
    if (*frm == 0 || *frm == -1) {
-      obj->character = *frm;
-      *obj_type = _IO_FRM_TERMINATOR;
+      obj->character = (int)*frm;
+      *obj_type = (_io_frm_obj_type_en)_IO_FRM_TERMINATOR;
       return 0;
    }
    else if (IS_ALL_BUT_PC (*frm)) {
-      obj->character = *frm;
-      *obj_type = _IO_FRM_STREAM;
+      obj->character = (int)*frm;
+      *obj_type = (_io_frm_obj_type_en)_IO_FRM_STREAM;
       return 1;
    }
    else {
       // Clear and init data
       count = pc = 0;
-      *obj_type = _IO_FRM_SPECIFIER;
+      *obj_type = (_io_frm_obj_type_en)_IO_FRM_SPECIFIER;
 
-      state = ST_PC; // init state machine
+      state = _IO_ST_PC; // init state machine
       while (parse) {
          switch (state) {
-            case ST_NONE:
-               state = ST_ERROR;
+            case _IO_ST_NONE:
+               state = _IO_ST_ERROR;
                break;
-            case ST_PC:
+            case _IO_ST_PC:
                if ( IS_PC (pc) ) {
-                  state = ST_NONE;
-                  obj->character = *frm;
-                  *obj_type = _IO_FRM_STREAM;
+                  state = _IO_ST_NONE;
+                  obj->character = (int)*frm;
+                  *obj_type = (_io_frm_obj_type_en)_IO_FRM_STREAM;
                   _skip_char (frm);
                   return count;
                }
@@ -137,20 +143,20 @@ int _io_read (char* frm, _io_frm_obj_t* obj, _io_frm_obj_type_en *obj_type)
 
                // State switcher
                if ((ct = _istype (*frm)) != NO_TYPE)
-                  state = ST_TYPE;
+                  state = _IO_ST_TYPE;
                else if ((cf = _isflag (*frm)) != NO_FLAG)
-                  state = ST_FLAG;
+                  state = _IO_ST_FLAG;
                else if (IS_1TO9(*frm) || IS_ASTERISK(*frm))
-                  state = ST_WIDTH;
+                  state = _IO_ST_WIDTH;
                else if (IS_DOT (*frm))
-                  state = ST_DOT;
+                  state = _IO_ST_DOT;
                else if ( IS_PC (*frm) )
                   ;  // stay here
                else
-                  state = ST_ERROR;
+                  state = _IO_ST_ERROR;
                break;
 
-            case ST_FLAG:
+            case _IO_ST_FLAG:
                if (cf == FLAG_PLUS)       obj->frm_specifier.flags.plus = 1;
                else if (cf == FLAG_MINUS) obj->frm_specifier.flags.minus = 1;
                else if (cf == FLAG_SHARP) obj->frm_specifier.flags.sharp = 1;
@@ -161,18 +167,18 @@ int _io_read (char* frm, _io_frm_obj_t* obj, _io_frm_obj_type_en *obj_type)
 
                // State switcher
                if (IS_1TO9(*frm) || IS_ASTERISK(*frm))
-                  state = ST_WIDTH;
+                  state = _IO_ST_WIDTH;
                else if ((ct = _istype (*frm)) != NO_TYPE)
-                  state = ST_TYPE;
+                  state = _IO_ST_TYPE;
                else if ((cf = _isflag (*frm)) != NO_FLAG)
                   ;   // stay here (delete previous flag)
                else if (IS_DOT (*frm))
-                  state = ST_DOT;
+                  state = _IO_ST_DOT;
                else
-                  state = ST_ERROR;
+                  state = _IO_ST_ERROR;
                break;
 
-            case ST_WIDTH:
+            case _IO_ST_WIDTH:
                // dispatch width and variable width
                if (IS_ASTERISK(*frm))
                   obj->frm_specifier.flags.vwidth = 1;
@@ -184,24 +190,24 @@ int _io_read (char* frm, _io_frm_obj_t* obj, _io_frm_obj_type_en *obj_type)
                if (IS_0TO9(*frm))
                   ;  //Stay here
                else if ((ct = _istype (*frm)) != NO_TYPE)
-                  state = ST_TYPE;
+                  state = _IO_ST_TYPE;
                else if (IS_DOT (*frm))
-                  state = ST_DOT;
+                  state = _IO_ST_DOT;
                else
-                  state = ST_ERROR;
+                  state = _IO_ST_ERROR;
                break;
 
-            case ST_DOT:
+            case _IO_ST_DOT:
                _skip_char (frm);       // Skip dot
 
                // State switcher
                if (IS_0TO9(*frm) || IS_ASTERISK(*frm))
-                  state = ST_FRAC;
+                  state = _IO_ST_FRAC;
                else
-                  state = ST_ERROR;
+                  state = _IO_ST_ERROR;
                break;
 
-            case ST_FRAC:
+            case _IO_ST_FRAC:
                // dispatch width and variable width
                if (IS_ASTERISK(*frm))
                   obj->frm_specifier.flags.vfrac = 1;
@@ -213,24 +219,24 @@ int _io_read (char* frm, _io_frm_obj_t* obj, _io_frm_obj_type_en *obj_type)
                if (IS_0TO9(*frm))
                   ;  // Stay here
                else if ((ct = _istype (*frm)) != NO_TYPE)
-                  state = ST_TYPE;
+                  state = _IO_ST_TYPE;
                else
-                  state = ST_ERROR;
+                  state = _IO_ST_ERROR;
                break;
 
-            case ST_TYPE:
+            case _IO_ST_TYPE:
                obj->frm_specifier.type = ct;
                _skip_char (frm);       // Skip it
                parse = 0;              // done
 
                // State switcher
-               state = ST_NONE;
+               state = _IO_ST_NONE;
                break;
 
-            case ST_ERROR:
+            case _IO_ST_ERROR:
                // discard object
                memset ((void*)obj, 0, sizeof (_io_frm_obj_t));
-               *obj_type = _IO_FRM_CRAP;
+               *obj_type = (_io_frm_obj_type_en)_IO_FRM_CRAP;
                parse = 0;              // done
                break;
          }
