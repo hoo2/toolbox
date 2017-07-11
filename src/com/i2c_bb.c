@@ -149,6 +149,7 @@ void i2c_start (i2c_bb_t *i2c)
    //Initially set pins
    i2c->sda_dir (1);
    i2c->sda (1);
+      jf_delay_us (i2c->clk_delay);
    i2c->scl (1);
       jf_delay_us (i2c->clk_delay);
    i2c->sda (0);
@@ -200,6 +201,7 @@ byte_t i2c_rx (i2c_bb_t *i2c, uint8_t ack, i2c_bb_seq_en seq)
    }
    //Initial conditions
    i2c->scl (0);
+   i2c->sda (0);  // Clear output port register
 
    if (b != 0) {
       // read 8 data bits
@@ -265,6 +267,7 @@ int i2c_tx (i2c_bb_t *i2c, byte_t byte, i2c_bb_seq_en seq)
          i2c->scl (0);
             jf_delay_us (i2c->clk_delay);
       }
+      i2c->sda (0);     // Clear output port register
    }
    if (a != 0) {
       // Get ACK
@@ -273,9 +276,9 @@ int i2c_tx (i2c_bb_t *i2c, byte_t byte, i2c_bb_seq_en seq)
          jf_delay_us (i2c->clk_delay);
       ack = !i2c->sda (0);
       i2c->scl (0);     // Keep the bus busy
-         jf_delay_us (i2c->clk_delay);
       i2c->sda_dir (1);
       i2c->sda (0);
+         jf_delay_us (i2c->clk_delay);
    }
    return ack;
 }
