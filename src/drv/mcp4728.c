@@ -75,7 +75,7 @@ static drv_status_en _send_control (mcp4728_t *mcp, uint8_t rd, uint8_t bsy)
       return DRV_BUSY;
    else {
       mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_START, (void*)0);
-      if (!mcp->io.i2c_tx (mcp->io.i2c, (MCP4728_ADDRESS_MASK | mcp->conf.cur_addr) | rd, I2C_SEQ_BYTE_ACK)) {
+      if (!mcp->io.i2c_tx (mcp->io.i2c, ((MCP4728_ADDRESS_MASK | (mcp->conf.cur_addr << 1)) | rd), I2C_SEQ_BYTE_ACK)) {
          mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
          return DRV_ERROR;
       }
@@ -138,7 +138,7 @@ static drv_status_en _gc_reset (mcp4728_t *mcp)
       mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
       return DRV_ERROR;
    }
-   mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
+   mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, NULL);
    return DRV_READY;
 }
 
@@ -207,7 +207,7 @@ static drv_status_en _gc_read_address (mcp4728_t *mcp, int tries)
          continue;
 
       mcp->io.i2c_tx (mcp->io.i2c, MCP4728_GEN_READ_ADD, I2C_SEQ_BYTE);
-      jf_delay_ms (1);
+      jf_delay_us (10);
       mcp->io.ldac (1);
       if (!mcp->io.i2c_tx (mcp->io.i2c, MCP4728_GEN_READ_ADD, I2C_SEQ_ACK)) {
          mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
@@ -221,10 +221,14 @@ static drv_status_en _gc_read_address (mcp4728_t *mcp, int tries)
       }
 
       b = mcp->io.i2c_rx (mcp->io.i2c, 1, I2C_SEQ_BYTE_ACK);
-      mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
+      mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, NULL);
+      do {
+         mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, NULL);
+         mcp->io.i2c->sda_dir (0);
+      } while ( ! mcp->io.i2c->sda (0) );
       mcp->io.ldac (0);
 
-      //if ((b & MCP4728_GEN_RA_VALID_MASK) == MCP4728_GEN_RA_VALID_PATTERN) {
+      if ((b & MCP4728_GEN_RA_VALID_MASK) == MCP4728_GEN_RA_VALID_PATTERN) {
          ea = (b & MCP4728_GEN_RA_EEPROM_MASK) >> 5;
          da = (b & MCP4728_GEN_RA_DACREG_MASK) >> 1;
          if (ea == da) {
@@ -233,9 +237,9 @@ static drv_status_en _gc_read_address (mcp4728_t *mcp, int tries)
          }
         else
             continue;
-      //}
-      //else
-      //   continue;
+      }
+      else
+         continue;
    }
    return DRV_ERROR;
 }
@@ -391,7 +395,7 @@ static drv_status_en _cmd_write_add (mcp4728_t *mcp, int tries)
          continue;
 
       mcp->io.i2c_tx (mcp->io.i2c, w[0], I2C_SEQ_BYTE);
-      jf_delay_ms (1);
+      jf_delay_us (10);
       mcp->io.ldac (1);
       mcp->io.i2c_tx (mcp->io.i2c, w[0], I2C_SEQ_ACK);
 
@@ -402,6 +406,10 @@ static drv_status_en _cmd_write_add (mcp4728_t *mcp, int tries)
          continue;
       }
       mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
+      do {
+         mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, NULL);
+         mcp->io.i2c->sda_dir (0);
+      } while ( ! mcp->io.i2c->sda (0) );
       mcp->io.ldac (0);
 
       do {
@@ -504,6 +512,7 @@ drv_status_en mcp4728_init (mcp4728_t *mcp)
    drv_status_en ra_ret;
 
    if (_bad_link (i2c))       return mcp->status = DRV_ERROR;
+   //!^ Only with i2c bit banging
    if (_bad_link (i2c_rx))    return mcp->status = DRV_ERROR;
    if (_bad_link (i2c_tx))    return mcp->status = DRV_ERROR;
    if (_bad_link (i2c_ioctl)) return mcp->status = DRV_ERROR;
@@ -517,6 +526,11 @@ drv_status_en mcp4728_init (mcp4728_t *mcp)
    mcp->status = DRV_BUSY;
    mcp->io.ldac (0);
 
+   do {
+      mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, NULL);
+      mcp->io.i2c->sda_dir (0);
+   } while ( ! mcp->io.i2c->sda (0) );
+
    _gc_reset (mcp);
    if ((ra_ret = _gc_read_address (mcp, MCP4728_READ_ADDRESS_TRIES)) != DRV_READY)
       return DRV_ERROR;
@@ -526,8 +540,8 @@ drv_status_en mcp4728_init (mcp4728_t *mcp)
          return mcp->status = DRV_ERROR;
       mcp->conf.cur_addr = mcp->conf.usr_add;
    }
-   if ((ra_ret = _gc_read_address (mcp, MCP4728_READ_ADDRESS_TRIES)) != DRV_READY)
-      return DRV_ERROR;
+   //if ((ra_ret = _gc_read_address (mcp, MCP4728_READ_ADDRESS_TRIES)) != DRV_READY)
+   //   return DRV_ERROR;
 
    return mcp->status = DRV_READY;
    #undef _bad_link

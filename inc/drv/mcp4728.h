@@ -113,7 +113,7 @@ typedef enum {
 
 
 typedef struct {
-   void*             i2c;        /*!< void I2C type structure - NULL for hardware I2C */
+   i2c_bb_t          *i2c;       /*!< void I2C type structure - NULL for hardware I2C */
    drv_i2c_rx_ft     i2c_rx;     /*!< I2C read function */
    drv_i2c_tx_ft     i2c_tx;     /*!< I2C write function */
    drv_i2c_ioctl_ft  i2c_ioctl;  /*!< I2C ioctl function */
