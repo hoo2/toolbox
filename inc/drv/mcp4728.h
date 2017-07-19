@@ -34,8 +34,10 @@ extern "C" {
 /*
  * ================   User defines  ==================
  */
-#define MCP4728_READ_ADDRESS_TRIES     (4)
-#define MCP4728_WRITE_ADDRESS_TRIES    (4)
+//#define MCP4728_READ_ADDRESS_TRIES     (4)
+//#define MCP4728_WRITE_ADDRESS_TRIES    (4)
+
+#define MCP4728_SDA_RELEASE_TRIES      (8)
 
 /*
  * ================   General Defines   ====================
@@ -123,11 +125,11 @@ typedef struct {
 
 typedef struct {
    uint8_t           cur_addr;   /*!< I2C hardware address */
-   uint8_t           usr_add;
+   uint8_t           usr_add;    /*!< desired I2C hardware address */
    mcp4728_vref_en   vref[4];    /*!<  */
    mcp4728_pwr_en    pwr[4];     /*!<  */
    mcp4728_gain_en   gain[4];    /*!<  */
-   uint32_t          timeout;    /*!<  */
+   uint32_t          timeout;    /*!< general timeout in [msec] */
 }mcp4728_conf_t;
 
 /*!

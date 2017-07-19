@@ -27,23 +27,81 @@
 /*
  * ------------ Static API ------------------
  */
+static drv_status_en _sda_release (mcp4728_t *mcp);   //!< SDA release BUG workaround
+
+static drv_status_en _wait_busy (mcp4728_t *mcp);
 static drv_status_en _send_control (mcp4728_t *mcp, uint8_t rd, uint8_t bsy);
 static drv_status_en _send_gen_call (mcp4728_t *mcp, uint8_t bsy);
 
 static drv_status_en _gc_reset (mcp4728_t *mcp);
 static drv_status_en _gc_wakeup (mcp4728_t *mcp);
 static drv_status_en _gc_soft_update (mcp4728_t *mcp);
-static drv_status_en _gc_read_address (mcp4728_t *mcp, int tries);
+static drv_status_en _gc_read_address (mcp4728_t *mcp);
 
 static drv_status_en _cmd_fast_write (mcp4728_t *mcp, int iter);
 static drv_status_en _cmd_seq_write (mcp4728_t *mcp, mcp4728_channel_en from);
 static drv_status_en _cmd_single_write (mcp4728_t *mcp, mcp4728_channel_en ch);
-static drv_status_en _cmd_write_add (mcp4728_t *mcp, int tries);
+static drv_status_en _cmd_write_add (mcp4728_t *mcp);
+
+/*!
+ * brief
+ *    Make sure the SDA bus pin is released after a STOP bit
+ * \warning
+ *    For some reasons the MCP4728 chip refuses to release SDA pin
+ *    after a STOP. A workaround is to repeatedly send STOP to the
+ *    bus until it does. Testing shows that it needs 3-5 STOPs to
+ *    come to its senses.
+ *
+ * \param   mcp   Pointer indicate the mcp data stuct to use
+ * \return  The status of the operation
+ *    \arg  DRV_ERROR   Fail to release SDA
+ *    \arg  DRV_READY   SDA released
+ */
+static drv_status_en _sda_release (mcp4728_t *mcp)
+{
+   // Check SDA status before begin to send STOPs
+   mcp->io.i2c->sda_dir (0);
+   for (int i=0 ; ! mcp->io.i2c->sda (0) ; ) {
+      mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, NULL);
+      mcp->io.i2c->sda_dir (0);
+      if (++i > MCP4728_SDA_RELEASE_TRIES) {
+         return DRV_ERROR;
+      }
+   }
+   return DRV_READY;
+}
+
+/*!
+ * \brief
+ *    Wait busy pin, if its pointer is available. If no busy
+ *    pin pointer available, return DRV_READY
+ *
+ * \param  mcp    Pointer indicate the mcp data stuct to use
+ * \return
+ *    \arg DRV_BUSY
+ *    \arg DVR_READY
+ */
+static drv_status_en _wait_busy (mcp4728_t *mcp)
+{
+   // If instruct so, check busy pin (if available)
+   if ( mcp->io.bsy == 0)
+      return DRV_READY;
+
+   // Check busy pin in a loop with configured timeout
+   for (int i=0 ; mcp->io.bsy () ; ) {
+      jf_delay_us (10);
+      if (++i >= mcp->conf.timeout * 100)
+         return DRV_BUSY;
+   }
+   return DRV_READY;
+}
 
 /*!
  * \brief
  *    Send control byte. When requested, if LLD's BSY function
  *    is available then its used to determine the MCP status.
+ * \note
+ *    If any error occurred, sends STOP to release the bus before return
  *
  * \param  mcp    Pointer indicate the mcp data stuct to use
  * \param  rd     Read flag
@@ -59,34 +117,29 @@ static drv_status_en _cmd_write_add (mcp4728_t *mcp, int tries);
  */
 static drv_status_en _send_control (mcp4728_t *mcp, uint8_t rd, uint8_t bsy)
 {
-   uint8_t  bsy_flag = 0;
-   uint32_t to = mcp->conf.timeout;
-
-   // Cast rd to 0/1
+   // Cast rd to [0, 1]
    rd = (rd) ? MCP4728_READ : MCP4728_WRITE;
 
-   // Check busy pin
-   while (bsy && bsy_flag && to) {
-      bsy_flag = (mcp->io.bsy != 0) ? mcp->io.bsy () : 0;
-      --to;
-   }
-
-   if (to == 0)
+   // If instruct so, check busy pin
+   if (bsy && (_wait_busy (mcp) != DRV_READY))
       return DRV_BUSY;
-   else {
-      mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_START, (void*)0);
-      if (!mcp->io.i2c_tx (mcp->io.i2c, ((MCP4728_ADDRESS_MASK | (mcp->conf.cur_addr << 1)) | rd), I2C_SEQ_BYTE_ACK)) {
-         mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
-         return DRV_ERROR;
-      }
-      return DRV_READY;
+
+   // Send start
+   mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_START, (void*)0);
+   // Send control and check ack bit
+   if (!mcp->io.i2c_tx (mcp->io.i2c, ((MCP4728_ADDRESS_MASK | (mcp->conf.cur_addr << 1)) | rd), I2C_SEQ_BYTE_ACK)) {
+      mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
+      return DRV_ERROR;
    }
+   return DRV_READY;
 }
 
 /*!
  * \brief
  *    Send General call. When requested, if LLD's BSY function
  *    is available then its used to determine the MCP status.
+ * \note
+ *    If any error occurred, sends STOP to release the bus before return
  *
  * \param  mcp    Pointer indicate the mcp data stuct to use
  * \param  bsy    Busy request check flag
@@ -99,25 +152,19 @@ static drv_status_en _send_control (mcp4728_t *mcp, uint8_t rd, uint8_t bsy)
  */
 static drv_status_en _send_gen_call (mcp4728_t *mcp, uint8_t bsy)
 {
-   uint8_t  bsy_flag = 0;
-   uint32_t to = mcp->conf.timeout;
-
-   // Check busy pin
-   while (bsy && bsy_flag && to) {
-      bsy_flag = (mcp->io.bsy != 0) ? mcp->io.bsy () : 0;
-      --to;
-   }
-
-   if (to == 0)
+   // If instruct so, check busy pin
+   if (bsy && (_wait_busy (mcp) != DRV_READY))
       return DRV_BUSY;
-   else {
-      mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_START, (void*)0);
-      if (!mcp->io.i2c_tx (mcp->io.i2c, 0, I2C_SEQ_BYTE_ACK)) {
-         mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
-         return DRV_ERROR;
-      }
-      return DRV_READY;
+
+   // Send start
+   mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_START, (void*)0);
+   // Send zero control for general call and check ack bit
+   if (!mcp->io.i2c_tx (mcp->io.i2c, 0, I2C_SEQ_BYTE_ACK)) {
+      mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
+      return DRV_ERROR;
    }
+   return DRV_READY;
+
 }
 
 /*!
@@ -131,15 +178,17 @@ static drv_status_en _send_gen_call (mcp4728_t *mcp, uint8_t bsy)
  */
 static drv_status_en _gc_reset (mcp4728_t *mcp)
 {
-   drv_status_en ret;
+   drv_status_en ret = DRV_READY;   // have faith
+
+   // Send general call as control
    if ((ret = _send_gen_call (mcp, 0)) != DRV_READY)
       return ret;
-   if (!mcp->io.i2c_tx (mcp->io.i2c, MCP4728_GEN_RESET, I2C_SEQ_BYTE_ACK)) {
-      mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
-      return DRV_ERROR;
-   }
+   // Send RESET command
+   if (!mcp->io.i2c_tx (mcp->io.i2c, MCP4728_GEN_RESET, I2C_SEQ_BYTE_ACK))
+      ret = DRV_ERROR;
+
    mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, NULL);
-   return DRV_READY;
+   return ret;
 }
 
 /*!
@@ -154,14 +203,18 @@ static drv_status_en _gc_reset (mcp4728_t *mcp)
 static drv_status_en _gc_wakeup (mcp4728_t *mcp)
 {
    drv_status_en ret;
+
+   // Send general call as control
    if ((ret = _send_gen_call (mcp, 0)) != DRV_READY)
       return ret;
+
+   // Send WAKE-UP command
    if (!mcp->io.i2c_tx (mcp->io.i2c, MCP4728_GEN_WAKE_UP, I2C_SEQ_BYTE_ACK)) {
-      mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
+      mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, NULL);
       return DRV_ERROR;
    }
    mcp->conf.pwr[0] = mcp->conf.pwr[1] = mcp->conf.pwr[2] = mcp->conf.pwr[3] = MCP4728_PD_Normal;
-   mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
+   mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, NULL);
    return DRV_READY;
 }
 
@@ -177,71 +230,86 @@ static drv_status_en _gc_wakeup (mcp4728_t *mcp)
  */
 static drv_status_en _gc_soft_update (mcp4728_t *mcp)
 {
-   drv_status_en ret;
+   drv_status_en ret = DRV_READY;   // have faith
+
+   // Send general call as control
    if ((ret = _send_gen_call (mcp, 0)) != DRV_READY)
       return ret;
-   if (!mcp->io.i2c_tx (mcp->io.i2c, MCP4728_GEN_SOFT_UPDATE, I2C_SEQ_BYTE_ACK)) {
-      mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
-      return DRV_ERROR;
-   }
-   mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
-   return DRV_READY;
+
+   // Send SOFT UPDATE command
+   if (!mcp->io.i2c_tx (mcp->io.i2c, MCP4728_GEN_SOFT_UPDATE, I2C_SEQ_BYTE_ACK))
+      ret = DRV_ERROR;
+
+   mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, NULL);
+   return ret;
 }
 
 
 /*!
  * \brief
- *    Send a General Call Software update
- * \param  mcp   Pointer indicate the mcp data stuct to use
+ *    Read device address functionality using general call
+ * \param  mcp    Pointer indicate the mcp data stuct to use
  * \return
  *    \arg  DRV_BUSY
  *    \arg  DRV_ERROR
  *    \arg  DRV_READY
  */
-static drv_status_en _gc_read_address (mcp4728_t *mcp, int tries)
+static drv_status_en _gc_read_address (mcp4728_t *mcp)
 {
    byte_t b, ea, da;
 
-   for (int i=0 ; i<tries ; ++i) {
-      if (_send_gen_call (mcp, 0) != DRV_READY)
-         continue;
+   // Send general call as control
+   if (_send_gen_call (mcp, 0) != DRV_READY)
+      return DRV_BUSY;
 
-      mcp->io.i2c_tx (mcp->io.i2c, MCP4728_GEN_READ_ADD, I2C_SEQ_BYTE);
-      jf_delay_us (10);
-      mcp->io.ldac (1);
-      if (!mcp->io.i2c_tx (mcp->io.i2c, MCP4728_GEN_READ_ADD, I2C_SEQ_ACK)) {
-         mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
-         mcp->io.ldac (0);
-         continue;
-      }
+   // Send READ ADDRESS command without ack bit
+   mcp->io.i2c_tx (mcp->io.i2c, MCP4728_GEN_READ_ADD, I2C_SEQ_BYTE);
 
-      if (_send_control (mcp, MCP4728_READ, 0) != DRV_READY) {
-         mcp->io.ldac (0);
-         continue;
-      }
-
-      b = mcp->io.i2c_rx (mcp->io.i2c, 1, I2C_SEQ_BYTE_ACK);
-      mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, NULL);
-      do {
-         mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, NULL);
-         mcp->io.i2c->sda_dir (0);
-      } while ( ! mcp->io.i2c->sda (0) );
-      mcp->io.ldac (0);
-
-      if ((b & MCP4728_GEN_RA_VALID_MASK) == MCP4728_GEN_RA_VALID_PATTERN) {
-         ea = (b & MCP4728_GEN_RA_EEPROM_MASK) >> 5;
-         da = (b & MCP4728_GEN_RA_DACREG_MASK) >> 1;
-         if (ea == da) {
-            mcp->conf.cur_addr = ea;
-            return DRV_READY;
-         }
-        else
-            continue;
-      }
-      else
-         continue;
+   // Select chip via ldac and read ack bit
+   jf_delay_us (10);                                           // Wait a moment
+   mcp->io.ldac (1);                                           // select chip
+   if (!mcp->io.i2c_tx (mcp->io.i2c, MCP4728_GEN_READ_ADD, I2C_SEQ_ACK)) {    // Transmit ack clock
+      mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);    // STOP before die
+      mcp->io.ldac (0);                                        // Clear ldac before die
+      return DRV_ERROR;
    }
-   return DRV_ERROR;
+
+   // Send a restart to the bus
+   if (_send_control (mcp, MCP4728_READ, 0) != DRV_READY) {
+      mcp->io.ldac (0);                                        // Clear ldac before die
+      return DRV_ERROR;
+   }
+
+   b = mcp->io.i2c_rx (mcp->io.i2c, 1, I2C_SEQ_BYTE_ACK);      // Receive with ack
+   mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, NULL);           // STOP
+
+   // Make sure the bus released before exit
+   if (_sda_release (mcp) != DRV_READY) {
+      mcp->io.ldac (0);
+      return DRV_ERROR;
+   }
+   mcp->io.ldac (0);                                           // Release LDAC now
+
+   // Address validation
+   if ((b & MCP4728_GEN_RA_VALID_MASK) == MCP4728_GEN_RA_VALID_PATTERN) {
+      /*
+       *  Has to be in the form bellow
+       *  [A2 A1 A0  1 A2 A1 A0  0]
+       */
+      ea = (b & MCP4728_GEN_RA_EEPROM_MASK) >> 5;  // Extract eeprom address
+      da = (b & MCP4728_GEN_RA_DACREG_MASK) >> 1;  // Extract data register address
+      if (ea == da) {
+         // Update address if valid
+         mcp->conf.cur_addr = ea;
+         return DRV_READY;
+      }
+     else
+        return DRV_ERROR;
+   }
+   else
+      return DRV_ERROR;
+
+   return DRV_READY;
 }
 
 /*!
@@ -262,23 +330,26 @@ static drv_status_en _cmd_fast_write (mcp4728_t *mcp, int iter)
 
    _SATURATE (iter, 4, 1);
 
+   // Prepare data
    for (i=0 ; i<iter ; ++i) {
       //w[i] |= MCP4728_FAST_WRITE;
       w[i] = mcp->conf.pwr[i] << 12;
       w[i] |= mcp->vout[i];
    }
 
+   // Send control byte
    if ((ret = _send_control (mcp, MCP4728_WRITE, 1)) != DRV_READY)
       return ret;
 
+   // Send channels
    for (i=0 ; i<iter ; ++i) {
       mcp->io.i2c_tx (mcp->io.i2c, (uint8_t)(w[i]>>8), I2C_SEQ_BYTE_ACK);
       if (!mcp->io.i2c_tx (mcp->io.i2c, (uint8_t)(w[i] && 0x00FF), I2C_SEQ_BYTE_ACK)) {
-         mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
+         mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, NULL);
          return DRV_ERROR;
       }
    }
-   mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
+   mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, NULL);
    return DRV_READY;
 }
 
@@ -302,6 +373,7 @@ static drv_status_en _cmd_seq_write (mcp4728_t *mcp, mcp4728_channel_en from)
    if (from < MCP4728_CH_A || from > MCP4728_CH_D)
       return DRV_ERROR;
 
+   // Send control byte
    if ((ret = _send_control (mcp, MCP4728_WRITE, 1)) != DRV_READY)
       return ret;
 
@@ -312,11 +384,13 @@ static drv_status_en _cmd_seq_write (mcp4728_t *mcp, mcp4728_channel_en from)
    mcp->io.i2c_tx (mcp->io.i2c, b, I2C_SEQ_BYTE_ACK);
 
    for (i=from ; i<=MCP4728_CH_D ; ++i) {
+      // Fill registers
       w[i] |= mcp->conf.vref [i]  << 15;
       w[i] |= mcp->conf.pwr [i]   << 13;
       w[i] |= mcp->conf.gain [i]  << 12;
       w[i] |= (mcp->vout[i] & 0x0FFF);
 
+      // Send current data
       mcp->io.i2c_tx (mcp->io.i2c, (uint8_t)(w[i]>>8), I2C_SEQ_BYTE_ACK);
       if (!mcp->io.i2c_tx (mcp->io.i2c, (uint8_t)(w[i] && 0x00FF), I2C_SEQ_BYTE_ACK)) {
          mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
@@ -357,9 +431,11 @@ static drv_status_en _cmd_single_write (mcp4728_t *mcp, mcp4728_channel_en ch)
 
    w[2] |= (uint8_t)(mcp->vout[ch] & 0x00FF);
 
+   // Send control byte
    if ((ret = _send_control (mcp, MCP4728_WRITE, 1)) != DRV_READY)
       return ret;
 
+   // Transmit channels data
    mcp->io.i2c_tx (mcp->io.i2c, w[0], I2C_SEQ_BYTE_ACK);
    mcp->io.i2c_tx (mcp->io.i2c, w[1], I2C_SEQ_BYTE_ACK);
    if (!mcp->io.i2c_tx (mcp->io.i2c, w[2], I2C_SEQ_BYTE_ACK)) {
@@ -382,43 +458,43 @@ static drv_status_en _cmd_single_write (mcp4728_t *mcp, mcp4728_channel_en ch)
  *    \arg  DRV_ERROR
  *    \arg  DRV_READY
  */
-static drv_status_en _cmd_write_add (mcp4728_t *mcp, int tries)
+static drv_status_en _cmd_write_add (mcp4728_t *mcp)
 {
    byte_t w[3] = {0, 0, 0};
-   int r;
+
+   // Data preparation
    w[0] = (MCP4728_ADD_WRITE | 0x01) | (mcp->conf.cur_addr << 2);
    w[1] = (MCP4728_ADD_WRITE | 0x02) | (mcp->conf.usr_add  << 2);
    w[2] = (MCP4728_ADD_WRITE | 0x03) | (mcp->conf.usr_add  << 2);
 
-   for (int i=0 ; i<tries ; ++i) {
-      if (_send_control (mcp, MCP4728_WRITE, 1) != DRV_READY)
-         continue;
+   // Send control byte
+   if (_send_control (mcp, MCP4728_WRITE, 1) != DRV_READY)
+      return DRV_ERROR;
 
-      mcp->io.i2c_tx (mcp->io.i2c, w[0], I2C_SEQ_BYTE);
-      jf_delay_us (10);
-      mcp->io.ldac (1);
-      mcp->io.i2c_tx (mcp->io.i2c, w[0], I2C_SEQ_ACK);
+   mcp->io.i2c_tx (mcp->io.i2c, w[0], I2C_SEQ_BYTE);  // Send current ADDRESS command without ack bit
+   jf_delay_us (10);                                  // Wait a moment
+   mcp->io.ldac (1);                                  // select chip
+   mcp->io.i2c_tx (mcp->io.i2c, w[0], I2C_SEQ_ACK);   // Transmit ack clock
 
-      mcp->io.i2c_tx (mcp->io.i2c, w[1], I2C_SEQ_BYTE_ACK);
-      if (!mcp->io.i2c_tx (mcp->io.i2c, w[2], I2C_SEQ_BYTE_ACK)) {
-         mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
-         mcp->io.ldac (0);
-         continue;
-      }
-      mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
-      do {
-         mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, NULL);
-         mcp->io.i2c->sda_dir (0);
-      } while ( ! mcp->io.i2c->sda (0) );
+   // Send the rest of the data and check the last ack bit
+   mcp->io.i2c_tx (mcp->io.i2c, w[1], I2C_SEQ_BYTE_ACK);
+   if (!mcp->io.i2c_tx (mcp->io.i2c, w[2], I2C_SEQ_BYTE_ACK)) {
+      mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, NULL);
       mcp->io.ldac (0);
-
-      do {
-         r = mcp->io.bsy();
-      } while (r == 1);
-
-      return DRV_READY;
+      return DRV_ERROR;
    }
-   return DRV_ERROR;
+
+   mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, NULL);  // STOP
+   if (_sda_release (mcp) != DRV_READY) {             // Make sure the bus released before exit
+      mcp->io.ldac (0);
+      return DRV_ERROR;
+   }
+   mcp->io.ldac (0);                                  // Release LDAC now
+
+   if (_wait_busy (mcp) != DRV_READY)                 // Check busy pin
+      return DRV_BUSY;
+
+   return DRV_READY;
 }
 
 
@@ -526,22 +602,18 @@ drv_status_en mcp4728_init (mcp4728_t *mcp)
    mcp->status = DRV_BUSY;
    mcp->io.ldac (0);
 
-   do {
-      mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, NULL);
-      mcp->io.i2c->sda_dir (0);
-   } while ( ! mcp->io.i2c->sda (0) );
+   // Make sure Bus is released
+   _sda_release (mcp);
 
    _gc_reset (mcp);
-   if ((ra_ret = _gc_read_address (mcp, MCP4728_READ_ADDRESS_TRIES)) != DRV_READY)
+   if ((ra_ret = _gc_read_address (mcp)) != DRV_READY)
       return DRV_ERROR;
 
    if (mcp->conf.cur_addr != mcp->conf.usr_add) {
-      if (_cmd_write_add (mcp, MCP4728_WRITE_ADDRESS_TRIES) != DRV_READY)
+      if (_cmd_write_add (mcp) != DRV_READY)
          return mcp->status = DRV_ERROR;
       mcp->conf.cur_addr = mcp->conf.usr_add;
    }
-   //if ((ra_ret = _gc_read_address (mcp, MCP4728_READ_ADDRESS_TRIES)) != DRV_READY)
-   //   return DRV_ERROR;
 
    return mcp->status = DRV_READY;
    #undef _bad_link
