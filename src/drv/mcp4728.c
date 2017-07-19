@@ -577,7 +577,7 @@ void mcp4728_deinit (mcp4728_t *mcp)
  * \brief
  *    Initializes peripherals used by the I2C EEPROM driver.
  *
- * \param  tca       Pointer indicate the tca data stuct to use
+ * \param  mcp       Pointer indicate the mcp data stuct to use
  * \return The status of the operation
  *    \arg DRV_READY
  *    \arg DRV_ERROR
@@ -619,6 +619,22 @@ drv_status_en mcp4728_init (mcp4728_t *mcp)
    #undef _bad_link
 }
 
+/*!
+ * \brief
+ *    Update DAC's output, without eeprom save using fast write commands
+ * \param  mcp    Pointer indicate the mcp data stuct to use
+ * \param  ch     The channel to update
+ *    \arg  MCP4728_CH_A   For channel A
+ *    \arg  MCP4728_CH_B   For channel B
+ *    \arg  MCP4728_CH_C   For channel C
+ *    \arg  MCP4728_CH_D   For channel D
+ *    \arg  MCP4728_CH_ALL For all at once
+ * \param vout    Pointer to data to use. The size of buffer must match
+ * \return        The status of the operation
+ *    \arg  DRV_BUSY
+ *    \arg  DRV_ERROR
+ *    \arg  DRV_READY
+ */
 drv_status_en mcp4728_ch_write (mcp4728_t *mcp, mcp4728_channel_en ch, int16_t *vout)
 {
    switch (ch) {
@@ -638,6 +654,24 @@ drv_status_en mcp4728_ch_write (mcp4728_t *mcp, mcp4728_channel_en ch, int16_t *
    return _cmd_fast_write (mcp, 4);
 }
 
+/*!
+ * \brief
+ *    Update DAC's output and save eeprom using _cmd_single_write() or
+ *    _cmd_seq_write () command.
+ *
+ * \param  mcp    Pointer indicate the mcp data stuct to use
+ * \param  ch     The channel to update
+ *    \arg  MCP4728_CH_A   For channel A
+ *    \arg  MCP4728_CH_B   For channel B
+ *    \arg  MCP4728_CH_C   For channel C
+ *    \arg  MCP4728_CH_D   For channel D
+ *    \arg  MCP4728_CH_ALL For all at once
+ * \param vout    Pointer to data to use. The size of buffer must match
+ * \return        The status of the operation
+ *    \arg  DRV_BUSY
+ *    \arg  DRV_ERROR
+ *    \arg  DRV_READY
+ */
 drv_status_en mcp4728_ch_save (mcp4728_t *mcp, mcp4728_channel_en ch, int16_t *vout)
 {
    switch (ch) {
