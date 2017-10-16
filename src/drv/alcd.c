@@ -280,6 +280,7 @@ int alcd_putchar (alcd_t *alcd, int ch)
          break;
       case '\n':
          _inc_y (alcd);
+         break;
       case '\r':
          _set_cursor (alcd, 1, alcd->c.y);
          break;

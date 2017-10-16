@@ -22,7 +22,7 @@
 
 #include <drv/ss_display.h>
 
-extern clock_t get_freq (void);
+//extern clock_t get_freq (void);
 
 ssd_t    _ssd;
 
@@ -47,10 +47,11 @@ static uint8_t const _font_alpha[26] = {
    0x74, 0x10, 0x00, 0x00, 0x30, 0x00, 0x54,    /* h - i - _ - _ - l - _ - n */
    0x5C, 0x00, 0x00, 0x50, 0x00, 0x78, 0x1C,    /* o - _ - _ - r - _ - t - u */
    0x1C, 0x00, 0x00, 0x00, 0x00 };              /* v - _ - _ - _ - _ */
-static uint8_t const _font_symbols[3] = {
+static uint8_t const _font_symbols[4] = {
    0x00,    // ' '
    0x08,    // '_'
-   0x40     // '-'
+   0x40,    // '-'
+   0x01     // '^'
 };
 static char const _font_dot_mask = 0x80;
 
@@ -111,6 +112,7 @@ static uint8_t _font_conv (uint8_t ch)
          case ' ':   return _font_symbols[0];
          case '_':   return _font_symbols[1];
          case '-':   return _font_symbols[2];
+         case '^':   return _font_symbols[3];
          default:    return 0x00;
       }
 }

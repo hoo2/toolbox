@@ -578,6 +578,7 @@ drv_status_en ow_bb_ioctl (ow_bb_t *ow, ioctl_cmd_t cmd, ioctl_buf_t buf)
             *(drv_status_en*)buf = ow_bb_init (ow);
          else
             ow_bb_init (ow);
+         return DRV_READY;
       case CTRL_SEARCH:         /*!< Search */
 
       default:                  /*!< Unsupported command, error */

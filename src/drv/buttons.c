@@ -265,11 +265,13 @@ drv_status_en btn_ioctl (ioctl_cmd_t cmd, ioctl_buf_t buf)
    {
       case CTRL_DEINIT:          /*!< De-init */
         btn_deinit();
+        return DRV_READY;
       case CTRL_INIT:            /*!< Init */
          if (buf)
             *(drv_status_en*)buf = btn_init();
          else
             btn_init();
+         return DRV_READY;
       case CTRL_GET_STATUS:            /*!< Probe function */
          if (buf)
             *(drv_status_en*)buf = BTN.status;
