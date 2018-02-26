@@ -111,13 +111,14 @@ typedef float _Complex     complex_f_t;
 typedef int _Complex       complex_i_t;
 #endif
 
-#define  real(_z)       ( ((double*)&(_z)) [0] )
-#define  imag(_z)       ( ((double*)&(_z)) [1] )
-#define  realf(_z)      ( ((float*)&(_z)) [0] )
-#define  imagf(_z)      ( ((float*)&(_z)) [1] )
+
+#define  tbx_real(_z)       ( ((double*)&(_z)) [0] )
+#define  tbx_imag(_z)       ( ((double*)&(_z)) [1] )
+#define  tbx_realf(_z)      ( ((float*)&(_z)) [0] )
+#define  tbx_imagf(_z)      ( ((float*)&(_z)) [1] )
 #ifdef __GNUC__
-#define  reali(_z)      ( ((int*)&(_z)) [0] )
-#define  imagi(_z)      ( ((int*)&(_z)) [1] )
+#define  tbx_reali(_z)      ( ((int*)&(_z)) [0] )
+#define  tbx_imagi(_z)      ( ((int*)&(_z)) [1] )
 #endif
 
 /*
@@ -204,7 +205,7 @@ typedef struct {
 #elif defined ( __GNUC__ )
   #define __ASM            __asm                                      /*!< asm keyword for GNU Compiler          */
   #define __INLINE         inline                                     /*!< inline keyword for GNU Compiler       */
-  #define __STATIC_INLINE  static inline
+  //#define __STATIC_INLINE  static inline
 
 #elif defined ( __ICCARM__ )
   #define __ASM            __asm                                      /*!< asm keyword for IAR Compiler          */

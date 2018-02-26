@@ -280,7 +280,7 @@ int alcd_putchar (alcd_t *alcd, int ch)
          break;
       case '\n':
          _inc_y (alcd);
-         break;
+         //break; This "no break" is intentional
       case '\r':
          _set_cursor (alcd, 1, alcd->c.y);
          break;
@@ -306,6 +306,7 @@ int alcd_putchar (alcd_t *alcd, int ch)
          break;
       default:
          _character (alcd, ch);
+         // Increase cursor and loop inside the same line
          if (_inc_x (alcd))   _set_cursor (alcd, alcd->c.x, alcd->c.y);
          break;
    }

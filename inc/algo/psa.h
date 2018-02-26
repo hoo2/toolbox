@@ -97,7 +97,7 @@ drv_status_en psa_set_location (psa_t *psa, double lon, double lat);
  */
 psa_output_t psa_calculate (psa_t *psa);
 
-#ifdef __cplucpluc
+#ifdef __cplusplus
 }
 #endif
 

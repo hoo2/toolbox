@@ -274,8 +274,8 @@ inline cart2_f_t vcart_f (polar_f_t p) {
  */
 inline complex_d_t vccart_d (polar_d_t p){
    complex_d_t c;
-   real(c) = p.abs * cos (p.arg);
-   imag(c) = p.abs * sin (p.arg);
+   tbx_real(c) = p.abs * cos (p.arg);
+   tbx_imag(c) = p.abs * sin (p.arg);
    return c;
 }
 
@@ -289,8 +289,8 @@ inline complex_d_t vccart_d (polar_d_t p){
  */
 inline complex_f_t vccart_f (polar_f_t p) {
    complex_f_t c;
-   realf(c) = p.abs * cosf (p.arg);
-   imagf(c) = p.abs * sinf (p.arg);
+   tbx_realf(c) = p.abs * cosf (p.arg);
+   tbx_imagf(c) = p.abs * sinf (p.arg);
    return c;
 }
 
@@ -335,8 +335,8 @@ polar_d_t vpolar_d (double x, double y) {
  */
 polar_f_t vcpolar_f (complex_f_t c) {
    polar_f_t p;
-   p.abs = sqrt (realf(c)*realf(c) + imagf(c)*imagf(c));
-   p.arg = atan2 (imagf(c), realf(c));
+   p.abs = sqrt (tbx_realf(c)*tbx_realf(c) + tbx_imagf(c)*tbx_imagf(c));
+   p.arg = atan2 (tbx_imagf(c), tbx_realf(c));
    return p;
 }
 
@@ -351,8 +351,8 @@ polar_f_t vcpolar_f (complex_f_t c) {
  */
 polar_d_t vcpolar_d (complex_d_t c) {
    polar_d_t p;
-   p.abs = sqrt (real(c)*real(c) + imag(c)*imag(c));
-   p.arg = atan2 (imag(c), real(c));
+   p.abs = sqrt (tbx_real(c)*tbx_real(c) + tbx_imag(c)*tbx_imag(c));
+   p.arg = atan2 (tbx_imag(c), tbx_real(c));
    return p;
 }
 

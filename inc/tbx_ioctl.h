@@ -84,8 +84,10 @@ extern "C" {
  */
 #define CTRL_CLEAR               0x40
 #define CTRL_SHIFT               0x41
-#define CTRL_BACKLIGHT           0x42
-#define CTRL_CURSOR              0x43
+#define CTRL_BLINK               0x42
+#define CTRL_BACKLIGHT           0x43
+#define CTRL_CURSOR              0x44
+
 
 /*
  * Interface set commands

@@ -208,6 +208,8 @@ void ssd_service (void)
       _ssd.io.bus (_ssd.fb.buffer[_ssd.disp]);
       _ssd.io.dis (0x01 << _ssd.disp);
    }
+   else
+      _ssd.io.dis (0);
 
    if (++_ssd.disp >= _ssd.digits)
       _ssd.disp = 0;
@@ -306,6 +308,7 @@ inline void ssd_blink (uint8_t b) {
  *    \arg CTRL_POWER
  *    \arg CTRL_CLEAR_ALL
  *    \arg CTRL_SHIFT
+ *    \arg CTRL_BLINK
  * \param  data  data for ioctl
  * \return The status of the operation
  *    \arg DRV_READY
@@ -335,6 +338,9 @@ drv_status_en  ssd_ctl (ioctl_cmd_t cmd, ioctl_data_t data)
          _fb_ret_home ();
          return _ssd.status = DRV_READY;
       case CTRL_SHIFT:                 /*!< Shift lcd data */
+         return DRV_READY;
+      case CTRL_BLINK:                 /*!< Blink command */
+         ssd_blink ((data!=0) ? 1:0);
          return DRV_READY;
       default:                         /*!< Unsupported command, error */
          return DRV_ERROR;

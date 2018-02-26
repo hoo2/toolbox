@@ -276,7 +276,7 @@ void fft_ci (complex_i_t *x, complex_f_t *X, uint32_t n) {
  * \return        None
  */
 void fft_r (double *x, complex_d_t *X, uint32_t n) {
-   _fft_r_body (complex_d_t, complex_d_t, fft_c, real, imag);
+   _fft_r_body (complex_d_t, complex_d_t, fft_c, tbx_real, tbx_imag);
 }
 
 /*!
@@ -304,7 +304,7 @@ void fft_r (double *x, complex_d_t *X, uint32_t n) {
  * \return        None
  */
 void fft_rf (float *x, complex_f_t *X, uint32_t n) {
-   _fft_r_body (complex_f_t, complex_f_t, fft_cf, realf, imagf);
+   _fft_r_body (complex_f_t, complex_f_t, fft_cf, tbx_realf, tbx_imagf);
 }
 
 /*!
@@ -332,7 +332,7 @@ void fft_rf (float *x, complex_f_t *X, uint32_t n) {
  * \return        None
  */
 void fft_ri (int *x, complex_f_t *X, uint32_t n) {
-   _fft_r_body (complex_i_t, complex_f_t, fft_ci, realf, imagf);
+   _fft_r_body (complex_i_t, complex_f_t, fft_ci, tbx_realf, tbx_imagf);
 }
 
 /*!
@@ -399,7 +399,7 @@ void fft_ri (int *x, complex_f_t *X, uint32_t n) {
  * \return        None
  */
 void ifft_c (complex_d_t *X, complex_d_t *x, uint32_t n) {
-   _ifft_body (complex_d_t, _bit_reverse_c, imag, conj);
+   _ifft_body (complex_d_t, _bit_reverse_c, tbx_imag, conj);
 }
 
 /*
@@ -418,7 +418,7 @@ void ifft_c (complex_d_t *X, complex_d_t *x, uint32_t n) {
  * \return        None
  */
 void ifft_cf (complex_f_t *X, complex_f_t *x, uint32_t n) {
-   _ifft_body (complex_f_t, _bit_reverse_cf, imagf, conjf);
+   _ifft_body (complex_f_t, _bit_reverse_cf, tbx_imagf, conjf);
 }
 
 /*!
@@ -447,7 +447,7 @@ void ifft_cf (complex_f_t *X, complex_f_t *x, uint32_t n) {
  * \return        None
  */
 void ifft_r (complex_d_t *X, double *x, uint32_t n) {
-   _ifft_r_body (complex_d_t, fft_r, real, imag);
+   _ifft_r_body (complex_d_t, fft_r, tbx_real, tbx_imag);
 }
 
 /*!
@@ -476,6 +476,6 @@ void ifft_r (complex_d_t *X, double *x, uint32_t n) {
  * \return        None
  */
 void ifft_rf (complex_f_t *X, float *x, uint32_t n) {
-   _ifft_r_body (complex_f_t, fft_rf, realf, imagf);
+   _ifft_r_body (complex_f_t, fft_rf, tbx_realf, tbx_imagf);
 }
 

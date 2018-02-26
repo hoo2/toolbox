@@ -270,7 +270,7 @@ static int _write_row (ds2431_t *ds, address_t add, byte_t *buf, bytecount_t n)
 {
    byte_t      sp [DS2431_SCRATCHPAD_SIZE];
    byte_t      sp_ret [DS2431_SCRATCHPAD_SIZE];
-   ds2431_ar_t ar, ar_ret;
+   ds2431_ar_t ar, ar_ret = {0, 0, 0};
    uint16_t    row = (add / DS2431_SCRATCHPAD_SIZE) * DS2431_SCRATCHPAD_SIZE;
    uint16_t    offset = add % DS2431_SCRATCHPAD_SIZE;
    uint16_t    nl = DS2431_SCRATCHPAD_SIZE - offset;
