@@ -175,7 +175,7 @@ static uint8_t _write_bit (ow_uart_t *ow, uint8_t b)
    uint16_t r;
 
    /*
-    * Make sure we are at the write baudrate
+    * Make sure we are at the right baudrate
     */
    if (_set_baudrate (ow, OWS_OPER) != DRV_READY)
       return 1;
