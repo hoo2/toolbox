@@ -42,24 +42,23 @@ static keys_t _get_buttons (void);
 static keys_t _get_buttons (void)
 {
    keys_t key=0;  // Clear key
-   keys_t tmp;
 
    if (BTN.io.btn0)   key |= BTN.io.btn0();
-   if (BTN.io.btn1)   key |= ((tmp = BTN.io.btn1()) << 1);
-   if (BTN.io.btn2)   key |= ((tmp = BTN.io.btn2()) << 2);
-   if (BTN.io.btn3)   key |= ((tmp = BTN.io.btn3()) << 3);
-   if (BTN.io.btn4)   key |= ((tmp = BTN.io.btn4()) << 4);
-   if (BTN.io.btn5)   key |= ((tmp = BTN.io.btn5()) << 5);
-   if (BTN.io.btn6)   key |= ((tmp = BTN.io.btn6()) << 6);
-   if (BTN.io.btn7)   key |= ((tmp = BTN.io.btn7()) << 7);
-   if (BTN.io.btn8)   key |= ((tmp = BTN.io.btn8()) << 8);
-   if (BTN.io.btn9)   key |= ((tmp = BTN.io.btn9()) << 9);
-   if (BTN.io.btn10)  key |= ((tmp = BTN.io.btn10()) << 10);
-   if (BTN.io.btn11)  key |= ((tmp = BTN.io.btn11()) << 11);
-   if (BTN.io.btn12)  key |= ((tmp = BTN.io.btn12()) << 12);
-   if (BTN.io.btn13)  key |= ((tmp = BTN.io.btn13()) << 13);
-   if (BTN.io.btn14)  key |= ((tmp = BTN.io.btn14()) << 14);
-   if (BTN.io.btn15)  key |= ((tmp = BTN.io.btn15()) << 15);
+   if (BTN.io.btn1)   key |= BTN.io.btn1() << 1;
+   if (BTN.io.btn2)   key |= BTN.io.btn2() << 2;
+   if (BTN.io.btn3)   key |= BTN.io.btn3() << 3;
+   if (BTN.io.btn4)   key |= BTN.io.btn4() << 4;
+   if (BTN.io.btn5)   key |= BTN.io.btn5() << 5;
+   if (BTN.io.btn6)   key |= BTN.io.btn6() << 6;
+   if (BTN.io.btn7)   key |= BTN.io.btn7() << 7;
+   if (BTN.io.btn8)   key |= BTN.io.btn8() << 8;
+   if (BTN.io.btn9)   key |= BTN.io.btn9() << 9;
+   if (BTN.io.btn10)  key |= BTN.io.btn10() << 10;
+   if (BTN.io.btn11)  key |= BTN.io.btn11() << 11;
+   if (BTN.io.btn12)  key |= BTN.io.btn12() << 12;
+   if (BTN.io.btn13)  key |= BTN.io.btn13() << 13;
+   if (BTN.io.btn14)  key |= BTN.io.btn14() << 14;
+   if (BTN.io.btn15)  key |= BTN.io.btn15() << 15;
    return key;
 }
 
