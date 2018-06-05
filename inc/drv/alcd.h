@@ -85,7 +85,11 @@ extern "C" {
 #define LCD_DISP_ON                 (0x0C)      /*!< No Cursos and Blink */
 #define LCD_DISP_OFF                (0x08)
 #define LCD_CUR_DISP                (0x14)      /*!< Cursor shift right */
-#define LCD_FUNSET                  (0x28)      /*!< 4bit, 2lines, 5x8 dots */
+#define LCD_FUNSET_2L8              (0x28)      /*!< 4bit, 2lines, 5x8 dots */
+#define LCD_FUNSET_1L8              (0x20)      /*!< 4bit, 1lines, 5x8 dots */
+#define LCD_FUNSET_1L10             (0x24)      /*!< 4bit, 1lines, 5x10 dots */
+
+#define LCD_SETCGRAMADDR            (0x40)
 
 #define LCD_DDRAMMask               (0x80)      /*!< DDRAM ------------> 1   ADD[7..0] */
 #define LCD_BFMask                  (0x80)      /*!< IR    ------------> BF   AC[6..0] */
@@ -93,6 +97,12 @@ extern "C" {
 
 #define LCD_SHIFT_RIGHT             (0x1C)
 #define LCD_SHIFT_LEFT              (0x18)
+
+typedef enum {
+   ALCD_1Line_5x8 = LCD_FUNSET_1L8,
+   ALCD_1Line_5x10 = LCD_FUNSET_1L10,
+   ALCD_2Lines_5x8 = LCD_FUNSET_2L8
+} alcd_funset_en;
 
 /*!
  * Alpharithmetic LCD Cursor
@@ -167,15 +177,16 @@ void alcd_set_columns (alcd_t *alcd, int columns);
 /*
  * User Functions
  */
-void alcd_deinit (alcd_t *alcd) __Os__ ;                /*!< For compatibility */
-drv_status_en alcd_init (alcd_t *alcd) __Os__ ;         /*!< For compatibility */
+void alcd_deinit (alcd_t *alcd);                /*!< For compatibility */
+drv_status_en alcd_init (alcd_t *alcd, alcd_funset_en fs);         /*!< For compatibility */
 
-void alcd_backlight (alcd_t *alcd, uint8_t on) __Os__ ; /*!< For compatibility */
-void alcd_enable (alcd_t *alcd, uint8_t on) __Os__ ;    /*!< For compatibility */
-void alcd_cls (alcd_t *alcd) __Os__ ;                   /*!< For compatibility */
-void alcd_shift (alcd_t *alcd, int pos) __Os__ ;        /*!< For compatibility */
+void alcd_backlight (alcd_t *alcd, uint8_t on); /*!< For compatibility */
+void alcd_enable (alcd_t *alcd, uint8_t on);    /*!< For compatibility */
+void alcd_cls (alcd_t *alcd);                   /*!< For compatibility */
+void alcd_shift (alcd_t *alcd, int pos);        /*!< For compatibility */
+void alcd_createChar (alcd_t *alcd, uint8_t location, uint8_t charmap[]);
 
-drv_status_en  alcd_ioctl (alcd_t *alcd, ioctl_cmd_t cmd, ioctl_data_t buf) __Os__ ;
+drv_status_en  alcd_ioctl (alcd_t *alcd, ioctl_cmd_t cmd, ioctl_data_t buf);
 
 #ifdef __cplusplus
 }

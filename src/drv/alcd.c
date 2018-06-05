@@ -355,7 +355,7 @@ void alcd_set_columns (alcd_t *alcd, int columns) {
  * \param  alcd   pointer to active alcd.
  * \return none
  */
-void alcd_deinit (alcd_t *alcd)
+__Os__ void alcd_deinit (alcd_t *alcd)
 {
    memset ((void*)alcd, 0, sizeof (alcd_t));
    /*!<
@@ -369,7 +369,7 @@ void alcd_deinit (alcd_t *alcd)
  * \param  alcd   pointer to active alcd.
  * \return Zero on success, non zero on error
  */
-drv_status_en alcd_init (alcd_t *alcd)
+__Os__ drv_status_en alcd_init (alcd_t *alcd, alcd_funset_en fs)
 {
    #define _lcd_assert(_x)  if (!_x) return alcd->status = DRV_ERROR;
 
@@ -405,7 +405,7 @@ drv_status_en alcd_init (alcd_t *alcd)
    _set_bus (alcd, 0x2);              //4bit selection
       jf_delay_us(10000);
 
-   _command (alcd, LCD_FUNSET);     //4bit selection and Function Set
+   _command (alcd, fs);     //4bit selection and Function Set
       jf_delay_us(5000);
    _command (alcd, LCD_DISP_OFF);    //Display Off Control 4bit for now on
       jf_delay_us(5000);
@@ -433,7 +433,7 @@ drv_status_en alcd_init (alcd_t *alcd)
  *    \arg 1      enable the backlight
  * \return none
  */
-void alcd_backlight (alcd_t *alcd, uint8_t on) {
+__Os__ void alcd_backlight (alcd_t *alcd, uint8_t on) {
    if (alcd->io.bl)
       alcd->io.bl ((on)?1:0);
 }
@@ -447,7 +447,7 @@ void alcd_backlight (alcd_t *alcd, uint8_t on) {
  *    \arg 1      enable the backlight
  * \return none
  */
-void alcd_enable (alcd_t *alcd, uint8_t on)
+__Os__ void alcd_enable (alcd_t *alcd, uint8_t on)
 {
    if (on) {
       _command (alcd, LCD_DISP_ON);
@@ -464,7 +464,7 @@ void alcd_enable (alcd_t *alcd, uint8_t on)
  * \param  alcd   pointer to active alcd.
  * \return none
  */
-void alcd_cls (alcd_t *alcd)
+__Os__ void alcd_cls (alcd_t *alcd)
 {
    _command(alcd, LCD_CLRSCR);
    jf_delay_us(2000);
@@ -481,7 +481,7 @@ void alcd_cls (alcd_t *alcd)
  *    A negative number shifts lcd data to right, so screen shows the data in the left.
  * \return none
  */
-void alcd_shift (alcd_t *alcd, int pos)
+__Os__ void alcd_shift (alcd_t *alcd, int pos)
 {
    uint8_t i, cmd = LCD_SHIFT_LEFT;
 
@@ -492,6 +492,18 @@ void alcd_shift (alcd_t *alcd, int pos)
    for (i=0 ; i<pos ; ++i) {
       _command (alcd, cmd);
       jf_delay_us(100);
+   }
+}
+
+// Allows us to fill the first 8 CGRAM locations
+// with custom characters
+__Os__ void alcd_createChar (alcd_t *alcd, uint8_t location, uint8_t charmap[])
+{
+   location &= 0x7;        // we only have 8 locations 0-7
+   _command (alcd, LCD_SETCGRAMADDR | (location << 3));
+
+   for (int i=0; i<8; i++) {
+      _character (alcd, charmap[i]);
    }
 }
 
@@ -513,7 +525,7 @@ void alcd_shift (alcd_t *alcd, int pos)
  *    \arg DRV_READY
  *    \arg DRV_ERROR
  */
-drv_status_en  alcd_ioctl (alcd_t *alcd, ioctl_cmd_t cmd, ioctl_data_t data)
+__Os__ drv_status_en  alcd_ioctl (alcd_t *alcd, ioctl_cmd_t cmd, ioctl_data_t data)
 {
    switch (cmd) {
       case CTRL_GET_STATUS:            /*!< Probe function */
@@ -525,9 +537,9 @@ drv_status_en  alcd_ioctl (alcd_t *alcd, ioctl_cmd_t cmd, ioctl_data_t data)
          return DRV_READY;
       case CTRL_INIT:                  /*!< Init */
          if (data)
-            data = (drv_status_en)alcd_init (alcd);
+            data = (drv_status_en)alcd_init (alcd, LCD_FUNSET_2L8);
          else
-            alcd_init (alcd);
+            alcd_init (alcd, LCD_FUNSET_2L8);
          return DRV_READY;
       case CTRL_POWER:                 /*!< Enable/disable */
          alcd_enable (alcd, (uint8_t)data);
