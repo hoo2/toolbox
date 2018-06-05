@@ -284,6 +284,8 @@ __Os__ void tui_menud_init (tuid_t *tuid)
 
    tuid->menu_mask[0] &= ~0x01;
    tuid->menu_mask[UI_MENU_MASK_SIZE/8 - 1] |= 0x80;
+
+   tuid->menu_data.ev=1;
 }
 
 /*!
@@ -396,27 +398,25 @@ inline menu_id_t tui_menud_idx2id (menud_item_t *mn) {
  */
 __Os__ ui_return_t tui_menud (tuid_t *tuid, int key, menud_item_t *mn, Lang_en ln)
 {
-   static uint8_t ev=1, task=EXIT_RETURN;
-
-   if (ev) {
+   if (tuid->menu_data.ev) {
       // It is the first call of every menu
       tuid->menu_data.mn_it = 0;
       tuid->menu_data.mn_frm = 0;
       tuid->menu_data.fb_it = 0;
       tuid->menu_data.fb_frm = 0;
-      task=EXIT_STAY;   // Prepare optional call
+      tuid->menu_data.task=EXIT_STAY;   // Prepare optional call
 
       if (_menu_stack_empty (tuid)) // First menu call
          tuid->menu_data.menu = mn;
-      ev = 0;
+      tuid->menu_data. ev = 0;
    }
 
-   if (task == EXIT_STAY) {
+   if (tuid->menu_data.task == EXIT_STAY) {
       // We have call
       if (tuid->menu_data.menu[tuid->menu_data.mn_it].node.task)
-         task = tuid->menu_data.menu[tuid->menu_data.mn_it].node.task ();
+         tuid->menu_data.task = tuid->menu_data.menu[tuid->menu_data.mn_it].node.task ();
       else
-         task = EXIT_RETURN;
+         tuid->menu_data.task = EXIT_RETURN;
       if (!tuid->menu_data.mn_it) {
          // Clear optional call and init items
          _next_item (tuid, &tuid->menu_data.mn_it);
@@ -434,14 +434,14 @@ __Os__ ui_return_t tui_menud (tuid_t *tuid, int key, menud_item_t *mn, Lang_en l
       if (key == tuid->keys.LEFT) {
          _pop_menu (&tuid->hist, &tuid->menu_data);
          if ( !tuid->menu_data.menu ) {
-            ev = 1;
+            tuid->menu_data.ev = 1;
             return EXIT_RETURN;
          }
          return EXIT_STAY;
       }
       if (key == tuid->keys.ESC) {
          _esc_menu (&tuid->hist, &tuid->menu_data);
-         ev = 1;
+         tuid->menu_data.ev = 1;
          return EXIT_RETURN;
       }
       if (key == tuid->keys.RIGHT || key == tuid->keys.ENTER)
@@ -451,16 +451,16 @@ __Os__ ui_return_t tui_menud (tuid_t *tuid, int key, menud_item_t *mn, Lang_en l
             case UI_RETURN:
                _pop_menu (&tuid->hist, &tuid->menu_data);
                if (!tuid->menu_data.menu) {
-                  ev = 1;
+                  tuid->menu_data.ev = 1;
                   return EXIT_RETURN;
                }
                return EXIT_STAY;
             case UI_TASK_ITEM:
-               return task = EXIT_STAY;
+               return tuid->menu_data.task = EXIT_STAY;
             case UI_MENU_ITEM:
                _push_menu (&tuid->hist, &tuid->menu_data);
                tuid->menu_data.menu = tuid->menu_data.menu[tuid->menu_data.mn_it].node.menu;
-               ev = 1;
+               tuid->menu_data.ev = 1;
                return EXIT_STAY;
          }
 
@@ -482,27 +482,25 @@ __Os__ ui_return_t tui_menud (tuid_t *tuid, int key, menud_item_t *mn, Lang_en l
 
 __Os__ ui_return_t tui_line_menud (tuid_t *tuid, int key, menud_item_t *mn, Lang_en ln)
 {
-   static uint8_t ev=1, task=EXIT_RETURN;
-
-   if (ev) {
+   if (tuid->menu_data.ev) {
       // It is the first call of every menu
       tuid->menu_data.mn_it = 0;
       tuid->menu_data.mn_frm = 0;
       tuid->menu_data.fb_it = 0;
       tuid->menu_data.fb_frm = 0;
-      task=EXIT_STAY;   // Prepare optional call
+      tuid->menu_data.task=EXIT_STAY;   // Prepare optional call
 
       if (_menu_stack_empty (tuid)) // First menu call
          tuid->menu_data.menu = mn;
-      ev = 0;
+      tuid->menu_data.ev = 0;
    }
 
-   if (task == EXIT_STAY) {
+   if (tuid->menu_data.task == EXIT_STAY) {
       // We have call
       if (tuid->menu_data.menu[tuid->menu_data.mn_it].node.task)
-         task = tuid->menu_data.menu[tuid->menu_data.mn_it].node.task ();
+         tuid->menu_data.task = tuid->menu_data.menu[tuid->menu_data.mn_it].node.task ();
       else
-         task = EXIT_RETURN;
+         tuid->menu_data.task = EXIT_RETURN;
       if (!tuid->menu_data.mn_it) {
          // Clear optional call and init items
          _next_item (tuid, &tuid->menu_data.mn_it);
@@ -520,14 +518,14 @@ __Os__ ui_return_t tui_line_menud (tuid_t *tuid, int key, menud_item_t *mn, Lang
       if (key == tuid->keys.LEFT) {
          _pop_menu (&tuid->hist, &tuid->menu_data);
          if ( !tuid->menu_data.menu ) {
-            ev = 1;
+            tuid->menu_data.ev = 1;
             return EXIT_RETURN;
          }
          return EXIT_STAY;
       }
       if (key == tuid->keys.ESC) {
          _esc_menu (&tuid->hist, &tuid->menu_data);
-         ev = 1;
+         tuid->menu_data.ev = 1;
          return EXIT_RETURN;
       }
       if (key == tuid->keys.RIGHT || key == tuid->keys.ENTER)
@@ -537,16 +535,16 @@ __Os__ ui_return_t tui_line_menud (tuid_t *tuid, int key, menud_item_t *mn, Lang
             case UI_RETURN:
                _pop_menu (&tuid->hist, &tuid->menu_data);
                if (!tuid->menu_data.menu) {
-                  ev = 1;
+                  tuid->menu_data.ev = 1;
                   return EXIT_RETURN;
                }
                return EXIT_STAY;
             case UI_TASK_ITEM:
-               return task = EXIT_STAY;
+               return tuid->menu_data.task = EXIT_STAY;
             case UI_MENU_ITEM:
                _push_menu (&tuid->hist, &tuid->menu_data);
                tuid->menu_data.menu = tuid->menu_data.menu[tuid->menu_data.mn_it].node.menu;
-               ev = 1;
+               tuid->menu_data.ev = 1;
                return EXIT_STAY;
          }
 

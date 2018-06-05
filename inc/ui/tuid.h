@@ -75,6 +75,8 @@ typedef struct
    int            mn_frm;     /*!< Custom pointer to first frame item in menu_item_t array */
    int            fb_it;      /*!< Custom pointer to active item in frame buffer array */
    int            fb_frm;     /*!< Custom pointer to first frame item in frame buffer array */
+   uint8_t        ev;
+   uint8_t        task;
 }ui_menud_t;
 
 /*!
