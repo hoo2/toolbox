@@ -362,7 +362,7 @@ polar_d_t vcpolar_d (complex_d_t c) __O3__ ;
  * A pseudo type-polymorphism mechanism using _Generic macro
  * to simulate:
  *
- * template<typename T, typename T> polar_x_t vcpolar (T c);
+ * template<typename T> polar_x_t vcpolar (T c);
  *
  * \brief
  *    Calculates the polar coordinates from  a complex number

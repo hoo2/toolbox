@@ -144,6 +144,22 @@ __Os__ int queue_get (queue_t *q, void *b)
 
 /*!
   * \brief
+  *   This function gets a byte from queue without removing it
+  * \param  pointer to byte
+  * \return
+  *   \arg  0  Empty queue
+  *   \arg  1  Done
+ */
+__Os__ int queue_top (queue_t *q, void *b)
+{
+   if ( queue_is_empty (q) )    //Empty queue
+      return 0;
+   memcpy (b, (const void*)&q->buf[q->head*q->item_size], q->item_size);
+   return 1;
+}
+
+/*!
+  * \brief
   *   This function returns the head address.
   */
 inline void* queue_head (queue_t *q){

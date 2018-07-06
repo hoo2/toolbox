@@ -70,6 +70,7 @@ void   queue_flush (queue_t *q);
 void  queue_init (queue_t *q);
 int    queue_put (queue_t *q, void *b);
 int    queue_get (queue_t *q, void *b);
+int    queue_top (queue_t *q, void *b);
 void* queue_head (queue_t *q);
 void* queue_tail (queue_t *q);
 
