@@ -114,7 +114,8 @@ drv_status_en ee_write (ee_t *ee, address_t add, byte_t *buf, bytecount_t n);
 drv_status_en  ee_read_sector (ee_t *ee, int sector, byte_t *buf, int count);
 drv_status_en ee_write_sector (ee_t *ee, int sector, byte_t *buf, int count);
 
-drv_status_en       ee_ioctl (ee_t *ee, ioctl_cmd_t cmd, ioctl_buf_t buf);
+drv_status_en ee_clear (ee_t *ee, uint32_t size);
+drv_status_en ee_ioctl (ee_t *ee, ioctl_cmd_t cmd, ioctl_buf_t buf);
 
 #ifdef __cplusplus
 }

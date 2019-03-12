@@ -115,9 +115,16 @@ static int _writepage (ee_t *ee, address_t add, byte_t *buf, bytecount_t n)
       return -1;
 
    // Try to write the data
-   for (i=0 ; i<nl ; ++i, ++buf)
-      if (!ee->io.i2c_tx (ee->io.i2c, *buf, I2C_SEQ_BYTE_ACK))
-         break;
+   if (buf) {
+      for (i=0 ; i<nl ; ++i, ++buf)
+         if (!ee->io.i2c_tx (ee->io.i2c, *buf, I2C_SEQ_BYTE_ACK))
+            break;
+   }
+   else {
+      for (i=0 ; i<nl ; ++i)
+         if (!ee->io.i2c_tx (ee->io.i2c, 0, I2C_SEQ_BYTE_ACK))
+            break;
+   }
 
    // Stop and return the number of written bytes.
    ee->io.i2c_ioctl (ee->io.i2c, CTRL_STOP, (void*)0);
@@ -415,6 +422,31 @@ drv_status_en  ee_read_sector (ee_t *ee, int sector, byte_t *buf, int count) {
 
 drv_status_en ee_write_sector (ee_t *ee, int sector, byte_t *buf, int count) {
    return DRV_ERROR;
+}
+
+__INLINE drv_status_en ee_clear (ee_t *ee, uint32_t size) {
+   uint32_t wb=0;    // The written bytes
+   int      ret;
+
+   // ACK polling
+   if (_sendcontrol (ee, EE_WRITE, 1) == DRV_ERROR)
+      return ee->status = DRV_ERROR;
+
+   if (_sendaddress (ee, 0) == DRV_ERROR)
+      return ee->status = DRV_ERROR;
+
+   do {
+      ret = _writepage (ee, wb, (byte_t*)0, size-wb);
+      if (ret == -1)    return DRV_ERROR;
+      else              wb += ret;
+      /*!
+       * \note
+       * Each _writepage writes only until the page limit, so we
+       * call _writepage until we have no more data to send.
+       */
+   } while (wb < size);
+
+   return DRV_READY;
 }
 
 /*!
