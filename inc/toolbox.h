@@ -137,6 +137,7 @@ extern "C" {
 //#include <sys/integer.h>
 #include <sys/jiffies.h>
 #include <sys/semaphore.h>
+#include <sys/make_shared.h>
 
 /*!
  * \defgroup UserInterface
