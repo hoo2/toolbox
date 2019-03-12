@@ -344,7 +344,7 @@ static drv_status_en _cmd_fast_write (mcp4728_t *mcp, int iter)
    // Send channels
    for (i=0 ; i<iter ; ++i) {
       mcp->io.i2c_tx (mcp->io.i2c, (uint8_t)(w[i]>>8), I2C_SEQ_BYTE_ACK);
-      if (!mcp->io.i2c_tx (mcp->io.i2c, (uint8_t)(w[i] && 0x00FF), I2C_SEQ_BYTE_ACK)) {
+      if (!mcp->io.i2c_tx (mcp->io.i2c, (uint8_t)(w[i] & 0x00FF), I2C_SEQ_BYTE_ACK)) {
          mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, NULL);
          return DRV_ERROR;
       }
@@ -392,7 +392,7 @@ static drv_status_en _cmd_seq_write (mcp4728_t *mcp, mcp4728_channel_en from)
 
       // Send current data
       mcp->io.i2c_tx (mcp->io.i2c, (uint8_t)(w[i]>>8), I2C_SEQ_BYTE_ACK);
-      if (!mcp->io.i2c_tx (mcp->io.i2c, (uint8_t)(w[i] && 0x00FF), I2C_SEQ_BYTE_ACK)) {
+      if (!mcp->io.i2c_tx (mcp->io.i2c, (uint8_t)(w[i] & 0x00FF), I2C_SEQ_BYTE_ACK)) {
          mcp->io.i2c_ioctl (mcp->io.i2c, CTRL_STOP, (void*)0);
          return DRV_ERROR;
       }
