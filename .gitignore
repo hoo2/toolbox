@@ -16,3 +16,4 @@ examples/*
 
 #add development directory
 develop/*
+old/*
