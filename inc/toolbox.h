@@ -119,7 +119,7 @@ extern "C" {
  */
 #include <math/math.h>
 #include <math/quick_trig.h>
-
+#include <math/det.h>
 
 /*!
  * \defgroup std
