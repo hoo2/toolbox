@@ -52,7 +52,7 @@ static int _write_row (ds2431_t *ds, address_t add, byte_t *buf, bytecount_t n);
  */
 static void _tx_bytes (ds2431_t *ds, byte_t *buf, bytecount_t n)
 {
-   for (int i=0 ; i<n ; ++i)
+   for (bytecount_t i=0 ; i<n ; ++i)
       ds->io.tx (ds->io.ow, buf[i]);
 }
 
@@ -65,7 +65,7 @@ static void _tx_bytes (ds2431_t *ds, byte_t *buf, bytecount_t n)
  */
 static void _rx_bytes (ds2431_t *ds, byte_t *buf, bytecount_t n)
 {
-   for (int i=0 ; i<n ; ++i)
+   for (bytecount_t i=0 ; i<n ; ++i)
       buf[i] = ds->io.rx (ds->io.ow);
 }
 
@@ -234,7 +234,6 @@ static drv_status_en _copy_scratchpad (ds2431_t *ds, ds2431_ar_t *ar)
 static drv_status_en _read_memory (ds2431_t *ds, address_t add, byte_t *buf, bytecount_t n)
 {
    drv_status_en r;
-   int i;
 
    /* Reset - PD - Select */
    if ( (r = _rst_select(ds)) != DRV_READY)
@@ -247,7 +246,7 @@ static drv_status_en _read_memory (ds2431_t *ds, address_t add, byte_t *buf, byt
    ds->io.tx (ds->io.ow, (uint8_t) ((0xFF00 & add) >> 8));
 
    /* Read memory */
-   for (i=0 ; i<n ; ++i) {
+   for (bytecount_t i=0 ; i<n ; ++i) {
       buf [i] = ds->io.rx (ds->io.ow);
    }
    return DRV_READY;

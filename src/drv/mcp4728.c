@@ -88,7 +88,7 @@ static drv_status_en _wait_busy (mcp4728_t *mcp)
       return DRV_READY;
 
    // Check busy pin in a loop with configured timeout
-   for (int i=0 ; mcp->io.bsy () ; ) {
+   for (uint32_t i=0 ; mcp->io.bsy () ; ) {
       jf_delay_us (10);
       if (++i >= mcp->conf.timeout * 100)
          return DRV_BUSY;
@@ -370,7 +370,7 @@ static drv_status_en _cmd_seq_write (mcp4728_t *mcp, mcp4728_channel_en from)
    word_t  w[4] = {0, 0, 0, 0};
    drv_status_en ret;
 
-   if (from < MCP4728_CH_A || from > MCP4728_CH_D)
+   if (from < MCP4728_CH_A || from > MCP4728_CH_ALL)
       return DRV_ERROR;
 
    // Send control byte
@@ -416,7 +416,7 @@ static drv_status_en _cmd_single_write (mcp4728_t *mcp, mcp4728_channel_en ch)
    byte_t    w[3] = {0, 0, 0};
    drv_status_en ret;
 
-   if (ch < MCP4728_CH_A || ch > MCP4728_CH_D)
+   if (ch < MCP4728_CH_A || ch > MCP4728_CH_ALL)
       return DRV_ERROR;
 
    // Data preparation

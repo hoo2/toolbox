@@ -275,9 +275,9 @@ int alcd_putchar (alcd_t *alcd, int ch)
    alcd->status = DRV_BUSY;
    // LCD Character dispatcher
    switch (ch) {
-      case 0:
+      //case 0:
          // don't send null termination to device
-         break;
+      //   break;
       case '\n':
          _inc_y (alcd);
          //break; This "no break" is intentional
@@ -497,7 +497,7 @@ __Os__ void alcd_shift (alcd_t *alcd, int pos)
 
 // Allows us to fill the first 8 CGRAM locations
 // with custom characters
-__Os__ void alcd_createChar (alcd_t *alcd, uint8_t location, uint8_t charmap[])
+/*__Os__*/ void alcd_createChar (alcd_t *alcd, uint8_t location, uint8_t charmap[])
 {
    location &= 0x7;        // we only have 8 locations 0-7
    _command (alcd, LCD_SETCGRAMADDR | (location << 3));

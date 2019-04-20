@@ -129,7 +129,7 @@ static uint8_t _read_bit (ow_bb_t *ow);
  *    \arg  -1    Register 2 is larger than register 1
  */
 static __O3__ int _cmp_u64 (uint8_t *reg1, uint8_t *reg2) {
-   uint8_t i;
+   int i;
    for (i=7 ; i>=0 ; --i) {
       if (reg1[i] > reg2[i])        return 1;   /* reg1 > reg2 */
       else if (reg1[i] < reg2[i])   return -1;  /* reg1 < reg2 */

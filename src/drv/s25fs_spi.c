@@ -484,7 +484,7 @@ drv_status_en s25fs_write (s25fs_t *drv, s25fs_idx_t idx, s25fs_data_t *buf, int
        * Each _writepage writes only until the page limit, so we
        * call _writepage until we have no more data to send.
        */
-   } while (wb < count);
+   } while (wb < (uint32_t)count);
 
    if ( !_wait_ready (drv) )
       return DRV_ERROR;
