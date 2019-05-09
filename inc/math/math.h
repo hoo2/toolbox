@@ -97,7 +97,7 @@ extern "C" {
 uint32_t _log2 (int32_t n) __O3__ ;
 uint32_t _pow2 (uint32_t e) __O3__ ;
 
-#ifdef __cpluaplua
+#ifdef __cplusplus
 }
 #endif
 
