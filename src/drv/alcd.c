@@ -275,9 +275,9 @@ int alcd_putchar (alcd_t *alcd, int ch)
    alcd->status = DRV_BUSY;
    // LCD Character dispatcher
    switch (ch) {
-      //case 0:
+      case 0:
          // don't send null termination to device
-      //   break;
+         break;
       case '\n':
          _inc_y (alcd);
          //break; This "no break" is intentional
