@@ -39,6 +39,7 @@ typedef uint32_t dword_t;        /*!< 32 bits wide */
 typedef uint32_t bytecount_t;    /*!< general counter */
 typedef uint32_t address_t;      /*!< general index/address type */
 
+typedef int32_t  iterator_t;     /*!< general iterator type */
 
 /*!
  * This is a toolbox wide generic driver status type.

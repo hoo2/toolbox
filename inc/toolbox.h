@@ -50,10 +50,16 @@ extern "C" {
  * \defgroup Algorithm
  */
 #include <algo/crc.h>
-#include <algo/queue.h>
 #include <algo/spa.h>
 #include <algo/spa_grena.h>
 #include <algo/psa.h>
+
+/*!
+ * \defgroup Containers
+ */
+#include <cont/queue.h>
+#include <cont/deque08.h>
+
 /*!
  * \defgroup Com
  */
