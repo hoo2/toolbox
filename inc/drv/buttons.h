@@ -29,7 +29,7 @@ extern "C" {
 #endif
 
 #include <tbx_ioctl.h>
-#include <algo/queue.h>
+#include <cont/queue.h>
 #include <stdint.h>
 #include <time.h>
 

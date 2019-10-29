@@ -26,22 +26,22 @@
  *  ============= Private Queue API =============
  */
 static iterator_t _preInc(deque08_t *q, iterator_t* it) {
-   return (++*it >= q->capacity_) ? *it=0 : *it;
+   return (++*it >= q->capacity) ? *it=0 : *it;
 }
 
 static iterator_t _preDec(deque08_t *q, iterator_t* it) {
-   return (++*it < 0) ? *it=q->capacity_-1 : *it;
+   return (--*it < 0) ? *it=q->capacity-1 : *it;
 }
 
 static iterator_t _postInc(deque08_t *q, iterator_t* it) {
    iterator_t ret = *it;
-   if (++*it >= q->capacity_) *it=0;
+   if (++*it >= q->capacity) *it=0;
    return ret;
 }
 
 static iterator_t _postDec(deque08_t *q, iterator_t* it) {
    iterator_t ret = *it;
-   if (++*it < 0) *it=q->capacity_-1;
+   if (--*it < 0) *it=q->capacity-1;
    return ret;
 }
 /*
@@ -69,8 +69,8 @@ inline void deque08_set_capacity (deque08_t *q, size_t capacity) {
 
 /*!
  * \brief
- *    Check if queue is full
- * \param   queue    Which queue to check
+ *    Check if deque is full
+ * \param   q     Which deque to check
  * \return
  *    \arg  0     Not full
  *    \arg  1     Full
@@ -81,8 +81,8 @@ __O3__ int deque08_is_full (deque08_t *q) {
 
 /*!
  * \brief
- *    Check if queue is empty
- * \param   queue    Which queue to check
+ *    Check if deque is empty
+ * \param   q     Which deque to check
  * \return
  *    \arg  0     Not empty
  *    \arg  1     Empty
@@ -93,8 +93,8 @@ __O3__ int deque08_is_empty (deque08_t *q) {
 
 /*!
  * \brief
- *    Return the number of items on queue
- * \param   queue    Which queue to check
+ *    Return the number of items on deque
+ * \param   q     Which deque to check
  */
 __O3__ int  deque08_size (deque08_t *q) {
    return q->items;
@@ -102,8 +102,8 @@ __O3__ int  deque08_size (deque08_t *q) {
 
 /*!
  * \brief
- *    Return the number of items on queue
- * \param   queue    Which queue to check
+ *    Discard all items in deque
+ * \param   q     Which deque to check
  */
 __Os__ void  deque08_flush (deque08_t *q) {
    deque08_init(q);
@@ -117,15 +117,16 @@ __Os__ void  deque08_flush (deque08_t *q) {
  * \param   queue    Which queue to init
  */
 __Os__ void deque08_init (deque08_t *q) {
-   q->f = 1;
-   q->r = 0;
+   q->f = 0;
+   q->r = -1;
    q->items =0;
 }
 
 /*!
   * \brief
   *   This function push a byte in front of deque.
-  * \param  byte to push
+  * \param  q  Pointer to deque to use
+  * \param  b  byte to push
   * \return
   *   \arg  0  Full queue
   *   \arg  1  Done
@@ -133,7 +134,7 @@ __Os__ void deque08_init (deque08_t *q) {
 __Os__ int deque08_push_front (deque08_t *q, byte_t b) {
    if (deque08_is_full (q) == 1)  //full queue
       return 0;
-   q->m [_preDec (&q->f)] = b;
+   q->m [_preDec (q, &q->f)] = b;
    ++q->items;
    return 1;
 }
@@ -141,14 +142,16 @@ __Os__ int deque08_push_front (deque08_t *q, byte_t b) {
 /*!
   * \brief
   *   This function pops a byte from the front of the deque.
+  * \param  q  Pointer to deque to use
+  * \param  b  Pointer to byte to return
   * \return
-  *   \arg  0  Full queue
+  *   \arg  0  Empty queue
   *   \arg  1  Done
  */
 __Os__ int deque08_pop_front (deque08_t *q, byte_t *b) {
-   if (deque08_is_empty (q) == 1)  //full queue
+   if (deque08_is_empty (q) == 1)  //empty queue
       return 0;
-   *b = q->m [_postInc (&q->f)];
+   *b = q->m [_postInc (q, &q->f)];
    --q->items;
    return 1;
 }
@@ -156,7 +159,8 @@ __Os__ int deque08_pop_front (deque08_t *q, byte_t *b) {
 /*!
   * \brief
   *   This function push a byte in the back of deque.
-  * \param  byte to push
+  * \param  q  Pointer to deque to use
+  * \param  b  byte to push
   * \return
   *   \arg  0  Full queue
   *   \arg  1  Done
@@ -164,7 +168,7 @@ __Os__ int deque08_pop_front (deque08_t *q, byte_t *b) {
 __Os__ int deque08_push_back (deque08_t *q, byte_t b) {
    if (deque08_is_full (q) == 1)  //full queue
       return 0;
-   q->m [_preInc (&q->r)] = b;
+   q->m [_preInc (q, &q->r)] = b;
    ++q->items;
    return 1;
 }
@@ -172,16 +176,48 @@ __Os__ int deque08_push_back (deque08_t *q, byte_t b) {
 /*!
   * \brief
   *   This function pops a byte from the back of the deque.
+  * \param  q  Pointer to deque to use
+  * \param  b  Pointer to byte to return
   * \return
-  *   \arg  0  Full queue
+  *   \arg  0  Empty queue
   *   \arg  1  Done
  */
 __Os__ int deque08_pop_back (deque08_t *q, byte_t *b) {
-   if (deque08_is_empty (q) == 1)  //full queue
+   if (deque08_is_empty (q) == 1)  //empty queue
       return 0;
-   *b = q->m [_postDec (&q->r)];
+   *b = q->m [_postDec (q, &q->r)];
    --q->items;
    return 1;
 }
 
+/*!
+  * \brief
+  *   This function gives the last item in the back of deque.
+  * \param  q  Pointer to deque to use
+  * \param  b  Pointer to byte to return
+  * \return
+  *   \arg  0  Empty queue
+  *   \arg  1  Done
+ */
+__Os__ int deque08_back (deque08_t *q, byte_t *b) {
+   if (deque08_is_empty (q) == 1)  //empty queue
+      return 0;
+   *b = q->m [q->r];
+   return 1;
+}
 
+/*!
+  * \brief
+  *   This function gives the first item in the front of deque.
+  * \param  q  Pointer to deque to use
+  * \param  b  Pointer to byte to return
+  * \return
+  *   \arg  0  Empty queue
+  *   \arg  1  Done
+ */
+__Os__ int deque08_front (deque08_t *q, byte_t *b) {
+   if (deque08_is_empty (q) == 1)  //empty queue
+      return 0;
+   *b = q->m [q->f];
+   return 1;
+}
