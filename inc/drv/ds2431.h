@@ -43,7 +43,8 @@ extern "C" {
 
 /* ================   General Defines   ====================*/
 
-#define  DS2431_SCRATCHPAD_SIZE     (8)   /*!< 8 byte */
+#define  DS2431_SCRATCHPAD_SIZE     (8)      // 8 bytes
+#define  DS2431_MAX_SIZE            (128)    // 128 bytes
 
 /*
  * DS2431 Commands

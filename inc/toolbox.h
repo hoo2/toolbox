@@ -104,6 +104,7 @@ extern "C" {
 #include <drv/ss_display.h>
 #include <drv/s25fs_spi.h>
 #include <drv/ds2431.h>
+#include <drv/ds28ec20.h>
 
 #include <drv/tca953x.h>
 #include <drv/mcp4728.h>
