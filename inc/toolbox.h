@@ -69,7 +69,7 @@ extern "C" {
 #include <com/onewire_bb.h>
 #include <com/onewire_uart.h>
 #include <com/nmea.h>
-
+#include <com/serializer.h>
 
 /*!
  * \defgroup Cryptography
