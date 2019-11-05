@@ -48,16 +48,23 @@ extern "C" {
  *    struct S {
  *       int8_t   u8;
  *       uint32_t c;
- *    };
+ *    }s;
  *    char     str[20];
- * } serTest;
+ * };
+ * struct SerTest serTest = {
+ *    .a = 0x11223344,
+ *    .b = {0, 1, 2, 3, 4},
+ *    .f = 2.0,
+ *    .s = { .u8 = 0x10, .c  = 0x10000000 },
+ *    .str = {'h', 'e', 'l', 'l', 'o'},
+ * };
  *
  * const ser_schema_t sch[] = {
  *    {s_i32, 1, _member_offset(serTest, a)},
  *    {s_u32, 5, _member_offset(serTest, b)},
  *    {s_f32, 1, _member_offset(serTest, f)},
- *    {s_i8,  1, _member_offset(serTest, S.u8)},
- *    {s_u32, 1, _member_offset(serTest, S.c)},
+ *    {s_i8,  1, _member_offset(serTest, s.u8)},
+ *    {s_u32, 1, _member_offset(serTest, s.c)},
  *    {s_i8, 20, _member_offset(serTest, str)},
  *    {0,0,0}
  * };
@@ -74,13 +81,17 @@ typedef struct {
    enum {
       s_none=0, s_pad, s_u8, s_u16, s_u32, s_u64, s_i8, s_i16, s_i32, s_i64, s_f32, s_f64,
    }           type;    //!< Type of data to transfer
-   size_t      times;   //!< How many times to repeat the current
+   size_t      times;   //!< How many times to repeat the current, while advancing offset
+                        //!  This is used for arrays
    size_t      offset;  //!< Pointer offset of the current struct member
 }ser_schema_t;
 
+/*!
+ * Endian selector enumerator
+ */
 typedef enum {
-   SER_BIG_ENDIAN =0,
-   SER_LITTLE_ENDIAN
+   SER_BIG_ENDIAN =0,   //!< Select BIG_ENDIAN
+   SER_LITTLE_ENDIAN    //!< Select LITTLE_ENDIAN
 }ser_endian_en;
 
 size_t serialize_size (const ser_schema_t* schema);

@@ -26,22 +26,22 @@
 
 //! serialize a byte in big endian from \p from to \p to and return 1
 static size_t _ser_bigen8 (void *to, void *from) {
-   *(uint8_t*)to = *(uint8_t*)from;
+   *(uint8_t*)to = *(uint8_t*)from;       // pass through
    return 1;
 }
 
 //! serialize 16bit data in big endian from \p from to \p to and return 2
 static size_t _ser_bigen16 (void *to, void *from) {
-   uint16_t f = *(uint16_t*)from;
-   *(uint8_t*)to++ = (uint8_t) (f >> 8);
+   uint16_t f = *(uint16_t*)from;         // copy to local, trust from's memory layout
+   *(uint8_t*)to++ = (uint8_t) (f >> 8);  // MSB first
    *(uint8_t*)to   = (uint8_t) (f);
    return 2;
 }
 
 //! serialize 32bit data in big endian from \p from to \p to and return 4
 static size_t _ser_bigen32 (void *to, void *from) {
-   uint32_t f = *(uint32_t*)from;
-   *(uint8_t*)to++ = (uint8_t) (f >> 24);
+   uint32_t f = *(uint32_t*)from;         // copy to local, trust from's memory layout
+   *(uint8_t*)to++ = (uint8_t) (f >> 24); // MSB first
    *(uint8_t*)to++ = (uint8_t) (f >> 16);
    *(uint8_t*)to++ = (uint8_t) (f >> 8);
    *(uint8_t*)to   = (uint8_t) (f);
@@ -50,8 +50,8 @@ static size_t _ser_bigen32 (void *to, void *from) {
 
 //! serialize 64bit data in big endian from \p from to \p to and return 8
 static size_t _ser_bigen64 (void *to, void *from) {
-   uint64_t f = *(uint64_t*)from;
-   *(uint8_t*)to++ = (uint8_t) (f >> 56);
+   uint64_t f = *(uint64_t*)from;         // copy to local, trust from's memory layout
+   *(uint8_t*)to++ = (uint8_t) (f >> 56); // MSB first
    *(uint8_t*)to++ = (uint8_t) (f >> 48);
    *(uint8_t*)to++ = (uint8_t) (f >> 40);
    *(uint8_t*)to++ = (uint8_t) (f >> 32);
@@ -64,22 +64,22 @@ static size_t _ser_bigen64 (void *to, void *from) {
 
 //! serialize a byte in little endian from \p from to \p to and return 1
 static size_t _ser_liten8 (void *to, void *from) {
-   *(uint8_t*)to = *(uint8_t*)from;
+   *(uint8_t*)to = *(uint8_t*)from;       // pass through
    return 1;
 }
 
 //! serialize 16bit data in little endian from \p from to \p to and return 2
 static size_t _ser_liten16 (void *to, void *from) {
-   uint16_t f = *(uint16_t*)from;
-   *(uint8_t*)to++ = (uint8_t) (f);
+   uint16_t f = *(uint16_t*)from;         // copy to local, trust from's memory layout
+   *(uint8_t*)to++ = (uint8_t) (f);       // LSB first
    *(uint8_t*)to   = (uint8_t) (f >> 8);
    return 2;
 }
 
 //! serialize 32bit data in little endian from \p from to \p to and return 4
 static size_t _ser_liten32 (void *to, void *from) {
-   uint32_t f = *(uint32_t*)from;
-   *(uint8_t*)to++ = (uint8_t) (f);
+   uint32_t f = *(uint32_t*)from;         // copy to local, trust from's memory layout
+   *(uint8_t*)to++ = (uint8_t) (f);       // LSB first
    *(uint8_t*)to++ = (uint8_t) (f >> 8);
    *(uint8_t*)to++ = (uint8_t) (f >> 16);
    *(uint8_t*)to   = (uint8_t) (f >> 24);
@@ -88,8 +88,8 @@ static size_t _ser_liten32 (void *to, void *from) {
 
 //! serialize 64bit data in little endian from \p from to \p to and return 8
 static size_t _ser_liten64 (void *to, void *from) {
-   uint64_t f = *(uint64_t*)from;
-   *(uint8_t*)to++ = (uint8_t) (f);
+   uint64_t f = *(uint64_t*)from;         // copy to local, trust from's memory layout
+   *(uint8_t*)to++ = (uint8_t) (f);       // LSB first
    *(uint8_t*)to++ = (uint8_t) (f >> 8);
    *(uint8_t*)to++ = (uint8_t) (f >> 16);
    *(uint8_t*)to++ = (uint8_t) (f >> 24);
@@ -102,13 +102,16 @@ static size_t _ser_liten64 (void *to, void *from) {
 
 //! deserialize a byte in big endian from \p from to \p to and return 1
 static size_t _deser_bigen8 (void *to, void *from) {
-   *(uint8_t*)to = *(uint8_t*)from;
+   *(uint8_t*)to = *(uint8_t*)from;       // pass through
    return 1;
 }
 
 //! deserialize 16bit data in big endian from \p from to \p to and return 2
 static size_t _deser_bigen16 (void *to, void *from) {
-   uint16_t f = *(uint16_t*)from;
+   uint16_t f;
+   // copy to local, don't trust from's memory layout
+   memcpy ((void*)&f, from, sizeof (uint16_t));
+   // f's LSB eventually will end-up to output's MSB
    *(uint16_t*)to  = (uint8_t) (f);       *(uint16_t*)to <<= 8;
    *(uint16_t*)to |= (uint8_t) (f >> 8);
    return 2;
@@ -116,7 +119,10 @@ static size_t _deser_bigen16 (void *to, void *from) {
 
 //! deserialize 32bit data in big endian from \p from to \p to and return 4
 static size_t _deser_bigen32 (void *to, void *from) {
-   uint32_t f = *(uint32_t*)from;
+   uint32_t f;
+   // copy to local, don't trust from's memory layout
+   memcpy ((void*)&f, from, sizeof (uint32_t));
+   // f's LSB eventually will end-up to output's MSB
    *(uint32_t*)to  = (uint8_t) (f);       *(uint32_t*)to <<= 8;
    *(uint32_t*)to |= (uint8_t) (f >> 8);  *(uint32_t*)to <<= 8;
    *(uint32_t*)to |= (uint8_t) (f >> 16); *(uint32_t*)to <<= 8;
@@ -126,7 +132,10 @@ static size_t _deser_bigen32 (void *to, void *from) {
 
 //! deserialize 64bit data in big endian from \p from to \p to and return 8
 static size_t _deser_bigen64 (void *to, void *from) {
-   uint64_t f = *(uint64_t*)from;
+   uint64_t f;
+   // copy to local, don't trust from's memory layout
+   memcpy ((void*)&f, from, sizeof (uint64_t));
+   // f's LSB eventually will end-up to output's MSB
    *(uint64_t*)to  = (uint8_t) (f);       *(uint64_t*)to <<= 8;
    *(uint64_t*)to |= (uint8_t) (f >> 8);  *(uint64_t*)to <<= 8;
    *(uint64_t*)to |= (uint8_t) (f >> 16); *(uint64_t*)to <<= 8;
@@ -140,13 +149,16 @@ static size_t _deser_bigen64 (void *to, void *from) {
 
 //! deserialize a byte in little endian from \p from to \p to and return 1
 static size_t _deser_liten8 (void *to, void *from) {
-   *(uint8_t*)to = *(uint8_t*)from;
+   *(uint8_t*)to = *(uint8_t*)from;       // pass through
    return 1;
 }
 
 //! deserialize 16bit data in little endian from \p from to \p to and return 2
 static size_t _deser_liten16 (void *to, void *from) {
-   uint16_t f = *(uint16_t*)from;
+   uint16_t f;
+   // copy to local, don't trust from's memory layout
+   memcpy ((void*)&f, from, sizeof (uint16_t));
+   // f's MSB eventually will end-up to output's MSB
    *(uint16_t*)to  = (uint8_t) (f >> 8);  *(uint16_t*)to <<= 8;
    *(uint16_t*)to |= (uint8_t) (f);
    return 2;
@@ -154,7 +166,10 @@ static size_t _deser_liten16 (void *to, void *from) {
 
 //! deserialize 32bit data in little endian from \p from to \p to and return 4
 static size_t _deser_liten32 (void *to, void *from) {
-   uint32_t f = *(uint32_t*)from;
+   uint32_t f;
+   // copy to local, don't trust from's memory layout
+   memcpy ((void*)&f, from, sizeof (uint32_t));
+   // f's MSB eventually will end-up to output's MSB
    *(uint32_t*)to  = (uint8_t) (f >> 24); *(uint32_t*)to <<= 8;
    *(uint32_t*)to |= (uint8_t) (f >> 16); *(uint32_t*)to <<= 8;
    *(uint32_t*)to |= (uint8_t) (f >> 8);  *(uint32_t*)to <<= 8;
@@ -164,7 +179,10 @@ static size_t _deser_liten32 (void *to, void *from) {
 
 //! deserialize 64bit data in little endian from \p from to \p to and return 8
 static size_t _deser_liten64 (void *to, void *from) {
-   uint64_t f = *(uint64_t*)from;
+   uint64_t f;
+   // copy to local, don't trust from's memory layout
+   memcpy ((void*)&f, from, sizeof (uint64_t));
+   // f's MSB eventually will end-up to output's MSB
    *(uint64_t*)to  = (uint8_t) (f >> 56); *(uint64_t*)to <<= 8;
    *(uint64_t*)to |= (uint8_t) (f >> 48); *(uint64_t*)to <<= 8;
    *(uint64_t*)to |= (uint8_t) (f >> 40); *(uint64_t*)to <<= 8;
