@@ -24,15 +24,15 @@
 
 #include <drv/alcd.h>
 
-static  int _inc_x (alcd_t *alcd) __Os__ ;
-static  int _dec_x (alcd_t *alcd) __Os__ ;
-static void _inc_y (alcd_t *alcd) __Os__ ;
-static void _dec_y (alcd_t *alcd) __Os__ ;
-static void _set_bus (alcd_t *alcd, int8_t db) __Os__ ;
-static void _write_data (alcd_t *alcd, int8_t data) __Os__ ;
-static void _command (alcd_t *alcd, uint8_t c) __Os__ ;
-static void _character (alcd_t *alcd, uint8_t c) __Os__ ;
-static void _set_cursor (alcd_t *alcd, uint8_t x, uint8_t y) __Os__ ;
+static  int _inc_x (alcd_t *alcd);
+static  int _dec_x (alcd_t *alcd);
+static void _inc_y (alcd_t *alcd);
+static void _dec_y (alcd_t *alcd);
+static void _set_bus (alcd_t *alcd, int8_t db);
+static void _write_data (alcd_t *alcd, int8_t data);
+static void _command (alcd_t *alcd, uint8_t c);
+static void _character (alcd_t *alcd, uint8_t c);
+static void _set_cursor (alcd_t *alcd, uint8_t x, uint8_t y);
 
 
 /*!
@@ -355,7 +355,7 @@ void alcd_set_columns (alcd_t *alcd, int columns) {
  * \param  alcd   pointer to active alcd.
  * \return none
  */
-__Os__ void alcd_deinit (alcd_t *alcd)
+void alcd_deinit (alcd_t *alcd)
 {
    memset ((void*)alcd, 0, sizeof (alcd_t));
    /*!<
@@ -369,7 +369,7 @@ __Os__ void alcd_deinit (alcd_t *alcd)
  * \param  alcd   pointer to active alcd.
  * \return Zero on success, non zero on error
  */
-__Os__ drv_status_en alcd_init (alcd_t *alcd, alcd_funset_en fs)
+drv_status_en alcd_init (alcd_t *alcd, alcd_funset_en fs)
 {
    #define _lcd_assert(_x)  if (!_x) return alcd->status = DRV_ERROR;
 
@@ -433,7 +433,7 @@ __Os__ drv_status_en alcd_init (alcd_t *alcd, alcd_funset_en fs)
  *    \arg 1      enable the backlight
  * \return none
  */
-__Os__ void alcd_backlight (alcd_t *alcd, uint8_t on) {
+void alcd_backlight (alcd_t *alcd, uint8_t on) {
    if (alcd->io.bl)
       alcd->io.bl ((on)?1:0);
 }
@@ -447,7 +447,7 @@ __Os__ void alcd_backlight (alcd_t *alcd, uint8_t on) {
  *    \arg 1      enable the backlight
  * \return none
  */
-__Os__ void alcd_enable (alcd_t *alcd, uint8_t on)
+void alcd_enable (alcd_t *alcd, uint8_t on)
 {
    if (on) {
       _command (alcd, LCD_DISP_ON);
@@ -464,7 +464,7 @@ __Os__ void alcd_enable (alcd_t *alcd, uint8_t on)
  * \param  alcd   pointer to active alcd.
  * \return none
  */
-__Os__ void alcd_cls (alcd_t *alcd)
+void alcd_cls (alcd_t *alcd)
 {
    _command(alcd, LCD_CLRSCR);
    jf_delay_us(2000);
@@ -481,7 +481,7 @@ __Os__ void alcd_cls (alcd_t *alcd)
  *    A negative number shifts lcd data to right, so screen shows the data in the left.
  * \return none
  */
-__Os__ void alcd_shift (alcd_t *alcd, int pos)
+void alcd_shift (alcd_t *alcd, int pos)
 {
    uint8_t i, cmd = LCD_SHIFT_LEFT;
 
@@ -525,7 +525,7 @@ __Os__ void alcd_shift (alcd_t *alcd, int pos)
  *    \arg DRV_READY
  *    \arg DRV_ERROR
  */
-__Os__ drv_status_en  alcd_ioctl (alcd_t *alcd, ioctl_cmd_t cmd, ioctl_data_t data)
+drv_status_en  alcd_ioctl (alcd_t *alcd, ioctl_cmd_t cmd, ioctl_data_t data)
 {
    switch (cmd) {
       case CTRL_GET_STATUS:            /*!< Probe function */

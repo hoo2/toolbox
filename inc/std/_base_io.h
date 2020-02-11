@@ -93,6 +93,7 @@ typedef enum
  * Enumerator for supported types.
  * \note
  *   The order must match the one found in pr_let \sa pr_let
+ *   const char pr_let[_IO_NUM_OF_TYPES] = "cdeEfgGilLosuxX";
  */
 typedef enum
 {
