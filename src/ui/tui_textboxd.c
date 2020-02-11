@@ -62,7 +62,7 @@ __Os__ static void _mk_frame (tuid_t *tuid, char* str)
    if (_tuix_clear_frame (&tuid->frame_buffer))
       return;
    // Print text
-   offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)], ":%s<", str);
+   offset = sprintf ((char*)&tuid->frame_buffer.fb[_LINE(1)], ">%s<", str);
    // discard null termination inside frame buffer's body
    tuid->frame_buffer.fb[_LINE(1)+offset] = ' ';
    // Keep null termination at end of each line
@@ -189,7 +189,8 @@ __Os__ ui_return_t tui_textboxd (tuid_t *tuid, int key, text_t cap, char* str, i
    }
 
    // Paint the screen
-   _mk_frame (tuid, bf);
+   int st = i - (tuid->frame_buffer.c-3);  //3 characters: ':',"<" and '\0'
+   _mk_frame (tuid, (st<0) ? bf : &bf[st]);
    return EXIT_STAY;
 }
 

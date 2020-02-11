@@ -40,7 +40,7 @@ extern "C" {
  */
 
 #define  UI_CALLMENU_SIZE     (6)
-#define  UI_TEXTBOX_SIZE      (14)
+#define  UI_TEXTBOX_SIZE      (42)
 #define  UI_TIMEBOX_SIZE      (12)
 
 /*
