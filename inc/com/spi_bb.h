@@ -45,7 +45,7 @@ extern "C" {
 #define  SPI_CPOL_IDLE_HIGH      (1)
 #define  SPI_CPHA_1ST_EDGE       (0)
 #define  SPI_CPHA_2ND_EDGE       (1)
-#define  SPI_NSS_SOFT            (0)
+//#define  SPI_NSS_SOFT            (0)
 #define  SPI_NSS_HARD            (1)
 
 
