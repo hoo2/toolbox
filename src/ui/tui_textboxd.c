@@ -120,7 +120,7 @@ __O3__ static int _strcpy (char* to, const char* from, int size)
  * ENTER_L --    Return the string as is (don't need to reach the end).
  * ESC     --    Returns the string "as is"
  */
-__Os__ ui_return_t tui_textboxd (tuid_t *tuid, int key, text_t cap, char* str, int size)
+__Os__ ui_return_t tui_textboxd (tuid_t *tuid, int key, text_t cap, char* str, int size, int edit)
 {
    static int ev=1;
    static int8_t i=0;
@@ -140,7 +140,7 @@ __Os__ ui_return_t tui_textboxd (tuid_t *tuid, int key, text_t cap, char* str, i
    }
 
    //Navigating
-   if (key == tuid->keys.UP)
+   if (edit && key == tuid->keys.UP)
       // Increment character
       do
          bf[i]++;
@@ -148,7 +148,7 @@ __Os__ ui_return_t tui_textboxd (tuid_t *tuid, int key, text_t cap, char* str, i
               bf[i]!='-' &&
               bf[i]!='_' &&
               bf[i]!=' ');
-   if (key == tuid->keys.DOWN)
+   if (edit && key == tuid->keys.DOWN)
       // Decrement character
       do
          bf[i]--;
@@ -158,7 +158,8 @@ __Os__ ui_return_t tui_textboxd (tuid_t *tuid, int key, text_t cap, char* str, i
               bf[i]!=' ');
    if (key == tuid->keys.LEFT) {
       // Manual backspace
-      bf[i] = 0;
+      if (edit)
+         bf[i] = 0;
       if (--i<0) {
          ev=1;
          return EXIT_RETURN;
@@ -173,8 +174,10 @@ __Os__ ui_return_t tui_textboxd (tuid_t *tuid, int key, text_t cap, char* str, i
          return EXIT_RETURN;
       }
       // Copy the previous character
-      if (!bf[i])  bf[i] = bf[i-1];
-      bf[i+1] = 0;
+      if (edit) {
+         if (!bf[i])  bf[i] = bf[i-1];
+         bf[i+1] = 0;
+      }
    }
    if (key == tuid->keys.ENTER_L) {
       // Return this string
