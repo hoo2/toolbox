@@ -31,17 +31,19 @@ extern "C" {
 /*
  * Custom character maps
  */
-//#define _make_c_D(_ch_map) \
-//   uint8_t _ch_map[8] = {  \
-//      0b00100,             \
-//      0b01010,             \
-//      0b01010,             \
-//      0b10001,             \
-//      0b10001,             \
-//      0b10001,             \
-//      0b11111,             \
-//      0b00000              \
-//   }
+/*
+#define _make_c_D(_ch_map) \
+   uint8_t _ch_map[8] = {  \
+      0b00100,             \
+      0b01010,             \
+      0b01010,             \
+      0b10001,             \
+      0b10001,             \
+      0b10001,             \
+      0b11111,             \
+      0b00000              \
+   }
+*/
 
 #define _make_c_TH(_ch_map) \
    uint8_t _ch_map[8] = {  \
@@ -153,19 +155,19 @@ extern "C" {
       _make_c_Y(_c_Y_map);                      \
       _make_c_W(_c_W_map);                      \
       _make_c_pow3(_c_pow3_map);                \
-      alcd_createChar(&_alcd, 1, _c_TH_map);    \
-      alcd_createChar(&_alcd, 2, _c_L_map);     \
-      alcd_createChar(&_alcd, 3, _c_J_map);     \
-      alcd_createChar(&_alcd, 4, _c_S_map);     \
-      alcd_createChar(&_alcd, 5, _c_Y_map);     \
-      alcd_createChar(&_alcd, 6, _c_W_map);     \
-      alcd_createChar(&_alcd, 7, _c_pow3_map);  \
+      alcd_createChar(&_alcd_, 1, _c_TH_map);    \
+      alcd_createChar(&_alcd_, 2, _c_L_map);     \
+      alcd_createChar(&_alcd_, 3, _c_J_map);     \
+      alcd_createChar(&_alcd_, 4, _c_S_map);     \
+      alcd_createChar(&_alcd_, 5, _c_Y_map);     \
+      alcd_createChar(&_alcd_, 6, _c_W_map);     \
+      alcd_createChar(&_alcd_, 7, _c_pow3_map);  \
    } while(0)
 
 /*
  * Display's Character translation
  */
-#define  _Deg_     " "        // Degrese
+#define  _Deg_     "\'"       // Degree
 #define  _pow2_    " "        // ^2
 #define  _pow3_    _c_pow3_   // ^3
 #define  _A_       "A"
