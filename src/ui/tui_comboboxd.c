@@ -192,8 +192,8 @@ __Os__ ui_return_t tui_line_comboboxd (tuid_t *tuid, int live, int key, combobox
       *id = items[i].id;
 
    // UI loop - Navigating
-   if (key == tuid->keys.UP)     _cmb_prev_item (items, &i);
-   if (key == tuid->keys.DOWN)   _cmb_next_item (items, &i);
+   if (key == tuid->keys.UP)     _cmb_next_item (items, &i);
+   if (key == tuid->keys.DOWN)   _cmb_prev_item (items, &i);
    if (key == tuid->keys.ESC || key == tuid->keys.LEFT) {
       // Restore previous value
       *id = items[cur].id;

@@ -101,7 +101,7 @@ __Os__ static void _mk_line (tuid_t *tuid, float v, int width, int dec, text_t u
       offset = sprintf ((char*)tuid->frame_buffer.fb, "%*.*f", width, dec, v);
 
    if (*units != 0)
-      offset += sprintf ((char*)(tuid->frame_buffer.fb+offset), " %s", (char*)units);
+      offset += sprintf ((char*)(tuid->frame_buffer.fb+offset), "%s", (char*)units);
 
    // discard null termination inside frame buffer
    tuid->frame_buffer.fb[offset] = ' ';
