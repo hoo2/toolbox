@@ -60,6 +60,7 @@ extern "C" {
 #include <cont/queue.h>
 #include <cont/deque08.h>
 #include <cont/queue08.h>
+#include <cont/span08.h>
 
 /*!
  * \defgroup Com
