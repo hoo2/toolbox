@@ -32,8 +32,8 @@ extern "C" {
 
 #include <cont/deque08.h>
 
-typedef deque08_t    queue08_t;
-
+typedef deque08_t          queue08_t;
+typedef deque_callback_ft  queue_callback_ft;
 
 /*
  *  ============= PUBLIC EE API =============
@@ -49,7 +49,8 @@ void queue08_link_buffer (queue08_t *q, byte_t* buf);
  * Set functions
  */
 void queue08_set_capacity (queue08_t *q, size_t capacity);
-
+bool queue08_set_trigger (deque08_t *q, deque_callback_ft callback, trigger_mode_en mode, size_t value);
+void queue08_clear_trigger (deque08_t *q);
 /*
  * User Functions
  */
@@ -60,8 +61,10 @@ void queue08_flush (queue08_t *q);
 
 void queue08_init (queue08_t *q);
 int  queue08_push (queue08_t *q, byte_t b);
+int  queue08_vpush (queue08_t *q, size_t num, ...);
 int  queue08_pop (queue08_t *q, byte_t *b);
 
+bool queue08_check_trigger (queue08_t *q);
 
 #ifdef __cplusplus
 }

@@ -40,6 +40,14 @@ inline void queue08_set_capacity (queue08_t *q, size_t capacity) {
    deque08_set_capacity(q, capacity);
 }
 
+inline bool queue08_set_trigger (queue08_t *q, deque_callback_ft callback, trigger_mode_en mode, size_t value) {
+   return deque08_set_trigger (q, callback, mode, value);
+}
+
+inline void queue08_clear_trigger (queue08_t *q) {
+   deque08_clear_trigger(q);
+}
+
 /*
  * User Functions
  */
@@ -111,6 +119,23 @@ __Os__ int queue08_push (queue08_t *q, byte_t b) {
 }
 
 /*!
+ * \brief
+ *   This function push an arbitrary number of bytes to the back of queue.
+ * \param  q     Pointer to deque to use
+ * \param  num   number of bytes to push
+ * \return
+ *   \arg  0  Full queue
+ *   \arg  1  Done
+ */
+__Os__ int queue08_vpush (queue08_t *q, size_t num, ...) {
+   va_list args;
+   va_start(args, num);
+   int ret = deque08_vpush_back(q, num, args);
+   va_end(args);
+   return ret;
+}
+
+/*!
   * \brief
   *   This function pops a byte from the queue.
   * \param  q  Pointer to queue to use
@@ -147,4 +172,8 @@ __Os__ int queue08_back (queue08_t *q, byte_t *b) {
  */
 __Os__ int queue08_front (queue08_t *q, byte_t *b) {
    return deque08_front (q, b);
+}
+
+__Os__ inline bool queue08_check_trigger (queue08_t *q) {
+   return deque08_check_trigger(q);
 }
