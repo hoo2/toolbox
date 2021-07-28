@@ -35,7 +35,7 @@
  * Semaphore data type
  */
 typedef struct {
-   int val;          /*!< Semaphore value. */
+   volatile int val;          /*!< Semaphore value. */
 }sem_t;
 
 /*

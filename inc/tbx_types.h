@@ -29,6 +29,8 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
 #include <tbx_ioctl.h>
 
 
@@ -48,12 +50,14 @@ typedef int32_t  iterator_t;     /*!< general iterator type */
  *    module/device will automatically set to NOINIT state.
  */
 typedef enum {
-   DRV_NODEV=-1,     /*!< No device/module */                      //!< DRV_NODEV
-   DRV_NOINIT=0,     /*!< Module/Device exist but no initialized *///!< DRV_NOINIT
-   DRV_READY,        /*!< Module/Device initialized succesfully */ //!< DRV_READY
-   DRV_BUSY,         /*!< Module/Device busy */                    //!< DRV_BUSY
+   DRV_NODEV=-1,     /*!< No device/module */
+   DRV_NOINIT=0,     /*!< Module/Device exist but no initialized */
+   DRV_READY,        /*!< Module/Device initialized succesfully */
+   DRV_BUSY,         /*!< Module/Device busy */
+   DRV_TIMEOUT,      /*!< Module/Device timeout */
+   DRV_AWAIT,
    //DRV_COMPLETE,     /*!< Module/device operation complete status */
-   DRV_ERROR         /*!< Module/Device error */                   //!< DRV_ERROR
+   DRV_ERROR         /*!< Module/Device error */
 }drv_status_en;
 
 

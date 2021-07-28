@@ -100,7 +100,7 @@ size_t deserialize (void* to, void* from, const ser_schema_t* schema, ser_endian
 
 
 #ifdef __cplusplus
-extern }
+}
 #endif
 
 #endif /* __serializer_h__ */
