@@ -110,6 +110,7 @@ extern "C" {
 #include <drv/tca953x.h>
 #include <drv/mcp4728.h>
 
+#include <drv/cr95hf.h>
 
 /*!
  * \defgroup DSP
